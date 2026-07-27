@@ -1,0 +1,116 @@
+:root {
+  --bg: #12161c;
+  --text: #e6e8eb;
+  --muted: #9aa3ad;
+  --accent: #3d7a8c;
+  --border: #2a313a;
+  --placeholder: #2c333c;
+  --radius: 4px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--accent);
+}
+
+a:hover,
+a:focus-visible {
+  color: var(--text);
+}
+
+header,
+main,
+footer {
+  max-width: 64rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+header {
+  padding-block: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-list a {
+  text-decoration: none;
+}
+
+.nav-list a:hover,
+.nav-list a:focus-visible {
+  text-decoration: underline;
+}
+
+main {
+  padding-block: 2rem;
+}
+
+footer {
+  padding-block: 1.5rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+footer p {
+  margin: 0;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  background: var(--placeholder);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  text-align: center;
+  padding: 0.75rem;
+}
+
+.placeholder--hero {
+  width: 100%;
+  min-height: 120px;
+}
+
+.placeholder--role {
+  width: 100%;
+  min-height: 48px;
+}
+
+.placeholder--headshot {
+  width: 400px;
+  max-width: 100%;
+  height: 400px;
+  max-height: min(400px, 100vw);
+}
+
+.placeholder--ctas {
+  width: 100%;
+  min-height: 64px;
+}
