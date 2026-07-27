@@ -1,0 +1,25 @@
+# .cursor/rules/project.mdc
+
+These constraints apply to every change in this repo. Do not violate them
+even if a prompt doesn't repeat them.
+
+- Never add a JS framework, CSS framework, or bundler (React, Vue, Tailwind,
+  Bootstrap, webpack, esbuild) without being explicitly asked in the prompt.
+- Never add a client-side JS dependency without checking ARCHITECTURE.md
+  and SPEC.md first — this site ships no JS by default.
+- Any animation must follow DESIGN.md's motion rules exactly, including the
+  prefers-reduced-motion gating.
+- Follow the file structure in ARCHITECTURE.md. Don't create new top-level
+  folders or restructure existing ones without asking.
+- Before making changes across more than one file, propose a short plan and
+  wait for approval (use Plan mode).
+- After any change, confirm the page still renders correctly and is fully
+  navigable with JavaScript disabled.
+- Prefer the simplest implementation. If you're about to add a dependency
+  to solve something, pause and ask whether plain HTML/CSS/Eleventy can do
+  it first.
+- Treat the "Explicitly banned patterns" list in DESIGN.md as hard
+  constraints, not suggestions. If you're about to add a gradient, a blob
+  shape, a glassmorphism card, or a drop-shadow-on-everything look, stop —
+  that's the wrong direction for this project even if it looks polished in
+  isolation. When in doubt, prefer plainer and flatter over more decorated.

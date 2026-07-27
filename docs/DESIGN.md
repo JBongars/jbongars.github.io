@@ -1,0 +1,78 @@
+# DESIGN.md
+
+## Visual direction
+
+Dark mode only (no toggle). Professional security/DevSecOps tone —
+NOT a "hacker" aesthetic: no matrix green, no terminal glitch effects,
+no neon, no scanline textures. Reference tone: early Codecademy
+(2010-2013) — clean, confident, approachable.
+
+## Color
+
+- Background: near-black charcoal/navy (not pure #000).
+- One muted accent color used sparingly for links/highlights — deep teal
+  or slate blue. No gradients anywhere.
+
+## Typography
+
+- Body/headings: system font stack, no web font download.
+- Monospace: accents only (tags, dates, small labels) — never body copy.
+
+## Imagery
+
+- Real photos over icons or vector illustrations wherever possible:
+  headshot in the hero, real screenshots for projects.
+- No decorative SVG illustrations.
+
+## Motion
+
+- CSS-only. No JS animation library.
+- Every animated/hidden state must live inside
+  `@media (prefers-reduced-motion: no-preference)` so a browser that doesn't
+  support the query just renders the element normally, fully visible.
+- Allowed: fade/rise-in on load for hero and section titles, gentle hover
+  lift + shadow on cards, animated underline on link hover.
+- Not allowed: parallax, scroll-jacking, autoplaying carousels, anything
+  that draws attention to itself.
+
+## Hard requirement
+
+Every page must be fully readable and navigable with JavaScript disabled.
+Test this before considering any page done.
+
+## Explicitly banned patterns
+
+These are the tells that make a site look AI-generated/vibe-coded at a
+glance. None of these are permitted, even as a "subtle" version:
+
+- Any purple-to-blue, pink-to-purple, or blue-to-teal gradient, on
+  backgrounds, buttons, text, or borders. No gradients, period — this was
+  already a rule, restating because it's the single biggest tell.
+- Abstract blob shapes, wavy SVG section dividers, "network of connected
+  dots" or "DNA helix" decorative backgrounds, floating particles.
+- Glassmorphism: frosted/blurred semi-transparent cards over a busy
+  background.
+- Generic 3-column "feature grid" with a pastel circular icon background
+  above each item.
+- Drop shadows on every element to fake depth. Use a 1px border
+  (var(--border)) instead of a shadow as the default way to separate a
+  card from the background. Shadows only where truly load-bearing (e.g. a
+  hover state), and even then, small and subtle.
+- Oversized rounded corners (rounded-2xl-everything look). Use a small,
+  consistent radius (4-8px), not pill-shaped cards or buttons.
+- Marketing-voice copy: "Supercharge your workflow," "Unlock the power of,"
+  "Elevate your—." Write like a person describing their own work plainly.
+- Sparkle emoji, rocket emoji, or any emoji used as a section icon or
+  decorative flourish. If an icon is needed, use a simple monochrome line
+  icon or nothing at all.
+- Stock "flat illustration person at a laptop" artwork. Consistent with
+  the images-over-vector rule already in place.
+- Colorful rainbow tag/badge pills (each tag a different bright color).
+  Tags use one muted neutral style, differentiated by text only.
+
+## What to do instead (the actual direction)
+
+- Flat surfaces, thin 1px borders, one muted accent color, real photos.
+- Confident whitespace and a clear type hierarchy instead of decoration
+  doing the work.
+- Copy that describes what things are, plainly, without selling them.
