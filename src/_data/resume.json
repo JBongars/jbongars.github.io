@@ -1,0 +1,211 @@
+{
+  "name": "Julien Bongars",
+  "title": "Infrastructure, Cloud & Application Security Engineer",
+  "location": "Singapore",
+  "linkedin": "https://www.linkedin.com/in/julienbongars/",
+  "github": "https://github.com/jbongars",
+  "skills": [
+    "Offensive Security",
+    "Cyber Security",
+    "Cloud Security",
+    "ISO 27001",
+    "AWS",
+    "IaC",
+    "Kubernetes",
+    "Active Directory",
+    "Linux Administration",
+    "Docker",
+    "Automation",
+    "Networking",
+    "Virtualization",
+    "Architecture",
+    "DB Administration",
+    "Software Development"
+  ],
+  "experience": [
+    {
+      "company": "Aptar Digital Health",
+      "location": "Singapore",
+      "title": "Senior DevSecOps Engineer",
+      "start": "2024",
+      "end": "Current",
+      "bullets": [
+        "Drove application security across regulated products (ISO 27001, GDPR, medical devices), embedding controls and advising on remediation.",
+        "Found and helped remediate critical vulnerabilities: unauthenticated RCE (insecure deserialization), exposed S3 buckets, and more.",
+        "Re-architected a single-account startup setup into a multi-account AWS Organization with Identity Center, RAM sharing, and Okta IdP.",
+        "Hardened access via IAM token audits and AD-authenticated VPN.",
+        "Secured infrastructure-as-code on Terraform/Scalr/Packer across Linux, ECS, and Airflow, plus PostgreSQL 12 to 17 migrations and cross-region DMS replication."
+      ],
+      "tools": ["Burp Suite CE", "AWS", "Terraform", "Scalr", "Packer", "Docker", "Windows AD", "OpenVPN", "Java"]
+    },
+    {
+      "company": "Thales Group",
+      "agency": "Newtone Consulting",
+      "location": "Singapore",
+      "title": "Senior Systems Engineer",
+      "start": "2024",
+      "end": "2024",
+      "bullets": [
+        "Secured air-gapped infrastructure for high-security government projects across HyperV, VMware, and RHEL.",
+        "Hardened Linux and Windows with SELinux and managed the full SSL/TLS certificate lifecycle in disconnected environments.",
+        "Built and secured RKE2 Kubernetes clusters with isolated DNS and networking.",
+        "Monitored security posture and reliability with Grafana, Prometheus, and OpenSearch."
+      ],
+      "tools": ["SELinux", "Windows", "HyperV", "RKE2 (Kubernetes)", "RHEL", "VMware (ESXi/vSphere)", "Ansible", "Bash", "Python", "PowerShell", "Grafana", "Prometheus", "OpenSearch"]
+    },
+    {
+      "company": "AIRR LABS",
+      "location": "Singapore",
+      "title": "Senior Platform/Infrastructure Engineer",
+      "start": "2022",
+      "end": "2023",
+      "bullets": [
+        "TikTok & Shopify Integration Project: developed a serverless application to manage a back-office fulfillment system integrating with Shopify and TikTok Shop.",
+        "Brand.com – Shopify Storefront integration with an Order Management System using AWS Serverless architecture."
+      ],
+      "tools": ["Golang", "Bash", "Python", "Terraform", "AWS", "Docker", "PostgreSQL (SQL)", "Vault", "Linux"]
+    },
+    {
+      "company": "Undercurrent Capital",
+      "location": "Singapore",
+      "title": "Lead Web3 Developer",
+      "start": "2022",
+      "end": "2022",
+      "bullets": [
+        "Messina Multi Chain Bridge (messina.one) – a web3 application allowing users to bridge tokens from the Algorand blockchain to the Ethereum blockchain."
+      ],
+      "tools": ["Ethereum", "Algorand", "Teal", "Solana", "TypeScript", "NextJS", "Python", "Bash", "AWS (CDK)"]
+    },
+    {
+      "company": "Prudential Assurance",
+      "agency": "MP",
+      "location": "Singapore",
+      "title": "Cloud and Site Reliability Engineer",
+      "start": "2021",
+      "end": "2022",
+      "bullets": [
+        "Self-service provisioning and deployment services – managed a platform enabling internal customers to automatically provision their own infrastructure via GitOps.",
+        "Custody Secret Engine for HashiCorp Vault – developed a system where multiple users add input to a JWE in sequence, securely storing the combined secret in Vault, requiring a subset of users to collaboratively unlock it in a trustless environment."
+      ],
+      "tools": ["Azure", "GCP", "Terraform", "Ansible", "Linux", "Jenkins", "Kubernetes", "Docker", "Python", "Django"]
+    },
+    {
+      "company": "Meta Inc",
+      "agency": "CE",
+      "location": "Singapore",
+      "title": "DataOps Engineer",
+      "start": "2020",
+      "end": "2021",
+      "bullets": [
+        "Automated resolution for FTL upstream errors – designed and implemented automated solutions including automatic restarting of failed jobs, backfilling data, and escalating to relevant teams.",
+        "Meta DataOps Command Dashboard (WWW) – developed a dashboard for reporting and troubleshooting data pipelines with failed upstream dependencies."
+      ],
+      "tools": ["PHP (Hack)", "MySQL", "Spark", "Java", "React", "GraphQL", "Relay", "Python 3", "Neo4J"]
+    },
+    {
+      "company": "BookMyShow",
+      "location": "Singapore",
+      "title": "Backend Developer",
+      "start": "2020",
+      "end": "2020",
+      "duration": "3 months",
+      "bullets": [],
+      "tools": ["TypeScript", "NestJS", "MongoDB", "Jest", "Kubernetes", "Docker", "Skaffold", "Google Cloud"]
+    },
+    {
+      "company": "AXA Insurance",
+      "agency": "Maltem",
+      "location": "Singapore",
+      "title": "Senior Full Stack Developer",
+      "start": "2018",
+      "end": "2020",
+      "bullets": [
+        "Wanderlust Travel Insurance, Singapore – developed an online travel insurance portal and an internal components library for other e-commerce sites.",
+        "Scoot Travel Insurance widget, SE Asia – built a travel insurance widget and an adapter for compatibility with various airline booking systems."
+      ],
+      "tools": ["Node", "TypeScript", "React", "NextJS", "MongoDB", "RabbitMQ", "OpenShift", "Jest", "Cypress", "Pact", "Salesforce"]
+    },
+    {
+      "company": "Singapore Data Science Academy",
+      "location": "Singapore",
+      "title": "Part-time Lecturer",
+      "start": "2018",
+      "end": "2018",
+      "bullets": [],
+      "tools": ["Python", "Jupyter Notebook", "Pandas", "matplotlib", "NumPy", "scikit-learn"]
+    },
+    {
+      "company": "Voyager Innovation",
+      "location": "Singapore",
+      "title": "Platform Engineer (PHP/Laravel)",
+      "start": "2017",
+      "end": "2018",
+      "bullets": [],
+      "tools": ["Node", "AngularJS", "Sass", "PHP Laravel", "MySQL", "AWS services", "Grunt"]
+    },
+    {
+      "company": "Honan Insurance",
+      "location": "Singapore",
+      "title": "Insurance Broker / VB.NET Developer",
+      "start": "2015",
+      "end": "2017",
+      "bullets": [],
+      "tools": ["VBA", "VB.NET", "C#", "Advanced Excel", "Outlook and Word Integration"]
+    },
+    {
+      "company": "Singapore Armed Forces",
+      "location": "Singapore",
+      "title": "Field Instructor, Sergeant",
+      "start": "2012",
+      "end": "2014",
+      "bullets": [],
+      "tools": []
+    }
+  ],
+  "education": [
+    {
+      "institution": "Ngee Ann Polytechnic",
+      "dates": "2015–2018",
+      "program": "Diploma in Engineering (Electronics)"
+    },
+    {
+      "institution": "Murdoch University",
+      "dates": "2018–2020",
+      "program": "Various modules in Computer Science / Cyber Security"
+    }
+  ],
+  "certificates": [
+    {
+      "name": "OSCP (Offensive Security Certified Professional)",
+      "issuer": "Offensive Security",
+      "year": "2026",
+      "status": "in progress"
+    },
+    {
+      "name": "AWS Certified Cloud Practitioner",
+      "issuer": "Amazon Web Services",
+      "year": "2023"
+    },
+    {
+      "name": "Certificate in Full-Stack Development",
+      "issuer": "Institute of Systems Science, NUS",
+      "year": "2017"
+    },
+    {
+      "name": "Property & Casualty Insurance",
+      "year": "2015"
+    },
+    {
+      "name": "Mechanical/Electrical Engineering",
+      "issuer": "MDIS",
+      "year": "2015"
+    }
+  ],
+  "societies": [
+    {
+      "name": "MENSA Singapore",
+      "role": "Member",
+      "since": "2014"
+    }
+  ]
+}
