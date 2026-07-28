@@ -10,6 +10,7 @@
   <link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
   <link rel="manifest" href="/favicon/site.webmanifest">
   <meta name="theme-color" content="#12161c">
+  <meta name="color-scheme" content="dark light">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -17,15 +18,28 @@
     <div class="site-header__inner">
       <a class="site-brand" href="/">{% if resume.name %}{{ resume.name }}{% else %}Home{% endif %}</a>
 
-      <input type="checkbox" id="nav-toggle" class="nav-toggle">
-      <label for="nav-toggle" class="nav-toggle-btn">
-        <span class="nav-toggle-btn__box" aria-hidden="true">
-          <span class="nav-toggle-btn__bar"></span>
-          <span class="nav-toggle-btn__bar"></span>
-          <span class="nav-toggle-btn__bar"></span>
-        </span>
-        <span class="visually-hidden">Menu</span>
-      </label>
+      <div class="site-header__actions">
+        <input type="checkbox" id="theme-toggle" class="theme-toggle">
+        <label for="theme-toggle" class="theme-toggle-btn">
+          <svg class="theme-toggle-btn__icon theme-toggle-btn__icon--to-light" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M8 11.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zm0 1.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10zM7.25 1h1.5v2h-1.5V1zm0 12h1.5v2h-1.5v-2zM1 7.25h2v1.5H1v-1.5zm12 0h2v1.5h-2v-1.5zM3.05 3.05l1.06 1.06-1.06 1.06-1.06-1.06 1.06-1.06zm9.9 9.9l1.06 1.06-1.06 1.06-1.06-1.06 1.06-1.06zm0-9.9l1.06 1.06-1.06 1.06-1.06-1.06L12.95 3.05zM3.05 12.95l1.06 1.06-1.06 1.06-1.06-1.06 1.06-1.06z"/>
+          </svg>
+          <svg class="theme-toggle-btn__icon theme-toggle-btn__icon--to-dark" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M6 1.5A6.5 6.5 0 1 0 14.2 10 5.2 5.2 0 1 1 6 1.5z"/>
+          </svg>
+          <span class="visually-hidden">Toggle light and dark mode</span>
+        </label>
+
+        <input type="checkbox" id="nav-toggle" class="nav-toggle">
+        <label for="nav-toggle" class="nav-toggle-btn">
+          <span class="nav-toggle-btn__box" aria-hidden="true">
+            <span class="nav-toggle-btn__bar"></span>
+            <span class="nav-toggle-btn__bar"></span>
+            <span class="nav-toggle-btn__bar"></span>
+          </span>
+          <span class="visually-hidden">Menu</span>
+        </label>
+      </div>
 
       <nav class="site-nav" aria-label="Primary">
         <ul class="nav-list">
