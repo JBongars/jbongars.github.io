@@ -216,10 +216,12 @@ module.exports = function (eleventyConfig) {
   loadLanguages(["bash", "python", "json", "php", "markup", "c", "javascript"]);
 
   eleventyConfig.addPassthroughCopy("src/css");
+  eleventyConfig.addPassthroughCopy("src/img");
   passthroughMediaFolders(eleventyConfig, "posts");
   passthroughMediaFolders(eleventyConfig, "projects");
 
   eleventyConfig.addFilter("toc", buildToc);
+  eleventyConfig.addShortcode("year", () => `${new Date().getFullYear()}`);
 
   // Disable raw HTML in markdown. Highlight via Prism with aliases; unknown
   // languages fall back to escaped plaintext (never emit raw HTML in fences).

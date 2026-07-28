@@ -7,26 +7,57 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <header>
-    <nav aria-label="Primary">
-      <ul class="nav-list">
-        <li><a href="/">Home</a></li>
-        <li><a href="/resume/">Resume</a></li>
-        <li><a href="/blog/">Blog</a></li>
-        <li><a href="/write-ups/">Write-Ups</a></li>
-        {% if resume.linkedin %}
-        <li><a href="{{ resume.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-        {% endif %}
-      </ul>
-    </nav>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="site-brand" href="/">{% if resume.name %}{{ resume.name }}{% else %}Home{% endif %}</a>
+
+      <input type="checkbox" id="nav-toggle" class="nav-toggle">
+      <label for="nav-toggle" class="nav-toggle-btn">
+        <span class="nav-toggle-btn__box" aria-hidden="true">
+          <span class="nav-toggle-btn__bar"></span>
+          <span class="nav-toggle-btn__bar"></span>
+          <span class="nav-toggle-btn__bar"></span>
+        </span>
+        <span class="visually-hidden">Menu</span>
+      </label>
+
+      <nav class="site-nav" aria-label="Primary">
+        <ul class="nav-list">
+          <li>
+            <a href="/" {% if page.url == "/" %}aria-current="page"{% endif %}>Home</a>
+          </li>
+          <li>
+            <a href="/resume/" {% if page.url == "/resume/" %}aria-current="page"{% endif %}>Resume</a>
+          </li>
+          <li>
+            <a href="/blog/" {% if page.url == "/blog/" or "/posts/" in page.url %}aria-current="page"{% endif %}>Blog</a>
+          </li>
+          <li>
+            <a href="/write-ups/" {% if page.url == "/write-ups/" or "/projects/" in page.url %}aria-current="page"{% endif %}>Write-Ups</a>
+          </li>
+          {% if resume.linkedin %}
+          <li>
+            <a class="nav-list__external" href="{{ resume.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
   </header>
 
   <main>
     {{ content | safe }}
   </main>
 
-  <footer>
-    <p>{% if resume.name %}{{ resume.name }}{% else %}Site name placeholder{% endif %}</p>
+  <footer class="site-footer">
+    <img
+      class="site-footer__signature"
+      src="/img/signature.svg"
+      alt="{% if resume.name %}{{ resume.name }}{% else %}Signature{% endif %}"
+      width="215"
+      height="97"
+    >
+    <p class="site-footer__copy">&copy; {% year %}{% if resume.name %} {{ resume.name }}{% endif %}</p>
   </footer>
 </body>
 </html>
