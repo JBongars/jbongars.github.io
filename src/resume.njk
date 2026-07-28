@@ -10,12 +10,20 @@ permalink: /resume/
     {% if resume.location %}
     <p class="resume__location meta">{{ resume.location }}</p>
     {% endif %}
-    <ul class="resume__links">
-      {% if resume.linkedin %}
-      <li><a href="{{ resume.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-      {% endif %}
+    <ul class="resume__links" aria-label="Social links">
       {% if resume.github %}
-      <li><a href="{{ resume.github }}" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+      <li>
+        <a href="{{ resume.github }}" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+          <img class="social-icon" src="/img/github.svg" alt="" width="20" height="20">
+        </a>
+      </li>
+      {% endif %}
+      {% if resume.linkedin %}
+      <li>
+        <a href="{{ resume.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <img class="social-icon" src="/img/linkedin.svg" alt="" width="20" height="20">
+        </a>
+      </li>
       {% endif %}
     </ul>
   </header>

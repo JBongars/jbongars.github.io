@@ -4,6 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% if title %}{{ title }}{% else %}Personal Site{% endif %}</title>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
+  <link rel="manifest" href="/favicon/site.webmanifest">
+  <meta name="theme-color" content="#12161c">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -37,7 +43,25 @@
           </li>
           {% if resume.linkedin %}
           <li>
-            <a class="nav-list__external" href="{{ resume.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a
+              class="nav-list__external"
+              href="{{ resume.linkedin }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+            >
+              <span class="nav-list__external-label">LinkedIn</span>
+              <img
+                class="nav-list__external-icon"
+                src="/img/linkedin.svg"
+                alt=""
+                width="16"
+                height="16"
+              >
+              <svg class="icon-external" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M10.5 1H7v1h1.8L5.15 5.65l.7.7L9.5 2.7V4.5H10.5V1zM2 2v8h8V7H9v2H3V3h2V2H2z"/>
+              </svg>
+            </a>
           </li>
           {% endif %}
         </ul>
@@ -57,7 +81,27 @@
       width="215"
       height="97"
     >
-    <p class="site-footer__copy">&copy; {% year %}{% if resume.name %} {{ resume.name }}{% endif %}</p>
+    <div class="site-footer__meta">
+      <p class="site-footer__copy">&copy; {% year %}{% if resume.name %} {{ resume.name }}{% endif %}</p>
+      {% if resume.github or resume.linkedin %}
+      <ul class="site-footer__socials" aria-label="Social links">
+        {% if resume.github %}
+        <li>
+          <a href="{{ resume.github }}" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+            <img class="social-icon" src="/img/github.svg" alt="" width="20" height="20">
+          </a>
+        </li>
+        {% endif %}
+        {% if resume.linkedin %}
+        <li>
+          <a href="{{ resume.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+            <img class="social-icon" src="/img/linkedin.svg" alt="" width="20" height="20">
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+      {% endif %}
+    </div>
   </footer>
 </body>
 </html>

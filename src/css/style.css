@@ -95,11 +95,43 @@ body {
   display: flex;
   flex-direction: column;
   margin: 0;
+  isolation: isolate;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: var(--leading-body);
+}
+
+/* Subtle topography stencil — left and right edges (desktop only) */
+@media (min-width: 48rem) {
+  body::before,
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    z-index: -1;
+    width: min(28rem, 40vw);
+    background: url("/img/topography.svg") repeat-y center / 100% auto;
+    /* Asset is black; invert + fade into the dark background */
+    filter: invert(1);
+    opacity: 0.07;
+    pointer-events: none;
+  }
+
+  body::before {
+    left: 0;
+    /* Soften only the inner edge */
+    -webkit-mask-image: linear-gradient(to left, transparent, #000 18%, #000);
+    mask-image: linear-gradient(to left, transparent, #000 18%, #000);
+  }
+
+  body::after {
+    right: 0;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 18%, #000);
+    mask-image: linear-gradient(to right, transparent, #000 18%, #000);
+  }
 }
 
 h1,
@@ -321,8 +353,21 @@ footer {
   color: var(--text);
 }
 
-.nav-list__external {
+.nav-list a.nav-list__external {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   color: var(--accent);
+}
+
+.nav-list__external-icon {
+  display: none;
+}
+
+.icon-external {
+  flex-shrink: 0;
+  width: 0.75em;
+  height: 0.75em;
 }
 
 @media (min-width: 48rem) {
@@ -376,6 +421,25 @@ footer {
   .nav-list__external:focus-visible {
     color: var(--text);
   }
+
+  /* Desktop: LinkedIn icon only */
+  .nav-list__external-label,
+  .nav-list__external .icon-external {
+    display: none;
+  }
+
+  .nav-list__external-icon {
+    display: block;
+    width: 1.125rem;
+    height: 1.125rem;
+    filter: invert(1);
+    opacity: 0.85;
+  }
+
+  .nav-list a.nav-list__external:hover .nav-list__external-icon,
+  .nav-list a.nav-list__external:focus-visible .nav-list__external-icon {
+    opacity: 1;
+  }
 }
 
 main {
@@ -403,8 +467,47 @@ footer {
   gap: var(--space-6);
 }
 
+.site-footer__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3) var(--space-5);
+}
+
 .site-footer__copy {
   margin: 0;
+}
+
+.site-footer__socials {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer__socials a {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted);
+  text-decoration: none;
+  opacity: 0.7;
+}
+
+.site-footer__socials a:hover,
+.site-footer__socials a:focus-visible {
+  opacity: 1;
+}
+
+.social-icon {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+  /* Icons are black; invert for the dark theme */
+  filter: invert(1);
 }
 
 .site-footer__signature {
@@ -503,8 +606,7 @@ footer {
   }
 
   .prose a,
-  .card__title a,
-  .resume__links a {
+  .card__title a {
     text-decoration: none;
     background-image: linear-gradient(currentColor, currentColor);
     background-position: 0 100%;
@@ -518,9 +620,7 @@ footer {
   .prose a:hover,
   .prose a:focus-visible,
   .card__title a:hover,
-  .card__title a:focus-visible,
-  .resume__links a:hover,
-  .resume__links a:focus-visible {
+  .card__title a:focus-visible {
     text-decoration: none;
     background-size: 100% 1px;
   }
@@ -863,11 +963,23 @@ footer {
 .resume__links {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3) var(--space-5);
-  margin: 0;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-4) 0 0;
   padding: 0;
   list-style: none;
-  font-size: var(--text-sm);
+}
+
+.resume__links a {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.7;
+  text-decoration: none;
+}
+
+.resume__links a:hover,
+.resume__links a:focus-visible {
+  opacity: 1;
 }
 
 .resume__layout {

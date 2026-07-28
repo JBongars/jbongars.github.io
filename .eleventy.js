@@ -217,6 +217,11 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addPassthroughCopy("src/css");
   eleventyConfig.addPassthroughCopy("src/img");
+  eleventyConfig.addPassthroughCopy("src/favicon");
+  // Browsers still request /favicon.ico at the site root by default
+  eleventyConfig.addPassthroughCopy({
+    "src/favicon/favicon.ico": "favicon.ico",
+  });
   passthroughMediaFolders(eleventyConfig, "posts");
   passthroughMediaFolders(eleventyConfig, "projects");
 
