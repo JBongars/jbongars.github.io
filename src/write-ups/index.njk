@@ -5,16 +5,16 @@ permalink: /write-ups/
 ---
 <h1>Write-Ups</h1>
 
-{% if collections.projects.length %}
+{% if collections.writeUps.length %}
 <ul class="card-grid post-list">
-  {% for project in collections.projects %}
+  {% for writeup in collections.writeUps %}
   <li class="card">
     <h2 class="card__title">
-      <a href="{{ project.url }}">{{ project.data.title or project.fileSlug }}</a>
+      <a href="{{ writeup.url }}">{{ writeup.data.title or writeup.fileSlug }}</a>
     </h2>
-    {% if project.date %}
+    {% if writeup.date %}
     <p class="card__meta">
-      <time datetime="{{ project.date.toISOString().slice(0, 10) }}">{{ project.date.toISOString().slice(0, 10) }}</time>
+      <time datetime="{{ writeup.date.toISOString().slice(0, 10) }}">{{ writeup.date.toISOString().slice(0, 10) }}</time>
     </p>
     {% endif %}
   </li>

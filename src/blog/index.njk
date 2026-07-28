@@ -5,9 +5,9 @@ permalink: /blog/
 ---
 <h1>Blog</h1>
 
-{% if collections.posts.length %}
+{% if collections.blog.length %}
 <ul class="card-grid post-list">
-  {% for post in collections.posts %}
+  {% for post in collections.blog %}
   <li class="card">
     <h2 class="card__title">
       <a href="{{ post.url }}">{{ post.data.title or post.fileSlug }}</a>

@@ -131,7 +131,8 @@ function uniqueSlug(base, seen) {
 function buildToc(content) {
   if (!content) return "";
 
-  const headingPattern = /<h([1-3])\b[^>]*\bid="([^"]+)"[^>]*>([\s\S]*?)<\/h\1>/gi;
+  // Skip the title h1; include shifted section headings (h2–h4).
+  const headingPattern = /<h([2-4])\b[^>]*\bid="([^"]+)"[^>]*>([\s\S]*?)<\/h\1>/gi;
   const items = [];
   let match;
 
@@ -157,12 +158,48 @@ function buildToc(content) {
   return lines.join("");
 }
 
+/**
+ * Keep the first markdown heading as the page title (h1).
+ * Demote every later heading one level (# → h2, ## → h3, …, capped at h6).
+ */
+function demoteBodyHeadings(state) {
+  let isTitle = true;
+
+  for (let i = 0; i < state.tokens.length; i++) {
+    const open = state.tokens[i];
+    if (open.type !== "heading_open") continue;
+
+    let close = null;
+    for (let j = i + 1; j < state.tokens.length; j++) {
+      if (state.tokens[j].type === "heading_close") {
+        close = state.tokens[j];
+        break;
+      }
+    }
+
+    if (isTitle) {
+      isTitle = false;
+      open.tag = "h1";
+      if (close) close.tag = "h1";
+      continue;
+    }
+
+    const level = Number.parseInt(open.tag.slice(1), 10);
+    const nextLevel = Number.isFinite(level) ? Math.min(level + 1, 6) : 2;
+    const tag = `h${nextLevel}`;
+    open.tag = tag;
+    if (close) close.tag = tag;
+  }
+}
+
 function configureMarkdown(mdLib) {
   mdLib.set({
     html: false,
     linkify: true,
     highlight: highlightCode,
   });
+
+  mdLib.core.ruler.push("demote_body_headings", demoteBodyHeadings);
 
   const defaultLinkOpen =
     mdLib.renderer.rules.link_open ||
@@ -190,7 +227,7 @@ function configureMarkdown(mdLib) {
     return defaultLinkOpen(tokens, idx, options, env, self);
   };
 
-  // Add stable ids to h1–h3 for in-page TOC links.
+  // Add stable ids to headings for in-page TOC links.
   mdLib.renderer.rules.heading_open = function (tokens, idx, options, env, self) {
     const token = tokens[idx];
     const inline = tokens[idx + 1];
@@ -222,8 +259,8 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({
     "src/favicon/favicon.ico": "favicon.ico",
   });
-  passthroughMediaFolders(eleventyConfig, "posts");
-  passthroughMediaFolders(eleventyConfig, "projects");
+  passthroughMediaFolders(eleventyConfig, "blog");
+  passthroughMediaFolders(eleventyConfig, "write-ups");
 
   eleventyConfig.addFilter("toc", buildToc);
   eleventyConfig.addShortcode("year", () => `${new Date().getFullYear()}`);
@@ -233,13 +270,13 @@ module.exports = function (eleventyConfig) {
   // Autolink bare URLs and open all markdown links in a new tab.
   eleventyConfig.amendLibrary("md", configureMarkdown);
 
-  // Apply shared post layout without writing data files into posts/ or projects/
+  // Apply shared post layout without writing data files into blog/ or write-ups/
   eleventyConfig.addGlobalData("eleventyComputed", {
     layout: (data) => {
       const inputPath = data.page?.inputPath;
       if (
-        isContentMarkdown(inputPath, "posts") ||
-        isContentMarkdown(inputPath, "projects")
+        isContentMarkdown(inputPath, "blog") ||
+        isContentMarkdown(inputPath, "write-ups")
       ) {
         return data.layout || "post.njk";
       }
@@ -249,8 +286,8 @@ module.exports = function (eleventyConfig) {
       if (data.title) return data.title;
       const inputPath = data.page?.inputPath;
       if (
-        isContentMarkdown(inputPath, "posts") ||
-        isContentMarkdown(inputPath, "projects")
+        isContentMarkdown(inputPath, "blog") ||
+        isContentMarkdown(inputPath, "write-ups")
       ) {
         return data.page.fileSlug;
       }
@@ -258,15 +295,15 @@ module.exports = function (eleventyConfig) {
     },
   });
 
-  eleventyConfig.addCollection("posts", (collectionApi) => {
+  eleventyConfig.addCollection("blog", (collectionApi) => {
     return collectionApi
-      .getFilteredByGlob("src/posts/**/*.md")
+      .getFilteredByGlob("src/blog/**/*.md")
       .sort((a, b) => b.date - a.date);
   });
 
-  eleventyConfig.addCollection("projects", (collectionApi) => {
+  eleventyConfig.addCollection("writeUps", (collectionApi) => {
     return collectionApi
-      .getFilteredByGlob("src/projects/**/*.md")
+      .getFilteredByGlob("src/write-ups/**/*.md")
       .sort((a, b) => b.date - a.date);
   });
 

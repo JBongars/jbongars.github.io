@@ -22,8 +22,8 @@
     │   │   └── resume.json      # experience data — single source of truth
     │   ├── css/
     │   │   └── style.css
-    │   ├── posts/                # one .md file per blog post
-    │   ├── projects/             # one .md file per project
+    │   ├── blog/                 # listing + one folder per blog post
+    │   ├── write-ups/            # listing + one folder per write-up
     │   ├── index.njk
     │   └── resume.njk
     └── .github/workflows/
@@ -40,16 +40,16 @@ Blog post front matter:
     ---
     title: string
     date: YYYY-MM-DD
-    tags: [posts, ...]       # additional tags optional, e.g. platform/category
+    tags: [blog, ...]        # additional tags optional, e.g. platform/category
     ---
 
-Project front matter:
+Write-up front matter:
 
     ---
     title: string
     date: YYYY-MM-DD
-    tags: [projects, ...]
-    image: /img/project-slug/cover.jpg   # optional
+    tags: [write-ups, ...]
+    image: /img/writeup-slug/cover.jpg   # optional
     ---
 
 Resume data (`_data/resume.json`): array of role objects — company, title,
@@ -61,7 +61,7 @@ top-level `linkedin` field for the profile URL.
 Each post is a directory, not a single file, so images live next to their
 markdown instead of in a shared media folder:
 
-    src/posts/
+    src/blog/
     └── linkvortex/
         ├── index.md
         └── images/
@@ -78,13 +78,13 @@ Front matter for HTB-style writeups:
     difficulty: easy
     os: linux
     track: oscp
-    tags: [posts, htb, symlinks, ghost-cms, toctou]
+    tags: [blog, htb, symlinks, ghost-cms, toctou]
     ---
 
 Reference post-local images with relative paths: `![](images/ghost-admin.png)`.
 Eleventy passthrough-copies each post's images/ folder alongside its
 generated HTML automatically if configured with a glob passthrough on
-`src/posts/**/images/`.
+`src/blog/**/images/` (and the same pattern under `src/write-ups/`).
 
 ## Code syntax highlighting
 
