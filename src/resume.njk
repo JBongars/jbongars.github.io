@@ -5,7 +5,7 @@ permalink: /resume/
 ---
 <article class="resume">
   <header class="resume__intro">
-    <h1>{{ resume.name }}</h1>
+    <h1 class="rise-in">{{ resume.name }}</h1>
     <p class="resume__role">{{ resume.title }}</p>
     {% if resume.location %}
     <p class="resume__location meta">{{ resume.location }}</p>
@@ -24,7 +24,7 @@ permalink: /resume/
     <div class="resume__main">
       {% if resume.experience and resume.experience.length %}
       <section class="resume__section" aria-labelledby="experience-heading">
-        <h2 id="experience-heading">Experience</h2>
+        <h2 class="rise-in" id="experience-heading">Experience</h2>
         {% for role in resume.experience %}
         <article class="resume-role">
           <header class="resume-role__header">
@@ -57,7 +57,7 @@ permalink: /resume/
 
       {% if resume.societies and resume.societies.length %}
       <section class="resume__section" aria-labelledby="societies-heading">
-        <h2 id="societies-heading">Societies</h2>
+        <h2 class="rise-in" id="societies-heading">Societies</h2>
         {% for society in resume.societies %}
         <article class="resume-item">
           <h3 class="resume-item__title">{{ society.name }}</h3>
@@ -73,14 +73,14 @@ permalink: /resume/
     <aside class="resume__sidebar">
       {% if resume.biography %}
       <section class="resume__section" aria-labelledby="biography-heading">
-        <h2 id="biography-heading">Biography</h2>
+        <h2 class="rise-in" id="biography-heading">Biography</h2>
         <p class="resume__bio">{{ resume.biography }}</p>
       </section>
       {% endif %}
 
       {% if resume.skills and resume.skills.length %}
       <section class="resume__section" aria-labelledby="skills-heading">
-        <h2 id="skills-heading">Skills</h2>
+        <h2 class="rise-in" id="skills-heading">Skills</h2>
         <ul class="tag-list">
           {% for skill in resume.skills %}
           <li class="tag">{{ skill }}</li>
@@ -91,7 +91,7 @@ permalink: /resume/
 
       {% if resume.education and resume.education.length %}
       <section class="resume__section" aria-labelledby="education-heading">
-        <h2 id="education-heading">Education</h2>
+        <h2 class="rise-in" id="education-heading">Education</h2>
         {% for item in resume.education %}
         <article class="resume-item">
           <h3 class="resume-item__title">{{ item.institution }}</h3>
@@ -106,7 +106,7 @@ permalink: /resume/
 
       {% if resume.certificates and resume.certificates.length %}
       <section class="resume__section" aria-labelledby="certificates-heading">
-        <h2 id="certificates-heading">Certificates</h2>
+        <h2 class="rise-in" id="certificates-heading">Certificates</h2>
         {% for cert in resume.certificates %}
         <article class="resume-item">
           <h3 class="resume-item__title">{{ cert.name }}</h3>
@@ -120,7 +120,7 @@ permalink: /resume/
 
       {% if resume.references and resume.references.length %}
       <section class="resume__section" aria-labelledby="references-heading">
-        <h2 id="references-heading">References</h2>
+        <h2 class="rise-in" id="references-heading">References</h2>
         {% for ref in resume.references %}
         <article class="resume-item">
           <h3 class="resume-item__title">{{ ref.name }}</h3>
@@ -134,7 +134,7 @@ permalink: /resume/
       </section>
       {% elif resume.references %}
       <section class="resume__section" aria-labelledby="references-heading">
-        <h2 id="references-heading">References</h2>
+        <h2 class="rise-in" id="references-heading">References</h2>
         <p class="resume-item__detail">{{ resume.references }}</p>
       </section>
       {% endif %}
