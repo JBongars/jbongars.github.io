@@ -1,0 +1,25 @@
+---
+layout: base.njk
+title: Blog
+permalink: /blog/
+---
+<h1>Blog</h1>
+
+{% if collections.posts.length %}
+<ul class="card-grid post-list">
+  {% for post in collections.posts %}
+  <li class="card">
+    <h2 class="card__title">
+      <a href="{{ post.url }}">{{ post.data.title or post.fileSlug }}</a>
+    </h2>
+    {% if post.date %}
+    <p class="card__meta">
+      <time datetime="{{ post.date.toISOString().slice(0, 10) }}">{{ post.date.toISOString().slice(0, 10) }}</time>
+    </p>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No posts yet.</p>
+{% endif %}
