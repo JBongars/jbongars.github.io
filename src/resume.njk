@@ -3,6 +3,7 @@ layout: base.njk
 title: Resume
 permalink: /resume/
 ---
+{% from "skill-tag.njk" import skillTag with context %}
 <article class="resume">
   <header class="resume__intro">
     <img
@@ -63,7 +64,7 @@ permalink: /resume/
           {% if role.tools and role.tools.length %}
           <ul class="tag-list" aria-label="Tools">
             {% for tool in role.tools %}
-            <li class="tag">{{ tool }}</li>
+            {{ skillTag(tool) }}
             {% endfor %}
           </ul>
           {% endif %}
@@ -100,7 +101,7 @@ permalink: /resume/
         <h2 id="skills-heading">Skills</h2>
         <ul class="tag-list">
           {% for skill in resume.skills %}
-          <li class="tag">{{ skill }}</li>
+          {{ skillTag(skill) }}
           {% endfor %}
         </ul>
       </section>

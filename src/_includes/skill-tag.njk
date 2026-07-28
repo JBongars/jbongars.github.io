@@ -1,0 +1,17 @@
+{# Renders a resume skill/tool tag; links + hint when in skillDictionary. #}
+{% macro skillTag(name) %}
+{% set entry = skillDictionary[name] %}
+<li>
+  {% if entry and entry.url %}
+  <a
+    class="tag tag--link"
+    href="{{ entry.url }}"
+    target="_blank"
+    rel="noopener noreferrer"
+    {% if entry.description %}data-hint="{{ entry.description | e }}"{% endif %}
+  >{{ name }}</a>
+  {% else %}
+  <span class="tag">{{ name }}</span>
+  {% endif %}
+</li>
+{% endmacro %}

@@ -1032,7 +1032,6 @@ footer {
   margin-inline: calc(var(--container-pad) * -1);
   margin-bottom: var(--space-6);
   padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--border);
 }
 
 .resume__intro-text {
@@ -1337,6 +1336,7 @@ footer {
 }
 
 .tag {
+  display: inline-block;
   padding: var(--space-1) var(--space-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -1345,4 +1345,63 @@ footer {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   line-height: var(--leading-tight);
+  text-decoration: none;
+}
+
+a.tag--link {
+  cursor: pointer;
+}
+
+a.tag--link:hover,
+a.tag--link:focus-visible {
+  color: var(--text);
+  border-color: var(--accent);
+  outline: 2px solid transparent;
+}
+
+/* CSS-only hover/focus hint from skillDictionary descriptions */
+a.tag--link[data-hint] {
+  position: relative;
+}
+
+a.tag--link[data-hint]::after {
+  content: attr(data-hint);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.4rem);
+  z-index: 20;
+  width: max-content;
+  max-width: min(16rem, 70vw);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  line-height: var(--leading-body);
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+a.tag--link[data-hint]:hover::after,
+a.tag--link[data-hint]:focus-visible::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a.tag--link {
+    transition:
+      color var(--motion-fast) var(--motion-ease),
+      border-color var(--motion-fast) var(--motion-ease);
+  }
+
+  a.tag--link[data-hint]::after {
+    transition: opacity var(--motion-fast) var(--motion-ease);
+  }
 }
