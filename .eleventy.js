@@ -2,46 +2,58 @@ const fs = require("node:fs");
 const path = require("node:path");
 const syntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 
-function isPostMarkdown(inputPath) {
+function isContentMarkdown(inputPath, folder) {
   return (
     typeof inputPath === "string" &&
-    inputPath.includes(`${path.sep}posts${path.sep}`) &&
+    inputPath.includes(`${path.sep}${folder}${path.sep}`) &&
     inputPath.endsWith(".md")
   );
+}
+
+function passthroughMediaFolders(eleventyConfig, folder) {
+  // Dotfolders like .media are skipped by default globs; map each entry's
+  // .media dir explicitly so relative ![](.media/...) paths resolve.
+  // Read-only scan — does not modify anything under src/{folder}.
+  const dir = path.join(__dirname, "src", folder);
+  if (!fs.existsSync(dir)) return;
+
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
+    const mediaSrc = path.join("src", folder, entry.name, ".media");
+    if (fs.existsSync(mediaSrc)) {
+      eleventyConfig.addPassthroughCopy({
+        [mediaSrc]: path.join(folder, entry.name, ".media"),
+      });
+    }
+  }
 }
 
 module.exports = function (eleventyConfig) {
   eleventyConfig.addPlugin(syntaxHighlight);
 
   eleventyConfig.addPassthroughCopy("src/css");
+  passthroughMediaFolders(eleventyConfig, "posts");
+  passthroughMediaFolders(eleventyConfig, "projects");
 
-  // Dotfolders like .media are skipped by default globs; map each post's
-  // .media dir explicitly so relative ![](.media/...) paths resolve.
-  // Does not modify anything under src/posts — read-only scan for copy targets.
-  const postsDir = path.join(__dirname, "src", "posts");
-  if (fs.existsSync(postsDir)) {
-    for (const entry of fs.readdirSync(postsDir, { withFileTypes: true })) {
-      if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
-      const mediaSrc = path.join("src", "posts", entry.name, ".media");
-      if (fs.existsSync(mediaSrc)) {
-        eleventyConfig.addPassthroughCopy({
-          [mediaSrc]: path.join("posts", entry.name, ".media"),
-        });
-      }
-    }
-  }
-
-  // Apply post layout without writing data files or front matter into posts/
+  // Apply shared post layout without writing data files into posts/ or projects/
   eleventyConfig.addGlobalData("eleventyComputed", {
     layout: (data) => {
-      if (isPostMarkdown(data.page?.inputPath)) {
+      const inputPath = data.page?.inputPath;
+      if (
+        isContentMarkdown(inputPath, "posts") ||
+        isContentMarkdown(inputPath, "projects")
+      ) {
         return data.layout || "post.njk";
       }
       return data.layout;
     },
     title: (data) => {
       if (data.title) return data.title;
-      if (isPostMarkdown(data.page?.inputPath)) {
+      const inputPath = data.page?.inputPath;
+      if (
+        isContentMarkdown(inputPath, "posts") ||
+        isContentMarkdown(inputPath, "projects")
+      ) {
         return data.page.fileSlug;
       }
       return data.title;
@@ -51,6 +63,12 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addCollection("posts", (collectionApi) => {
     return collectionApi
       .getFilteredByGlob("src/posts/**/*.md")
+      .sort((a, b) => b.date - a.date);
+  });
+
+  eleventyConfig.addCollection("projects", (collectionApi) => {
+    return collectionApi
+      .getFilteredByGlob("src/projects/**/*.md")
       .sort((a, b) => b.date - a.date);
   });
 

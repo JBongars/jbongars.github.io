@@ -1,0 +1,25 @@
+---
+layout: base.njk
+title: Write-Ups
+permalink: /write-ups/
+---
+<h1>Write-Ups</h1>
+
+{% if collections.projects.length %}
+<ul class="card-grid post-list">
+  {% for project in collections.projects %}
+  <li class="card">
+    <h2 class="card__title">
+      <a href="{{ project.url }}">{{ project.data.title or project.fileSlug }}</a>
+    </h2>
+    {% if project.date %}
+    <p class="card__meta">
+      <time datetime="{{ project.date.toISOString().slice(0, 10) }}">{{ project.date.toISOString().slice(0, 10) }}</time>
+    </p>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No write-ups yet.</p>
+{% endif %}
