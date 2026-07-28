@@ -1,7 +1,14 @@
 ---
 layout: base.njk
 ---
-<article class="post">
+{% set tocHtml = content | toc %}
+<article class="post{% if tocHtml %} post--with-toc{% endif %}">
+  {% if tocHtml %}
+  <nav class="toc" aria-label="Table of contents">
+    <p class="toc__label">Contents</p>
+    {{ tocHtml | safe }}
+  </nav>
+  {% endif %}
   <div class="post__body prose">
     {{ content | safe }}
   </div>

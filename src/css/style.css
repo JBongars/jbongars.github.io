@@ -35,12 +35,47 @@
   /* Layout */
   --container-max: 64rem;
   --content-gap: var(--space-4);
+  --container-pad: var(--space-5);
+
+  /* Scrollbars */
+  --scrollbar-track: var(--bg);
+  --scrollbar-thumb: #2a313a;
+  --scrollbar-thumb-hover: #3d4652;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+/* Dark scrollbars (Firefox + WebKit) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border: 2px solid var(--scrollbar-track);
+  border-radius: var(--radius);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
 }
 
 /* Base typography */
@@ -106,7 +141,7 @@ footer {
   width: 100%;
   max-width: var(--container-max);
   margin-inline: auto;
-  padding-inline: var(--space-5);
+  padding-inline: var(--container-pad);
 }
 
 .card-grid {
@@ -267,6 +302,84 @@ footer p {
   font-size: var(--text-sm);
 }
 
+/* Post layout with TOC — TOC on top (mobile), left rail (desktop) */
+.post--with-toc {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.toc {
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.toc__label {
+  margin: 0 0 var(--space-3);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.toc__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toc__item {
+  margin: 0;
+}
+
+.toc__item + .toc__item {
+  margin-top: var(--space-2);
+}
+
+.toc__item a {
+  display: inline-block;
+  max-width: 100%;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.toc__item a:hover,
+.toc__item a:focus-visible {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.toc__item--h2 {
+  padding-left: var(--space-3);
+}
+
+.toc__item--h3 {
+  padding-left: var(--space-5);
+}
+
+@media (min-width: 56rem) {
+  .post--with-toc {
+    grid-template-columns: minmax(11rem, 15rem) minmax(0, 1fr);
+    gap: var(--space-7);
+  }
+
+  .toc {
+    position: sticky;
+    top: var(--space-5);
+    max-height: calc(100vh - var(--space-8));
+    overflow: auto;
+    padding-bottom: 0;
+    border-bottom: 0;
+    border-right: 1px solid var(--border);
+    padding-right: var(--space-5);
+  }
+}
+
 /* Markdown body */
 .prose > *:first-child {
   margin-top: 0;
@@ -281,6 +394,7 @@ footer p {
 .prose h3 {
   margin-top: var(--space-7);
   margin-bottom: var(--space-3);
+  scroll-margin-top: var(--space-6);
 }
 
 .prose ul,
@@ -346,16 +460,16 @@ footer p {
   color: var(--muted);
 }
 
-/* Prism token colors (build-time syntax highlight) — muted, flat */
+/* Prism token colors — muted dark theme, readable contrast */
 .token.comment,
 .token.prolog,
 .token.doctype,
 .token.cdata {
-  color: var(--muted);
+  color: #7a8490;
 }
 
 .token.punctuation {
-  color: var(--text);
+  color: #b0b8c0;
 }
 
 .token.property,
@@ -363,39 +477,54 @@ footer p {
 .token.boolean,
 .token.number,
 .token.constant,
-.token.symbol {
-  color: #7aa2b2;
+.token.symbol,
+.token.deleted {
+  color: #6eb6cc;
 }
 
 .token.selector,
 .token.attr-name,
 .token.string,
 .token.char,
-.token.builtin {
+.token.builtin,
+.token.inserted {
   color: #8fbc8f;
 }
 
 .token.operator,
 .token.entity,
-.token.url,
-.token.variable {
-  color: var(--text);
+.token.url {
+  color: #9aa3ad;
 }
 
 .token.atrule,
 .token.attr-value,
 .token.keyword {
-  color: #c9a86a;
+  color: #d4a85c;
 }
 
 .token.function,
 .token.class-name {
-  color: #7aa2b2;
+  color: #7ebfd4;
 }
 
 .token.regex,
 .token.important {
-  color: #c98a6a;
+  color: #d4a07a;
+}
+
+.token.variable,
+.token.parameter {
+  color: #c9b07a;
+}
+
+.token.important,
+.token.bold {
+  font-weight: 600;
+}
+
+.token.italic {
+  font-style: italic;
 }
 
 /* Resume — mobile first, 2/3 · 1/3 from 48rem up */
@@ -405,6 +534,7 @@ footer p {
 }
 
 .resume__intro {
+  margin-inline: calc(var(--container-pad) * -1);
   margin-bottom: var(--space-6);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border);
