@@ -6,6 +6,7 @@
   --text: #e6e8eb;
   --muted: #9aa3ad;
   --accent: #3d7a8c;
+  --heading: #b8a8d4;
   --border: #2a313a;
   --placeholder: #2c333c;
   --radius: 6px;
@@ -19,6 +20,7 @@
   --text-lg: 1.125rem;
   --text-xl: 1.5rem;
   --text-2xl: 2rem;
+  --text-3xl: 3.5rem;
   --leading-tight: 1.25;
   --leading-body: 1.5;
 
@@ -141,11 +143,11 @@ h3 {
   font-family: var(--font-sans);
   font-weight: 600;
   line-height: var(--leading-tight);
-  color: var(--text);
+  color: var(--heading);
 }
 
 h1 {
-  font-size: var(--text-2xl);
+  font-size: var(--text-3xl);
 }
 
 h2 {
@@ -1039,7 +1041,7 @@ footer {
 }
 
 .resume__intro h1 {
-  font-size: var(--text-2xl);
+  font-size: clamp(2.5rem, 8vw, var(--text-3xl));
 }
 
 .resume__photo {
@@ -1063,7 +1065,7 @@ footer {
   }
 
   .resume__intro h1 {
-    font-size: calc(var(--text-2xl) + 0.5rem);
+    font-size: calc(var(--text-3xl) + 0.5rem);
   }
 
   .resume__photo {
@@ -1188,7 +1190,6 @@ footer {
   margin-bottom: var(--space-3);
   padding-bottom: 0;
   border-bottom: 0;
-  font-size: var(--text-base);
 }
 
 .resume__bio {
