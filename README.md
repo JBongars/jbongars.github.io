@@ -10,6 +10,8 @@ npm run serve   # http://localhost:8080
 npm run build   # output → _site/
 ```
 
+Push to `main` deploys `_site/` to GitHub Pages via `.github/workflows/deploy.yml`.
+
 ## Architecture
 
 ```
