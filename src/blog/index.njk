@@ -6,17 +6,55 @@ permalink: /blog/
 <h1>Blog</h1>
 
 {% if collections.blog.length %}
-<ul class="card-grid post-list">
+<ul class="card-grid post-list" data-sortable-list>
   {% for post in collections.blog %}
-  <li class="card">
-    <h2 class="card__title">
-      <a href="{{ post.url }}">{{ post.data.title or post.fileSlug }}</a>
-    </h2>
-    {% if post.date %}
-    <p class="card__meta">
-      <time datetime="{{ post.date.toISOString().slice(0, 10) }}">{{ post.date.toISOString().slice(0, 10) }}</time>
-    </p>
-    {% endif %}
+  <li
+    data-title="{{ post.data.title or post.fileSlug }}"
+    {% if post.date %}data-date="{{ post.date.toISOString() }}"{% endif %}
+    {% if post.data.tags and post.data.tags.length %}data-tags="{{ post.data.tags | join(',') }}"{% endif %}
+  >
+    <a class="card card--with-media" href="{{ post.url }}">
+      <div class="card__media{% if not post.data.banner %} card__media--fallback{% endif %}">
+        {% if post.data.banner %}
+        <img src="{{ post.data.banner }}" alt="" width="1280" height="720" loading="lazy" decoding="async">
+        {% endif %}
+      </div>
+      <h2 class="card__title">{{ post.data.title or post.fileSlug }}</h2>
+      <dl class="card__facts">
+        {% if post.data.author %}
+        <div class="card__fact">
+          <dt>Author</dt>
+          <dd>{{ post.data.author }}</dd>
+        </div>
+        {% endif %}
+        {% if post.date %}
+        <div class="card__fact">
+          <dt>Date</dt>
+          <dd>
+            <time datetime="{{ post.date.toISOString().slice(0, 10) }}">{{ post.date.toISOString().slice(0, 10) }}</time>
+          </dd>
+        </div>
+        {% endif %}
+        {% if post.data.path %}
+        <div class="card__fact">
+          <dt>Path</dt>
+          <dd><code>{{ post.data.path }}</code></dd>
+        </div>
+        {% endif %}
+        {% if post.data.tags and post.data.tags.length %}
+        <div class="card__fact card__fact--tags">
+          <dt>Tags</dt>
+          <dd>
+            <ul class="tag-list">
+              {% for tag in post.data.tags %}
+              <li><span class="tag">{{ tag }}</span></li>
+              {% endfor %}
+            </ul>
+          </dd>
+        </div>
+        {% endif %}
+      </dl>
+    </a>
   </li>
   {% endfor %}
 </ul>

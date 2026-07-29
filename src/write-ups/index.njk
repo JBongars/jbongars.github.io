@@ -6,9 +6,13 @@ permalink: /write-ups/
 <h1>Write-Ups</h1>
 
 {% if collections.writeUps.length %}
-<ul class="card-grid post-list">
+<ul class="card-grid post-list" data-sortable-list>
   {% for writeup in collections.writeUps %}
-  <li>
+  <li
+    data-title="{{ writeup.data.title or writeup.fileSlug }}"
+    {% if writeup.date %}data-date="{{ writeup.date.toISOString() }}"{% endif %}
+    {% if writeup.data.tags and writeup.data.tags.length %}data-tags="{{ writeup.data.tags | join(',') }}"{% endif %}
+  >
     <a class="card card--with-media" href="{{ writeup.url }}">
       <div class="card__media{% if not writeup.data.banner %} card__media--fallback{% endif %}">
         {% if writeup.data.banner %}

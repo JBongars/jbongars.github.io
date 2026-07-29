@@ -1008,6 +1008,212 @@ html:has(#theme-toggle:checked) .home-hero__cta--primary:focus-visible {
   padding: 0;
 }
 
+.list-sort {
+  display: flex;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  align-items: stretch;
+  align-self: stretch;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.list-sort__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 100%;
+  padding: 0 0.85em;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+  cursor: pointer;
+}
+
+.list-sort__btn:hover,
+.list-sort__btn:focus-visible {
+  border-color: var(--heading);
+  color: var(--heading);
+  outline: 2px solid transparent;
+}
+
+.list-sort__btn[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.list-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-5);
+}
+
+.tag-search {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.tag-search__field {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.4em 0.55em;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: text;
+}
+
+.tag-search__field:focus-within {
+  border-color: var(--accent);
+  outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  outline-offset: 1px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.3em 0.45em 0.3em 0.65em;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: var(--leading-tight);
+  cursor: pointer;
+}
+
+.tag-chip:hover,
+.tag-chip:focus-visible {
+  border-color: var(--heading);
+  outline: 2px solid transparent;
+}
+
+.tag-chip--exclude {
+  border-color: color-mix(in srgb, #c45b5b 70%, var(--border));
+  color: color-mix(in srgb, #c45b5b 80%, var(--text));
+}
+
+.tag-chip--exclude .tag-chip__label {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.tag-chip--title {
+  border-style: dashed;
+}
+
+.tag-chip__x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1em;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.tag-search__input {
+  flex: 1 1 8rem;
+  min-width: 6rem;
+  margin: 0;
+  padding: 0.35em 0.25em;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+}
+
+.tag-search__input::placeholder {
+  color: var(--muted);
+}
+
+.tag-search__input:focus {
+  outline: none;
+}
+
+.tag-search__dropdown {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  max-height: 16rem;
+  overflow: auto;
+}
+
+.tag-search__option {
+  display: grid;
+  grid-template-columns: 0.55rem minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding: 0.5em 0.65em;
+  border-radius: calc(var(--radius) - 2px);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.tag-search__option.is-active,
+.tag-search__option:hover {
+  background: color-mix(in srgb, var(--heading) 14%, var(--bg));
+}
+
+.tag-search__cat {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 2px;
+}
+
+.tag-search__cat--general {
+  background: #5f8f6b;
+}
+
+.tag-search__cat--artist {
+  background: #c47a4a;
+}
+
+.tag-search__cat--character {
+  background: #3d7a8c;
+}
+
+.tag-search__cat--copyright {
+  background: #8a6a9a;
+}
+
+.tag-search__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tag-search__count {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
 /* Single post */
 .post-banner {
   margin: 0 0 var(--space-7);

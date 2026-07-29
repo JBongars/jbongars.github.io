@@ -323,14 +323,25 @@ module.exports = function (eleventyConfig) {
       }
       return data.title;
     },
-    // Write-ups: optional banner.* beside the entry; null means CSS gradient fallback.
+    // Optional banner.* beside the entry; null means CSS gradient fallback.
     banner: (data) => {
       const inputPath = data.page?.inputPath;
-      if (!isContentMarkdown(inputPath, "write-ups")) return;
+      if (
+        !isContentMarkdown(inputPath, "write-ups") &&
+        !isContentMarkdown(inputPath, "blog")
+      ) {
+        return;
+      }
       const name = findBannerFile(path.dirname(inputPath));
       return name ? `${data.page.url}${name}` : null;
     },
-    showBanner: (data) => isContentMarkdown(data.page?.inputPath, "write-ups"),
+    showBanner: (data) => {
+      const inputPath = data.page?.inputPath;
+      return (
+        isContentMarkdown(inputPath, "write-ups") ||
+        isContentMarkdown(inputPath, "blog")
+      );
+    },
     // Prefer front matter date; otherwise use the markdown file's created time.
     date: (data) => {
       const inputPath = data.page?.inputPath;
