@@ -2,6 +2,13 @@
 layout: base.njk
 ---
 {% set tocHtml = content | toc %}
+{% set backHref = "/blog/" %}
+{% if "/write-ups/" in page.url %}
+  {% set backHref = "/write-ups/" %}
+{% endif %}
+<div class="note-bar">
+  <a class="back-button" href="{{ backHref }}" data-back>← Back</a>
+</div>
 {% if showBanner %}
 <div class="post-banner{% if not banner %} post-banner--fallback{% endif %}">
   {% if banner %}
