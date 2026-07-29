@@ -1,8 +1,11 @@
-# TartarSauce
-
-- **Author:** Julien Bongars
-- **Path:** /home/julien/.hacklas/./targets/track-oscp/TartarSauce
-
+---
+title: TartarSauce
+author: Julien Bongars
+tags:
+  - HackTheBox
+  - Medium
+  - Linux
+  - Hacking
 ---
 
 link = https://app.hackthebox.com/machines/TartarSauce

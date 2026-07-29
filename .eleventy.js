@@ -14,19 +14,49 @@ function isContentMarkdown(inputPath, folder) {
   );
 }
 
+const BANNER_FILES = ["banner.jpg", "banner.jpeg", "banner.png", "banner.webp"];
+
+function findBannerFile(dir) {
+  for (const name of BANNER_FILES) {
+    if (fs.existsSync(path.join(dir, name))) return name;
+  }
+  return null;
+}
+
+function frontMatterHasKey(inputPath, key) {
+  if (!inputPath || !fs.existsSync(inputPath)) return false;
+  const raw = fs.readFileSync(inputPath, "utf8");
+  if (!raw.startsWith("---")) return false;
+  const end = raw.indexOf("\n---", 3);
+  if (end < 0) return false;
+  return new RegExp(`^${key}\\s*:`, "m").test(raw.slice(3, end));
+}
+
 function passthroughMediaFolders(eleventyConfig, folder) {
   // Dotfolders like .media are skipped by default globs; map each entry's
   // .media dir explicitly so relative ![](.media/...) paths resolve.
+  // Also copy optional banner.* beside each entry.
   // Read-only scan — does not modify anything under src/{folder}.
   const dir = path.join(__dirname, "src", folder);
   if (!fs.existsSync(dir)) return;
 
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
-    const mediaSrc = path.join("src", folder, entry.name, ".media");
+    const entryDir = path.join("src", folder, entry.name);
+    const mediaSrc = path.join(entryDir, ".media");
     if (fs.existsSync(mediaSrc)) {
       eleventyConfig.addPassthroughCopy({
         [mediaSrc]: path.join(folder, entry.name, ".media"),
+      });
+    }
+    const bannerName = findBannerFile(path.join(__dirname, entryDir));
+    if (bannerName) {
+      eleventyConfig.addPassthroughCopy({
+        [path.join(entryDir, bannerName)]: path.join(
+          folder,
+          entry.name,
+          bannerName
+        ),
       });
     }
   }
@@ -159,12 +189,10 @@ function buildToc(content) {
 }
 
 /**
- * Keep the first markdown heading as the page title (h1).
- * Demote every later heading one level (# → h2, ## → h3, …, capped at h6).
+ * Demote every markdown heading one level (# → h2, ## → h3, …, capped at h6).
+ * Page title is rendered by the post layout from front matter.
  */
 function demoteBodyHeadings(state) {
-  let isTitle = true;
-
   for (let i = 0; i < state.tokens.length; i++) {
     const open = state.tokens[i];
     if (open.type !== "heading_open") continue;
@@ -175,13 +203,6 @@ function demoteBodyHeadings(state) {
         close = state.tokens[j];
         break;
       }
-    }
-
-    if (isTitle) {
-      isTitle = false;
-      open.tag = "h1";
-      if (close) close.tag = "h1";
-      continue;
     }
 
     const level = Number.parseInt(open.tag.slice(1), 10);
@@ -294,6 +315,15 @@ module.exports = function (eleventyConfig) {
       }
       return data.title;
     },
+    // Write-ups: optional banner.* beside the entry; null means CSS gradient fallback.
+    banner: (data) => {
+      const inputPath = data.page?.inputPath;
+      if (!isContentMarkdown(inputPath, "write-ups")) return;
+      const name = findBannerFile(path.dirname(inputPath));
+      return name ? `${data.page.url}${name}` : null;
+    },
+    showBanner: (data) => isContentMarkdown(data.page?.inputPath, "write-ups"),
+    showDate: (data) => frontMatterHasKey(data.page?.inputPath, "date"),
   });
 
   eleventyConfig.addCollection("blog", (collectionApi) => {

@@ -1,9 +1,12 @@
-# LinkVortex
-
-- **Author:** Julien Bongars
-- **Date:** 2026-02-04 03:17:32
-- **Path:** /home/julien/.hacklas/targets/track-oscp/LinkVortex
-
+---
+title: LinkVortex
+author: Julien Bongars
+date: 2026-02-04 03:17:32
+tags:
+  - HackTheBox
+  - Easy
+  - Linux
+  - Hacking
 ---
 
 link = https://app.hackthebox.com/machines/LinkVortex

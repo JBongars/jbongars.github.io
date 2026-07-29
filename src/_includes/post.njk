@@ -2,13 +2,55 @@
 layout: base.njk
 ---
 {% set tocHtml = content | toc %}
+{% if showBanner %}
+<div class="post-banner{% if not banner %} post-banner--fallback{% endif %}">
+  {% if banner %}
+  <img class="post-banner__img" src="{{ banner }}" alt="" width="1280" height="720" decoding="async">
+  {% endif %}
+</div>
+{% endif %}
 <article class="post{% if tocHtml %} post--with-toc{% endif %}">
   {% if tocHtml %}
   <nav class="toc" aria-label="Table of contents">
     {{ tocHtml | safe }}
   </nav>
   {% endif %}
-  <div class="post__body prose">
-    {{ content | safe }}
+  <div class="post__body">
+    <header class="post__header">
+      <h1 class="post__title">{{ title }}</h1>
+      {% if author or showDate or path or tags %}
+      <dl class="post__facts">
+        {% if author %}
+        <div class="post__fact">
+          <dt>Author</dt>
+          <dd>{{ author }}</dd>
+        </div>
+        {% endif %}
+        {% if showDate and date %}
+        <div class="post__fact">
+          <dt>Date</dt>
+          <dd><time datetime="{{ date.toISOString().slice(0, 10) }}">{{ date.toISOString().slice(0, 10) }}</time></dd>
+        </div>
+        {% endif %}
+        {% if path %}
+        <div class="post__fact">
+          <dt>Path</dt>
+          <dd><code>{{ path }}</code></dd>
+        </div>
+        {% endif %}
+        {% if tags and tags.length %}
+        <div class="post__fact">
+          <dt>Tags</dt>
+          <dd>
+            {% for tag in tags %}{{ tag }}{% if not loop.last %}, {% endif %}{% endfor %}
+          </dd>
+        </div>
+        {% endif %}
+      </dl>
+      {% endif %}
+    </header>
+    <div class="prose">
+      {{ content | safe }}
+    </div>
   </div>
 </article>
