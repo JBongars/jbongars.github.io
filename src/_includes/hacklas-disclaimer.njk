@@ -1,0 +1,35 @@
+<div
+  class="disclaimer-modal"
+  data-hacklas-disclaimer
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="hacklas-disclaimer-title"
+>
+  <script>
+    try {
+      if (localStorage.getItem("hacklas-disclaimer-ack") === "1") {
+        document.currentScript.parentElement.hidden = true;
+      }
+    } catch (e) {}
+  </script>
+  <div class="disclaimer-modal__backdrop" aria-hidden="true"></div>
+  <div class="disclaimer-modal__panel">
+    <h2 id="hacklas-disclaimer-title" class="disclaimer-modal__title">Disclaimer</h2>
+    <div class="disclaimer-modal__body">
+      <p>
+        This is an experimental feature. These notes on offensive security techniques may be
+        incomplete, contain errors, or include AI-generated content — please take everything
+        here with a grain of salt. They're intended for educational purposes only.
+      </p>
+      <p>
+        Julien Bongars assumes no responsibility for any systems that are unlawfully accessed,
+        compromised, or taken down using information found on this site. Use this material only
+        on systems you own or are explicitly authorized to test, and always act within the
+        bounds of the law.
+      </p>
+    </div>
+    <button type="button" class="disclaimer-modal__ack" data-hacklas-disclaimer-ack>
+      I understand
+    </button>
+  </div>
+</div>

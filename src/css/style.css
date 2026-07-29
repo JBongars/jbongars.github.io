@@ -2038,12 +2038,40 @@ a.tag--link[data-hint]:focus-visible::after {
   }
 }
 
+/* Hacklas index — fills main like other pages, list uses remaining height */
+.hacklas-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: var(--space-5);
+  min-height: calc(100dvh - var(--site-header-height) - var(--space-7) * 2);
+}
+
+.hacklas-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+}
+
+.hacklas-page__title {
+  margin: 0;
+}
+
+.hacklas-page__lede {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
 /* Hacklas fuzzy finder */
 .fuzzy-find {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   gap: var(--space-3);
-  max-width: 40rem;
+  min-height: 0;
+  max-width: none;
 }
 
 .fuzzy-find__input {
@@ -2069,9 +2097,11 @@ a.tag--link[data-hint]:focus-visible::after {
 
 .fuzzy-find__list {
   list-style: none;
+  flex: 1 1 auto;
   margin: 0;
   padding: 0;
-  max-height: min(70vh, 36rem);
+  min-height: 12rem;
+  max-height: none;
   overflow: auto;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -2084,8 +2114,10 @@ a.tag--link[data-hint]:focus-visible::after {
 
 .fuzzy-find__list a {
   display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-5);
   padding: var(--space-3) var(--space-4);
   color: inherit;
   text-decoration: none;
@@ -2106,6 +2138,86 @@ a.tag--link[data-hint]:focus-visible::after {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--muted);
+  text-align: right;
+}
+
+/* Hacklas disclaimer modal */
+html.disclaimer-open {
+  overflow: hidden;
+}
+
+.disclaimer-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: var(--space-5);
+}
+
+.disclaimer-modal[hidden] {
+  display: none;
+}
+
+.disclaimer-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.disclaimer-modal__panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 34rem);
+  max-height: min(90dvh, 40rem);
+  overflow: auto;
+  padding: var(--space-6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.disclaimer-modal__title {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-xl);
+}
+
+.disclaimer-modal__body {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-6);
+  color: var(--text);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+}
+
+.disclaimer-modal__body p {
+  margin: 0;
+}
+
+.disclaimer-modal__ack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.disclaimer-modal__ack:hover,
+.disclaimer-modal__ack:focus-visible {
+  filter: brightness(1.08);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .note .prose {

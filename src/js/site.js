@@ -25,7 +25,11 @@
   function sameOrigin(href) {
     try {
       var u = new URL(href, location.href);
-      return u.origin === location.origin && u.pathname !== location.pathname;
+      if (u.origin !== location.origin) return false;
+      // Soft-nav on path or query changes; leave hash-only to the browser.
+      return (
+        u.pathname + u.search !== location.pathname + location.search
+      );
     } catch (_) {
       return false;
     }
@@ -44,7 +48,14 @@
     if (typeof window.hydrateFuzzyFind === "function") {
       window.hydrateFuzzyFind();
     }
+    if (typeof window.hydrateHacklasDisclaimer === "function") {
+      window.hydrateHacklasDisclaimer();
+    }
   }
+
+  window.syncSoftNavPath = function () {
+    path = location.pathname + location.search;
+  };
 
   function navigate(url, push) {
     return fetch(url, { credentials: "same-origin" })

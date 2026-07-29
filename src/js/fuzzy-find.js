@@ -1,6 +1,7 @@
 /* Progressive enhancement: Spotlight-style fuzzy filter for Hacklas notes.
    Hydrated only when [data-fuzzy-find] is present. Safe without this file.
-   Breadcrumb links use ?q=path/prefix — this file prefills and filters from that. */
+   Breadcrumb links use ?q=path/prefix — this file prefills and filters from that.
+   Backspace at the start of the field steps up the path / goes to the previous page. */
 (function () {
   "use strict";
 
@@ -16,6 +17,27 @@
     } catch (_) {
       return "";
     }
+  }
+
+  function syncSoftPath() {
+    if (typeof window.syncSoftNavPath === "function") {
+      window.syncSoftNavPath();
+    }
+  }
+
+  function syncQueryUrl(q) {
+    if (!location.pathname.replace(/\/$/, "").endsWith("/hacklas") &&
+        location.pathname !== "/hacklas/") {
+      return;
+    }
+    var next =
+      q && String(q).length
+        ? "/hacklas/?q=" + encodeURIComponent(q)
+        : "/hacklas/";
+    var cur = location.pathname + location.search;
+    if (cur === next) return;
+    history.replaceState(null, "", next);
+    syncSoftPath();
   }
 
   /** True if query characters appear in order (subsequence) in haystack. */
@@ -75,6 +97,15 @@
     return i;
   }
 
+  /** Drop the last path segment: infiltration/windows → infiltration */
+  function parentQuery(q) {
+    var trimmed = String(q || "").replace(/\/+$/, "");
+    if (!trimmed) return "";
+    var idx = trimmed.lastIndexOf("/");
+    if (idx < 0) return "";
+    return trimmed.slice(0, idx);
+  }
+
   function hydrate(root) {
     if (!root || root.getAttribute("data-fuzzy-ready") === "1") return;
     var input = root.querySelector(".fuzzy-find__input");
@@ -91,6 +122,7 @@
       });
       var items = visibleItems(list);
       activeIndex = items.length ? setActive(items, 0) : -1;
+      syncQueryUrl(q);
     }
 
     var preset = queryFromUrl();
@@ -98,13 +130,26 @@
       input.value = preset;
       filter();
       if (typeof input.focus === "function") input.focus();
+    } else {
+      syncQueryUrl(input.value);
     }
 
     input.addEventListener("input", filter);
 
     input.addEventListener("keydown", function (e) {
+      if (e.key === "Backspace" && input.selectionStart === 0 && input.selectionEnd === 0) {
+        e.preventDefault();
+        if (input.value) {
+          input.value = parentQuery(input.value);
+          filter();
+        } else {
+          history.back();
+        }
+        return;
+      }
+
       var items = visibleItems(list);
-      if (!items.length) return;
+      if (!items.length && e.key !== "Escape") return;
 
       if (e.key === "ArrowDown") {
         e.preventDefault();
@@ -117,6 +162,7 @@
         var link = cur && cur.querySelector("a[href]");
         if (link) {
           e.preventDefault();
+          syncQueryUrl(input.value);
           link.click();
         }
       } else if (e.key === "Escape") {
@@ -133,6 +179,11 @@
       if (!li || !list.contains(li) || li.style.display === "none") return;
       var items = visibleItems(list);
       activeIndex = setActive(items, items.indexOf(li));
+    });
+
+    // Keep the current query in history before leaving via a result click.
+    list.addEventListener("click", function () {
+      syncQueryUrl(input.value);
     });
   }
 
