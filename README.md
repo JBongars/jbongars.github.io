@@ -29,11 +29,11 @@ src/
 
 **Content**
 
-| Section | Input | Layout | Notes |
-|---|---|---|---|
-| Home / Resume | `index.njk`, `resume.njk` + `_data/resume.json` | `base.njk` | Data-driven |
-| Blog / Write-ups | `src/{blog,write-ups}/**/*.md` | `post.njk` | Front matter meta, banners, TOC, listing sort/tag search |
-| Hacklas | `src/hacklas/**/*.md` | `note.njk` | Path segments → tags; fuzzy finder; optional feature flag |
+| Section          | Input                                           | Layout     | Notes                                                     |
+| ---------------- | ----------------------------------------------- | ---------- | --------------------------------------------------------- |
+| Home / Resume    | `index.njk`, `resume.njk` + `_data/resume.json` | `base.njk` | Data-driven                                               |
+| Blog / Write-ups | `src/{blog,write-ups}/**/*.md`                  | `post.njk` | Front matter meta, banners, TOC, listing sort/tag search  |
+| Hacklas          | `src/hacklas/**/*.md`                           | `note.njk` | Path segments → tags; fuzzy finder; optional feature flag |
 
 **Markdown pipeline** (`.eleventy.js`): Prism highlighting, heading IDs + TOC, GitHub-style task lists, demote headings for posts (title lives in layout), rewrite relative `*.md` links for pretty URLs, strip Hacklas inline Author/Date/Path chrome into the note header.
 
@@ -60,3 +60,5 @@ Set `"hacklas": false` to hide the nav item, skip building Hacklas pages, and re
 - Progressive enhancement first; no hard JS dependency for reading content.
 - Blog/write-up entries: one folder per post with `index.md` and optional `banner.*`.
 - Hacklas notes: symlink `src/hacklas` → your notes tree; tags come from directory path.
+
+Happy hacking!
