@@ -4,6 +4,7 @@
   var KEY = "theme";
   var toggle = document.getElementById("theme-toggle");
   var main = document.querySelector("main");
+  var path = location.pathname + location.search;
   if (!toggle || !main) return;
 
   function applyTheme(light) {
@@ -53,6 +54,8 @@
         var navToggle = document.getElementById("nav-toggle");
         if (navToggle) navToggle.checked = false;
         if (push) history.pushState(null, "", url);
+        var next = new URL(url, location.href);
+        path = next.pathname + next.search;
         window.scrollTo(0, 0);
       });
   }
@@ -71,6 +74,9 @@
   });
 
   window.addEventListener("popstate", function () {
+    var next = location.pathname + location.search;
+    if (next === path) return;
+    path = next;
     navigate(location.href, false).catch(function () {
       location.reload();
     });
