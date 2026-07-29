@@ -1,0 +1,40 @@
+---
+layout: base.njk
+title: Hacklas
+permalink: /hacklas/
+---
+<h1>Hacklas</h1>
+
+{% if collections.hacklas.length %}
+<div class="fuzzy-find" data-fuzzy-find>
+  <label class="visually-hidden" for="fuzzy-find-input">Search notes</label>
+  <input
+    id="fuzzy-find-input"
+    class="fuzzy-find__input"
+    type="search"
+    placeholder="Search notes…"
+    autocomplete="off"
+    spellcheck="false"
+  >
+
+  <ul class="fuzzy-find__list" data-fuzzy-list role="listbox" aria-label="Notes">
+    {% for note in collections.hacklas %}
+    <li
+      role="option"
+      data-title="{{ note.data.title or note.fileSlug }}"
+      data-path="{{ note.data.notePath or '' }}"
+      {% if note.data.noteTags and note.data.noteTags.length %}data-tags="{{ note.data.noteTags | join(',') }}"{% endif %}
+    >
+      <a href="{{ note.url }}">
+        <span class="fuzzy-find__title">{{ note.data.title or note.fileSlug }}</span>
+        {% if note.data.notePath %}
+        <span class="fuzzy-find__path">{{ note.data.notePath }}</span>
+        {% endif %}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% else %}
+<p>No notes yet.</p>
+{% endif %}

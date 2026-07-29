@@ -62,6 +62,9 @@
           <li>
             <a href="/write-ups/" {% if "/write-ups/" in page.url %}aria-current="page"{% endif %}>Write-Ups</a>
           </li>
+          <li>
+            <a href="/hacklas/" {% if "/hacklas/" in page.url %}aria-current="page"{% endif %}>Hacklas</a>
+          </li>
           {% if resume.linkedin %}
           <li>
             <a
@@ -125,6 +128,8 @@
     </div>
   </footer>
   <script src="/js/booru-search.js" defer></script>
+  <script src="/js/fuzzy-find.js" defer></script>
+  <script src="/js/back-button.js" defer></script>
   <script src="/js/site.js" defer></script>
 </body>
 </html>

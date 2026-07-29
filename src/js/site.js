@@ -41,6 +41,9 @@
     if (typeof window.hydrateListing === "function") {
       window.hydrateListing();
     }
+    if (typeof window.hydrateFuzzyFind === "function") {
+      window.hydrateFuzzyFind();
+    }
   }
 
   function navigate(url, push) {

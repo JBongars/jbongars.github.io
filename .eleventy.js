@@ -14,6 +14,27 @@ function isContentMarkdown(inputPath, folder) {
   );
 }
 
+/** Path segments under src/hacklas/… (dirs + filename stem) used as note tags. */
+function hacklasPathParts(inputPath) {
+  if (!inputPath) return [];
+  const normalized = String(inputPath).replace(/\\/g, "/");
+  const marker = "/hacklas/";
+  const idx = normalized.lastIndexOf(marker);
+  if (idx < 0) return [];
+  const rel = normalized
+    .slice(idx + marker.length)
+    .replace(/\.md$/i, "");
+  return rel.split("/").filter(Boolean);
+}
+
+function isReadableFile(filePath) {
+  try {
+    return fs.statSync(filePath).isFile();
+  } catch {
+    return false;
+  }
+}
+
 const BANNER_FILES = ["banner.jpg", "banner.jpeg", "banner.png", "banner.webp"];
 
 function findBannerFile(dir) {
@@ -199,8 +220,12 @@ function buildToc(content) {
 /**
  * Demote every markdown heading one level (# → h2, ## → h3, …, capped at h6).
  * Page title is rendered by the post layout from front matter.
+ * Skip hacklas notes — those keep author markdown headings as written.
  */
 function demoteBodyHeadings(state) {
+  const inputPath = state.env?.page?.inputPath;
+  if (isContentMarkdown(inputPath, "hacklas")) return;
+
   for (let i = 0; i < state.tokens.length; i++) {
     const open = state.tokens[i];
     if (open.type !== "heading_open") continue;
@@ -221,6 +246,65 @@ function demoteBodyHeadings(state) {
   }
 }
 
+const TASK_ITEM_RE = /^\[([ xX])\]\s+/;
+
+/**
+ * Turn GitHub-style `- [ ]` / `- [x]` list items into real checkboxes.
+ * Needed for hacklas checklists (and any other markdown that uses them).
+ */
+function renderTaskLists(state) {
+  const tokens = state.tokens;
+
+  for (let i = 0; i < tokens.length; i++) {
+    const inline = tokens[i];
+    if (inline.type !== "inline" || !inline.content) continue;
+
+    let listItem = null;
+    if (
+      tokens[i - 1]?.type === "paragraph_open" &&
+      tokens[i - 2]?.type === "list_item_open"
+    ) {
+      listItem = tokens[i - 2];
+    } else if (tokens[i - 1]?.type === "list_item_open") {
+      listItem = tokens[i - 1];
+    }
+    if (!listItem) continue;
+
+    const match = inline.content.match(TASK_ITEM_RE);
+    if (!match) continue;
+
+    const checked = match[1].toLowerCase() === "x";
+    inline.content = inline.content.slice(match[0].length);
+
+    if (inline.children && inline.children.length) {
+      const first = inline.children[0];
+      if (first.type === "text") {
+        first.content = first.content.replace(TASK_ITEM_RE, "");
+      }
+    }
+
+    listItem.attrJoin("class", "task-list-item");
+
+    for (let j = i - 1; j >= 0; j--) {
+      if (tokens[j].type === "bullet_list_open") {
+        tokens[j].attrJoin("class", "task-list");
+        break;
+      }
+      if (tokens[j].type === "bullet_list_close") break;
+    }
+
+    const checkbox = new state.Token("html_inline", "", 0);
+    checkbox.content =
+      `<input type="checkbox" class="task-list-item__checkbox"` +
+      `${checked ? " checked" : ""}>`;
+    const space = new state.Token("text", "", 0);
+    space.content = " ";
+    inline.children = inline.children || [];
+    inline.children.unshift(space);
+    inline.children.unshift(checkbox);
+  }
+}
+
 function configureMarkdown(mdLib) {
   mdLib.set({
     html: false,
@@ -229,6 +313,7 @@ function configureMarkdown(mdLib) {
   });
 
   mdLib.core.ruler.push("demote_body_headings", demoteBodyHeadings);
+  mdLib.core.ruler.after("inline", "task_lists", renderTaskLists);
 
   const defaultLinkOpen =
     mdLib.renderer.rules.link_open ||
@@ -292,7 +377,16 @@ module.exports = function (eleventyConfig) {
   passthroughMediaFolders(eleventyConfig, "blog");
   passthroughMediaFolders(eleventyConfig, "write-ups");
 
+  // Broken nested symlinks under notes (e.g. missing hacktricks targets).
+  eleventyConfig.ignores.add(
+    "src/hacklas/checklists/external/hacktricks-*.md"
+  );
+  eleventyConfig.addWatchTarget("src/hacklas");
+
   eleventyConfig.addFilter("toc", buildToc);
+  eleventyConfig.addFilter("urlencode", (value) =>
+    encodeURIComponent(String(value == null ? "" : value))
+  );
   eleventyConfig.addShortcode("year", () => `${new Date().getFullYear()}`);
 
   // Disable raw HTML in markdown. Highlight via Prism with aliases; unknown
@@ -300,10 +394,13 @@ module.exports = function (eleventyConfig) {
   // Autolink bare URLs and open all markdown links in a new tab.
   eleventyConfig.amendLibrary("md", configureMarkdown);
 
-  // Apply shared post layout without writing data files into blog/ or write-ups/
+  // Apply shared layouts without writing data files into content folders.
   eleventyConfig.addGlobalData("eleventyComputed", {
     layout: (data) => {
       const inputPath = data.page?.inputPath;
+      if (isContentMarkdown(inputPath, "hacklas")) {
+        return data.layout || "note.njk";
+      }
       if (
         isContentMarkdown(inputPath, "blog") ||
         isContentMarkdown(inputPath, "write-ups")
@@ -317,11 +414,23 @@ module.exports = function (eleventyConfig) {
       const inputPath = data.page?.inputPath;
       if (
         isContentMarkdown(inputPath, "blog") ||
-        isContentMarkdown(inputPath, "write-ups")
+        isContentMarkdown(inputPath, "write-ups") ||
+        isContentMarkdown(inputPath, "hacklas")
       ) {
         return data.page.fileSlug;
       }
       return data.title;
+    },
+    // Path segments (dirs + stem) for fuzzy search; not Eleventy collection tags.
+    noteTags: (data) => {
+      const inputPath = data.page?.inputPath;
+      if (!isContentMarkdown(inputPath, "hacklas")) return;
+      return hacklasPathParts(inputPath);
+    },
+    notePath: (data) => {
+      const inputPath = data.page?.inputPath;
+      if (!isContentMarkdown(inputPath, "hacklas")) return;
+      return hacklasPathParts(inputPath).join("/");
     },
     // Optional banner.* beside the entry; null means CSS gradient fallback.
     banner: (data) => {
@@ -370,6 +479,17 @@ module.exports = function (eleventyConfig) {
     return collectionApi
       .getFilteredByGlob("src/write-ups/**/*.md")
       .sort((a, b) => b.date - a.date);
+  });
+
+  eleventyConfig.addCollection("hacklas", (collectionApi) => {
+    return collectionApi
+      .getFilteredByGlob("src/hacklas/**/*.md")
+      .filter((item) => isReadableFile(item.inputPath))
+      .sort((a, b) => {
+        const ap = a.data.notePath || a.filePathStem || "";
+        const bp = b.data.notePath || b.filePathStem || "";
+        return ap.localeCompare(bp);
+      });
   });
 
   return {

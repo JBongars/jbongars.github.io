@@ -1428,6 +1428,30 @@ html:has(#theme-toggle:checked) .home-hero__cta--primary:focus-visible {
   margin-top: var(--space-2);
 }
 
+.prose ul.task-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.prose li.task-list-item {
+  list-style: none;
+}
+
+.prose li.task-list-item > p {
+  margin: 0;
+}
+
+.prose .task-list-item__checkbox {
+  margin: 0 0.45em 0 0;
+  vertical-align: middle;
+  accent-color: var(--accent);
+}
+
+.prose ul.task-list ul {
+  margin-top: var(--space-2);
+  padding-left: var(--space-6);
+}
+
 .prose img {
   display: block;
   max-width: 100%;
@@ -1989,4 +2013,138 @@ a.tag--link[data-hint]:focus-visible::after {
   a.tag--link[data-hint]::after {
     transition: opacity var(--motion-fast) var(--motion-ease);
   }
+}
+
+/* Hacklas fuzzy finder */
+.fuzzy-find {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 40rem;
+}
+
+.fuzzy-find__input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+}
+
+.fuzzy-find__input::placeholder {
+  color: var(--muted);
+}
+
+.fuzzy-find__input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.fuzzy-find__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: min(70vh, 36rem);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.fuzzy-find__list > li + li {
+  border-top: 1px solid var(--border);
+}
+
+.fuzzy-find__list a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: var(--space-3) var(--space-4);
+  color: inherit;
+  text-decoration: none;
+}
+
+.fuzzy-find__list > li.is-active,
+.fuzzy-find__list > li:hover {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+}
+
+.fuzzy-find__title {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.fuzzy-find__path {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.note .prose {
+  max-width: 48rem;
+}
+
+.note-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3) var(--space-5);
+  margin: 0 0 var(--space-5);
+}
+
+.back-button {
+  flex: 0 0 auto;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.back-button:hover,
+.back-button:focus-visible {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* Hacklas note breadcrumbs → /hacklas/?q=path/prefix */
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: var(--leading-tight);
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+
+.breadcrumbs__sep {
+  color: var(--muted);
+  opacity: 0.45;
+  user-select: none;
+}
+
+.breadcrumbs__link {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.breadcrumbs__link:hover,
+.breadcrumbs__link:focus-visible {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.breadcrumbs__current {
+  color: var(--text);
+  font-weight: 600;
 }

@@ -1,0 +1,30 @@
+---
+layout: base.njk
+---
+{% set tocHtml = content | toc %}
+<div class="note-bar">
+  <a class="back-button" href="/hacklas/" data-back>← Back</a>
+  {% if noteTags and noteTags.length %}
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a class="breadcrumbs__link" href="/hacklas/">Hacklas</a>
+    {% for part in noteTags %}
+    <span class="breadcrumbs__sep" aria-hidden="true">/</span>
+    {% if loop.last %}
+    <span class="breadcrumbs__current" aria-current="page">{{ part }}</span>
+    {% else %}
+    <a class="breadcrumbs__link" href="/hacklas/?q={{ noteTags.slice(0, loop.index) | join('/') | urlencode }}">{{ part }}</a>
+    {% endif %}
+    {% endfor %}
+  </nav>
+  {% endif %}
+</div>
+<article class="note{% if tocHtml %} post--with-toc{% endif %}">
+  {% if tocHtml %}
+  <nav class="toc" aria-label="Table of contents">
+    {{ tocHtml | safe }}
+  </nav>
+  {% endif %}
+  <div class="prose">
+    {{ content | safe }}
+  </div>
+</article>
