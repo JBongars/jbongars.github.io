@@ -18,12 +18,14 @@ layout: base.njk
   </nav>
   {% endif %}
 </div>
-<article class="note{% if tocHtml %} post--with-toc{% endif %}">
-  {% if tocHtml %}
+<article class="note post--with-toc">
   <nav class="toc" aria-label="Table of contents">
+    {% if tocHtml %}
     {{ tocHtml | safe }}
+    {% else %}
+    <p class="toc__empty"><em>no index available</em></p>
+    {% endif %}
   </nav>
-  {% endif %}
   <div class="prose">
     {{ content | safe }}
   </div>

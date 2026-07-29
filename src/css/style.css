@@ -1380,6 +1380,13 @@ html:has(#theme-toggle:checked) .home-hero__cta--primary:focus-visible {
   padding-left: var(--space-5);
 }
 
+.toc__empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+}
+
 @media (min-width: 56rem) {
   .post--with-toc {
     grid-template-columns: minmax(11rem, 15rem) minmax(0, 1fr);
