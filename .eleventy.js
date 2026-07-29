@@ -3,6 +3,7 @@ const path = require("node:path");
 const Prism = require("prismjs");
 const loadLanguages = require("prismjs/components/index.js");
 const syntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
+const features = require("./src/_data/features.json");
 
 loadLanguages.silent = true;
 
@@ -519,11 +520,21 @@ module.exports = function (eleventyConfig) {
   passthroughMediaFolders(eleventyConfig, "blog");
   passthroughMediaFolders(eleventyConfig, "write-ups");
 
-  // Broken nested symlinks under notes (e.g. missing hacktricks targets).
-  eleventyConfig.ignores.add(
-    "src/hacklas/checklists/external/hacktricks-*.md"
-  );
-  eleventyConfig.addWatchTarget("src/hacklas");
+  if (features.hacklas) {
+    // Broken nested symlinks under notes (e.g. missing hacktricks targets).
+    eleventyConfig.ignores.add(
+      "src/hacklas/checklists/external/hacktricks-*.md"
+    );
+    eleventyConfig.addWatchTarget("src/hacklas");
+  } else {
+    eleventyConfig.ignores.add("src/hacklas/**");
+    eleventyConfig.ignores.add("src/hacklas.njk");
+    // Drop previously built pages so the flag fully unpublishes Hacklas.
+    fs.rmSync(path.join(__dirname, "_site", "hacklas"), {
+      recursive: true,
+      force: true,
+    });
+  }
 
   eleventyConfig.addFilter("toc", buildToc);
   eleventyConfig.addFilter("stripNoteChrome", stripNoteChrome);
@@ -643,6 +654,7 @@ module.exports = function (eleventyConfig) {
   });
 
   eleventyConfig.addCollection("hacklas", (collectionApi) => {
+    if (!features.hacklas) return [];
     return collectionApi
       .getFilteredByGlob("src/hacklas/**/*.md")
       .filter((item) => isReadableFile(item.inputPath))
