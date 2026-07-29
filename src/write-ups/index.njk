@@ -8,50 +8,49 @@ permalink: /write-ups/
 {% if collections.writeUps.length %}
 <ul class="card-grid post-list">
   {% for writeup in collections.writeUps %}
-  <li class="card card--with-media">
-    <a
-      class="card__media{% if not writeup.data.banner %} card__media--fallback{% endif %}"
-      href="{{ writeup.url }}"
-      tabindex="-1"
-      aria-hidden="true"
-    >
-      {% if writeup.data.banner %}
-      <img src="{{ writeup.data.banner }}" alt="" width="1280" height="720" loading="lazy" decoding="async">
-      {% endif %}
+  <li>
+    <a class="card card--with-media" href="{{ writeup.url }}">
+      <div class="card__media{% if not writeup.data.banner %} card__media--fallback{% endif %}">
+        {% if writeup.data.banner %}
+        <img src="{{ writeup.data.banner }}" alt="" width="1280" height="720" loading="lazy" decoding="async">
+        {% endif %}
+      </div>
+      <h2 class="card__title">{{ writeup.data.title or writeup.fileSlug }}</h2>
+      <dl class="card__facts">
+        {% if writeup.data.author %}
+        <div class="card__fact">
+          <dt>Author</dt>
+          <dd>{{ writeup.data.author }}</dd>
+        </div>
+        {% endif %}
+        {% if writeup.date %}
+        <div class="card__fact">
+          <dt>Date</dt>
+          <dd>
+            <time datetime="{{ writeup.date.toISOString().slice(0, 10) }}">{{ writeup.date.toISOString().slice(0, 10) }}</time>
+          </dd>
+        </div>
+        {% endif %}
+        {% if writeup.data.path %}
+        <div class="card__fact">
+          <dt>Path</dt>
+          <dd><code>{{ writeup.data.path }}</code></dd>
+        </div>
+        {% endif %}
+        {% if writeup.data.tags and writeup.data.tags.length %}
+        <div class="card__fact card__fact--tags">
+          <dt>Tags</dt>
+          <dd>
+            <ul class="tag-list">
+              {% for tag in writeup.data.tags %}
+              <li><span class="tag">{{ tag }}</span></li>
+              {% endfor %}
+            </ul>
+          </dd>
+        </div>
+        {% endif %}
+      </dl>
     </a>
-    <h2 class="card__title">
-      <a href="{{ writeup.url }}">{{ writeup.data.title or writeup.fileSlug }}</a>
-    </h2>
-    <dl class="card__facts">
-      {% if writeup.data.author %}
-      <div class="card__fact">
-        <dt>Author</dt>
-        <dd>{{ writeup.data.author }}</dd>
-      </div>
-      {% endif %}
-      {% if writeup.data.showDate and writeup.date %}
-      <div class="card__fact">
-        <dt>Date</dt>
-        <dd>
-          <time datetime="{{ writeup.date.toISOString().slice(0, 10) }}">{{ writeup.date.toISOString().slice(0, 10) }}</time>
-        </dd>
-      </div>
-      {% endif %}
-      {% if writeup.data.path %}
-      <div class="card__fact">
-        <dt>Path</dt>
-        <dd><code>{{ writeup.data.path }}</code></dd>
-      </div>
-      {% endif %}
-      {% if writeup.data.tags and writeup.data.tags.length %}
-      <div class="card__fact">
-        <dt>Tags</dt>
-        <dd>
-          {% for tag in writeup.data.tags %}{{ tag }}{% if not loop.last %}, {% endif %}{% endfor %}
-        </dd>
-      </div>
-      {% endif %}
-    </dl>
   </li>
   {% endfor %}
 </ul>

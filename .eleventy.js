@@ -32,6 +32,14 @@ function frontMatterHasKey(inputPath, key) {
   return new RegExp(`^${key}\\s*:`, "m").test(raw.slice(3, end));
 }
 
+function fileCreatedDate(inputPath) {
+  const stats = fs.statSync(inputPath);
+  // birthtime is the file creation time on macOS/Windows; some Linux FS
+  // report epoch 0 when unsupported — fall back to mtime in that case.
+  if (stats.birthtimeMs && stats.birthtimeMs > 0) return stats.birthtime;
+  return stats.mtime;
+}
+
 function passthroughMediaFolders(eleventyConfig, folder) {
   // Dotfolders like .media are skipped by default globs; map each entry's
   // .media dir explicitly so relative ![](.media/...) paths resolve.
@@ -323,7 +331,22 @@ module.exports = function (eleventyConfig) {
       return name ? `${data.page.url}${name}` : null;
     },
     showBanner: (data) => isContentMarkdown(data.page?.inputPath, "write-ups"),
-    showDate: (data) => frontMatterHasKey(data.page?.inputPath, "date"),
+    // Prefer front matter date; otherwise use the markdown file's created time.
+    date: (data) => {
+      const inputPath = data.page?.inputPath;
+      if (
+        !isContentMarkdown(inputPath, "blog") &&
+        !isContentMarkdown(inputPath, "write-ups")
+      ) {
+        return;
+      }
+      if (frontMatterHasKey(inputPath, "date")) return data.page.date;
+      try {
+        return fileCreatedDate(inputPath);
+      } catch {
+        return data.page.date;
+      }
+    },
   });
 
   eleventyConfig.addCollection("blog", (collectionApi) => {

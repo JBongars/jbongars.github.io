@@ -18,7 +18,7 @@ layout: base.njk
   <div class="post__body">
     <header class="post__header">
       <h1 class="post__title">{{ title }}</h1>
-      {% if author or showDate or path or tags %}
+      {% if author or date or path or tags %}
       <dl class="post__facts">
         {% if author %}
         <div class="post__fact">
@@ -26,7 +26,7 @@ layout: base.njk
           <dd>{{ author }}</dd>
         </div>
         {% endif %}
-        {% if showDate and date %}
+        {% if date %}
         <div class="post__fact">
           <dt>Date</dt>
           <dd><time datetime="{{ date.toISOString().slice(0, 10) }}">{{ date.toISOString().slice(0, 10) }}</time></dd>
@@ -39,10 +39,14 @@ layout: base.njk
         </div>
         {% endif %}
         {% if tags and tags.length %}
-        <div class="post__fact">
+        <div class="post__fact post__fact--tags">
           <dt>Tags</dt>
           <dd>
-            {% for tag in tags %}{{ tag }}{% if not loop.last %}, {% endif %}{% endfor %}
+            <ul class="tag-list">
+              {% for tag in tags %}
+              <li><span class="tag">{{ tag }}</span></li>
+              {% endfor %}
+            </ul>
           </dd>
         </div>
         {% endif %}

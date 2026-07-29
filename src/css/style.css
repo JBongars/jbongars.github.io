@@ -643,6 +643,21 @@ footer {
   text-decoration: underline;
 }
 
+a.card {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.card:hover .card__title,
+a.card:focus-visible .card__title {
+  color: var(--accent);
+}
+
+a.card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .card__meta {
   margin: 0 0 var(--space-3);
   font-family: var(--font-mono);
@@ -724,6 +739,33 @@ footer {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--muted);
+}
+
+.card__fact--tags {
+  align-items: start;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35em 0.7em;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: var(--leading-tight);
+  white-space: nowrap;
 }
 
 /* Motion — only when the user allows it */
@@ -1036,6 +1078,10 @@ html:has(#theme-toggle:checked) .home-hero__cta--primary:focus-visible {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--muted);
+}
+
+.post__fact--tags {
+  align-items: start;
 }
 
 .post__meta {
