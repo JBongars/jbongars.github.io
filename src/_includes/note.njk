@@ -2,6 +2,7 @@
 layout: base.njk
 ---
 {% set tocHtml = content | toc %}
+{% set bodyHtml = content | stripNoteChrome %}
 <div class="note-bar">
   <a class="back-button" href="/hacklas/" data-back>← Back</a>
   {% if noteTags and noteTags.length %}
@@ -26,7 +27,40 @@ layout: base.njk
     <p class="toc__empty"><em>no index available</em></p>
     {% endif %}
   </nav>
-  <div class="prose">
-    {{ content | safe }}
+  <div class="post__body">
+    <header class="post__header">
+      <h1 class="post__title">{{ title }}</h1>
+      {% if author or date or noteTags %}
+      <dl class="post__facts">
+        {% if author %}
+        <div class="post__fact">
+          <dt>Author</dt>
+          <dd>{{ author }}</dd>
+        </div>
+        {% endif %}
+        {% if date %}
+        <div class="post__fact">
+          <dt>Date</dt>
+          <dd><time datetime="{{ date.toISOString().slice(0, 10) }}">{{ date.toISOString().slice(0, 10) }}</time></dd>
+        </div>
+        {% endif %}
+        {% if noteTags and noteTags.length %}
+        <div class="post__fact post__fact--tags">
+          <dt>Tags</dt>
+          <dd>
+            <ul class="tag-list">
+              {% for tag in noteTags %}
+              <li><span class="tag">{{ tag }}</span></li>
+              {% endfor %}
+            </ul>
+          </dd>
+        </div>
+        {% endif %}
+      </dl>
+      {% endif %}
+    </header>
+    <div class="prose">
+      {{ bodyHtml | safe }}
+    </div>
   </div>
 </article>

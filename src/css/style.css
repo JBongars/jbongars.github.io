@@ -1336,6 +1336,10 @@ html:has(#theme-toggle:checked) .home-hero__cta--primary:focus-visible {
   align-items: start;
 }
 
+.post__body {
+  min-width: 0;
+}
+
 .toc {
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border);
@@ -1396,6 +1400,10 @@ html:has(#theme-toggle:checked) .home-hero__cta--primary:focus-visible {
   .toc {
     position: sticky;
     top: calc(var(--site-header-height) + var(--space-4));
+    max-height: calc(100vh - var(--site-header-height) - var(--space-8));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     padding-bottom: 0;
     border-bottom: 0;
     border-right: 1px solid var(--border);
@@ -1404,6 +1412,12 @@ html:has(#theme-toggle:checked) .home-hero__cta--primary:focus-visible {
 }
 
 /* Markdown body */
+.prose {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .prose > *:first-child {
   margin-top: 0;
 }
@@ -1419,6 +1433,8 @@ html:has(#theme-toggle:checked) .home-hero__cta--primary:focus-visible {
   margin-top: var(--space-7);
   margin-bottom: var(--space-3);
   scroll-margin-top: 5.5rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .prose h1 {

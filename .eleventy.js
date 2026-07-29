@@ -27,6 +27,56 @@ function hacklasPathParts(inputPath) {
   return rel.split("/").filter(Boolean);
 }
 
+/**
+ * Parse the inline note chrome used in hacklas markdown:
+ *   # Title
+ *   **Author:** …
+ *   **Date:** …
+ *   **Path:** …
+ *   ---
+ */
+function parseHacklasMeta(inputPath) {
+  if (!inputPath || !fs.existsSync(inputPath)) return {};
+  const raw = fs.readFileSync(inputPath, "utf8");
+
+  const titleMatch = raw.match(/^#\s+(.+?)\s*$/m);
+  const authorMatch = raw.match(/^\*\*Author:\*\*\s*(.+?)\s*$/im);
+  const dateMatch = raw.match(/^\*\*Date:\*\*\s*(.+?)\s*$/im);
+
+  let date;
+  if (dateMatch) {
+    const day = dateMatch[1].match(/(\d{4}-\d{2}-\d{2})/);
+    if (day) {
+      // Noon UTC so toISOString().slice(0, 10) keeps the authored calendar day.
+      date = new Date(`${day[1]}T12:00:00.000Z`);
+    }
+  }
+
+  return {
+    title: titleMatch ? titleMatch[1].trim() : undefined,
+    author: authorMatch
+      ? authorMatch[1].replace(/\\$/, "").trim()
+      : undefined,
+    date,
+  };
+}
+
+/**
+ * Remove title + Author/Date/Path block (+ following hr) from rendered note HTML.
+ * Layout renders Title / Author / Date / Tags instead.
+ */
+function stripNoteChrome(content) {
+  if (!content) return content;
+  let out = String(content);
+  out = out.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/i, "");
+  out = out.replace(
+    /^\s*<p>(?=[\s\S]*?<strong>(?:Author|Date|Path):<\/strong>)[\s\S]*?<\/p>\s*/i,
+    ""
+  );
+  out = out.replace(/^\s*<hr\s*\/?>\s*/i, "");
+  return out;
+}
+
 function isReadableFile(filePath) {
   try {
     return fs.statSync(filePath).isFile();
@@ -246,6 +296,52 @@ function demoteBodyHeadings(state) {
   }
 }
 
+/** Headings longer than this are treated as bold callouts, not section titles. */
+const LONG_HEADING_CHARS = 80;
+
+/**
+ * Hacklas notes sometimes use #### for long bold notes. Turn those into
+ * <p><strong>…</strong></p> so they don't land in the TOC or look like titles.
+ */
+function softenLongHeadings(state) {
+  const inputPath = state.env?.page?.inputPath;
+  if (!isContentMarkdown(inputPath, "hacklas")) return;
+
+  const tokens = state.tokens;
+  for (let i = 0; i < tokens.length; i++) {
+    const open = tokens[i];
+    if (open.type !== "heading_open") continue;
+
+    const inline = tokens[i + 1];
+    const close = tokens[i + 2];
+    if (!inline || inline.type !== "inline" || !close || close.type !== "heading_close") {
+      continue;
+    }
+
+    const text = String(inline.content || "").trim();
+    if (text.length < LONG_HEADING_CHARS) continue;
+
+    open.type = "paragraph_open";
+    open.tag = "p";
+    open.markup = "";
+    if (open.attrs) open.attrs = null;
+
+    close.type = "paragraph_close";
+    close.tag = "p";
+    close.markup = "";
+
+    const strongOpen = new state.Token("strong_open", "strong", 1);
+    const strongClose = new state.Token("strong_close", "strong", -1);
+    inline.children = inline.children
+      ? [strongOpen, ...inline.children, strongClose]
+      : [
+          strongOpen,
+          Object.assign(new state.Token("text", "", 0), { content: text }),
+          strongClose,
+        ];
+  }
+}
+
 const TASK_ITEM_RE = /^\[([ xX])\]\s+/;
 
 /**
@@ -305,6 +401,42 @@ function renderTaskLists(state) {
   }
 }
 
+/**
+ * Rewrite relative *.md links for Eleventy pretty URLs.
+ * Source files sit beside each other, but pages live in …/slug/ directories,
+ * so `./note.md` must become `../note/` (not `./note.md` or `./note/`).
+ */
+function rewriteMarkdownLinkHref(href) {
+  if (!href || typeof href !== "string") return href;
+  if (/^([a-z][a-z0-9+.-]*:|\/\/|#|\?)/i.test(href)) return href;
+
+  const match = href.match(/^(.*?)(\.md)([?#][\s\S]*)?$/i);
+  if (!match) return href;
+
+  let pathPart = match[1];
+  const suffix = match[3] || "";
+
+  if (pathPart.startsWith("/")) {
+    // Site-root path: /hacklas/foo.md → /hacklas/foo/
+    if (!pathPart.endsWith("/")) pathPart += "/";
+    return pathPart + suffix;
+  }
+
+  // Pretty-URL pages are one directory deeper than the source .md file.
+  if (pathPart.startsWith("./")) {
+    pathPart = `../${pathPart.slice(2)}`;
+  } else {
+    pathPart = `../${pathPart}`;
+  }
+
+  if (!pathPart.endsWith("/")) pathPart += "/";
+  return pathPart + suffix;
+}
+
+function isExternalHref(href) {
+  return /^(https?:|mailto:|tel:)/i.test(String(href || ""));
+}
+
 function configureMarkdown(mdLib) {
   mdLib.set({
     html: false,
@@ -313,6 +445,7 @@ function configureMarkdown(mdLib) {
   });
 
   mdLib.core.ruler.push("demote_body_headings", demoteBodyHeadings);
+  mdLib.core.ruler.push("soften_long_headings", softenLongHeadings);
   mdLib.core.ruler.after("inline", "task_lists", renderTaskLists);
 
   const defaultLinkOpen =
@@ -323,19 +456,28 @@ function configureMarkdown(mdLib) {
 
   mdLib.renderer.rules.link_open = function (tokens, idx, options, env, self) {
     const token = tokens[idx];
-
-    const targetIndex = token.attrIndex("target");
-    if (targetIndex < 0) {
-      token.attrPush(["target", "_blank"]);
-    } else {
-      token.attrs[targetIndex][1] = "_blank";
+    const hrefIndex = token.attrIndex("href");
+    if (hrefIndex >= 0) {
+      token.attrs[hrefIndex][1] = rewriteMarkdownLinkHref(
+        token.attrs[hrefIndex][1]
+      );
     }
 
-    const relIndex = token.attrIndex("rel");
-    if (relIndex < 0) {
-      token.attrPush(["rel", "noopener noreferrer"]);
-    } else {
-      token.attrs[relIndex][1] = "noopener noreferrer";
+    const href = hrefIndex >= 0 ? token.attrs[hrefIndex][1] : "";
+    if (isExternalHref(href)) {
+      const targetIndex = token.attrIndex("target");
+      if (targetIndex < 0) {
+        token.attrPush(["target", "_blank"]);
+      } else {
+        token.attrs[targetIndex][1] = "_blank";
+      }
+
+      const relIndex = token.attrIndex("rel");
+      if (relIndex < 0) {
+        token.attrPush(["rel", "noopener noreferrer"]);
+      } else {
+        token.attrs[relIndex][1] = "noopener noreferrer";
+      }
     }
 
     return defaultLinkOpen(tokens, idx, options, env, self);
@@ -384,6 +526,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addWatchTarget("src/hacklas");
 
   eleventyConfig.addFilter("toc", buildToc);
+  eleventyConfig.addFilter("stripNoteChrome", stripNoteChrome);
   eleventyConfig.addFilter("urlencode", (value) =>
     encodeURIComponent(String(value == null ? "" : value))
   );
@@ -412,14 +555,23 @@ module.exports = function (eleventyConfig) {
     title: (data) => {
       if (data.title) return data.title;
       const inputPath = data.page?.inputPath;
+      if (isContentMarkdown(inputPath, "hacklas")) {
+        return parseHacklasMeta(inputPath).title || data.page.fileSlug;
+      }
       if (
         isContentMarkdown(inputPath, "blog") ||
-        isContentMarkdown(inputPath, "write-ups") ||
-        isContentMarkdown(inputPath, "hacklas")
+        isContentMarkdown(inputPath, "write-ups")
       ) {
         return data.page.fileSlug;
       }
       return data.title;
+    },
+    author: (data) => {
+      if (data.author) return data.author;
+      const inputPath = data.page?.inputPath;
+      if (isContentMarkdown(inputPath, "hacklas")) {
+        return parseHacklasMeta(inputPath).author;
+      }
     },
     // Path segments (dirs + stem) for fuzzy search; not Eleventy collection tags.
     noteTags: (data) => {
@@ -451,9 +603,18 @@ module.exports = function (eleventyConfig) {
         isContentMarkdown(inputPath, "blog")
       );
     },
-    // Prefer front matter date; otherwise use the markdown file's created time.
+    // Prefer front matter / inline note date; else file created time for posts.
     date: (data) => {
       const inputPath = data.page?.inputPath;
+      if (isContentMarkdown(inputPath, "hacklas")) {
+        const fromBody = parseHacklasMeta(inputPath).date;
+        if (fromBody) return fromBody;
+        try {
+          return fileCreatedDate(inputPath);
+        } catch {
+          return data.page.date;
+        }
+      }
       if (
         !isContentMarkdown(inputPath, "blog") &&
         !isContentMarkdown(inputPath, "write-ups")
