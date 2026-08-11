@@ -25,12 +25,24 @@ The testuser account unlocks "in-development" image-transform features gated beh
 There is no service on 80/443; the app lives on 8000. The draft did not capture raw scan output — only the summary the author noted:
 
 ```txt
-ports open:
-
-22 - ssh
-8000 - http Python?
-
-that's it
+PORT   STATE SERVICE REASON  VERSION
+22/tcp open  ssh     syn-ack OpenSSH 9.7p1 Ubuntu 7ubuntu4.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey:
+|   256 35:94:fb:70:36:1a:26:3c:a8:3c:5a:5a:e4:fb:8c:18 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKyy0U7qSOOyGqKW/mnTdFIj9zkAcvMCMWnEhOoQFWUYio6eiBlaFBjhhHuM8hEM0tbeqFbnkQ+6SFDQw6VjP+E=
+|   256 c2:52:7c:42:61:ce:97:9d:12:d5:01:1c:ba:68:0f:fa (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBleYkGyL8P6lEEXf1+1feCllblPfSRHnQ9znOKhcnNM
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+|
+8000/tcp open  http    Werkzeug httpd 3.1.3 (Python 3.12.7)
+|_http-title: Image Gallery
+|_http-server-header: Werkzeug/3.1.3 Python/3.12.7
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose
+Running: Linux 4.X|5.X
+OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5
+OS details: Linux 4.15 - 5.19, Linux 5.0 - 5.14
+Network Distance: 2 hops
 ```
 
 SSH is open but requires a key, so the way in is expected to be through the web app.
