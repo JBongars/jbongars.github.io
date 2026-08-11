@@ -51,6 +51,12 @@
     if (typeof window.hydrateHacklasDisclaimer === "function") {
       window.hydrateHacklasDisclaimer();
     }
+    if (typeof window.hydrateCodeBlocks === "function") {
+      window.hydrateCodeBlocks();
+    }
+    if (typeof window.hydrateImageLightbox === "function") {
+      window.hydrateImageLightbox();
+    }
   }
 
   window.syncSoftNavPath = function () {

@@ -60,6 +60,8 @@ src/
 - `booru-search.js` — blog/write-up listing sort + tag/title search
 - `fuzzy-find.js` — Hacklas Spotlight-style finder (`?q=` in URL)
 - `hacklas-disclaimer.js` — one-time disclaimer gate (`localStorage`)
+- `code-blocks.js` — toolbar (copy / fullscreen), line numbers, collapse tall code to 20vh
+- `image-lightbox.js` — fullscreen images with scroll-zoom and drag-pan
 - `back-button.js` — history back for notes/posts
 
 ## Feature flags
