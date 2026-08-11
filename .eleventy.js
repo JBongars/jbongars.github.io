@@ -578,6 +578,65 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("urlencode", (value) =>
     encodeURIComponent(String(value == null ? "" : value))
   );
+  // Front-matter `link:` supports:
+  //   "[label](https://example.com/path)"  (quoted markdown)
+  //   { label: "…", url: "https://…" }     (YAML map)
+  //   https://example.com                  (plain URL / host)
+  function normalizeExternalHref(value) {
+    const raw = String(value == null ? "" : value).trim();
+    if (!raw) return "";
+    if (/^[a-z][a-z0-9+.-]*:/i.test(raw) || raw.startsWith("//")) return raw;
+    return `https://${raw}`;
+  }
+
+  function labelFromHref(value) {
+    const raw = String(value == null ? "" : value).trim();
+    if (!raw) return "";
+    try {
+      const u = new URL(normalizeExternalHref(raw));
+      return `${u.host}${u.pathname === "/" ? "" : u.pathname}${u.search}`.replace(
+        /\/$/,
+        ""
+      );
+    } catch {
+      return raw.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+    }
+  }
+
+  function parseFrontMatterLink(value) {
+    if (value == null || value === "") {
+      return { href: "", label: "" };
+    }
+
+    if (typeof value === "object" && !Array.isArray(value)) {
+      const href = normalizeExternalHref(value.url || value.href || value.link || "");
+      const label = String(value.label || value.text || value.title || "").trim();
+      return { href, label: label || labelFromHref(href) };
+    }
+
+    // YAML may parse `[label](url)` as a broken flow seq — prefer quoted strings.
+    // Also accept accidental arrays like ["label](url"] from partial parses.
+    let raw = value;
+    if (Array.isArray(value)) {
+      raw = value.map(String).join(", ");
+    }
+    raw = String(raw).trim();
+
+    const md = raw.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
+    if (md) {
+      return {
+        label: md[1].trim(),
+        href: normalizeExternalHref(md[2].trim()),
+      };
+    }
+
+    const href = normalizeExternalHref(raw);
+    return { href, label: labelFromHref(raw) };
+  }
+
+  eleventyConfig.addFilter("parseLink", parseFrontMatterLink);
+  eleventyConfig.addFilter("externalHref", (value) => parseFrontMatterLink(value).href);
+  eleventyConfig.addFilter("linkLabel", (value) => parseFrontMatterLink(value).label);
   eleventyConfig.addShortcode("year", () => `${new Date().getFullYear()}`);
 
   // Disable raw HTML in markdown. Highlight via Prism with aliases; unknown

@@ -25,7 +25,7 @@ layout: base.njk
   <div class="post__body">
     <header class="post__header">
       <h1 class="post__title">{{ title }}</h1>
-      {% if author or date or path or tags %}
+      {% if author or date or path or link or tags %}
       <dl class="post__facts">
         {% if author %}
         <div class="post__fact">
@@ -44,6 +44,28 @@ layout: base.njk
           <dt>Path</dt>
           <dd><code>{{ path }}</code></dd>
         </div>
+        {% endif %}
+        {% if link %}
+        {% set linkInfo = link | parseLink %}
+        {% if linkInfo.href %}
+        <div class="post__fact">
+          <dt>Link</dt>
+          <dd>
+            <a
+              class="post__fact-link"
+              href="{{ linkInfo.href }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <code>{{ linkInfo.label }}</code>
+              <svg class="icon-external" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M10.5 1H7v1h1.8L5.15 5.65l.7.7L9.5 2.7V4.5H10.5V1zM2 2v8h8V7H9v2H3V3h2V2H2z"/>
+              </svg>
+              <span class="visually-hidden">(opens in a new tab)</span>
+            </a>
+          </dd>
+        </div>
+        {% endif %}
         {% endif %}
         {% if tags and tags.length %}
         <div class="post__fact post__fact--tags">

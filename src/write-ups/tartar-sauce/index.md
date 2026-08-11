@@ -6,9 +6,9 @@ tags:
   - Medium
   - Linux
   - Hacking
+link: "[app.hackthebox.com/machines/TartarSauce](https://app.hackthebox.com/machines/TartarSauce)"
 ---
 
-link = https://app.hackthebox.com/machines/TartarSauce
 ip = 10.129.1.185
 
 # Description

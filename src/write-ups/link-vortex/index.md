@@ -7,9 +7,9 @@ tags:
   - Easy
   - Linux
   - Hacking
+link: "[app.hackthebox.com/machines/LinkVortex](https://app.hackthebox.com/machines/LinkVortex)"
 ---
 
-link = https://app.hackthebox.com/machines/LinkVortex
 ip =
 
 # Description
