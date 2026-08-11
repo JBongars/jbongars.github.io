@@ -27,8 +27,9 @@
       "company": "Aptar Digital Health",
       "location": "Singapore",
       "title": "Senior DevSecOps Engineer",
-      "start": "2024",
-      "end": "Current",
+      "start": "2024-11",
+      "end": "Present",
+      "remote": true,
       "bullets": [
         "Drove application security across regulated products (ISO 27001, GDPR, medical devices), embedding controls and advising on remediation.",
         "Found and helped remediate critical vulnerabilities: unauthenticated RCE (insecure deserialization), exposed S3 buckets, and more.",
@@ -43,12 +44,14 @@
       "agency": "Newtone Consulting",
       "location": "Singapore",
       "title": "Senior Systems Engineer",
-      "start": "2024",
-      "end": "2024",
+      "start": "2024-02",
+      "end": "2024-11",
+      "onsite": true,
       "bullets": [
         "Secured air-gapped infrastructure for high-security government projects across HyperV, VMware, and RHEL.",
         "Hardened Linux and Windows with SELinux and managed the full SSL/TLS certificate lifecycle in disconnected environments.",
         "Built and secured RKE2 Kubernetes clusters with isolated DNS and networking.",
+        "Automated secure provisioning via Ansible and scripting (Bash, Python, PowerShell), enforcing consistent baselines.",
         "Monitored security posture and reliability with Grafana, Prometheus, and OpenSearch."
       ],
       "tools": ["SELinux", "Windows", "HyperV", "RKE2 (Kubernetes)", "RHEL", "VMware (ESXi/vSphere)", "Ansible", "Bash", "Python", "PowerShell", "Grafana", "Prometheus", "OpenSearch"]
@@ -57,22 +60,31 @@
       "company": "AIRR LABS",
       "location": "Singapore",
       "title": "Senior Platform/Infrastructure Engineer",
-      "start": "2022",
-      "end": "2023",
+      "start": "2023-03",
+      "end": "2024-02",
+      "hybrid": true,
       "bullets": [
+        "Spearheaded the creation of the entire infrastructure, including a cost-effective CI/CD pipeline utilizing a Docker-configured EC2 instance for multiple GitHub Actions workflows.",
+        "Innovated with Lambda layers for Kafka integration, enabling Lambda triggering through Kafka messaging, enhancing system responsiveness and efficiency.",
         "TikTok & Shopify Integration Project: developed a serverless application to manage a back-office fulfillment system integrating with Shopify and TikTok Shop.",
         "Brand.com – Shopify Storefront integration with an Order Management System using AWS Serverless architecture."
       ],
-      "tools": ["Golang", "Bash", "Python", "Terraform", "AWS", "Docker", "PostgreSQL (SQL)", "Vault", "Linux"]
+      "tools": ["Golang", "Bash", "Python", "Terraform", "AWS", "Serverless", "Docker", "PostgreSQL (SQL)", "Vault", "Linux"]
     },
     {
-      "company": "Undercurrent Capital",
+      "company": "Undercurrent Technologies Pte Ltd",
       "location": "Singapore",
       "title": "Lead Web3 Developer",
-      "start": "2022",
-      "end": "2022",
+      "start": "2022-05",
+      "end": "2022-11",
       "bullets": [
+        "Orchestrated the deployment of the Guardian network on an ECS cluster, enhancing platform security and stability.",
+        "Led a remote team in developing a versatile multichain wallet adapter in TypeScript, streamlining blockchain interactions across multiple platforms.",
         "Messina Multi Chain Bridge (messina.one) – a web3 application allowing users to bridge tokens from the Algorand blockchain to the Ethereum blockchain."
+      ],
+      "links": [
+        { "label": "Messina Multi Chain Bridge", "url": "https://messina.one/" },
+        { "label": "Web3 Wallet Component", "url": "https://github.com/JBongars/web3-wallet-component" }
       ],
       "tools": ["Ethereum", "Algorand", "Teal", "Solana", "TypeScript", "NextJS", "Python", "Bash", "AWS (CDK)"]
     },
@@ -81,8 +93,8 @@
       "agency": "MP",
       "location": "Singapore",
       "title": "Cloud and Site Reliability Engineer",
-      "start": "2021",
-      "end": "2022",
+      "start": "2021-05",
+      "end": "2022-04",
       "bullets": [
         "Self-service provisioning and deployment services – managed a platform enabling internal customers to automatically provision their own infrastructure via GitOps.",
         "Custody Secret Engine for HashiCorp Vault – developed a system where multiple users add input to a JWE in sequence, securely storing the combined secret in Vault, requiring a subset of users to collaboratively unlock it in a trustless environment."
@@ -94,8 +106,8 @@
       "agency": "CE",
       "location": "Singapore",
       "title": "DataOps Engineer",
-      "start": "2020",
-      "end": "2021",
+      "start": "2020-06",
+      "end": "2021-05",
       "bullets": [
         "Automated resolution for FTL upstream errors – designed and implemented automated solutions including automatic restarting of failed jobs, backfilling data, and escalating to relevant teams.",
         "Meta DataOps Command Dashboard (WWW) – developed a dashboard for reporting and troubleshooting data pipelines with failed upstream dependencies."
@@ -106,8 +118,8 @@
       "company": "BookMyShow",
       "location": "Singapore",
       "title": "Backend Developer",
-      "start": "2020",
-      "end": "2020",
+      "start": "2020-04",
+      "end": "2020-06",
       "duration": "3 months",
       "bullets": [],
       "tools": ["TypeScript", "NestJS", "MongoDB", "Jest", "Kubernetes", "Docker", "Skaffold", "Google Cloud"]
@@ -117,11 +129,14 @@
       "agency": "Maltem",
       "location": "Singapore",
       "title": "Senior Full Stack Developer",
-      "start": "2018",
-      "end": "2020",
+      "start": "2018-04",
+      "end": "2020-04",
       "bullets": [
         "Wanderlust Travel Insurance, Singapore – developed an online travel insurance portal and an internal components library for other e-commerce sites.",
         "Scoot Travel Insurance widget, SE Asia – built a travel insurance widget and an adapter for compatibility with various airline booking systems."
+      ],
+      "links": [
+        { "label": "Scoot Travel Insurance", "url": "https://www.flyscoot.com/en" }
       ],
       "tools": ["Node", "TypeScript", "React", "NextJS", "MongoDB", "RabbitMQ", "OpenShift", "Jest", "Cypress", "Pact", "Salesforce"]
     },
@@ -129,8 +144,9 @@
       "company": "Singapore Data Science Academy",
       "location": "Singapore",
       "title": "Part-time Lecturer",
-      "start": "2018",
-      "end": "2018",
+      "start": "2018-08",
+      "end": "2018-10",
+      "partTime": true,
       "bullets": [],
       "tools": ["Python", "Jupyter Notebook", "Pandas", "matplotlib", "NumPy", "scikit-learn"]
     },
@@ -138,8 +154,8 @@
       "company": "Voyager Innovation",
       "location": "Singapore",
       "title": "Platform Engineer (PHP/Laravel)",
-      "start": "2017",
-      "end": "2018",
+      "start": "2017-04",
+      "end": "2018-04",
       "bullets": [],
       "tools": ["Node", "AngularJS", "Sass", "PHP Laravel", "MySQL", "AWS services", "Grunt"]
     },
@@ -147,17 +163,17 @@
       "company": "Honan Insurance",
       "location": "Singapore",
       "title": "Insurance Broker / VB.NET Developer",
-      "start": "2015",
-      "end": "2017",
+      "start": "2015-02",
+      "end": "2017-04",
       "bullets": [],
       "tools": ["VBA", "VB.NET", "C#", "Advanced Excel", "Outlook and Word Integration"]
     },
     {
       "company": "Singapore Armed Forces",
       "location": "Singapore",
-      "title": "Field Instructor, Sergeant",
-      "start": "2012",
-      "end": "2014",
+      "title": "Subject Matter Expert, Sergeant",
+      "start": "2012-02",
+      "end": "2014-02",
       "bullets": [],
       "tools": []
     }
