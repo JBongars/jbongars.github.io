@@ -40,7 +40,7 @@ src/
   hacklas/        # notes tree (symlink to external notes when enabled)
   hacklas.njk     # Hacklas fuzzy-find index
   js/             # deferred progressive enhancement
-  css/            # design tokens + layouts
+  css/            # stylesheets (style.css imports tokens, shell, post, …)
 .eleventy.js      # collections, markdown pipeline, filters
 ```
 

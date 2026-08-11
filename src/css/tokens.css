@@ -1,0 +1,113 @@
+/* Design tokens — dark by default */
+:root {
+  color-scheme: dark;
+  /* Color */
+  --bg: #12161c;
+  --surface: #161b22;
+  --text: #e6e8eb;
+  --muted: #9aa3ad;
+  --accent: #3d7a8c;
+  --heading: #b8a8d4;
+  --border: #2a313a;
+  --placeholder: #2c333c;
+  --radius: 6px;
+  --icon-invert: 1;
+  --shadow: 0 4px 12px rgb(0 0 0 / 0.28);
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 3.5rem;
+  --leading-tight: 1.25;
+  --leading-body: 1.5;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 2rem;
+  --space-8: 3rem;
+
+  /* Layout */
+  --container-max: 64rem;
+  --content-gap: var(--space-4);
+  --container-pad: var(--space-5);
+  --site-header-height: 4.5rem;
+
+  /* Motion */
+  --motion-fast: 200ms;
+  --motion-base: 320ms;
+  --motion-ease: ease;
+
+  /* Scrollbars */
+  --scrollbar-track: var(--bg);
+  --scrollbar-thumb: #2a313a;
+  --scrollbar-thumb-hover: #3d4652;
+}
+
+/* Light theme — CSS-only via header checkbox (does not persist across pages) */
+html:has(#theme-toggle:checked) {
+  color-scheme: light;
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --text: #1a1f26;
+  --muted: #5c6670;
+  --accent: #2f6575;
+  --heading: #5b4d82;
+  --border: #d5dce0;
+  --placeholder: #c8d0d8;
+  --icon-invert: 0;
+  --shadow: 0 4px 14px rgb(26 31 38 / 0.12);
+  --scrollbar-thumb: #c5cdd6;
+  --scrollbar-thumb-hover: #a8b2bd;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Dark scrollbars (Firefox + WebKit) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border: 2px solid var(--scrollbar-track);
+  border-radius: var(--radius);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
