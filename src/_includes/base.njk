@@ -1,22 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-path-prefix="{{ pathPrefix }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% if title %}{{ title }}{% else %}Personal Site{% endif %}</title>
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
-  <link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png">
-  <link rel="manifest" href="/favicon/site.webmanifest">
+  <link rel="icon" href="{{ '/favicon.ico' | url }}" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ '/favicon/favicon-32x32.png' | url }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ '/favicon/favicon-16x16.png' | url }}">
+  <link rel="apple-touch-icon" href="{{ '/favicon/apple-touch-icon.png' | url }}">
+  <link rel="manifest" href="{{ '/favicon/site.webmanifest' | url }}">
   <meta name="theme-color" content="#12161c">
   <meta name="color-scheme" content="dark light">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="{{ '/css/style.css' | url }}">
+  <script>
+    window.siteUrl = function (path) {
+      var prefix = document.documentElement.getAttribute("data-path-prefix") || "/";
+      if (!path) return prefix;
+      if (path.charAt(0) !== "/") path = "/" + path;
+      if (prefix === "/") return path;
+      return prefix.replace(/\/$/, "") + path;
+    };
+  </script>
 </head>
 <body>
   <header class="site-header">
     <div class="site-header__inner">
-      <a class="site-brand" href="/">{% if resume.name %}{{ resume.name }}{% else %}Home{% endif %}</a>
+      <a class="site-brand" href="{{ '/' | url }}">{% if resume.name %}{{ resume.name }}{% else %}Home{% endif %}</a>
 
       <div class="site-header__actions">
         <input type="checkbox" id="theme-toggle" class="theme-toggle">
@@ -51,20 +60,20 @@
       <nav class="site-nav" aria-label="Primary">
         <ul class="nav-list">
           <li>
-            <a href="/" {% if page.url == "/" %}aria-current="page"{% endif %}>Home</a>
+            <a href="{{ '/' | url }}" {% if page.url == "/" %}aria-current="page"{% endif %}>Home</a>
           </li>
           <li>
-            <a href="/resume/" {% if page.url == "/resume/" %}aria-current="page"{% endif %}>Resume</a>
+            <a href="{{ '/resume/' | url }}" {% if page.url == "/resume/" %}aria-current="page"{% endif %}>Resume</a>
           </li>
           <li>
-            <a href="/blog/" {% if "/blog/" in page.url %}aria-current="page"{% endif %}>Blog</a>
+            <a href="{{ '/blog/' | url }}" {% if "/blog/" in page.url %}aria-current="page"{% endif %}>Blog</a>
           </li>
           <li>
-            <a href="/write-ups/" {% if "/write-ups/" in page.url %}aria-current="page"{% endif %}>Write-Ups</a>
+            <a href="{{ '/write-ups/' | url }}" {% if "/write-ups/" in page.url %}aria-current="page"{% endif %}>Write-Ups</a>
           </li>
           {% if features.hacklas %}
           <li>
-            <a href="/hacklas/" {% if "/hacklas/" in page.url %}aria-current="page"{% endif %}>Hacklas</a>
+            <a href="{{ '/hacklas/' | url }}" {% if "/hacklas/" in page.url %}aria-current="page"{% endif %}>Hacklas</a>
           </li>
           {% endif %}
           {% if resume.linkedin %}
@@ -79,7 +88,7 @@
               <span class="nav-list__external-label">LinkedIn</span>
               <img
                 class="nav-list__external-icon"
-                src="/img/linkedin.svg"
+                src="{{ '/img/linkedin.svg' | url }}"
                 alt=""
                 width="16"
                 height="16"
@@ -102,7 +111,7 @@
   <footer class="site-footer">
     <img
       class="site-footer__signature"
-      src="/img/signature.svg"
+      src="{{ '/img/signature.svg' | url }}"
       alt="{% if resume.name %}{{ resume.name }}{% else %}Signature{% endif %}"
       width="215"
       height="97"
@@ -114,14 +123,14 @@
         {% if resume.github %}
         <li>
           <a href="{{ resume.github }}" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-            <img class="social-icon" src="/img/github.svg" alt="" width="20" height="20">
+            <img class="social-icon" src="{{ '/img/github.svg' | url }}" alt="" width="20" height="20">
           </a>
         </li>
         {% endif %}
         {% if resume.linkedin %}
         <li>
           <a href="{{ resume.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-            <img class="social-icon" src="/img/linkedin.svg" alt="" width="20" height="20">
+            <img class="social-icon" src="{{ '/img/linkedin.svg' | url }}" alt="" width="20" height="20">
           </a>
         </li>
         {% endif %}
@@ -129,12 +138,12 @@
       {% endif %}
     </div>
   </footer>
-  <script src="/js/booru-search.js" defer></script>
+  <script src="{{ '/js/booru-search.js' | url }}" defer></script>
   {% if features.hacklas %}
-  <script src="/js/fuzzy-find.js" defer></script>
-  <script src="/js/hacklas-disclaimer.js" defer></script>
+  <script src="{{ '/js/fuzzy-find.js' | url }}" defer></script>
+  <script src="{{ '/js/hacklas-disclaimer.js' | url }}" defer></script>
   {% endif %}
-  <script src="/js/back-button.js" defer></script>
-  <script src="/js/site.js" defer></script>
+  <script src="{{ '/js/back-button.js' | url }}" defer></script>
+  <script src="{{ '/js/site.js' | url }}" defer></script>
 </body>
 </html>

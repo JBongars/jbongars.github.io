@@ -5,7 +5,7 @@ title: Home
 <section class="home-hero">
   <img
     class="home-hero__image rise-in"
-    src="/img/hero.jpg"
+    src="{{ '/img/hero.jpg' | url }}"
     alt="{% if resume.name %}{{ resume.name }}{% else %}Hero photo{% endif %}"
     width="1066"
     height="1600"
@@ -22,9 +22,9 @@ title: Home
     <p class="home-hero__location meta rise-in rise-in--delay-2">{{ resume.location }}</p>
     {% endif %}
     <ul class="home-hero__ctas rise-in rise-in--delay-3">
-      <li><a class="home-hero__cta home-hero__cta--primary" href="/resume/">Resume</a></li>
-      <li><a class="home-hero__cta" href="/blog/">Blog</a></li>
-      <li><a class="home-hero__cta" href="/write-ups/">Write-Ups</a></li>
+      <li><a class="home-hero__cta home-hero__cta--primary" href="{{ '/resume/' | url }}">Resume</a></li>
+      <li><a class="home-hero__cta" href="{{ '/blog/' | url }}">Blog</a></li>
+      <li><a class="home-hero__cta" href="{{ '/write-ups/' | url }}">Write-Ups</a></li>
       {% if resume.linkedin %}
       <li>
         <a class="home-hero__cta" href="{{ resume.linkedin }}" target="_blank" rel="noopener noreferrer">

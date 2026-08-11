@@ -30,10 +30,16 @@
         location.pathname !== "/hacklas/") {
       return;
     }
+    var withPrefix =
+      typeof window.siteUrl === "function"
+        ? window.siteUrl
+        : function (p) {
+            return p;
+          };
     var next =
       q && String(q).length
-        ? "/hacklas/?q=" + encodeURIComponent(q)
-        : "/hacklas/";
+        ? withPrefix("/hacklas/") + "?q=" + encodeURIComponent(q)
+        : withPrefix("/hacklas/");
     var cur = location.pathname + location.search;
     if (cur === next) return;
     history.replaceState(null, "", next);

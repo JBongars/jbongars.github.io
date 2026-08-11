@@ -4,16 +4,16 @@ layout: base.njk
 {% set tocHtml = content | toc %}
 {% set bodyHtml = content | stripNoteChrome %}
 <div class="note-bar">
-  <a class="back-button" href="/hacklas/" data-back>← Back</a>
+  <a class="back-button" href="{{ '/hacklas/' | url }}" data-back>← Back</a>
   {% if noteTags and noteTags.length %}
   <nav class="breadcrumbs" aria-label="Breadcrumb">
-    <a class="breadcrumbs__link" href="/hacklas/">Hacklas</a>
+    <a class="breadcrumbs__link" href="{{ '/hacklas/' | url }}">Hacklas</a>
     {% for part in noteTags %}
     <span class="breadcrumbs__sep" aria-hidden="true">/</span>
     {% if loop.last %}
     <span class="breadcrumbs__current" aria-current="page">{{ part }}</span>
     {% else %}
-    <a class="breadcrumbs__link" href="/hacklas/?q={{ noteTags.slice(0, loop.index) | join('/') | urlencode }}">{{ part }}</a>
+    <a class="breadcrumbs__link" href="{{ '/hacklas/' | url }}?q={{ noteTags.slice(0, loop.index) | join('/') | urlencode }}">{{ part }}</a>
     {% endif %}
     {% endfor %}
   </nav>

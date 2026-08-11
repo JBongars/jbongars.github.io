@@ -13,10 +13,10 @@ permalink: /write-ups/
     {% if writeup.date %}data-date="{{ writeup.date.toISOString() }}"{% endif %}
     {% if writeup.data.tags and writeup.data.tags.length %}data-tags="{{ writeup.data.tags | join(',') }}"{% endif %}
   >
-    <a class="card card--with-media" href="{{ writeup.url }}">
+    <a class="card card--with-media" href="{{ writeup.url | url }}">
       <div class="card__media{% if not writeup.data.banner %} card__media--fallback{% endif %}">
         {% if writeup.data.banner %}
-        <img src="{{ writeup.data.banner }}" alt="" width="1280" height="720" loading="lazy" decoding="async">
+        <img src="{{ writeup.data.banner | url }}" alt="" width="1280" height="720" loading="lazy" decoding="async">
         {% endif %}
       </div>
       <h2 class="card__title">{{ writeup.data.title or writeup.fileSlug }}</h2>

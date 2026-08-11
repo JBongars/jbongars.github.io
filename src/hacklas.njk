@@ -29,7 +29,7 @@ permalink: /hacklas/
         data-path="{{ note.data.notePath or '' }}"
         {% if note.data.noteTags and note.data.noteTags.length %}data-tags="{{ note.data.noteTags | join(',') }}"{% endif %}
       >
-        <a href="{{ note.url }}">
+        <a href="{{ note.url | url }}">
           <span class="fuzzy-find__title">{{ note.data.title or note.fileSlug }}</span>
           {% if note.data.notePath %}
           <span class="fuzzy-find__path">{{ note.data.notePath }}</span>

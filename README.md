@@ -12,6 +12,23 @@ npm run build   # output → _site/
 
 Push to `main` deploys `_site/` to GitHub Pages via `.github/workflows/deploy.yml`.
 
+### Path prefix (GitHub project Pages)
+
+Asset and nav URLs are rooted with Eleventy’s `pathPrefix`, derived from:
+
+| Env var | Example | Use |
+|---|---|---|
+| `SITE_URL` | `https://jbongars.github.io/julienbongars.com/` | Full site URL (pathname becomes the prefix) |
+| `PATH_PREFIX` | `/julienbongars.com/` | Path only (overrides `SITE_URL` if both set) |
+
+Local `npm run serve` / `npm run build` default to `/` (no prefix). The deploy workflow sets `SITE_URL` for Pages. Templates use the `| url` filter; client JS uses `window.siteUrl()`.
+
+```bash
+SITE_URL=https://jbongars.github.io/julienbongars.com/ npm run build
+# or
+PATH_PREFIX=/julienbongars.com/ npm run serve
+```
+
 ## Architecture
 
 ```
@@ -29,11 +46,11 @@ src/
 
 **Content**
 
-| Section          | Input                                           | Layout     | Notes                                                     |
-| ---------------- | ----------------------------------------------- | ---------- | --------------------------------------------------------- |
-| Home / Resume    | `index.njk`, `resume.njk` + `_data/resume.json` | `base.njk` | Data-driven                                               |
-| Blog / Write-ups | `src/{blog,write-ups}/**/*.md`                  | `post.njk` | Front matter meta, banners, TOC, listing sort/tag search  |
-| Hacklas          | `src/hacklas/**/*.md`                           | `note.njk` | Path segments → tags; fuzzy finder; optional feature flag |
+| Section | Input | Layout | Notes |
+|---|---|---|---|
+| Home / Resume | `index.njk`, `resume.njk` + `_data/resume.json` | `base.njk` | Data-driven |
+| Blog / Write-ups | `src/{blog,write-ups}/**/*.md` | `post.njk` | Front matter meta, banners, TOC, listing sort/tag search |
+| Hacklas | `src/hacklas/**/*.md` | `note.njk` | Path segments → tags; fuzzy finder; optional feature flag |
 
 **Markdown pipeline** (`.eleventy.js`): Prism highlighting, heading IDs + TOC, GitHub-style task lists, demote headings for posts (title lives in layout), rewrite relative `*.md` links for pretty URLs, strip Hacklas inline Author/Date/Path chrome into the note header.
 
@@ -60,5 +77,3 @@ Set `"hacklas": false` to hide the nav item, skip building Hacklas pages, and re
 - Progressive enhancement first; no hard JS dependency for reading content.
 - Blog/write-up entries: one folder per post with `index.md` and optional `banner.*`.
 - Hacklas notes: symlink `src/hacklas` → your notes tree; tags come from directory path.
-
-Happy hacking!

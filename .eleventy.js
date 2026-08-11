@@ -7,6 +7,36 @@ const features = require("./src/_data/features.json");
 
 loadLanguages.silent = true;
 
+/**
+ * Site root for GitHub project Pages (subdirectory) vs local/root hosting.
+ * Prefer PATH_PREFIX=/julienbongars.com/ or SITE_URL=https://jbongars.github.io/julienbongars.com/
+ */
+function resolvePathPrefix() {
+  const fromEnv = process.env.PATH_PREFIX || process.env.ELEVENTY_PATH_PREFIX;
+  let raw = fromEnv;
+  if (!raw && process.env.SITE_URL) {
+    try {
+      raw = new URL(process.env.SITE_URL).pathname;
+    } catch {
+      raw = process.env.SITE_URL;
+    }
+  }
+  if (!raw || raw === "/") return "/";
+  let p = String(raw).trim();
+  if (!p.startsWith("/")) p = `/${p}`;
+  if (p.length > 1 && !p.endsWith("/")) p = `${p}/`;
+  return p;
+}
+
+const pathPrefix = resolvePathPrefix();
+
+/** Prepend pathPrefix to a root-absolute path (/css/… → /prefix/css/…). */
+function withPathPrefix(href) {
+  if (!href || typeof href !== "string" || !href.startsWith("/")) return href;
+  if (pathPrefix === "/") return href;
+  return pathPrefix.replace(/\/$/, "") + href;
+}
+
 function isContentMarkdown(inputPath, folder) {
   return (
     typeof inputPath === "string" &&
@@ -418,9 +448,9 @@ function rewriteMarkdownLinkHref(href) {
   const suffix = match[3] || "";
 
   if (pathPart.startsWith("/")) {
-    // Site-root path: /hacklas/foo.md → /hacklas/foo/
+    // Site-root path: /hacklas/foo.md → /hacklas/foo/ (honours PATH_PREFIX)
     if (!pathPart.endsWith("/")) pathPart += "/";
-    return pathPart + suffix;
+    return withPathPrefix(pathPart) + suffix;
   }
 
   // Pretty-URL pages are one directory deeper than the source .md file.
@@ -504,6 +534,13 @@ function configureMarkdown(mdLib) {
 module.exports = function (eleventyConfig) {
   eleventyConfig.addPlugin(syntaxHighlight, {
     lineSeparator: "\n",
+  });
+
+  eleventyConfig.addGlobalData("pathPrefix", pathPrefix);
+  eleventyConfig.addGlobalData("siteUrl", () => {
+    const raw = process.env.SITE_URL;
+    if (!raw) return "";
+    return String(raw).replace(/\/?$/, "/");
   });
 
   // Warm common writeup languages so first highlight is reliable.
@@ -666,6 +703,7 @@ module.exports = function (eleventyConfig) {
   });
 
   return {
+    pathPrefix,
     dir: {
       input: "src",
       output: "_site",
