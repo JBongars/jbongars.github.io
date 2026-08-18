@@ -25,7 +25,15 @@ permalink: /resume/
         {% if resume.linkedin %}{{ resume.linkedin }}{% endif %}{% if resume.linkedin and resume.github %} · {% endif %}{% if resume.github %}{{ resume.github }}{% endif %}
       </p>
       {% endif %}
-      <ul class="resume__links" aria-label="Social links">
+      <ul class="resume__links" aria-label="Resume links">
+        <li>
+          <a class="home-hero__cta home-hero__cta--primary" href="{{ '/resume.pdf' | url }}" download="{{ resume.name | replace(' ', '_') }}_Resume.pdf">
+            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M8 2v7.2l2.6-2.6.7.7L8 11.2 4.7 7.3l.7-.7L7 9.2V2h1zm-5 10h10v1.5H3V12z"/>
+            </svg>
+            Resume.pdf
+          </a>
+        </li>
         {% if resume.github %}
         <li>
           <a href="{{ resume.github }}" target="_blank" rel="noopener noreferrer" aria-label="GitHub">

@@ -664,6 +664,9 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({
     "src/favicon/favicon.ico": "favicon.ico",
   });
+  eleventyConfig.addPassthroughCopy({
+    "src/_data/resume.pdf": "resume.pdf",
+  });
   passthroughMediaFolders(eleventyConfig, "blog");
   passthroughMediaFolders(eleventyConfig, "write-ups");
 
