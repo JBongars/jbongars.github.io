@@ -57,6 +57,9 @@
     if (typeof window.hydrateImageLightbox === "function") {
       window.hydrateImageLightbox();
     }
+    if (typeof window.hydrateComments === "function") {
+      window.hydrateComments();
+    }
   }
 
   window.syncSoftNavPath = function () {

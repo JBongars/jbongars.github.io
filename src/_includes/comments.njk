@@ -1,0 +1,21 @@
+{% if comments.enabled and comments.repo and comments.repoId and comments.categoryId %}
+{% set commentsTerm = page.url | replace("/", " ") | trim | replace(" ", "/") %}
+<section
+  class="comments"
+  aria-labelledby="comments-heading"
+  data-comments
+  data-repo="{{ comments.repo }}"
+  data-repo-id="{{ comments.repoId }}"
+  data-category="{{ comments.category }}"
+  data-category-id="{{ comments.categoryId }}"
+  data-theme="{{ comments.theme or 'transparent_dark' }}"
+  data-theme-light="{{ comments.themeLight or 'light' }}"
+  data-term="{{ commentsTerm }}"
+>
+  <h2 id="comments-heading" class="comments__title">Comments</h2>
+  <div class="comments__mount" data-comments-mount></div>
+  <noscript>
+    <p class="comments__noscript">Comments require JavaScript.</p>
+  </noscript>
+</section>
+{% endif %}

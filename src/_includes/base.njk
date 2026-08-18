@@ -146,6 +146,9 @@
   <script src="{{ '/js/code-blocks.js' | url }}" defer></script>
   <script src="{{ '/js/image-lightbox.js' | url }}" defer></script>
   <script src="{{ '/js/back-button.js' | url }}" defer></script>
+  {% if comments.enabled %}
+  <script src="{{ '/js/comments.js' | url }}" defer></script>
+  {% endif %}
   <script src="{{ '/js/site.js' | url }}" defer></script>
 </body>
 </html>

@@ -290,3 +290,36 @@
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
+
+.comments {
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border);
+}
+
+.comments__title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--heading);
+}
+
+.comments__mount {
+  min-width: 0;
+}
+
+.comments__mount .giscus,
+.comments__mount .giscus-frame {
+  width: 100%;
+}
+
+.comments__mount .giscus-frame {
+  border: 0;
+  background: transparent;
+}
+
+.comments__noscript {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
