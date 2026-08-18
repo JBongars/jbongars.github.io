@@ -39,7 +39,8 @@ src/
   hacklas.njk     # Hacklas fuzzy-find index
   js/             # deferred progressive enhancement
   css/            # stylesheets (style.css imports tokens, shell, post, …)
-.eleventy.js      # collections, markdown pipeline, filters
+.eleventy.js      # plugins, copies, collections
+_11ty/            # markdown pipeline, JSON-LD, banners, computed data
 ```
 
 **Content**

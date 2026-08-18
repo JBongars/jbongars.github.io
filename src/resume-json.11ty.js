@@ -1,9 +1,5 @@
 const resume = require("./_data/resume.json");
-
-function siteOrigin() {
-  const raw = process.env.SITE_URL;
-  return raw ? String(raw).replace(/\/?$/, "") : "";
-}
+const { siteOrigin } = require("../_11ty/paths");
 
 function parseYearRange(dates) {
   const m = String(dates || "").match(/(\d{4})\s*[–-]\s*(\d{4}|present)?/i);

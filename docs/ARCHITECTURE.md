@@ -12,7 +12,8 @@
 ## File structure
 
     /
-    ├── .eleventy.js
+    ├── .eleventy.js              # thin Eleventy entry (plugins, copies, collections)
+    ├── _11ty/                    # build helpers required by .eleventy.js
     ├── package.json
     ├── src/
     │   ├── _includes/
@@ -34,9 +35,9 @@
     └── .github/workflows/
         └── deploy.yml
 
-Do not introduce additional top-level folders or a `components/` directory —
-this project is small enough that flat structure is a feature, not a
-limitation.
+`_11ty/` holds Eleventy build helpers so `.eleventy.js` stays an orchestrator.
+Do not introduce a `components/` directory or other app-style top-level folders
+— this project is small enough that a flat `src/` is a feature, not a limitation.
 
 ## Content model
 
