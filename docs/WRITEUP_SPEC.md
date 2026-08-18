@@ -40,8 +40,41 @@ abridge, summarize, "..."-collapse, or tidy them.**
   ran it that way, it appears that way.
 - Do not merge or split the author's code blocks. Keep their boundaries.
 
+**One exception:** the contents of flag / proof files are redacted, not
+reproduced — see **Flags & secrets** below. That is the only thing ever
+removed from a log; everything else stays byte-for-byte.
+
 The only content you rewrite is the author's connective _prose_ — the
 narration between the code — and only to bring it into the voice below.
+
+---
+
+## Flags & secrets
+
+The proof strings a box hands out — the contents of `user.txt`, `root.txt`,
+`flag.txt`, `proof.txt`, and platform equivalents (`local.txt`, etc.) — are
+the one exception to _Content preservation_. Their **values are redacted,
+never reproduced.**
+
+- Replace the value with a placeholder built from the file it came from:
+  `user.txt` → `<user.txt>`, `root.txt` → `<root.txt>`,
+  `flag.txt` → `<flag.txt>`, `proof.txt` → `<proof.txt>`.
+- Redact the value **wherever it appears** — inside terminal output, as a
+  stage's closing result, in a table, and anywhere else it shows up ("at
+  any stage").
+- **Redact only the value.** The command that read it stays verbatim. A
+  `cat /root/root.txt` line keeps the command exactly and shows `<root.txt>`
+  on the line where the proof string would have been. Prompts, paths, and
+  every surrounding line in that block are reproduced in full as usual.
+- Do not reformat, wrap, shorten, or annotate the placeholder. `<root.txt>`
+  on its own line is the entire replacement.
+
+Passwords, hashes, tokens, and other recovered secrets are **not** globally
+redacted — they are real technical content. They stay in the body (in the
+relevant stage and in the _Credentials_ table). A hash the author captured
+and cracked is evidence, not a flag; keep it as-is. The **only** place a
+literal password or secret is withheld is the _Summary_ — see the Summary
+entry under _Document structure_.
 
 ---
 
@@ -100,6 +133,14 @@ nothing for it (except the ones marked **required**).
    final privesc, naming the key CVE/technique at each hop. A reader should
    understand the whole box from this section alone. If the box has a notable
    intended dead-end, name it in a final sentence.
+   The Summary is an **overview**: it gives the reader the general path,
+   including the recon/enumeration that surfaced each foothold or credential,
+   so they can follow how each value was obtained in the first place — but it
+   carries **no secrets**. **No literal passwords, keys, tokens, or flag
+   values in the Summary.** Refer to a credential by its role ("the backup
+   account's password," "the leaked API key"), never by its value; the actual
+   value lives in the _Credentials_ table. Flag values are redacted here as
+   everywhere (see _Flags & secrets_).
 4. **`## Recon`** — required. Subsections as needed:
    - `### Port scanning` — the scan commands and their **full** output.
    - `### Enumeration` — web/service enumeration, vhosts, content discovery.
@@ -109,9 +150,12 @@ nothing for it (except the ones marked **required**).
 5. **`## Stage N: <short description>`** — one numbered stage per meaningful
    phase of the chain (foothold, shell stabilization, each pivot, escalation).
    Within a stage use `###` / `####` for sub-steps. Every stage ends with the
-   concrete result it produced (a shell, a credential, a hash, a flag).
+   concrete result it produced (a shell, a credential, a hash, a redacted
+   flag value).
 6. **`## Credentials`** — a table of every credential/secret recovered, with
-   where it came from. Include even guessed/default creds.
+   where it came from. Include even guessed/default creds. Flag/proof strings
+   are **not** credentials — they do not go in this table, and their values
+   are redacted per _Flags & secrets_.
 7. **`## Key lessons`** — bulleted. Fold the author's retro / "lessons" here.
    Each bullet is a durable, transferable takeaway, bolded lead-in then the
    detail. Keep the author's actual insights; don't replace them with
@@ -175,8 +219,14 @@ of a writeup. Never silently delete a documented failure.
 
 ## Hard requirements
 
-- **Every log and code block is reproduced in full.** If you find yourself
-  shortening one, stop — that is the top failure mode for this task.
+- **Every log and code block is reproduced in full**, with the single
+  exception of flag/proof-file contents (redacted per _Flags & secrets_). If
+  you find yourself shortening anything else, stop — that is the top failure
+  mode for this task.
+- **Flags are redacted; the Summary carries no secrets.** No literal
+  `user.txt` / `root.txt` / `flag.txt` / `proof.txt` value appears anywhere in
+  the document, and no password, key, token, or flag value appears in the
+  Summary.
 - **No invented technical content.** Commands, output, versions, CVE
   behavior, IPs, and flags come only from the draft.
 - **Front matter and section order match this spec exactly.**
@@ -200,6 +250,13 @@ are permitted, even in a "light" form.
 - **Inventing the missing middle.** If the draft jumps from payload to root
   without showing the exploit-gen commands, you describe and link — you do
   not fabricate the commands.
+- **Reformatting or redacting hashes and other captured artifacts.** Leave
+  hashes, tokens, and output exactly as the author captured them. The _sole_
+  exception is flag/proof-file contents, which **are** redacted — see _Flags
+  & secrets_. This bullet is about not silently mangling everything else.
+- **Printing a literal flag value, or putting a password/secret in the
+  Summary.** Flag contents are replaced with `<file.txt>` everywhere; the
+  Summary names credentials by role, never by value.
 - **Marketing / hype voice.** No "effortlessly," "powerful," "leverage the
   full potential," "in this comprehensive guide." Describe what happened.
 - **Fake confidence about unverified claims.** If the author wasn't sure why
@@ -209,8 +266,9 @@ are permitted, even in a "light" form.
   lesson three times. Say it once, in the right place.
 - **Collapsing dead ends into "after some enumeration."** Show the actual
   failed attempt.
-- **Reformatting flags/hashes** or redacting them — leave them exactly as the
-  author captured them.
+- **Reformatting hashes** or redacting the wrong things — leave hashes and
+  captured output exactly as the author had them (flag contents are the only
+  redaction; see _Flags & secrets_).
 - **Dropping or placeholdering the author's images.** Keep the
   `![](.media/…)` markdown as-is.
 - **Reordering the attack chain** to look cleaner than it happened, unless
@@ -221,7 +279,8 @@ are permitted, even in a "light" form.
 ## What to do instead (the actual direction)
 
 - Preserve every command and every byte of output; reshape only the prose
-  around them.
+  around them. The one thing you take out is the flag/proof value, replaced
+  with its `<file.txt>` placeholder.
 - Lead each section with the reasoning — why this step, what it revealed —
   then let the untouched logs carry the evidence.
 - Keep the author's real dead ends and real lessons; format them, don't
