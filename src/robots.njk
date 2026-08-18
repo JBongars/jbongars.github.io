@@ -6,5 +6,8 @@ layout: false
 User-agent: *
 Allow: /
 
+# Agent map (https://llmstxt.org)
+{% if siteUrl %}# {{ siteUrl }}llms.txt
+{% endif %}
 {% if siteUrl %}Sitemap: {{ siteUrl }}sitemap.xml
 {% endif %}

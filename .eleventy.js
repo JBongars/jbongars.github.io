@@ -10,8 +10,8 @@ const security = require("./src/_data/security.js");
 loadLanguages.silent = true;
 
 /**
- * Site root for GitHub project Pages (subdirectory) vs local/root hosting.
- * Prefer PATH_PREFIX=/julienbongars.com/ or SITE_URL=https://jbongars.github.io/julienbongars.com/
+ * Site root for GitHub Pages. User site: SITE_URL=https://jbongars.github.io/
+ * Project Pages still work via PATH_PREFIX=/repo/ or a SITE_URL pathname.
  */
 function resolvePathPrefix() {
   const fromEnv = process.env.PATH_PREFIX || process.env.ELEVENTY_PATH_PREFIX;
@@ -37,6 +37,188 @@ function withPathPrefix(href) {
   if (!href || typeof href !== "string" || !href.startsWith("/")) return href;
   if (pathPrefix === "/") return href;
   return pathPrefix.replace(/\/$/, "") + href;
+}
+
+function siteOrigin() {
+  const raw = process.env.SITE_URL;
+  return raw ? String(raw).replace(/\/?$/, "") : "";
+}
+
+function absoluteHref(pathname) {
+  const href = pathname == null || pathname === "" ? "/" : String(pathname);
+  const normalized = href.startsWith("/") ? href : `/${href}`;
+  const origin = siteOrigin();
+  return origin ? `${origin}${normalized}` : normalized;
+}
+
+function xmlEscape(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function plainSummary(html, max = 280) {
+  const text = String(html || "")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (text.length <= max) return text;
+  return `${text.slice(0, max).replace(/\s+\S*$/, "")}…`;
+}
+
+function personNode() {
+  const personResume = require("./src/_data/resume.json");
+  const origin = siteOrigin();
+  const person = {
+    "@type": "Person",
+    name: personResume.name,
+    jobTitle: personResume.title,
+  };
+  if (origin) {
+    person.url = `${origin}/`;
+    person.image = `${origin}/img/profile.jpg`;
+  }
+  const sameAs = [personResume.linkedin, personResume.github].filter(Boolean);
+  if (sameAs.length) person.sameAs = sameAs;
+  if (personResume.location) {
+    person.address = {
+      "@type": "PostalAddress",
+      addressLocality: personResume.location,
+    };
+  }
+  if (Array.isArray(personResume.skills) && personResume.skills.length) {
+    person.knowsAbout = personResume.skills;
+  }
+  return person;
+}
+
+function listItems(collection) {
+  return (collection || []).map((item, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    url: absoluteHref(item.url),
+    name: item.data?.title || item.fileSlug,
+  }));
+}
+
+function pageDescription(data) {
+  const raw = data.description;
+  if (typeof raw === "string" && raw.trim()) return raw.trim();
+  const personResume = require("./src/_data/resume.json");
+  const name = personResume.name || "";
+  const role = personResume.title || "";
+  const url = data.page?.url || "/";
+  const inputPath = data.page?.inputPath;
+  const heading = data.title || data.page?.fileSlug || name;
+  if (url === "/") {
+    return `${name} — ${role} in Singapore. The resume is compact employment history; the blog covers depth that does not fit there; write-ups are hands-on offensive security work.`;
+  }
+  if (url === "/resume/") {
+    return `Resume for ${name}, ${role} in Singapore. Compact employment history; see the blog and write-ups for depth.`;
+  }
+  if (url === "/blog/") {
+    return `Blog by ${name}: project notes and longer explanations for skills and work the resume cannot hold.`;
+  }
+  if (url === "/write-ups/") {
+    return `HackTheBox and Offensive Security machine write-ups by ${name}.`;
+  }
+  if (isContentMarkdown(inputPath, "blog")) {
+    return `${heading} — blog post by ${name}.`;
+  }
+  if (isContentMarkdown(inputPath, "write-ups")) {
+    return `${heading} — offensive security write-up by ${name}.`;
+  }
+  return `${role} in Singapore. Resume, blog, write-ups, and LinkedIn.`;
+}
+
+function buildJsonLd(data) {
+  const pageUrl = data.page?.url || "/";
+  const url = absoluteHref(pageUrl);
+  const person = personNode();
+  const inputPath = data.page?.inputPath;
+  const description = pageDescription(data);
+  const headline = data.title || person.name;
+
+  if (pageUrl === "/") {
+    return {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      url,
+      name: person.name,
+      description,
+      mainEntity: person,
+      hasPart: [
+        { "@type": "WebPage", name: "Resume", url: absoluteHref("/resume/") },
+        { "@type": "CollectionPage", name: "Blog", url: absoluteHref("/blog/") },
+        {
+          "@type": "CollectionPage",
+          name: "Write-Ups",
+          url: absoluteHref("/write-ups/"),
+        },
+      ],
+    };
+  }
+
+  if (pageUrl === "/resume/") {
+    return {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      url,
+      name: `${person.name} — Resume`,
+      description,
+      mainEntity: person,
+    };
+  }
+
+  if (pageUrl === "/blog/" || pageUrl === "/write-ups/") {
+    const isBlog = pageUrl === "/blog/";
+    const items = isBlog ? data.collections?.blog : data.collections?.writeUps;
+    return {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      url,
+      name: isBlog ? "Blog" : "Write-Ups",
+      description,
+      about: person,
+      mainEntity: {
+        "@type": "ItemList",
+        numberOfItems: (items || []).length,
+        itemListElement: listItems(items),
+      },
+    };
+  }
+
+  if (
+    isContentMarkdown(inputPath, "blog") ||
+    isContentMarkdown(inputPath, "write-ups")
+  ) {
+    const isWriteUp = isContentMarkdown(inputPath, "write-ups");
+    const node = {
+      "@context": "https://schema.org",
+      "@type": isWriteUp ? "TechArticle" : "BlogPosting",
+      url,
+      headline,
+      description,
+      author: person,
+      mainEntityOfPage: url,
+    };
+    if (data.date instanceof Date && !Number.isNaN(data.date.getTime())) {
+      node.datePublished = data.date.toISOString().slice(0, 10);
+    }
+    if (person.image) node.image = person.image;
+    return node;
+  }
+
+  return {
+    "@context": "https://schema.org",
+    ...person,
+    description,
+  };
 }
 
 function isContentMarkdown(inputPath, folder) {
@@ -751,41 +933,20 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("externalHref", (value) => parseFrontMatterLink(value).href);
   eleventyConfig.addFilter("linkLabel", (value) => parseFrontMatterLink(value).label);
   eleventyConfig.addFilter("cssDecls", cssDecls);
-  eleventyConfig.addFilter("absoluteUrl", (path) => {
-    const raw = process.env.SITE_URL;
-    const origin = raw ? String(raw).replace(/\/?$/, "") : "";
-    const href = path == null || path === "" ? "/" : String(path);
-    const normalized = href.startsWith("/") ? href : `/${href}`;
-    if (!origin) return normalized;
-    return `${origin}${normalized}`;
-  });
-  eleventyConfig.addGlobalData("personJsonLd", () => {
-    const personResume = require("./src/_data/resume.json");
-    const origin = process.env.SITE_URL
-      ? String(process.env.SITE_URL).replace(/\/?$/, "")
-      : "";
-    const person = {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      name: personResume.name,
-      jobTitle: personResume.title,
-    };
-    if (origin) {
-      person.url = `${origin}/`;
-      person.image = `${origin}/img/profile.jpg`;
-    }
-    const sameAs = [personResume.linkedin, personResume.github].filter(Boolean);
-    if (sameAs.length) person.sameAs = sameAs;
-    if (personResume.location) {
-      person.address = {
-        "@type": "PostalAddress",
-        addressLocality: personResume.location,
-      };
-    }
-    if (Array.isArray(personResume.skills) && personResume.skills.length) {
-      person.knowsAbout = personResume.skills;
-    }
-    return JSON.stringify(person);
+  eleventyConfig.addFilter("xmlEscape", xmlEscape);
+  eleventyConfig.addFilter("plainSummary", (html) => plainSummary(html));
+  eleventyConfig.addFilter("absoluteUrl", (path) => absoluteHref(path));
+  eleventyConfig.addFilter("jsonLdGraph", function (collections) {
+    const ctx = this.ctx || {};
+    return JSON.stringify(
+      buildJsonLd({
+        page: ctx.page || this.page,
+        title: ctx.title,
+        description: ctx.metaDescription || ctx.description,
+        date: ctx.date,
+        collections: collections || ctx.collections,
+      })
+    );
   });
   eleventyConfig.addShortcode("year", () => `${new Date().getFullYear()}`);
 
@@ -796,6 +957,7 @@ module.exports = function (eleventyConfig) {
 
   // Apply shared layouts without writing data files into content folders.
   eleventyConfig.addGlobalData("eleventyComputed", {
+    metaDescription: (data) => pageDescription(data),
     layout: (data) => {
       const inputPath = data.page?.inputPath;
       if (isContentMarkdown(inputPath, "hacklas")) {
@@ -899,6 +1061,12 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addCollection("writeUps", (collectionApi) => {
     return collectionApi
       .getFilteredByGlob("src/write-ups/**/*.md")
+      .sort((a, b) => b.date - a.date);
+  });
+
+  eleventyConfig.addCollection("feed", (collectionApi) => {
+    return collectionApi
+      .getFilteredByGlob(["src/blog/**/*.md", "src/write-ups/**/*.md"])
       .sort((a, b) => b.date - a.date);
   });
 

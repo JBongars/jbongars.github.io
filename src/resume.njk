@@ -2,6 +2,7 @@
 layout: base.njk
 title: Resume
 permalink: /resume/
+description: "Resume for Julien Bongars, Infrastructure, Cloud & Application Security Engineer in Singapore. Compact employment history; see the blog and write-ups for depth."
 ---
 {% from "skill-tag.njk" import skillTag with context %}
 <article class="resume">
@@ -20,11 +21,9 @@ permalink: /resume/
       {% if resume.location %}
       <p class="resume__location meta">{{ resume.location }}</p>
       {% endif %}
-      {% if resume.linkedin or resume.github %}
       <p class="resume__print-contact">
-        {% if resume.linkedin %}{{ resume.linkedin }}{% endif %}{% if resume.linkedin and resume.github %} · {% endif %}{% if resume.github %}{{ resume.github }}{% endif %}
+        https://jbongars.github.io/{% if resume.linkedin %} · {{ resume.linkedin }}{% endif %}{% if resume.github %} · {{ resume.github }}{% endif %}
       </p>
-      {% endif %}
       <ul class="resume__links" aria-label="Resume links">
         <li>
           <a class="home-hero__cta home-hero__cta--primary" href="{{ '/resume.pdf' | url }}" download="{{ resume.name | replace(' ', '_') }}_Resume.pdf">
@@ -36,14 +35,14 @@ permalink: /resume/
         </li>
         {% if resume.github %}
         <li>
-          <a href="{{ resume.github }}" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+          <a href="{{ resume.github }}" target="_blank" rel="me noopener noreferrer" aria-label="GitHub">
             <img class="social-icon" src="{{ '/img/github.svg' | url }}" alt="" width="20" height="20" eleventy:ignore>
           </a>
         </li>
         {% endif %}
         {% if resume.linkedin %}
         <li>
-          <a href="{{ resume.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <a href="{{ resume.linkedin }}" target="_blank" rel="me noopener noreferrer" aria-label="LinkedIn">
             <img class="social-icon" src="{{ '/img/linkedin.svg' | url }}" alt="" width="20" height="20" eleventy:ignore>
           </a>
         </li>

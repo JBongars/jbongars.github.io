@@ -35,8 +35,8 @@ jobs:
 
       - name: Build
         env:
-          # Project Pages live under /<repo>/ — not the domain root.
-          SITE_URL: https://jbongars.github.io/julienbongars.com/
+          # User GitHub Pages — origin root, not a project subdirectory.
+          SITE_URL: https://jbongars.github.io/
         run: npm run build
 
       - name: Upload artifact

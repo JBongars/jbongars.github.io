@@ -6,19 +6,24 @@
   <meta http-equiv="Content-Security-Policy" content="{{ security.contentSecurityPolicy | safe }}">
   <meta name="referrer" content="{{ security.referrerPolicy }}">
   <title>{% if title %}{{ title }} · {% endif %}{{ resume.name }}</title>
-  <meta name="description" content="Infrastructure, Cloud &amp; Application Security Engineer in Singapore. Resume, write-ups, and LinkedIn.">
+  <meta name="description" content="{{ metaDescription }}">
   <meta name="author" content="{{ resume.name }}">
   <link rel="canonical" href="{{ page.url | absoluteUrl }}">
+  <link rel="describedby" href="{{ '/llms.txt' | absoluteUrl }}" type="text/markdown">
+  <link rel="alternate" type="application/rss+xml" title="{{ resume.name }}" href="{{ '/feed.xml' | absoluteUrl }}">
+  {% if page.url == "/resume/" %}
+  <link rel="alternate" type="application/json" title="JSON Resume" href="{{ '/resume.json' | absoluteUrl }}">
+  {% endif %}
   <meta property="og:title" content="{% if title %}{{ title }} · {% endif %}{{ resume.name }}">
-  <meta property="og:description" content="Infrastructure, Cloud &amp; Application Security Engineer in Singapore. Resume, write-ups, and LinkedIn.">
-  <meta property="og:type" content="website">
+  <meta property="og:description" content="{{ metaDescription }}">
+  <meta property="og:type" content="{% if (page.url != '/blog/' and '/blog/' in page.url) or (page.url != '/write-ups/' and '/write-ups/' in page.url) %}article{% else %}website{% endif %}">
   <meta property="og:url" content="{{ page.url | absoluteUrl }}">
   <meta property="og:image" content="{{ '/img/hero.jpg' | absoluteUrl }}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{% if title %}{{ title }} · {% endif %}{{ resume.name }}">
-  <meta name="twitter:description" content="Infrastructure, Cloud &amp; Application Security Engineer in Singapore. Resume, write-ups, and LinkedIn.">
+  <meta name="twitter:description" content="{{ metaDescription }}">
   <meta name="twitter:image" content="{{ '/img/hero.jpg' | absoluteUrl }}">
-  <script type="application/ld+json">{{ personJsonLd | safe }}</script>
+  <script type="application/ld+json">{{ collections | jsonLdGraph | safe }}</script>
   <link rel="icon" href="{{ '/favicon.ico' | url }}" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="{{ '/favicon/favicon-32x32.png' | url }}">
   <link rel="icon" type="image/png" sizes="16x16" href="{{ '/favicon/favicon-16x16.png' | url }}">
@@ -84,7 +89,7 @@
               class="nav-list__external"
               href="{{ resume.linkedin }}"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="me noopener noreferrer"
               aria-label="LinkedIn"
             >
               <span class="nav-list__external-label">LinkedIn</span>
@@ -126,14 +131,14 @@
       <ul class="site-footer__socials" aria-label="Social links">
         {% if resume.github %}
         <li>
-          <a href="{{ resume.github }}" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+          <a href="{{ resume.github }}" target="_blank" rel="me noopener noreferrer" aria-label="GitHub">
             <img class="social-icon" src="{{ '/img/github.svg' | url }}" alt="" width="20" height="20" eleventy:ignore>
           </a>
         </li>
         {% endif %}
         {% if resume.linkedin %}
         <li>
-          <a href="{{ resume.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <a href="{{ resume.linkedin }}" target="_blank" rel="me noopener noreferrer" aria-label="LinkedIn">
             <img class="social-icon" src="{{ '/img/linkedin.svg' | url }}" alt="" width="20" height="20" eleventy:ignore>
           </a>
         </li>

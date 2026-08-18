@@ -1,0 +1,25 @@
+---
+permalink: /feed.xml
+eleventyExcludeFromCollections: true
+layout: false
+description: "Blog posts and Offensive Security write-ups by Julien Bongars."
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{{ resume.name | xmlEscape }}</title>
+    <link>{{ "/" | absoluteUrl }}</link>
+    <description>{{ metaDescription | xmlEscape }}</description>
+    <language>en</language>
+    <atom:link href="{{ "/feed.xml" | absoluteUrl }}" rel="self" type="application/rss+xml"/>
+    {% for item in collections.feed %}
+    <item>
+      <title>{{ (item.data.title or item.fileSlug) | xmlEscape }}</title>
+      <link>{{ item.url | absoluteUrl }}</link>
+      <guid>{{ item.url | absoluteUrl }}</guid>
+      {% if item.date %}<pubDate>{{ item.date.toUTCString() }}</pubDate>{% endif %}
+      <description>{{ (item.data.description or (item.templateContent | plainSummary)) | xmlEscape }}</description>
+    </item>
+    {% endfor %}
+  </channel>
+</rss>

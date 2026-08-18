@@ -25,8 +25,10 @@
     │   ├── blog/                 # listing + one folder per blog post
     │   ├── write-ups/            # listing + one folder per write-up
     │   ├── 404.njk
-    │   ├── robots.njk            # → /robots.txt (includes Sitemap)
+    │   ├── robots.njk            # → /robots.txt (Sitemap + llms.txt)
     │   ├── sitemap.njk           # → /sitemap.xml
+    │   ├── llms.njk              # → /llms.txt (agent map)
+    │   ├── feed.njk              # → /feed.xml (blog + write-ups)
     │   ├── index.njk
     │   └── resume.njk
     └── .github/workflows/
@@ -94,8 +96,9 @@ with the no-JS-required requirement. Do not use a client-side highlighter
 - Local dev: `npx @11ty/eleventy --serve`
 - Production build: `npx @11ty/eleventy` → outputs to `_site/`
 - Deploy: GitHub Actions builds on every push to `main` and publishes `_site/`
-  to GitHub Pages (see deploy.yml). `SITE_URL` is set in the workflow so
-  canonical tags, Open Graph URLs, `robots.txt`, and `sitemap.xml` are absolute.
+  to GitHub Pages (see deploy.yml). `SITE_URL` is `https://jbongars.github.io/`
+  so canonical tags, Open Graph URLs, `robots.txt`, `sitemap.xml`, `llms.txt`,
+  `feed.xml`, and `/resume.json` (JSON Resume) are absolute origin-root URLs.
   No manual deploy step, no gh-pages branch.
 
 ## Images

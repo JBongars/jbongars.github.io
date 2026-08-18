@@ -1,0 +1,39 @@
+---
+permalink: /llms.txt
+eleventyExcludeFromCollections: true
+layout: false
+---
+# {{ resume.name | safe }}
+
+> {{ resume.title | safe }} in {{ resume.location | safe }}. Resume is compact employment history; the blog covers depth that does not fit there; write-ups are hands-on offensive security work.
+
+## Start here
+
+- [Home]({{ "/" | absoluteUrl }}): who I am and how the site is organized
+- [Resume]({{ "/resume/" | absoluteUrl }}): compact claims and employment history
+- [Resume PDF]({{ "/resume.pdf" | absoluteUrl }}): printable copy
+- [Resume JSON]({{ "/resume.json" | absoluteUrl }}): JSON Resume data
+{% if resume.linkedin %}- [LinkedIn]({{ resume.linkedin | safe }}): professional profile
+{% endif %}{% if resume.github %}- [GitHub]({{ resume.github | safe }}): source and projects
+{% endif %}
+## Resume
+
+- [Resume]({{ "/resume/" | absoluteUrl }}): roles, skills, education — gaps are expected
+- [Resume PDF]({{ "/resume.pdf" | absoluteUrl }}): same content as a file
+- [Resume JSON]({{ "/resume.json" | absoluteUrl }}): machine-readable JSON Resume
+
+## Blog
+
+- [Blog]({{ "/blog/" | absoluteUrl }}): long-form depth for skills and projects the resume cannot hold
+{% for post in collections.blog %}- [{{ (post.data.title or post.fileSlug) | safe }}]({{ post.url | absoluteUrl }}){% if post.data.description %}: {{ post.data.description | safe }}{% endif %}
+{% endfor %}
+## Write-ups
+
+- [Write-Ups]({{ "/write-ups/" | absoluteUrl }}): Offensive Security / HackTheBox machine write-ups that demonstrate hands-on hacking
+{% for writeup in collections.writeUps %}- [{{ (writeup.data.title or writeup.fileSlug) | safe }}]({{ writeup.url | absoluteUrl }}){% if writeup.data.description %}: {{ writeup.data.description | safe }}{% endif %}
+{% endfor %}
+## Optional
+
+- [Sitemap]({{ "/sitemap.xml" | absoluteUrl }}): all public HTML URLs
+- [RSS]({{ "/feed.xml" | absoluteUrl }}): blog and write-ups combined
+- [llms.txt]({{ "/llms.txt" | absoluteUrl }}): this file

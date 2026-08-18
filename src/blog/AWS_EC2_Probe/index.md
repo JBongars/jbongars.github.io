@@ -2,6 +2,7 @@
 title: I created an AWS EC2 Probe using AI
 author: Julien Bongars
 date: 2026-02
+description: "A CloudFormation wrapper that stands up an SSM-connected EC2 probe so you can work from inside a private subnet."
 banner_path: ../backgrounds/satelite-dish.jpg
 banner_style:
   filter: saturate(0.8) brightness(0.8) contrast(0.9);

@@ -12,21 +12,19 @@ npm run build   # output → _site/
 
 Push to `main` deploys `_site/` to GitHub Pages via `.github/workflows/deploy.yml`.
 
-### Path prefix (GitHub project Pages)
+### Site URL and path prefix
 
 Asset and nav URLs are rooted with Eleventy’s `pathPrefix`, derived from:
 
 | Env var | Example | Use |
 |---|---|---|
-| `SITE_URL` | `https://jbongars.github.io/julienbongars.com/` | Full site URL (pathname becomes the prefix) |
-| `PATH_PREFIX` | `/julienbongars.com/` | Path only (overrides `SITE_URL` if both set) |
+| `SITE_URL` | `https://jbongars.github.io/` | Canonical origin (pathname becomes the prefix) |
+| `PATH_PREFIX` | `/` | Path only (overrides `SITE_URL` if both set) |
 
-Local `npm run serve` / `npm run build` default to `/` (no prefix). The deploy workflow sets `SITE_URL` for Pages. Templates use the `| url` filter; client JS uses `window.siteUrl()`.
+Local `npm run serve` / `npm run build` default to `/`. The deploy workflow sets `SITE_URL` to the user Pages origin so canonical tags, Open Graph URLs, `robots.txt`, `sitemap.xml`, `llms.txt`, and `feed.xml` are absolute. Templates use the `| url` filter; client JS uses `window.siteUrl()`.
 
 ```bash
-SITE_URL=https://jbongars.github.io/julienbongars.com/ npm run build
-# or
-PATH_PREFIX=/julienbongars.com/ npm run serve
+SITE_URL=https://jbongars.github.io/ npm run build
 ```
 
 ## Architecture
