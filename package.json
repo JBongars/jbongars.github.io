@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "eleventy",
-    "serve": "eleventy --serve"
+    "serve": "eleventy --serve",
+    "audit": "npm audit --audit-level=high"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.0.0",

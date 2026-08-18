@@ -5,6 +5,7 @@ const loadLanguages = require("prismjs/components/index.js");
 const syntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 const { eleventyImageTransformPlugin } = require("@11ty/eleventy-img");
 const features = require("./src/_data/features.json");
+const security = require("./src/_data/security.js");
 
 loadLanguages.silent = true;
 
@@ -642,6 +643,10 @@ module.exports = function (eleventyConfig) {
 
   // Warm common writeup languages so first highlight is reliable.
   loadLanguages(["bash", "python", "json", "php", "markup", "c", "javascript"]);
+
+  eleventyConfig.setServerOptions({
+    headers: security.httpHeaders,
+  });
 
   eleventyConfig.addWatchTarget("src/css");
   eleventyConfig.on("eleventy.before", () => {

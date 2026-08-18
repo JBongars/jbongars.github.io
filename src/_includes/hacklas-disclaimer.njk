@@ -5,13 +5,7 @@
   aria-modal="true"
   aria-labelledby="hacklas-disclaimer-title"
 >
-  <script>
-    try {
-      if (localStorage.getItem("hacklas-disclaimer-ack") === "1") {
-        document.currentScript.parentElement.hidden = true;
-      }
-    } catch (e) {}
-  </script>
+  <script src="{{ '/js/hacklas-disclaimer-init.js' | url }}"></script>
   <div class="disclaimer-modal__backdrop" aria-hidden="true"></div>
   <div class="disclaimer-modal__panel">
     <h2 id="hacklas-disclaimer-title" class="disclaimer-modal__title">Disclaimer</h2>
