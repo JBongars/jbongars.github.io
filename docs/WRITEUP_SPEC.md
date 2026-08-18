@@ -98,7 +98,10 @@ Every document opens with YAML front matter in exactly this shape:
 title: <Box name>
 author: <author>
 date: <YYYY-MM>
+description: "<one-line summary>"   # optional; quoted if it contains a colon
 link: [<display url>](<full url>)
+banner_path: ../offsec.jpg          # or ../hackthebox.png
+disable_tree: true                  # optional; hides the heading TOC
 tags:
   - <Platform>        # Offsec, HackTheBox, etc.
   - <Track>           # TJNull, etc. (omit if none)
@@ -107,6 +110,11 @@ tags:
   - Hacking
 ---
 ```
+
+Ship the file as `src/write-ups/<slug>/index.md` (one folder per box). Keep
+screenshots as `![](.media/….png)` next to that file. `description` feeds
+meta tags, RSS, and `/llms.txt`; omit it and the site falls back to
+`<title> — offensive security write-up by …`.
 
 - `link:` is a markdown link, not a bare URL.
 - Pull platform / track / difficulty / OS from the draft. If any is
@@ -200,9 +208,8 @@ of a writeup. Never silently delete a documented failure.
   wrote it** — reproduce the `![](.media/xxxx.png)` markdown verbatim and in
   place.
 - Do **not** convert them to `<!-- screenshot: ... -->` placeholders, comment
-  them out, or drop them. The `.media/` paths are relative to the author's own
-  repo and are expected not to render in the delivered file in isolation;
-  that is fine, leave them untouched.
+  them out, or drop them. On this site Eleventy copies each `.media/` folder
+  next to the write-up, so those paths render in the built page.
 - Keep the image in the same position relative to the surrounding prose and
   code that the author placed it in.
 
@@ -210,8 +217,8 @@ of a writeup. Never silently delete a documented failure.
 
 ## Delivery
 
-- Deliver as a single downloadable `.md` file, then present it.
-- Filename: `<box-name-lowercased>-writeup.md`.
+- Ship on this site as `src/write-ups/<slug>/index.md` (the folder name is
+  the URL slug). Screenshots live in `.media/` beside that file.
 - No commentary baked into the document beyond the writeup itself and any
   `<!-- TODO -->` markers.
 

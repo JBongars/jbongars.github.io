@@ -6,11 +6,13 @@ even if a prompt doesn't repeat them.
 - Never add a JS framework, CSS framework, or bundler (React, Vue, Tailwind,
   Bootstrap, webpack, esbuild) without being explicitly asked in the prompt.
 - Never add a client-side JS dependency without checking ARCHITECTURE.md
-  and SPEC.md first — this site ships no JS by default.
+  and SPEC.md first. Pages must work without JavaScript; existing scripts
+  are progressive enhancement only.
 - Any animation must follow DESIGN.md's motion rules exactly, including the
   prefers-reduced-motion gating.
-- Follow the file structure in ARCHITECTURE.md. Don't create new top-level
-  folders or restructure existing ones without asking.
+- Follow the file structure in ARCHITECTURE.md. `_11ty/` is the Eleventy
+  helper folder. Don't create other top-level folders or a `components/`
+  directory without asking.
 - Before making changes across more than one file, propose a short plan and
   wait for approval (use Plan mode).
 - After any change, confirm the page still renders correctly and is fully

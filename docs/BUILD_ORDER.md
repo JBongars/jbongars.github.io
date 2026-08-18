@@ -1,16 +1,20 @@
 # BUILD_ORDER.md
 
-Work through these phases one at a time. Start a new Cursor session (or at
-least a fresh Plan) per phase — don't try to do all of this in one prompt.
+Original scaffold sequence. **This work is done.** Do not start a new site
+from these steps. Current product rules: `SPEC.md`, `ARCHITECTURE.md`,
+`DESIGN.md`.
 
-1. Scaffold Eleventy project, base.njk shell (nav, footer, dark theme applied
-   globally), empty homepage.
-2. Build out style.css: color variables, typography, layout grid, card
-   component, per DESIGN.md.
-3. Wire up posts/ collection, blog listing page, single post layout.
-4. Wire up projects/ collection, listing page, single project layout.
-5. Wire up resume.json + resume.njk rendering.
-6. Add CSS-only animation pass (fade-ins, hover states, link underline).
-7. Add eleventy-img for responsive images.
-8. Add GitHub Actions deploy workflow, verify live deploy.
-9. Full pass: Lighthouse audit + JS-disabled manual test on every page.
+| Phase | Original plan | What shipped |
+|---|---|---|
+| 1 | Eleventy scaffold, `base.njk`, dark theme, empty home | Done |
+| 2 | `style.css` tokens, type, layout, cards | Done — CSS is split modules bundled to `/css/style.css` |
+| 3 | Blog collection, listing, post layout | Done (`src/blog/`) |
+| 4 | `projects/` collection | **Not built.** Write-ups (`src/write-ups/`) took this slot |
+| 5 | `resume.json` + resume page | Done, plus PDF download and `/resume.json` |
+| 6 | CSS-only motion | Done (`motion.css`, `prefers-reduced-motion`) |
+| 7 | `eleventy-img` | Done (`transformOnRequest: false`) |
+| 8 | GitHub Actions → Pages | Done; origin is `https://jbongars.github.io/` |
+| 9 | Lighthouse + no-JS pass | Ongoing each change; no-JS is a hard rule |
+
+Later, not in the original list: theme persistence, Giscus, Hacklas (flagged
+off), CSP, `llms.txt` / RSS / JSON-LD, `_11ty/` config split.
