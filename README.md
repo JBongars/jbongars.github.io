@@ -11,6 +11,7 @@ npm install
 npm run serve   # http://localhost:8080
 npm run build   # output → _site/
 npm run audit   # npm audit --audit-level=high (also runs in CI)
+npm run lighthouse  # headless report → lighthouse.html (needs serve running)
 ```
 
 Push to `main` deploys `_site/` to user GitHub Pages

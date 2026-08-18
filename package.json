@@ -5,7 +5,8 @@
   "scripts": {
     "build": "eleventy",
     "serve": "eleventy --serve",
-    "audit": "npm audit --audit-level=high"
+    "audit": "npm audit --audit-level=high",
+    "lighthouse": "npx lighthouse http://localhost:8081/ --chrome-flags=\"--headless\" --output=html --output-path=./lighthouse.html"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.0.0",
