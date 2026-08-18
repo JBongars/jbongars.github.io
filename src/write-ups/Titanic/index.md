@@ -3,6 +3,7 @@ title: Titanic
 author: Julien Bongars
 date: 2026-01
 link: "[app.hackthebox.com/machines/Titanic](https://app.hackthebox.com/machines/Titanic)"
+banner_path: ../hackthebox.png
 tags:
   - HackTheBox
   - Medium

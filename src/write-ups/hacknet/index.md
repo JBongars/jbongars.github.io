@@ -2,7 +2,8 @@
 title: Hacknet
 author: Julien Bongars
 date: 2025-11
-link: [app.hackthebox.com/machines/Hacknet](https://app.hackthebox.com/machines/Hacknet)
+link: "[app.hackthebox.com/machines/Hacknet](https://app.hackthebox.com/machines/Hacknet)"
+banner_path: ../hackthebox.png
 tags:
   - HackTheBox
   - Medium

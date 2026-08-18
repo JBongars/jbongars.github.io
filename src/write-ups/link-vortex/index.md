@@ -3,6 +3,7 @@ title: LinkVortex
 author: Julien Bongars
 date: 2026-02
 link: "[app.hackthebox.com/machines/LinkVortex](https://app.hackthebox.com/machines/LinkVortex)"
+banner_path: ../hackthebox.png
 tags:
   - HackTheBox
   - Easy

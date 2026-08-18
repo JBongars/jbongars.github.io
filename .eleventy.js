@@ -117,6 +117,7 @@ function isReadableFile(filePath) {
 }
 
 const BANNER_FILES = ["banner.jpg", "banner.jpeg", "banner.png", "banner.webp"];
+const SRC_ROOT = path.join(__dirname, "src");
 
 function findBannerFile(dir) {
   for (const name of BANNER_FILES) {
@@ -125,13 +126,57 @@ function findBannerFile(dir) {
   return null;
 }
 
-function frontMatterHasKey(inputPath, key) {
-  if (!inputPath || !fs.existsSync(inputPath)) return false;
+function readFrontMatter(inputPath) {
+  if (!inputPath || !fs.existsSync(inputPath)) return null;
   const raw = fs.readFileSync(inputPath, "utf8");
-  if (!raw.startsWith("---")) return false;
+  if (!raw.startsWith("---")) return null;
   const end = raw.indexOf("\n---", 3);
-  if (end < 0) return false;
-  return new RegExp(`^${key}\\s*:`, "m").test(raw.slice(3, end));
+  if (end < 0) return null;
+  return raw.slice(3, end);
+}
+
+function frontMatterHasKey(inputPath, key) {
+  const fm = readFrontMatter(inputPath);
+  if (fm == null) return false;
+  return new RegExp(`^${key}\\s*:`, "m").test(fm);
+}
+
+function frontMatterValue(inputPath, key) {
+  const fm = readFrontMatter(inputPath);
+  if (fm == null) return null;
+  const match = fm.match(new RegExp(`^${key}\\s*:\\s*(.+?)\\s*$`, "m"));
+  if (!match) return null;
+  let value = match[1].trim();
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    value = value.slice(1, -1).trim();
+  }
+  return value || null;
+}
+
+/** Resolve a banner_path (relative or site-absolute) to a file under src/. */
+function resolveBannerFile(inputPath, bannerPath) {
+  if (!inputPath || bannerPath == null) return null;
+  const trimmed = String(bannerPath).trim();
+  if (!trimmed) return null;
+
+  const fromDir = path.dirname(
+    path.isAbsolute(inputPath) ? inputPath : path.resolve(__dirname, inputPath)
+  );
+  const absFile = trimmed.startsWith("/")
+    ? path.resolve(SRC_ROOT, trimmed.replace(/^\/+/, ""))
+    : path.resolve(fromDir, trimmed);
+
+  const rel = path.relative(SRC_ROOT, absFile);
+  if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) return null;
+  if (!isReadableFile(absFile)) return null;
+  return absFile;
+}
+
+function srcFileToUrl(absFile) {
+  return `/${path.relative(SRC_ROOT, absFile).split(path.sep).join("/")}`;
 }
 
 function fileCreatedDate(inputPath) {
@@ -142,10 +187,18 @@ function fileCreatedDate(inputPath) {
   return stats.mtime;
 }
 
+function passthroughBannerFile(eleventyConfig, absFile) {
+  if (!absFile) return;
+  const dest = path.relative(SRC_ROOT, absFile).split(path.sep).join("/");
+  eleventyConfig.addPassthroughCopy({
+    [path.relative(__dirname, absFile)]: dest,
+  });
+}
+
 function passthroughMediaFolders(eleventyConfig, folder) {
   // Dotfolders like .media are skipped by default globs; map each entry's
   // .media dir explicitly so relative ![](.media/...) paths resolve.
-  // Also copy optional banner.* beside each entry.
+  // Also copy optional banner.* beside each entry, and banner_path targets.
   // Read-only scan — does not modify anything under src/{folder}.
   const dir = path.join(__dirname, "src", folder);
   if (!fs.existsSync(dir)) return;
@@ -169,6 +222,11 @@ function passthroughMediaFolders(eleventyConfig, folder) {
         ),
       });
     }
+    const mdPath = path.join(__dirname, entryDir, "index.md");
+    passthroughBannerFile(
+      eleventyConfig,
+      resolveBannerFile(mdPath, frontMatterValue(mdPath, "banner_path"))
+    );
   }
 }
 
@@ -691,7 +749,8 @@ module.exports = function (eleventyConfig) {
       if (!isContentMarkdown(inputPath, "hacklas")) return;
       return hacklasPathParts(inputPath).join("/");
     },
-    // Optional banner.* beside the entry; null means CSS gradient fallback.
+    // Optional banner_path (resolved to a site-absolute URL) or banner.*
+    // beside the entry; null means CSS gradient fallback.
     banner: (data) => {
       const inputPath = data.page?.inputPath;
       if (
@@ -700,6 +759,8 @@ module.exports = function (eleventyConfig) {
       ) {
         return;
       }
+      const fromPath = resolveBannerFile(inputPath, data.banner_path);
+      if (fromPath) return srcFileToUrl(fromPath);
       const name = findBannerFile(path.dirname(inputPath));
       return name ? `${data.page.url}${name}` : null;
     },

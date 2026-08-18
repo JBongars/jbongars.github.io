@@ -3,6 +3,7 @@ title: Unified
 author: Julien Bongars
 date: 2025-05
 link: "[app.hackthebox.com/machines/Unified](https://app.hackthebox.com/machines/Unified)"
+banner_path: ../hackthebox.png
 tags:
   - HackTheBox
   - Very Easy

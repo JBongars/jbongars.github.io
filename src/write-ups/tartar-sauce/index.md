@@ -3,6 +3,7 @@ title: TartarSauce
 author: Julien Bongars
 date: 2026-02
 link: "[app.hackthebox.com/machines/TartarSauce](https://app.hackthebox.com/machines/TartarSauce)"
+banner_path: ../hackthebox.png
 tags:
   - HackTheBox
   - Medium

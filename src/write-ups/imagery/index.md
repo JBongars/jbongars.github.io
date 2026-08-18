@@ -3,6 +3,7 @@ title: Imagery
 author: Julien Bongars
 date: 2025-11
 link: "[app.hackthebox.com/machines/Imagery](https://app.hackthebox.com/machines/Imagery)"
+banner_path: ../hackthebox.png
 tags:
   - HackTheBox
   - Easy

@@ -3,6 +3,7 @@ title: Exfiltrated
 author: Julien Bongars
 date: 2026-02
 link: "[portal.offsec.com/machine/exfiltrated-17398](https://portal.offsec.com/machine/exfiltrated-17398/overview/details)"
+banner_path: ../offsec.jpg
 tags:
   - Offsec
   - TJNull
