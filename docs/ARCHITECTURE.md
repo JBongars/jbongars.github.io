@@ -6,16 +6,17 @@
 - Styling: hand-written CSS modules under `src/css/`, concatenated at build
   into `/css/style.css` (`src/css/bundle.11ty.js`). No preprocessor, no
   framework.
-- Client JS is progressive enhancement (site works without it). Blocking
-  scripts: `site-url.js` (path prefix helper) and `theme-init.js` (avoid
-  theme flash). Deferred scripts are listed in the README.
+- Client JS is progressive enhancement (site works without it). `theme-init.js`
+  is inlined after the theme checkbox (CSP sha256). Other scripts are deferred
+  and only included on pages that need them. See the README.
 - Hosting: user GitHub Pages at `https://jbongars.github.io/`, deployed via
   GitHub Actions on push to `main` (Node 20).
 - Security: CSP + Referrer-Policy as `<meta>` (Pages cannot set custom HTTP
-  headers). The Eleventy dev server also sends the full header set from
-  `src/_data/security.js`. Giscus is allowed at `https://giscus.app` /
-  `https://giscus.app/en/widget`. `style-src` includes `'unsafe-inline'`
-  because post banners emit a small `<style>` block.
+  headers, including Cache-Control). The Eleventy dev server sends the full
+  header set from `src/_data/security.js`, and caches CSS/JS/images for 24h.
+  Giscus is allowed at `https://giscus.app` / `https://giscus.app/en/widget`.
+  `style-src` includes `'unsafe-inline'` because post banners emit a small
+  `<style>` block.
 - CI: `npm ci`, `npm audit --audit-level=high`, then `npm run build`.
 
 ## File structure

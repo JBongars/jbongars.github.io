@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const features = require("../_data/features.json");
 
 const CSS_DIR = __dirname;
 
@@ -14,6 +15,7 @@ module.exports.render = () => {
     (match) => match[1]
   );
   return files
+    .filter((file) => features.hacklas || file !== "hacklas.css")
     .map((file) => fs.readFileSync(path.join(CSS_DIR, file), "utf8"))
     .join("\n");
 };

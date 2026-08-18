@@ -44,6 +44,7 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.setServerOptions({
     headers: security.httpHeaders,
+    middleware: [security.cacheControlMiddleware],
   });
 
   eleventyConfig.addWatchTarget("src/css");

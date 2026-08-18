@@ -74,11 +74,10 @@ src/
 TOC, task lists, demote headings on posts, rewrite relative `*.md` links,
 Hacklas chrome stripping.
 
-**Client JS** (deferred except `site-url.js` / `theme-init.js`; site works
-without it)
+**Client JS** (deferred except inlined `theme-init.js`; site works without it)
 
-- `site-url.js` — `window.siteUrl()` for project-prefix hosting
-- `theme-init.js` — apply stored light/dark before paint
+- `theme-init.js` — inlined after the theme checkbox so the first paint matches
+- `site-url.js` — `window.siteUrl()` (Hacklas only)
 - `site.js` — theme persistence + same-origin soft navigation
 - `booru-search.js` — blog/write-up listing sort + tag/title search
 - `fuzzy-find.js` — Hacklas finder (`?q=` in URL)
@@ -86,7 +85,7 @@ without it)
 - `code-blocks.js` — copy / fullscreen, line numbers, collapse tall fences
 - `image-lightbox.js` — fullscreen images, zoom/pan
 - `back-button.js` — history back for notes/posts
-- `comments.js` — inject Giscus when comments are enabled
+- `comments.js` — inject Giscus on posts when comments are enabled
 
 ## Feature flags
 
