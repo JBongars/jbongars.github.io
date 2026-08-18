@@ -756,6 +756,34 @@ module.exports = function (eleventyConfig) {
     if (!origin) return normalized;
     return `${origin}${normalized}`;
   });
+  eleventyConfig.addGlobalData("personJsonLd", () => {
+    const personResume = require("./src/_data/resume.json");
+    const origin = process.env.SITE_URL
+      ? String(process.env.SITE_URL).replace(/\/?$/, "")
+      : "";
+    const person = {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name: personResume.name,
+      jobTitle: personResume.title,
+    };
+    if (origin) {
+      person.url = `${origin}/`;
+      person.image = `${origin}/img/profile.jpg`;
+    }
+    const sameAs = [personResume.linkedin, personResume.github].filter(Boolean);
+    if (sameAs.length) person.sameAs = sameAs;
+    if (personResume.location) {
+      person.address = {
+        "@type": "PostalAddress",
+        addressLocality: personResume.location,
+      };
+    }
+    if (Array.isArray(personResume.skills) && personResume.skills.length) {
+      person.knowsAbout = personResume.skills;
+    }
+    return JSON.stringify(person);
+  });
   eleventyConfig.addShortcode("year", () => `${new Date().getFullYear()}`);
 
   // Disable raw HTML in markdown. Highlight via Prism with aliases; unknown

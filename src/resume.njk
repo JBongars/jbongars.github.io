@@ -20,6 +20,11 @@ permalink: /resume/
       {% if resume.location %}
       <p class="resume__location meta">{{ resume.location }}</p>
       {% endif %}
+      {% if resume.linkedin or resume.github %}
+      <p class="resume__print-contact">
+        {% if resume.linkedin %}{{ resume.linkedin }}{% endif %}{% if resume.linkedin and resume.github %} · {% endif %}{% if resume.github %}{{ resume.github }}{% endif %}
+      </p>
+      {% endif %}
       <ul class="resume__links" aria-label="Social links">
         {% if resume.github %}
         <li>
