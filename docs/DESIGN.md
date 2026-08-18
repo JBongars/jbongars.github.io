@@ -10,7 +10,7 @@
   gradients.
 - System sans for body and headings; mono only for tags, dates, CTAs, code.
 - Home and 404 use bordered CTA chips (`.home-hero__cta`). Resume uses the
-  same chip for **Resume.pdf** next to GitHub / LinkedIn icons.
+  same chip for **Resume.pdf**, plus icon-only GitHub / LinkedIn chips.
 - Resume has a print stylesheet (chrome hidden, two-column layout, contact
   URLs as text).
 - CSS lives as several sheets under `src/css/` and is concatenated into one

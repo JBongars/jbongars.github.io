@@ -107,22 +107,6 @@
   list-style: none;
 }
 
-.resume__links a {
-  display: inline-flex;
-  align-items: center;
-  opacity: 0.7;
-  text-decoration: none;
-}
-
-.resume__links .home-hero__cta {
-  opacity: 1;
-}
-
-.resume__links a:hover,
-.resume__links a:focus-visible {
-  opacity: 1;
-}
-
 .resume__print-contact {
   display: none;
 }

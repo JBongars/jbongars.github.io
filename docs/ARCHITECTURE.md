@@ -10,7 +10,8 @@
   is inlined after the theme checkbox (CSP sha256). Other scripts are deferred
   and only included on pages that need them. See the README.
 - Hosting: user GitHub Pages at `https://jbongars.github.io/`, deployed via
-  GitHub Actions on push to `main` (Node 20).
+  GitHub Actions on push to `main` (Node 20 to build; checkout/setup-node/
+  Pages actions on the Node 24 runner runtime).
 - Security: CSP + Referrer-Policy as `<meta>` (Pages cannot set custom HTTP
   headers, including Cache-Control). The Eleventy dev server sends the full
   header set from `src/_data/security.js`, and caches CSS/JS/images for 24h.

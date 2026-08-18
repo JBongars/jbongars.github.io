@@ -115,6 +115,10 @@
   opacity: 0.7;
 }
 
+.home-hero__cta--icon {
+  padding: 0.55em;
+}
+
 html:has(#theme-toggle:checked) .home-hero__cta,
 html:has(#theme-toggle:checked) .home-hero__cta--primary {
   border-color: var(--heading);
