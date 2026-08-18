@@ -16,7 +16,7 @@ permalink: /write-ups/
     <a class="card card--with-media" href="{{ writeup.url | url }}">
       <div class="card__media{% if not writeup.data.banner %} card__media--fallback{% endif %}">
         {% if writeup.data.banner %}
-        <img src="{{ writeup.data.banner | url }}" alt="" width="1280" height="720" loading="lazy" decoding="async">
+        <img src="{{ writeup.data.banner | url }}" alt="" width="1280" height="720" loading="lazy" decoding="async" sizes="(max-width: 48rem) 100vw, 22rem">
         {% endif %}
       </div>
       <h2 class="card__title">{{ writeup.data.title or writeup.fileSlug }}</h2>

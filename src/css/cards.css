@@ -76,6 +76,12 @@ a.card:focus-visible {
   object-fit: cover;
 }
 
+.card__media picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .card__media--fallback {
   background: linear-gradient(
     135deg,

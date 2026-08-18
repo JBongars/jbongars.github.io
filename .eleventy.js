@@ -3,6 +3,7 @@ const path = require("node:path");
 const Prism = require("prismjs");
 const loadLanguages = require("prismjs/components/index.js");
 const syntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
+const { eleventyImageTransformPlugin } = require("@11ty/eleventy-img");
 const features = require("./src/_data/features.json");
 
 loadLanguages.silent = true;
@@ -593,6 +594,18 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPlugin(syntaxHighlight, {
     lineSeparator: "\n",
   });
+  eleventyConfig.addPlugin(eleventyImageTransformPlugin, {
+    formats: ["avif", "webp", "auto"],
+    widths: [400, 800, 1200],
+    failOnError: false,
+    htmlOptions: {
+      imgAttributes: {
+        loading: "lazy",
+        decoding: "async",
+        sizes: "(max-width: 48rem) 100vw, 40rem",
+      },
+    },
+  });
 
   eleventyConfig.addGlobalData("pathPrefix", pathPrefix);
   eleventyConfig.addGlobalData("siteUrl", () => {
@@ -604,7 +617,15 @@ module.exports = function (eleventyConfig) {
   // Warm common writeup languages so first highlight is reliable.
   loadLanguages(["bash", "python", "json", "php", "markup", "c", "javascript"]);
 
-  eleventyConfig.addPassthroughCopy("src/css");
+  eleventyConfig.addWatchTarget("src/css");
+  eleventyConfig.on("eleventy.before", () => {
+    const cssOut = path.join(__dirname, "_site", "css");
+    if (!fs.existsSync(cssOut)) return;
+    for (const name of fs.readdirSync(cssOut)) {
+      if (name === "style.css") continue;
+      fs.rmSync(path.join(cssOut, name), { force: true });
+    }
+  });
   eleventyConfig.addPassthroughCopy("src/img");
   eleventyConfig.addPassthroughCopy("src/js");
   eleventyConfig.addPassthroughCopy("src/favicon");

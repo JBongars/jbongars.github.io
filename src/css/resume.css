@@ -32,6 +32,18 @@
   object-position: center;
 }
 
+.resume__intro picture:has(> .resume__photo) {
+  display: block;
+  flex-shrink: 0;
+  width: 7.5rem;
+  height: 7.5rem;
+}
+
+.resume__intro picture .resume__photo {
+  width: 100%;
+  height: 100%;
+}
+
 @media (min-width: 48rem) {
   .resume__intro {
     flex-direction: row;
@@ -49,6 +61,11 @@
     width: 10rem;
     height: 10rem;
     flex-shrink: 0;
+  }
+
+  .resume__intro picture:has(> .resume__photo) {
+    width: 10rem;
+    height: 10rem;
   }
 }
 

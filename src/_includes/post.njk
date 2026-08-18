@@ -12,7 +12,7 @@ layout: base.njk
 {% if showBanner %}
 <div class="post-banner{% if not banner %} post-banner--fallback{% endif %}">
   {% if banner %}
-  <img class="post-banner__img" src="{{ banner | url }}" alt="" width="1280" height="720" decoding="async">
+  <img class="post-banner__img" src="{{ banner | url }}" alt="" decoding="async" loading="eager" fetchpriority="high" sizes="(max-width: 48rem) 100vw, 48rem">
   {% endif %}
 </div>
 {% endif %}

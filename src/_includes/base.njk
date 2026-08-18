@@ -97,6 +97,7 @@
                 alt=""
                 width="16"
                 height="16"
+                eleventy:ignore
               >
               <svg class="icon-external" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
                 <path fill="currentColor" d="M10.5 1H7v1h1.8L5.15 5.65l.7.7L9.5 2.7V4.5H10.5V1zM2 2v8h8V7H9v2H3V3h2V2H2z"/>
@@ -120,6 +121,7 @@
       alt="{% if resume.name %}{{ resume.name }}{% else %}Signature{% endif %}"
       width="215"
       height="97"
+      eleventy:ignore
     >
     <div class="site-footer__meta">
       <p class="site-footer__copy">&copy; {% year %}{% if resume.name %} {{ resume.name }}{% endif %}</p>
@@ -128,14 +130,14 @@
         {% if resume.github %}
         <li>
           <a href="{{ resume.github }}" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-            <img class="social-icon" src="{{ '/img/github.svg' | url }}" alt="" width="20" height="20">
+            <img class="social-icon" src="{{ '/img/github.svg' | url }}" alt="" width="20" height="20" eleventy:ignore>
           </a>
         </li>
         {% endif %}
         {% if resume.linkedin %}
         <li>
           <a href="{{ resume.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-            <img class="social-icon" src="{{ '/img/linkedin.svg' | url }}" alt="" width="20" height="20">
+            <img class="social-icon" src="{{ '/img/linkedin.svg' | url }}" alt="" width="20" height="20" eleventy:ignore>
           </a>
         </li>
         {% endif %}

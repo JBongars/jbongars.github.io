@@ -24,6 +24,15 @@
   filter: saturate(0.72) brightness(0.92) contrast(0.96);
 }
 
+.home-hero picture:has(> .home-hero__image) {
+  display: block;
+  width: min(18rem, 78%);
+}
+
+.home-hero picture .home-hero__image {
+  width: 100%;
+}
+
 .home-hero__copy {
   display: flex;
   flex-direction: column;

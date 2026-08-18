@@ -16,7 +16,7 @@ permalink: /blog/
     <a class="card card--with-media" href="{{ post.url | url }}">
       <div class="card__media{% if not post.data.banner %} card__media--fallback{% endif %}">
         {% if post.data.banner %}
-        <img src="{{ post.data.banner | url }}" alt="" width="1280" height="720" loading="lazy" decoding="async">
+        <img src="{{ post.data.banner | url }}" alt="" width="1280" height="720" loading="lazy" decoding="async" sizes="(max-width: 48rem) 100vw, 22rem">
         {% endif %}
       </div>
       <h2 class="card__title">{{ post.data.title or post.fileSlug }}</h2>

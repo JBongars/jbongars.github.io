@@ -13,6 +13,10 @@
   height: auto;
 }
 
+.post-banner picture {
+  display: block;
+}
+
 .post-banner--fallback {
   aspect-ratio: 16 / 9;
   max-height: 22rem;
@@ -271,11 +275,21 @@
   padding-left: var(--space-6);
 }
 
+.prose picture,
 .prose img {
   display: block;
   max-width: 100%;
   height: auto;
   margin: var(--space-4) 0;
+}
+
+.prose picture img {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.prose img {
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
