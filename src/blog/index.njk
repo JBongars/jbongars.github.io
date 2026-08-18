@@ -13,8 +13,16 @@ permalink: /blog/
     {% if post.date %}data-date="{{ post.date.toISOString() }}"{% endif %}
     {% if post.data.tags and post.data.tags.length %}data-tags="{{ post.data.tags | join(',') }}"{% endif %}
   >
+    {% set bannerCss = post.data.banner_style | cssDecls %}
+    {% set bannerCssLight = post.data.banner_style_light | cssDecls %}
+    {% if post.data.banner and (bannerCss or bannerCssLight) %}
+    <style>
+      {% if bannerCss %}[data-banner="{{ post.url }}"] img { {{ bannerCss | safe }} }{% endif %}
+      {% if bannerCssLight %}html:has(#theme-toggle:checked) [data-banner="{{ post.url }}"] img { {{ bannerCssLight | safe }} }{% endif %}
+    </style>
+    {% endif %}
     <a class="card card--with-media" href="{{ post.url | url }}">
-      <div class="card__media{% if not post.data.banner %} card__media--fallback{% endif %}">
+      <div class="card__media{% if not post.data.banner %} card__media--fallback{% endif %}"{% if post.url %} data-banner="{{ post.url }}"{% endif %}>
         {% if post.data.banner %}
         <img src="{{ post.data.banner | url }}" alt="" width="1280" height="720" loading="lazy" decoding="async" sizes="(max-width: 48rem) 100vw, 22rem">
         {% endif %}

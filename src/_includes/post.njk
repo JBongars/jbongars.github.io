@@ -1,7 +1,11 @@
 ---
 layout: base.njk
 ---
+{% if disable_tree %}
+{% set tocHtml = false %}
+{% else %}
 {% set tocHtml = content | toc %}
+{% endif %}
 {% set backHref = "/blog/" | url %}
 {% if "/write-ups/" in page.url %}
   {% set backHref = "/write-ups/" | url %}
@@ -10,6 +14,14 @@ layout: base.njk
   <a class="back-button" href="{{ backHref }}" data-back>← Back</a>
 </div>
 {% if showBanner %}
+{% set bannerCss = banner_style | cssDecls %}
+{% set bannerCssLight = banner_style_light | cssDecls %}
+{% if banner and (bannerCss or bannerCssLight) %}
+<style>
+  {% if bannerCss %}.post-banner__img { {{ bannerCss | safe }} }{% endif %}
+  {% if bannerCssLight %}html:has(#theme-toggle:checked) .post-banner__img { {{ bannerCssLight | safe }} }{% endif %}
+</style>
+{% endif %}
 <div class="post-banner{% if not banner %} post-banner--fallback{% endif %}">
   {% if banner %}
   <img class="post-banner__img" src="{{ banner | url }}" alt="" decoding="async" loading="eager" fetchpriority="high" sizes="(max-width: 48rem) 100vw, 48rem">

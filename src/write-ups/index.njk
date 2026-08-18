@@ -13,8 +13,16 @@ permalink: /write-ups/
     {% if writeup.date %}data-date="{{ writeup.date.toISOString() }}"{% endif %}
     {% if writeup.data.tags and writeup.data.tags.length %}data-tags="{{ writeup.data.tags | join(',') }}"{% endif %}
   >
+    {% set bannerCss = writeup.data.banner_style | cssDecls %}
+    {% set bannerCssLight = writeup.data.banner_style_light | cssDecls %}
+    {% if writeup.data.banner and (bannerCss or bannerCssLight) %}
+    <style>
+      {% if bannerCss %}[data-banner="{{ writeup.url }}"] img { {{ bannerCss | safe }} }{% endif %}
+      {% if bannerCssLight %}html:has(#theme-toggle:checked) [data-banner="{{ writeup.url }}"] img { {{ bannerCssLight | safe }} }{% endif %}
+    </style>
+    {% endif %}
     <a class="card card--with-media" href="{{ writeup.url | url }}">
-      <div class="card__media{% if not writeup.data.banner %} card__media--fallback{% endif %}">
+      <div class="card__media{% if not writeup.data.banner %} card__media--fallback{% endif %}"{% if writeup.url %} data-banner="{{ writeup.url }}"{% endif %}>
         {% if writeup.data.banner %}
         <img src="{{ writeup.data.banner | url }}" alt="" width="1280" height="720" loading="lazy" decoding="async" sizes="(max-width: 48rem) 100vw, 22rem">
         {% endif %}

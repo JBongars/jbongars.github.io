@@ -127,6 +127,29 @@ function findBannerFile(dir) {
   return null;
 }
 
+/** YAML map or CSS string → declaration block for banner_style / banner_style_light. */
+function cssDecls(value) {
+  if (value == null || value === false || value === "") return "";
+  if (typeof value === "string") {
+    const css = value.trim().replace(/<\//g, "");
+    if (!css) return "";
+    return /;\s*$/.test(css) ? css : `${css};`;
+  }
+  if (typeof value === "object" && !Array.isArray(value)) {
+    return Object.entries(value)
+      .map(([prop, raw]) => {
+        if (raw == null || String(raw).trim() === "") return "";
+        const name = String(prop).trim();
+        if (!/^-{0,2}[a-zA-Z][\w-]*$/.test(name)) return "";
+        const val = String(raw).trim().replace(/;$/, "").replace(/<\//g, "");
+        return `${name}: ${val};`;
+      })
+      .filter(Boolean)
+      .join(" ");
+  }
+  return "";
+}
+
 function readFrontMatter(inputPath) {
   if (!inputPath || !fs.existsSync(inputPath)) return null;
   const raw = fs.readFileSync(inputPath, "utf8");
@@ -719,6 +742,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("parseLink", parseFrontMatterLink);
   eleventyConfig.addFilter("externalHref", (value) => parseFrontMatterLink(value).href);
   eleventyConfig.addFilter("linkLabel", (value) => parseFrontMatterLink(value).label);
+  eleventyConfig.addFilter("cssDecls", cssDecls);
   eleventyConfig.addShortcode("year", () => `${new Date().getFullYear()}`);
 
   // Disable raw HTML in markdown. Highlight via Prism with aliases; unknown
