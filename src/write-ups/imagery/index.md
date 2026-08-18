@@ -12,9 +12,9 @@ tags:
 
 ## Summary
 
-Imagery is an Easy Linux box running a Flask/Werkzeug image application on port 8000 (SSH on 22 is public-key only). A "report a bug" form is vulnerable to stored XSS, and because an admin bot browses submitted reports, an `<img onerror>` payload — a `<script>` tag is filtered — exfiltrates the admin's session cookie to the attacker. Replaying that cookie unlocks the admin panel, whose system-log viewer takes a `log_identifier` path with no sanitisation, giving a path-traversal **LFI**. Reading `/etc/passwd`, then `/proc/self/environ` and `/proc/self/cmdline`, locates the app under `/home/web/web` and leaks a `CRON_BYPASS_TOKEN`; reading `app.py` / `utils.py` / `config.py` points at `db.json`, which stores md5 password hashes. The testuser hash cracks to `iambatman`.
+Imagery is an Easy Linux box running a Flask/Werkzeug image application on port 8000 (SSH on 22 is public-key only). A "report a bug" form is vulnerable to stored XSS, and because an admin bot browses submitted reports, an `<img onerror>` payload — a `<script>` tag is filtered — exfiltrates the admin's session cookie to the attacker. Replaying that cookie unlocks the admin panel, whose system-log viewer takes a `log_identifier` path with no sanitisation, giving a path-traversal **LFI**. Reading `/etc/passwd`, then `/proc/self/environ` and `/proc/self/cmdline`, locates the app under `/home/web/web` and leaks a `CRON_BYPASS_TOKEN`; reading `app.py` / `utils.py` / `config.py` points at `db.json`, which stores md5 password hashes. The testuser hash cracks to a password.
 
-The testuser account unlocks "in-development" image-transform features gated behind an `is_testuser_account` check. The crop transform builds an ImageMagick command with `shell=True` and unsanitised width/height parameters, so a crafted `height` value injects a bash reverse shell — **RCE as `web`**. Post-shell, the admin bot's source leaks `admin@imagery.htb:strongsandofbeach`. An encrypted backup at `/var/backup/web_20250806_120723.zip.aes` is brute-forced with pyAesCrypt (password `bestfriends`), which yields mark's password `supersmash`. As `mark`, `sudo -l` shows NOPASSWD on `/usr/local/bin/charcol`, a backup tool that can schedule arbitrary commands; scheduling `chmod u+s /bin/bash` and then running `bash -p` gives root. The intended time-sinks: the admin md5 hash never cracks (the plaintext comes from the bot source instead), the bug-report and upload fields resist SQLi and `{{…}}` SSTI, and poisoning `_laurel` or the admin bot leads nowhere because the bot already runs as `web`.
+The testuser account unlocks "in-development" image-transform features gated behind an `is_testuser_account` check. The crop transform builds an ImageMagick command with `shell=True` and unsanitised width/height parameters, so a crafted `height` value injects a bash reverse shell — **RCE as `web`**. Post-shell, the admin bot's source leaks `admin@imagery.htb:strongsandofbeach`. An encrypted backup at `/var/backup/web_20250806_120723.zip.aes` is brute-forced with pyAesCrypt, which yields mark's password. As `mark`, `sudo -l` shows NOPASSWD on `/usr/local/bin/charcol`, a backup tool that can schedule arbitrary commands; scheduling `chmod u+s /bin/bash` and then running `bash -p` gives root. The intended time-sinks: the admin md5 hash never cracks (the plaintext comes from the bot source instead), the bug-report and upload fields resist SQLi and `{{…}}` SSTI, and poisoning `_laurel` or the admin bot leads nowhere because the bot already runs as `web`.
 
 ---
 
@@ -640,11 +640,6 @@ sleep 60 && /bin/bash -p
 `chmod u+s /bin/bash` runs as root via the charcol cron, and `bash -p` keeps the root euid instead of dropping it — giving a root shell.
 
 Stage result: root. The draft records both flags together (without showing the read commands):
-
-```txt
-user flag = 43f27c4b93ab1ec71b8f22cfcadc16ab
-root flag = a1df162bcca62f219c8134eab0be186c
-```
 
 ---
 

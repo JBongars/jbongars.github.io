@@ -198,24 +198,17 @@ NotACrackablePassword4U2022
 
 <!-- TODO: draft does not show where NotACrackablePassword4U2022 was read from (e.g. UniFi settings / a file) — only the final value. -->
 
-Flags:
-
-```txt
-user: 6ced1a6a89e666c0620cdb10262ba127
-root: e50bc93c75b634e4b272d2f771c33681
-```
-
 Stage result: UniFi admin access, root SSH with `NotACrackablePassword4U2022`, both flags.
 
 ---
 
 ## Credentials
 
-| Source | Credential | Notes |
-| --- | --- | --- |
-| MongoDB `ace.admin` (original) | `x_shadow` `$6$Ry6Vdbse$8enMR5Znxoo…QgPTt4.` | SHA-512 crypt; not cracked |
-| MongoDB overwrite | UniFi admin → `password123` | Hash generated with `openssl passwd -6` |
-| Post-admin access | root / `NotACrackablePassword4U2022` | Used for root / SSH |
+| Source                         | Credential                                   | Notes                                   |
+| ------------------------------ | -------------------------------------------- | --------------------------------------- |
+| MongoDB `ace.admin` (original) | `x_shadow` `$6$Ry6Vdbse$8enMR5Znxoo…QgPTt4.` | SHA-512 crypt; not cracked              |
+| MongoDB overwrite              | UniFi admin → `password123`                  | Hash generated with `openssl passwd -6` |
+| Post-admin access              | root / `NotACrackablePassword4U2022`         | Used for root / SSH                     |
 
 ---
 
@@ -229,11 +222,11 @@ Stage result: UniFi admin access, root SSH with `NotACrackablePassword4U2022`, b
 
 ## Tools & cheat sheet
 
-| Tool | Purpose in this box | Key command |
-| --- | --- | --- |
-| ffuf | Path discovery on 8080 | paths under `/api`, `/manage`, `/setup`, … |
-| Burp Suite | Capture / replay UniFi `/api/login` | POST JSON with `remember` JNDI payload |
-| `tcpdump` | Confirm Log4Shell LDAP callback | `sudo tcpdump -i tun0 port 1389` |
-| Rogue LDAP / JNDI | Deliver Log4Shell payload → shell | see `notes/infiltration/general/ldap-for-jndi-attack.md` |
-| `mongo` | Read/update UniFi `ace` admin hash | `mongo --port 27117 ace` |
-| `openssl passwd -6` | Generate replacement `x_shadow` | `openssl passwd -6 -salt $(openssl rand -base64 16) password123` |
+| Tool                | Purpose in this box                 | Key command                                                      |
+| ------------------- | ----------------------------------- | ---------------------------------------------------------------- |
+| ffuf                | Path discovery on 8080              | paths under `/api`, `/manage`, `/setup`, …                       |
+| Burp Suite          | Capture / replay UniFi `/api/login` | POST JSON with `remember` JNDI payload                           |
+| `tcpdump`           | Confirm Log4Shell LDAP callback     | `sudo tcpdump -i tun0 port 1389`                                 |
+| Rogue LDAP / JNDI   | Deliver Log4Shell payload → shell   | see `notes/infiltration/general/ldap-for-jndi-attack.md`         |
+| `mongo`             | Read/update UniFi `ace` admin hash  | `mongo --port 27117 ace`                                         |
+| `openssl passwd -6` | Generate replacement `x_shadow`     | `openssl passwd -6 -salt $(openssl rand -base64 16) password123` |
