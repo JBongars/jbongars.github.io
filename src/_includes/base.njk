@@ -3,7 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% if title %}{{ title }}{% else %}Personal Site{% endif %}</title>
+  <title>{% if title %}{{ title }} · {% endif %}{{ resume.name }}</title>
+  <meta name="description" content="Infrastructure, Cloud &amp; Application Security Engineer in Singapore. Resume, write-ups, and LinkedIn.">
+  <meta name="author" content="{{ resume.name }}">
+  <meta property="og:title" content="{% if title %}{{ title }} · {% endif %}{{ resume.name }}">
+  <meta property="og:description" content="Infrastructure, Cloud &amp; Application Security Engineer in Singapore. Resume, write-ups, and LinkedIn.">
+  <meta property="og:type" content="website">
   <link rel="icon" href="{{ '/favicon.ico' | url }}" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="{{ '/favicon/favicon-32x32.png' | url }}">
   <link rel="icon" type="image/png" sizes="16x16" href="{{ '/favicon/favicon-16x16.png' | url }}">
