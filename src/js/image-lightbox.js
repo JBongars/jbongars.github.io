@@ -321,11 +321,16 @@
     img.setAttribute("data-zoomable", "1");
     img.setAttribute("tabindex", "0");
     img.setAttribute("role", "button");
-    if (!img.getAttribute("aria-label") && !img.alt) {
-      img.setAttribute("aria-label", "View image fullscreen");
-    } else if (img.alt && !img.getAttribute("aria-label")) {
-      img.setAttribute("aria-label", "View image fullscreen: " + img.alt);
+    var label = img.getAttribute("aria-label");
+    if (!label) {
+      label = img.alt
+        ? "View image fullscreen: " + img.alt
+        : "View image fullscreen";
+      img.setAttribute("aria-label", label);
     }
+    // alt="" marks the image presentational; that conflicts with role=button
+    // (Lighthouse "Agent Accessibility" / well-formed a11y tree).
+    if (!img.alt) img.alt = label;
   }
 
   function hydrateImageLightbox() {

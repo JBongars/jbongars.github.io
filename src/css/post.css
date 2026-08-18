@@ -325,11 +325,17 @@
 .comments__mount .giscus,
 .comments__mount .giscus-frame {
   width: 100%;
+  min-height: 150px;
 }
 
 .comments__mount .giscus-frame {
   border: 0;
   background: transparent;
+  color-scheme: light dark;
+}
+
+.comments__mount .giscus-frame--loading {
+  opacity: 0;
 }
 
 .comments__noscript {

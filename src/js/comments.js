@@ -57,6 +57,14 @@
     mount.setAttribute("data-comments-ready", "1");
     while (mount.firstChild) mount.removeChild(mount.firstChild);
 
+    // client.js always does document.head.prepend(#giscus-css → default.css).
+    // Give it a <style> so it does not create a <link> (CSP style-src is 'self').
+    if (!document.getElementById("giscus-css")) {
+      var decoy = document.createElement("style");
+      decoy.id = "giscus-css";
+      document.head.appendChild(decoy);
+    }
+
     var script = document.createElement("script");
     script.src = SRC;
     script.async = true;
