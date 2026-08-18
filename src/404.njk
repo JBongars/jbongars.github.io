@@ -1,0 +1,29 @@
+---
+layout: base.njk
+title: Page not found
+permalink: /404.html
+eleventyExcludeFromCollections: true
+---
+<article class="not-found">
+  <p class="not-found__code" aria-hidden="true">404</p>
+  <h1 class="not-found__title">Page not found</h1>
+  <p class="not-found__copy">
+    It looks like we couldn’t find the page you were looking for.
+    Would you like to try one of these?
+  </p>
+  <ul class="home-hero__ctas">
+    <li><a class="home-hero__cta home-hero__cta--primary" href="{{ '/resume/' | url }}">Resume</a></li>
+    <li><a class="home-hero__cta" href="{{ '/blog/' | url }}">Blog</a></li>
+    <li><a class="home-hero__cta" href="{{ '/write-ups/' | url }}">Write-Ups</a></li>
+    {% if resume.linkedin %}
+    <li>
+      <a class="home-hero__cta" href="{{ resume.linkedin }}" target="_blank" rel="noopener noreferrer">
+        LinkedIn
+        <svg class="icon-external" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+          <path fill="currentColor" d="M10.5 1H7v1h1.8L5.15 5.65l.7.7L9.5 2.7V4.5H10.5V1zM2 2v8h8V7H9v2H3V3h2V2H2z"/>
+        </svg>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+</article>

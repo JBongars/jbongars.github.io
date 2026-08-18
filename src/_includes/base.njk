@@ -6,9 +6,16 @@
   <title>{% if title %}{{ title }} · {% endif %}{{ resume.name }}</title>
   <meta name="description" content="Infrastructure, Cloud &amp; Application Security Engineer in Singapore. Resume, write-ups, and LinkedIn.">
   <meta name="author" content="{{ resume.name }}">
+  <link rel="canonical" href="{{ page.url | absoluteUrl }}">
   <meta property="og:title" content="{% if title %}{{ title }} · {% endif %}{{ resume.name }}">
   <meta property="og:description" content="Infrastructure, Cloud &amp; Application Security Engineer in Singapore. Resume, write-ups, and LinkedIn.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ page.url | absoluteUrl }}">
+  <meta property="og:image" content="{{ '/img/hero.jpg' | absoluteUrl }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% if title %}{{ title }} · {% endif %}{{ resume.name }}">
+  <meta name="twitter:description" content="Infrastructure, Cloud &amp; Application Security Engineer in Singapore. Resume, write-ups, and LinkedIn.">
+  <meta name="twitter:image" content="{{ '/img/hero.jpg' | absoluteUrl }}">
   <link rel="icon" href="{{ '/favicon.ico' | url }}" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="{{ '/favicon/favicon-32x32.png' | url }}">
   <link rel="icon" type="image/png" sizes="16x16" href="{{ '/favicon/favicon-16x16.png' | url }}">
@@ -28,6 +35,7 @@
   </script>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="site-header__inner">
       <a class="site-brand" href="{{ '/' | url }}">{% if resume.name %}{{ resume.name }}{% else %}Home{% endif %}</a>
@@ -110,7 +118,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main">
     {{ content | safe }}
   </main>
 

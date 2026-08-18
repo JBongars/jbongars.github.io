@@ -17,13 +17,16 @@
     ├── src/
     │   ├── _includes/
     │   │   ├── base.njk         # shared shell: <head>, nav, footer
-    │   │   └── post.njk         # blog/project post layout
+    │   │   └── post.njk         # blog / write-up layout
     │   ├── _data/
     │   │   └── resume.json      # experience data — single source of truth
     │   ├── css/
     │   │   └── style.css
     │   ├── blog/                 # listing + one folder per blog post
     │   ├── write-ups/            # listing + one folder per write-up
+    │   ├── 404.njk
+    │   ├── robots.njk            # → /robots.txt (includes Sitemap)
+    │   ├── sitemap.njk           # → /sitemap.xml
     │   ├── index.njk
     │   └── resume.njk
     └── .github/workflows/
@@ -39,22 +42,29 @@ Blog post front matter:
 
     ---
     title: string
-    date: YYYY-MM-DD
-    tags: [blog, ...]        # additional tags optional, e.g. platform/category
+    date: YYYY-MM
+    tags: [blog, ...]
+    banner_path: ../backgrounds/example.jpg   # optional, relative or site-absolute
+    banner_style:                             # optional CSS map (dark)
+      filter: saturate(0.5) brightness(0.6);
+    banner_style_light:                       # optional CSS map (light toggle)
+      filter: saturate(0.5) brightness(1.5);
+    disable_tree: true                        # optional; hides the heading TOC
     ---
 
 Write-up front matter:
 
     ---
     title: string
-    date: YYYY-MM-DD
+    date: YYYY-MM
     tags: [write-ups, ...]
-    image: /img/writeup-slug/cover.jpg   # optional
+    banner_path: ../hackthebox.png            # optional shared or per-post image
+    link: "[label](https://example.com)"      # optional external machine link
     ---
 
-Resume data (`_data/resume.json`): array of role objects — company, title,
-dates, bullets (array of strings), tools (array of strings) — plus a
-top-level `linkedin` field for the profile URL.
+Resume data (`_data/resume.json`): identity fields (`name`, `title`, `location`,
+`linkedin`, `github`) plus `skills`, `education`, `certificates`, and
+`experience` (company, title, dates, bullets, tools).
 
 ## Blog post structure (revised)
 
@@ -62,29 +72,14 @@ Each post is a directory, not a single file, so images live next to their
 markdown instead of in a shared media folder:
 
     src/blog/
-    └── linkvortex/
+    └── some-post/
         ├── index.md
-        └── images/
-            ├── ghost-admin.png
-            └── source-diff.png
+        └── .media/
+            └── screenshot.png
 
-Front matter for HTB-style writeups:
-
-    ---
-    title: "LinkVortex"
-    date: 2026-02-04
-    machine: "LinkVortex"
-    machine_url: "https://app.hackthebox.com/machines/LinkVortex"
-    difficulty: easy
-    os: linux
-    track: oscp
-    tags: [blog, htb, symlinks, ghost-cms, toctou]
-    ---
-
-Reference post-local images with relative paths: `![](images/ghost-admin.png)`.
-Eleventy passthrough-copies each post's images/ folder alongside its
-generated HTML automatically if configured with a glob passthrough on
-`src/blog/**/images/` (and the same pattern under `src/write-ups/`).
+Reference post-local images with relative paths: `![](.media/screenshot.png)`.
+Eleventy passthrough-copies each entry's `.media/` folder (dotfolders are
+mapped explicitly in `.eleventy.js`).
 
 ## Code syntax highlighting
 
@@ -99,7 +94,9 @@ with the no-JS-required requirement. Do not use a client-side highlighter
 - Local dev: `npx @11ty/eleventy --serve`
 - Production build: `npx @11ty/eleventy` → outputs to `_site/`
 - Deploy: GitHub Actions builds on every push to `main` and publishes `_site/`
-  to GitHub Pages (see deploy.yml). No manual deploy step, no gh-pages branch.
+  to GitHub Pages (see deploy.yml). `SITE_URL` is set in the workflow so
+  canonical tags, Open Graph URLs, `robots.txt`, and `sitemap.xml` are absolute.
+  No manual deploy step, no gh-pages branch.
 
 ## Images
 

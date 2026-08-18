@@ -31,9 +31,9 @@ jobs:
         run: npm ci
 
       - name: Build
-        # env:
+        env:
           # Project Pages live under /<repo>/ — not the domain root.
-          # SITE_URL: https://jbongars.github.io/julienbongars.com/
+          SITE_URL: https://jbongars.github.io/julienbongars.com/
         run: npm run build
 
       - name: Upload artifact

@@ -1,0 +1,32 @@
+---
+permalink: /sitemap.xml
+eleventyExcludeFromCollections: true
+layout: false
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>{{ "/" | absoluteUrl }}</loc></url>
+  <url><loc>{{ "/resume/" | absoluteUrl }}</loc></url>
+  <url><loc>{{ "/blog/" | absoluteUrl }}</loc></url>
+  <url><loc>{{ "/write-ups/" | absoluteUrl }}</loc></url>
+  {% if features.hacklas %}
+  <url><loc>{{ "/hacklas/" | absoluteUrl }}</loc></url>
+  {% endif %}
+  {% for post in collections.blog %}
+  <url>
+    <loc>{{ post.url | absoluteUrl }}</loc>
+    {% if post.date %}<lastmod>{{ post.date.toISOString().slice(0, 10) }}</lastmod>{% endif %}
+  </url>
+  {% endfor %}
+  {% for writeup in collections.writeUps %}
+  <url>
+    <loc>{{ writeup.url | absoluteUrl }}</loc>
+    {% if writeup.date %}<lastmod>{{ writeup.date.toISOString().slice(0, 10) }}</lastmod>{% endif %}
+  </url>
+  {% endfor %}
+  {% if features.hacklas %}
+  {% for note in collections.hacklas %}
+  <url><loc>{{ note.url | absoluteUrl }}</loc></url>
+  {% endfor %}
+  {% endif %}
+</urlset>

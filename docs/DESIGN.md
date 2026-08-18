@@ -2,10 +2,11 @@
 
 ## Visual direction
 
-Dark mode only (no toggle). Professional security/DevSecOps tone —
-NOT a "hacker" aesthetic: no matrix green, no terminal glitch effects,
-no neon, no scanline textures. Reference tone: early Codecademy
-(2010-2013) — clean, confident, approachable.
+Dark by default, with an optional light theme via a CSS-only header toggle
+(persists in localStorage when JS is available). Professional security /
+DevSecOps tone — NOT a "hacker" aesthetic: no matrix green, no terminal
+glitch effects, no neon, no scanline textures. Reference tone: early
+Codecademy (2010-2013) — clean, confident, approachable.
 
 ## Color
 

@@ -409,3 +409,36 @@ a.tag--link[data-hint]:focus-visible::after {
     transition: opacity var(--motion-fast) var(--motion-ease);
   }
 }
+
+@media print {
+  .skip-link,
+  .site-header,
+  .site-footer,
+  .resume__links {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #111;
+  }
+
+  .resume__intro h1,
+  .resume__section > h2,
+  .resume-role__title,
+  .resume-item__title {
+    color: #111;
+  }
+
+  .resume__role,
+  .resume-role__company,
+  .resume-item__detail,
+  .resume-role__bullets,
+  .resume__bio {
+    color: #222;
+  }
+
+  a {
+    color: inherit;
+  }
+}

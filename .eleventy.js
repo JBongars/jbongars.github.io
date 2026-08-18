@@ -743,6 +743,14 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("externalHref", (value) => parseFrontMatterLink(value).href);
   eleventyConfig.addFilter("linkLabel", (value) => parseFrontMatterLink(value).label);
   eleventyConfig.addFilter("cssDecls", cssDecls);
+  eleventyConfig.addFilter("absoluteUrl", (path) => {
+    const raw = process.env.SITE_URL;
+    const origin = raw ? String(raw).replace(/\/?$/, "") : "";
+    const href = path == null || path === "" ? "/" : String(path);
+    const normalized = href.startsWith("/") ? href : `/${href}`;
+    if (!origin) return normalized;
+    return `${origin}${normalized}`;
+  });
   eleventyConfig.addShortcode("year", () => `${new Date().getFullYear()}`);
 
   // Disable raw HTML in markdown. Highlight via Prism with aliases; unknown
