@@ -598,6 +598,9 @@ module.exports = function (eleventyConfig) {
     formats: ["avif", "webp", "auto"],
     widths: [400, 800, 1200],
     failOnError: false,
+    // Same hashed files as production — the on-request /.11ty/image/ URLs
+    // 404 in --serve (especially for .media/ sources).
+    transformOnRequest: false,
     htmlOptions: {
       imgAttributes: {
         loading: "lazy",

@@ -4,6 +4,7 @@ body {
   flex-direction: column;
   margin: 0;
   isolation: isolate;
+  max-width: 100%;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
@@ -122,11 +123,23 @@ a:focus-visible {
   color: var(--text);
 }
 
+img,
+picture,
+video,
+iframe {
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
 /* Layout: container + grid */
 .container,
 main,
 footer {
   width: 100%;
+  min-width: 0;
   max-width: var(--container-max);
   margin-inline: auto;
   padding-inline: var(--container-pad);
@@ -134,7 +147,7 @@ footer {
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
   gap: var(--space-4);
 }
 
