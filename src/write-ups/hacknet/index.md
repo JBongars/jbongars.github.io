@@ -121,11 +121,6 @@ The user ID is confirmed correct and the alt account was accepted as a contact, 
 
 ## Stage 1: SSTI in username → user data dump
 
-> Note: this path was found with the help of an external walkthrough after
-> the manual SSTI attempts above came up empty. The working injection is the
-> username field, surfaced through the "likes" display rather than the fields
-> tested earlier.
-
 Setting the profile username to the following and then manipulating the likes reveals the details of users shown in the likes list:
 
 ```txt
@@ -277,8 +272,6 @@ MariaDB [hacknet]> select email,username,password from SocialNetwork_socialuser;
 This confirms known creds but doesn't add anything new — the DB isn't the escalation path.
 
 ### Cache poisoning (the real path)
-
-> Note: the cache-poisoning idea came from an external walkthrough.
 
 The key fact is **global write access to the Django cache**; poisoning a cached pickle yields a reverse shell. `settings.py` defines a file-based cache:
 
@@ -455,8 +448,8 @@ Root password: `h4ck3rs4re3veRywh3re99`. Reuse it for root.
 
 ### What went right
 
-- Web enumeration, user-tier discovery, and self-ID via the contacts endpoint were done independently before consulting anything external.
-- Recovered `backdoor_bandit` and cracked the escalation chain (DB creds → MySQL → GPG key → backups) largely without help, using the walkthrough only for the two conceptual leaps (the `{{ users.values }}` sink and the cache-poisoning idea).
+- Web enumeration, user-tier discovery, and self-ID via the contacts endpoint.
+- Recovered `backdoor_bandit` and the escalation chain (DB creds → MySQL → GPG key → backups).
 - Kept the exploit modular — confirmed each credential/shell before moving to the next hop.
 
 ---

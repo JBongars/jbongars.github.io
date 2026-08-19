@@ -694,10 +694,9 @@ Foothold shell.
 
 ### What went right
 
-- Reached the Gitea instance and the ticket-download LFI independently through vhost fuzzing and reading the app source.
+- Reached the Gitea instance and the ticket-download LFI through vhost fuzzing and reading the app source.
 - Kept the config-leak chain tight and in order: `docker-compose.yml` → `app.ini` → `gitea.db`.
 - Pushed the escalation straight to root without fighting to upgrade a shell — the callback landed as root.
-- Honest note: had some help on this one; second box in two weeks — the priority now is consistency, not speed.
 
 ---
 

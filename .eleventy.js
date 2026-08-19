@@ -41,6 +41,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addGlobalData("pathPrefix", pathPrefix);
   eleventyConfig.addGlobalData("siteUrl", siteUrl);
   eleventyConfig.addGlobalData("cssRev", () => cssRev());
+  eleventyConfig.addGlobalData("buildDate", () => new Date());
 
   warmPrismLanguages();
 
@@ -104,6 +105,7 @@ module.exports = function (eleventyConfig) {
         title: ctx.title,
         description: ctx.metaDescription || ctx.description,
         date: ctx.date,
+        dateModified: ctx.dateModified,
         collections: collections || ctx.collections,
       })
     );

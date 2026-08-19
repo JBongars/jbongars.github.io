@@ -333,7 +333,7 @@ Stage result: a root shell, `proof.txt` and `local.txt`.
 
 ### What went right
 
-- Web enumeration to the Subrion admin panel was done independently.
+- Web enumeration to the Subrion admin panel.
 - Always kept something scanning in the background — the box was never idle.
 - Spotted `/opt/image-exif.sh` and the root cron almost immediately. Full commitment came late because it wasn't obvious a `www-data` → root jump was possible, so the DB password hunt was dropped and picked back up ~20 minutes later. The one real drag was GTFOBins showing only read/write for `exiftool`, which prompted a shell-escape / base64 detour before the version-based CVE landed.
 - Pushed the escalation through to root rather than fighting to re-establish a lost shell.

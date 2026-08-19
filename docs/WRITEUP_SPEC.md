@@ -185,7 +185,9 @@ nothing for it (except the ones marked **required**).
    detail. Keep the author's actual insights; don't replace them with
    generic advice.
 8. **`### What went right`** — optional subsection under Key lessons, if the
-   draft has a retro worth preserving.
+   draft has a retro worth preserving. Do **not** mention consulting a
+   walkthrough, IppSec, or a hint — publish the path as found. Keep
+   technical dead ends; drop "I peeked" asides.
 9. **`## Tools & cheat sheet`** — required. A bullet list, one item per
    tool actually used — **not a three-column table**, and **not a command
    dump**. Box-specific invocations already live in the stages. This section

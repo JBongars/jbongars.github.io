@@ -5,32 +5,35 @@ layout: false
 ---
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>{{ "/" | absoluteUrl }}</loc></url>
-  <url><loc>{{ "/resume/" | absoluteUrl }}</loc></url>
-  <url><loc>{{ "/blog/" | absoluteUrl }}</loc></url>
-  <url><loc>{{ "/write-ups/" | absoluteUrl }}</loc></url>
+  <url><loc>{{ "/" | absoluteUrl }}</loc><lastmod>{{ buildDate.toISOString().slice(0, 10) }}</lastmod></url>
+  <url><loc>{{ "/resume/" | absoluteUrl }}</loc><lastmod>{{ buildDate.toISOString().slice(0, 10) }}</lastmod></url>
+  <url><loc>{{ "/blog/" | absoluteUrl }}</loc><lastmod>{{ buildDate.toISOString().slice(0, 10) }}</lastmod></url>
+  <url><loc>{{ "/write-ups/" | absoluteUrl }}</loc><lastmod>{{ buildDate.toISOString().slice(0, 10) }}</lastmod></url>
   <url><loc>{{ "/resume.pdf" | absoluteUrl }}</loc></url>
   <url><loc>{{ "/resume.json" | absoluteUrl }}</loc></url>
-  <url><loc>{{ "/llms.txt" | absoluteUrl }}</loc></url>
-  <url><loc>{{ "/feed.xml" | absoluteUrl }}</loc></url>
+  <url><loc>{{ "/llms.txt" | absoluteUrl }}</loc><lastmod>{{ buildDate.toISOString().slice(0, 10) }}</lastmod></url>
+  <url><loc>{{ "/feed.xml" | absoluteUrl }}</loc><lastmod>{{ buildDate.toISOString().slice(0, 10) }}</lastmod></url>
   {% if features.hacklas %}
-  <url><loc>{{ "/hacklas/" | absoluteUrl }}</loc></url>
+  <url><loc>{{ "/hacklas/" | absoluteUrl }}</loc><lastmod>{{ buildDate.toISOString().slice(0, 10) }}</lastmod></url>
   {% endif %}
   {% for post in collections.blog %}
   <url>
     <loc>{{ post.url | absoluteUrl }}</loc>
-    {% if post.date %}<lastmod>{{ post.date.toISOString().slice(0, 10) }}</lastmod>{% endif %}
+    <lastmod>{% if post.data.dateModified %}{{ post.data.dateModified }}{% elif post.date %}{{ post.date.toISOString().slice(0, 10) }}{% else %}{{ buildDate.toISOString().slice(0, 10) }}{% endif %}</lastmod>
   </url>
   {% endfor %}
   {% for writeup in collections.writeUps %}
   <url>
     <loc>{{ writeup.url | absoluteUrl }}</loc>
-    {% if writeup.date %}<lastmod>{{ writeup.date.toISOString().slice(0, 10) }}</lastmod>{% endif %}
+    <lastmod>{% if writeup.data.dateModified %}{{ writeup.data.dateModified }}{% elif writeup.date %}{{ writeup.date.toISOString().slice(0, 10) }}{% else %}{{ buildDate.toISOString().slice(0, 10) }}{% endif %}</lastmod>
   </url>
   {% endfor %}
   {% if features.hacklas %}
   {% for note in collections.hacklas %}
-  <url><loc>{{ note.url | absoluteUrl }}</loc></url>
+  <url>
+    <loc>{{ note.url | absoluteUrl }}</loc>
+    {% if note.data.dateModified %}<lastmod>{{ note.data.dateModified }}</lastmod>{% endif %}
+  </url>
   {% endfor %}
   {% endif %}
 </urlset>

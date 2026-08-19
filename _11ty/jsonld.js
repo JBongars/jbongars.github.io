@@ -140,6 +140,14 @@ function buildJsonLd(data) {
     if (data.date instanceof Date && !Number.isNaN(data.date.getTime())) {
       node.datePublished = data.date.toISOString().slice(0, 10);
     }
+    if (typeof data.dateModified === "string" && data.dateModified) {
+      node.dateModified = data.dateModified;
+    } else if (
+      data.dateModified instanceof Date &&
+      !Number.isNaN(data.dateModified.getTime())
+    ) {
+      node.dateModified = data.dateModified.toISOString().slice(0, 10);
+    }
     if (person.image) node.image = person.image;
     return node;
   }

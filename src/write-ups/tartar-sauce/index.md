@@ -873,8 +873,7 @@ Not usable as `www-data` without the password on the mysql client.
 
 ### What went right
 
-- Eventually widening recon past Monstra and treating broken WP absolute links as a vhost clue.
-- Checklist update afterward: WordPress + plugins, and keep gobuster/ffuf running in the background during other enum.
+- Widening recon past Monstra and treating broken WP absolute links as a vhost clue.
 
 ---
 

@@ -63,7 +63,9 @@ These exist so agents do not need a homemade “click here” JSON blob:
 - `/llms.txt` — Markdown map (resume / blog / write-ups contract; Hacklas is
   marked optional and skippable for candidate evaluation)
 - `/robots.txt` — allow all, Sitemap, note pointing at llms.txt
-- `/sitemap.xml` — HTML pages plus PDF, JSON Resume, llms.txt, feed
+- `/sitemap.xml` — HTML pages plus PDF, JSON Resume, llms.txt, feed;
+  `lastmod` is the git date of each source file (listing pages use the
+  build date) so crawlers see edits after the original publish date
 - `/feed.xml` — combined RSS of blog + write-ups
 - `/resume.json` — JSON Resume mapped from `resume.json` (do not replace the
   source data file)

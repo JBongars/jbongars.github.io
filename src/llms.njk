@@ -7,6 +7,8 @@ layout: false
 
 > {{ resume.title | safe }} in {{ resume.location | safe }}. Resume is compact employment history; the blog covers depth that does not fit there; write-ups are hands-on offensive security work.
 
+> Generated {{ buildDate.toISOString() }}.
+
 ## Start here
 
 - [Home]({{ "/" | absoluteUrl }}): who I am and how the site is organized
@@ -29,7 +31,7 @@ layout: false
 {% endfor %}
 ## Write-ups
 
-- [Write-Ups]({{ "/write-ups/" | absoluteUrl }}): Offensive Security / HackTheBox machine write-ups that demonstrate hands-on hacking
+- [Write-Ups]({{ "/write-ups/" | absoluteUrl }}): Offensive Security / HackTheBox machine write-ups that demonstrate hands-on hacking ({{ collections.writeUps.length }} published)
 {% for writeup in collections.writeUps %}- [{{ (writeup.data.title or writeup.fileSlug) | safe }}]({{ writeup.url | absoluteUrl }}){% if writeup.data.description %}: {{ writeup.data.description | safe }}{% endif %}
 {% endfor %}
 {% if features.hacklas %}

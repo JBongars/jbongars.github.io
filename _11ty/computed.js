@@ -10,6 +10,7 @@ const {
   fileCreatedDate,
 } = require("./content");
 const { pageDescription } = require("./jsonld");
+const { gitLastmodDay } = require("./git");
 
 function computedData() {
   return {
@@ -106,6 +107,7 @@ function computedData() {
         return data.page.date;
       }
     },
+    dateModified: (data) => gitLastmodDay(data.page?.inputPath),
   };
 }
 
