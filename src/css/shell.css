@@ -18,6 +18,7 @@
 }
 
 .site-header {
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -149,27 +150,38 @@ html:has(#theme-toggle:checked) .theme-toggle-btn__icon--to-dark {
 
 @media (prefers-reduced-motion: no-preference) {
   .nav-toggle-btn__bar {
-    transition: transform 160ms ease, opacity 160ms ease;
+    transition: transform 120ms ease, opacity 120ms ease;
   }
 }
 
 .site-nav {
   flex-basis: 100%;
   width: 100%;
+  display: grid;
+  grid-template-rows: 0fr;
+}
+
+.site-header__actions:has(.nav-toggle:checked) ~ .site-nav {
+  grid-template-rows: 1fr;
 }
 
 .nav-list {
-  display: none;
+  display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 0;
+  min-height: 0;
   margin: 0;
-  padding: var(--space-2) 0 0;
+  padding: 0;
+  overflow: hidden;
   list-style: none;
-  border-top: 1px solid var(--border);
+  visibility: hidden;
 }
 
 .site-header__actions:has(.nav-toggle:checked) ~ .site-nav .nav-list {
-  display: flex;
+  visibility: visible;
+  padding: var(--space-2) 0 0;
+  border-top: 1px solid var(--border);
 }
 
 .nav-list a {
@@ -177,6 +189,7 @@ html:has(#theme-toggle:checked) .theme-toggle-btn__icon--to-dark {
   padding: var(--space-3) 0;
   color: var(--muted);
   font-size: var(--text-sm);
+  text-align: center;
   text-decoration: none;
   border-bottom: 1px solid var(--border);
 }
@@ -195,8 +208,9 @@ html:has(#theme-toggle:checked) .theme-toggle-btn__icon--to-dark {
 }
 
 .nav-list a.nav-list__external {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35em;
   color: var(--accent);
 }
@@ -209,6 +223,12 @@ html:has(#theme-toggle:checked) .theme-toggle-btn__icon--to-dark {
   flex-shrink: 0;
   width: 0.75em;
   height: 0.75em;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .site-nav {
+    transition: grid-template-rows 120ms ease;
+  }
 }
 
 @media (min-width: 48rem) {
@@ -228,6 +248,7 @@ html:has(#theme-toggle:checked) .theme-toggle-btn__icon--to-dark {
 
   .site-nav {
     order: 2;
+    display: block;
     flex-basis: auto;
     width: auto;
     margin-left: auto;
@@ -238,6 +259,13 @@ html:has(#theme-toggle:checked) .theme-toggle-btn__icon--to-dark {
     flex-direction: row;
     align-items: center;
     gap: var(--space-1);
+    overflow: visible;
+    padding: 0;
+    border-top: 0;
+    visibility: visible;
+  }
+
+  .site-header__actions:has(.nav-toggle:checked) ~ .site-nav .nav-list {
     padding: 0;
     border-top: 0;
   }
@@ -246,6 +274,7 @@ html:has(#theme-toggle:checked) .theme-toggle-btn__icon--to-dark {
     padding: var(--space-2) var(--space-3);
     border-bottom: 0;
     border-radius: var(--radius);
+    text-align: start;
   }
 
   .nav-list a:hover,
