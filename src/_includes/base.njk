@@ -151,7 +151,8 @@
   {% if isListing %}
   <script src="{{ '/js/booru-search.js' | url }}" defer></script>
   {% endif %}
-  {% if features.hacklas and "/hacklas/" in page.url %}
+  {% if features.hacklas %}
+  {# Loaded on every page so site.js main-swaps onto /hacklas/ still have handlers. #}
   <script src="{{ '/js/site-url.js' | url }}" defer></script>
   <script src="{{ '/js/fuzzy-find.js' | url }}" defer></script>
   <script src="{{ '/js/hacklas-disclaimer.js' | url }}" defer></script>

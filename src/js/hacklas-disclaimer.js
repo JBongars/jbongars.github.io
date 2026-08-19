@@ -1,5 +1,6 @@
 /* Progressive enhancement: Hacklas disclaimer gate.
-   Acknowledged state is stored in localStorage. */
+   Acknowledged state is stored in localStorage.
+   Listeners are delegated on document so they survive site.js main swaps. */
 (function () {
   "use strict";
 
@@ -59,42 +60,29 @@
     location.assign(home);
   }
 
-  function hydrate(root) {
-    var modal = root && root.nodeType === 1 && root.matches && root.matches(SELECTOR)
-      ? root
-      : (root || document).querySelector(SELECTOR);
-    if (!modal || modal.getAttribute("data-disclaimer-ready") === "1") return;
-    modal.setAttribute("data-disclaimer-ready", "1");
+  function hideAll() {
+    Array.prototype.forEach.call(document.querySelectorAll(SELECTOR), function (modal) {
+      modal.hidden = true;
+    });
+    setBodyLocked(false);
+  }
+
+  function hydrate(modal) {
+    if (!modal || modal.nodeType !== 1) return;
 
     if (isAcked()) {
       modal.hidden = true;
-      setBodyLocked(false);
       return;
     }
 
     modal.hidden = false;
     setBodyLocked(true);
 
-    var refuse = modal.querySelector("[data-hacklas-disclaimer-refuse]");
-    if (refuse) {
-      refuse.addEventListener("click", function (e) {
-        e.preventDefault();
-        leaveHacklas(refuse.getAttribute("href"));
-      });
-    }
-
     var btn = modal.querySelector("[data-hacklas-disclaimer-ack]");
-    if (btn) {
-      btn.addEventListener("click", function () {
-        setAcked();
-        modal.hidden = true;
-        setBodyLocked(false);
-      });
-      if (typeof btn.focus === "function") {
-        try {
-          btn.focus();
-        } catch (_) {}
-      }
+    if (btn && typeof btn.focus === "function") {
+      try {
+        btn.focus();
+      } catch (_) {}
     }
   }
 
@@ -105,10 +93,30 @@
       return;
     }
     Array.prototype.forEach.call(modals, hydrate);
-    if (!document.querySelector(SELECTOR + ":not([hidden])")) {
+    if (isAcked() || !document.querySelector(SELECTOR + ":not([hidden])")) {
       setBodyLocked(false);
     }
   }
+
+  document.addEventListener(
+    "click",
+    function (e) {
+      var ack =
+        e.target.closest && e.target.closest("[data-hacklas-disclaimer-ack]");
+      if (ack) {
+        setAcked();
+        hideAll();
+        return;
+      }
+      var refuse =
+        e.target.closest && e.target.closest("[data-hacklas-disclaimer-refuse]");
+      if (refuse) {
+        e.preventDefault();
+        leaveHacklas(refuse.getAttribute("href"));
+      }
+    },
+    true
+  );
 
   window.hydrateHacklasDisclaimer = hydrateAll;
 
