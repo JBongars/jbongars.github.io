@@ -28,7 +28,7 @@ layout: base.njk
   {% endif %}
 </div>
 {% endif %}
-<article class="post{% if tocHtml %} post--with-toc{% endif %}">
+<article class="post{% if tocHtml %} post--with-toc{% endif %}{% if "/blog/" in page.url %} post--blog{% endif %}">
   {% if tocHtml %}
   <nav class="toc" aria-label="Table of contents">
     {{ tocHtml | safe }}

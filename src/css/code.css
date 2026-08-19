@@ -279,6 +279,20 @@ html.code-fs-open {
   color: var(--muted);
 }
 
+/* A quoted image is the markdown-native “make this smaller” signal
+   (`> ![alt](src)`). Scale to a screenshot width; crop is not needed. */
+.prose blockquote:has(img) {
+  display: flex;
+  justify-content: center;
+  padding-left: 0;
+  border-left: 0;
+}
+
+.prose blockquote picture,
+.prose blockquote img {
+  max-width: min(22rem, 100%);
+}
+
 /* Prism token colors — muted dark theme, readable contrast */
 .token.comment,
 .token.prolog,
