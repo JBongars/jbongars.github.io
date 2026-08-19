@@ -11,7 +11,8 @@ banner_style_light:
 disable_tree: true
 link: "[JBongars/ec2-probe](https://github.com/JBongars/ec2-probe)"
 tags:
-  - Security
+  - AI
+  - Cybersecurity
   - Devops
   - Opinion
   - Project
