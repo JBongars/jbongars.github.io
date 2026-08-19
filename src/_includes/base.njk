@@ -157,13 +157,14 @@
   <script src="{{ '/js/fuzzy-find.js' | url }}" defer></script>
   <script src="{{ '/js/hacklas-disclaimer.js' | url }}" defer></script>
   {% endif %}
+  {% if comments.enabled %}
+  {# Loaded on every page so site.js main-swaps onto a post still inject Giscus. #}
+  <script src="{{ '/js/comments.js' | url }}" defer></script>
+  {% endif %}
   {% if isPost %}
   <script src="{{ '/js/code-blocks.js' | url }}" defer></script>
   <script src="{{ '/js/image-lightbox.js' | url }}" defer></script>
   <script src="{{ '/js/back-button.js' | url }}" defer></script>
-  {% if comments.enabled %}
-  <script src="{{ '/js/comments.js' | url }}" defer></script>
-  {% endif %}
   {% endif %}
   <script src="{{ '/js/site.js' | url }}" defer></script>
 </body>

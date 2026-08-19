@@ -45,7 +45,10 @@
     if (!section || !section.getAttribute) return;
 
     var mount = section.querySelector(MOUNT);
-    if (!mount || mount.getAttribute("data-comments-ready") === "1") return;
+    if (!mount) return;
+    if (mount.querySelector("iframe.giscus-frame, script[src*='giscus.app/client.js']")) {
+      return;
+    }
 
     var repo = section.getAttribute("data-repo") || "";
     var repoId = section.getAttribute("data-repo-id") || "";
@@ -54,7 +57,6 @@
     var term = section.getAttribute("data-term") || "";
     if (!repo || !repoId || !categoryId || !term) return;
 
-    mount.setAttribute("data-comments-ready", "1");
     while (mount.firstChild) mount.removeChild(mount.firstChild);
 
     // client.js always does document.head.prepend(#giscus-css → default.css).
@@ -66,7 +68,7 @@
     }
 
     var script = document.createElement("script");
-    script.src = SRC;
+    script.src = SRC + "?term=" + encodeURIComponent(term);
     script.async = true;
     script.crossOrigin = "anonymous";
     script.setAttribute("data-repo", repo);
