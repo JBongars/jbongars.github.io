@@ -214,8 +214,7 @@
 /* Markdown body */
 .prose {
   min-width: 0;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .prose > *:first-child {
@@ -273,6 +272,24 @@
 .prose ul.task-list ul {
   margin-top: var(--space-2);
   padding-left: var(--space-6);
+}
+
+.prose table {
+  display: block;
+  max-width: 100%;
+  margin: 0 0 var(--space-4);
+  overflow-x: auto;
+  border-collapse: collapse;
+  -webkit-overflow-scrolling: touch;
+}
+
+.prose th,
+.prose td {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
 }
 
 .prose picture,

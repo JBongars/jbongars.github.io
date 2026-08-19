@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="{{ security.contentSecurityPolicy | safe }}">
   <meta name="referrer" content="{{ security.referrerPolicy }}">
-  <link rel="stylesheet" href="{{ '/css/style.css' | url }}" fetchpriority="high">
+  <link rel="stylesheet" href="{{ '/css/style.css' | url }}?v={{ cssRev }}" fetchpriority="high">
   <title>{% if title %}{{ title }} · {% endif %}{{ resume.name }}</title>
   <meta name="description" content="{{ metaDescription }}">
   <meta name="author" content="{{ resume.name }}">
@@ -79,7 +79,7 @@
           </li>
           {% if features.hacklas %}
           <li>
-            <a href="{{ '/hacklas/' | url }}" {% if "/hacklas/" in page.url %}aria-current="page"{% endif %}>Hacklas</a>
+            <a href="{{ '/hacklas/' | url }}" {% if "/hacklas/" in page.url %}aria-current="page"{% endif %}>Hacklas{% include "hacklas-beta-badge.njk" %}</a>
           </li>
           {% endif %}
           {% if resume.linkedin %}

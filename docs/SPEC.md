@@ -49,7 +49,9 @@ markdown content, Eleventy 3, deployed on push to `main`.
    does not.
 4. Write-ups — list + single post for HTB / OffSec machines.
 5. 404 — CTAs to Resume / Blog / Write-Ups / LinkedIn.
-6. Hacklas — optional notes tree, currently **off** (`features.hacklas: false`).
+6. Hacklas — notes tree, currently **on** (`features.hacklas: true`). Write-up
+   Tools & cheat sheet rows link here instead of repeating commands. Note
+   format: `docs/HACKLAS_SPEC.md`.
 
 Dark is the default theme. A CSS-first light toggle persists in `localStorage`
 when JS is available.
@@ -58,7 +60,8 @@ when JS is available.
 
 These exist so agents do not need a homemade “click here” JSON blob:
 
-- `/llms.txt` — Markdown map (resume / blog / write-ups contract)
+- `/llms.txt` — Markdown map (resume / blog / write-ups contract; Hacklas is
+  marked optional and skippable for candidate evaluation)
 - `/robots.txt` — allow all, Sitemap, note pointing at llms.txt
 - `/sitemap.xml` — HTML pages plus PDF, JSON Resume, llms.txt, feed
 - `/feed.xml` — combined RSS of blog + write-ups

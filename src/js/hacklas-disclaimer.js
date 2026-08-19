@@ -24,6 +24,41 @@
     document.documentElement.classList.toggle("disclaimer-open", !!locked);
   }
 
+  function pathPrefix() {
+    var raw = document.documentElement.getAttribute("data-path-prefix") || "/";
+    return raw.charAt(raw.length - 1) === "/" ? raw : raw + "/";
+  }
+
+  function isHacklasHref(href) {
+    try {
+      var url = new URL(href, location.href);
+      if (url.origin !== location.origin) return false;
+      var prefix = pathPrefix().replace(/\/$/, "");
+      var rest = url.pathname;
+      if (prefix && rest.indexOf(prefix) === 0) rest = rest.slice(prefix.length);
+      if (rest.charAt(0) !== "/") rest = "/" + rest;
+      return rest === "/hacklas" || rest.indexOf("/hacklas/") === 0;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function leaveHacklas(homeHref) {
+    var home =
+      homeHref ||
+      (typeof window.siteUrl === "function" ? window.siteUrl("/") : "/");
+    var ref = document.referrer;
+    if (ref && !isHacklasHref(ref)) {
+      var here = location.href;
+      history.back();
+      setTimeout(function () {
+        if (location.href === here) location.assign(home);
+      }, 250);
+      return;
+    }
+    location.assign(home);
+  }
+
   function hydrate(root) {
     var modal = root && root.nodeType === 1 && root.matches && root.matches(SELECTOR)
       ? root
@@ -39,6 +74,14 @@
 
     modal.hidden = false;
     setBodyLocked(true);
+
+    var refuse = modal.querySelector("[data-hacklas-disclaimer-refuse]");
+    if (refuse) {
+      refuse.addEventListener("click", function (e) {
+        e.preventDefault();
+        leaveHacklas(refuse.getAttribute("href"));
+      });
+    }
 
     var btn = modal.querySelector("[data-hacklas-disclaimer-ack]");
     if (btn) {

@@ -16,6 +16,7 @@ const {
 const { buildJsonLd } = require("./_11ty/jsonld");
 const { buildToc, configureMarkdown, warmPrismLanguages } = require("./_11ty/markdown");
 const { computedData } = require("./_11ty/computed");
+const { cssRev } = require("./_11ty/css");
 
 module.exports = function (eleventyConfig) {
   eleventyConfig.addPlugin(syntaxHighlight, {
@@ -39,6 +40,7 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addGlobalData("pathPrefix", pathPrefix);
   eleventyConfig.addGlobalData("siteUrl", siteUrl);
+  eleventyConfig.addGlobalData("cssRev", () => cssRev());
 
   warmPrismLanguages();
 

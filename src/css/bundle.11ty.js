@@ -1,21 +1,8 @@
-const fs = require("node:fs");
-const path = require("node:path");
-const features = require("../_data/features.json");
-
-const CSS_DIR = __dirname;
+const { bundleCss } = require("../../_11ty/css");
 
 module.exports.data = () => ({
   permalink: "/css/style.css",
   eleventyExcludeFromCollections: true,
 });
 
-module.exports.render = () => {
-  const entry = fs.readFileSync(path.join(CSS_DIR, "style.css"), "utf8");
-  const files = [...entry.matchAll(/@import url\("\.\/([^"]+)"\);/g)].map(
-    (match) => match[1]
-  );
-  return files
-    .filter((file) => features.hacklas || file !== "hacklas.css")
-    .map((file) => fs.readFileSync(path.join(CSS_DIR, file), "utf8"))
-    .join("\n");
-};
+module.exports.render = () => bundleCss();

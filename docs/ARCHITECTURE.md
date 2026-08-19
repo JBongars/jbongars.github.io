@@ -39,11 +39,12 @@
     │   │   ├── note.njk          # Hacklas note layout
     │   │   ├── comments.njk      # Giscus mount (noscript fallback)
     │   │   ├── hacklas-disclaimer.njk
+    │   │   ├── hacklas-beta-badge.njk
     │   │   └── skill-tag.njk
     │   ├── _data/
     │   │   ├── resume.json       # experience — single source of truth
     │   │   ├── resume.pdf        # copied to /resume.pdf
-    │   │   ├── features.json     # { "hacklas": false }
+    │   │   ├── features.json     # { "hacklas": true, "hacklas_show_beta": true }
     │   │   ├── comments.json     # Giscus repo / ids / themes
     │   │   ├── security.js       # CSP + HTTP headers
     │   │   └── skillDictionary.json
@@ -141,8 +142,10 @@ production. `eleventy:ignore` on icons and the footer signature.
 ## CSS modules
 
 `src/css/style.css` lists `@import`s; `bundle.11ty.js` inlines them in that
-order into `/css/style.css`. Current sheets: tokens, base, shell, cards,
-motion, home, listings, post, lightbox, code, resume, hacklas.
+order into `/css/style.css`. `base.njk` loads it as `/css/style.css?v=<hash>`
+so a flag flip (Hacklas on/off) or sheet edit is not stuck behind the 24h
+asset cache. Current sheets: tokens, base, shell, cards, motion, home,
+listings, post, lightbox, code, resume, hacklas.
 
 ## Agent / SEO wiring
 

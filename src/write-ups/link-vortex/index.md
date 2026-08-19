@@ -32,13 +32,13 @@ As `bob`, `sudo -l` allows `NOPASSWD` execution of `/usr/bin/bash /opt/ghost/cle
 **rustscan**
 
 ```bash
-rustscan -a "$IP_ADDRESS" -ulimit 5000 -- -sC -sV -oA "/home/julien/.hacklas/targets/track-oscp/LinkVortex/nmap/quick"
+rustscan -a "$IP_ADDRESS" -ulimit 5000 -- -sC -sV -oA "nmap/quick"
 ```
 
 **nmap**
 
 ```bash
-nmap -sC -sV -p- -oA "/home/julien/.hacklas/targets/track-oscp/LinkVortex/nmap/full" "$IP_ADDRESS"
+nmap -sC -sV -p- -oA "nmap/full" "$IP_ADDRESS"
 
 
 # Nmap 7.94SVN scan initiated Wed Feb  4 03:41:37 2026 as: nmap -sC -sV -oA ./nmap/quick.nmap 10.129.193.249
@@ -388,10 +388,11 @@ bob@linkvortex:~$
 
 ## Credentials
 
-| Source                                          | Credential                                 | Notes                              |
-| ----------------------------------------------- | ------------------------------------------ | ---------------------------------- |
-| `git diff --cached` (auth test)                 | `admin@linkvortex.htb:OctopiFociPilfer45`  | Ghost admin                        |
-| Ghost `config.production.json` (CVE-2023-40028) | `bob@linkvortex.htb:fibber-talented-worth` | SMTP auth; reuses for SSH as `bob` |
+**`git diff --cached` (auth test)** — `admin@linkvortex.htb:OctopiFociPilfer45`
+Ghost admin.
+
+**Ghost `config.production.json` (CVE-2023-40028)** — `bob@linkvortex.htb:fibber-talented-worth`
+SMTP auth; reuses for SSH as `bob`.
 
 ---
 
@@ -414,11 +415,9 @@ bob@linkvortex:~$
 
 ## Tools & cheat sheet
 
-| Tool                        | Purpose in this box                     | Key command                                                                                 |
-| --------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `rustscan` / `nmap`         | Port / service discovery                | `nmap -sC -sV -oA ./nmap/quick.nmap 10.129.193.249`                                         |
-| `ffuf` / gobuster           | Vhost discovery (`dev.linkvortex.htb`)  | `ffuf -u 'http://<TARGET>' -w …/subdomains-top1million-20000.txt`                           |
-| `git-dumper`                | Dump exposed `.git` on dev vhost        | `git-dumper 'http://dev.linkvortex.htb/.git' ./src`                                         |
-| `git diff --cached`         | Recover staged password / Dockerfile    | `git diff --cached HEAD`                                                                    |
-| CVE-2023-40028 exploit      | Authenticated Ghost arbitrary file read | `./CVE-2023-40028 -u admin@linkvortex.htb -p OctopiFociPilfer45 -h 'http://linkvortex.htb'` |
-| `sudo` + `clean_symlink.sh` | TOCTOU symlink race → root flag         | `CHECK_CONTENT=true sudo /usr/bin/bash /opt/ghost/clean_symlink.sh *.png`                   |
+- [`rustscan`](/hacklas/enumeration/port-scan/rustscan.md) / [`nmap`](/hacklas/enumeration/port-scan/nmap.md) — Port / service discovery
+- [`ffuf`](/hacklas/enumeration/ffuf.md) / **gobuster** — Vhost discovery (`dev.linkvortex.htb`)
+- [`git-dumper`](/hacklas/enumeration/git.md) — Dump exposed `.git` on dev vhost
+- [`git diff --cached`](/hacklas/enumeration/git.md) — Recover staged password / Dockerfile
+- **CVE-2023-40028 exploit** — Authenticated Ghost arbitrary file read
+- [`sudo` + `clean_symlink.sh`](/hacklas/escalation/linux/sudo.md) — TOCTOU symlink race → root flag

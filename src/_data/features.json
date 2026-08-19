@@ -1,3 +1,4 @@
 {
-  "hacklas": false
+  "hacklas": true,
+  "hacklas_show_beta": true
 }

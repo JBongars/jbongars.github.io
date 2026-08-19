@@ -194,6 +194,13 @@ html:has(#theme-toggle:checked) .theme-toggle-btn__icon--to-dark {
   border-bottom: 1px solid var(--border);
 }
 
+.nav-list a:has(.beta-badge) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+}
+
 .nav-list li:last-child a {
   border-bottom: 0;
 }

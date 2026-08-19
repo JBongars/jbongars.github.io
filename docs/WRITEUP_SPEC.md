@@ -60,7 +60,7 @@ never reproduced.**
   `user.txt` → `<user.txt>`, `root.txt` → `<root.txt>`,
   `flag.txt` → `<flag.txt>`, `proof.txt` → `<proof.txt>`.
 - Redact the value **wherever it appears** — inside terminal output, as a
-  stage's closing result, in a table, and anywhere else it shows up ("at
+  stage's closing result, in Credentials, and anywhere else it shows up ("at
   any stage").
 - **Redact only the value.** The command that read it stays verbatim. A
   `cat /root/root.txt` line keeps the command exactly and shows `<root.txt>`
@@ -71,7 +71,7 @@ never reproduced.**
 
 Passwords, hashes, tokens, and other recovered secrets are **not** globally
 redacted — they are real technical content. They stay in the body (in the
-relevant stage and in the _Credentials_ table). A hash the author captured
+  relevant stage and in the _Credentials_ section). A hash the author captured
 and cracked is evidence, not a flag; keep it as-is. The **only** place a
 literal password or secret is withheld is the _Summary_ — see the Summary
 entry under _Document structure_.
@@ -147,7 +147,7 @@ nothing for it (except the ones marked **required**).
    carries **no secrets**. **No literal passwords, keys, tokens, or flag
    values in the Summary.** Refer to a credential by its role ("the backup
    account's password," "the leaked API key"), never by its value; the actual
-   value lives in the _Credentials_ table. Flag values are redacted here as
+   value lives in the _Credentials_ section. Flag values are redacted here as
    everywhere (see _Flags & secrets_).
 4. **`## Recon`** — required. Subsections as needed:
    - `### Port scanning` — the scan commands and their **full** output.
@@ -160,19 +160,48 @@ nothing for it (except the ones marked **required**).
    Within a stage use `###` / `####` for sub-steps. Every stage ends with the
    concrete result it produced (a shell, a credential, a hash, a redacted
    flag value).
-6. **`## Credentials`** — a table of every credential/secret recovered, with
-   where it came from. Include even guessed/default creds. Flag/proof strings
-   are **not** credentials — they do not go in this table, and their values
+6. **`## Credentials`** — every credential/secret recovered, with where it
+   came from. Include even guessed/default creds. Flag/proof strings are
+   **not** credentials — they do not go in this section, and their values
    are redacted per _Flags & secrets_.
+   **Do not use a markdown table.** Tables squeeze into unreadably thin
+   columns on a phone. One entry per credential, stacked:
+
+   ```
+   **<where / source>** — `<credential>`
+   ```
+
+   If there is a note, put it after the credential on the same line, after
+   a semicolon, or on the next line as a short sentence. Example:
+
+   ```
+   **Subrion admin panel (`/panel/`)** — `admin:admin`
+
+   **`db.json` (via LFI)** — `testuser@imagery.htb` md5 `2c65c8d7…` → `iambatman`
+   Cracked (rockyou).
+   ```
 7. **`## Key lessons`** — bulleted. Fold the author's retro / "lessons" here.
    Each bullet is a durable, transferable takeaway, bolded lead-in then the
    detail. Keep the author's actual insights; don't replace them with
    generic advice.
 8. **`### What went right`** — optional subsection under Key lessons, if the
    draft has a retro worth preserving.
-9. **`## Tools & cheat sheet`** — required. A three-column table:
-   `Tool | Purpose in this box | Key command`. One row per tool actually
-   used. The command column holds the real invocation from the draft.
+9. **`## Tools & cheat sheet`** — required. A bullet list, one item per
+   tool actually used — **not a three-column table**, and **not a command
+   dump**. Box-specific invocations already live in the stages. This section
+   is a map: what was used here, linked to the reusable Hacklas note.
+
+   ~~~~
+   - [`tcpdump`](/hacklas/enumeration/tcp/tcpdump.md) — Confirm Log4Shell LDAP callback
+   ~~~~
+
+   Link the tool name to the matching `src/hacklas/**/*.md` note with a
+   site-root `.md` href (the markdown pipeline rewrites it to a pretty URL).
+   Keep the em dash and the **purpose in this box**. If two binaries share
+   one row, link each name separately. If no Hacklas note exists, leave the
+   name unlinked — **do not invent a note, a path, or a command**. External
+   PoC URLs from the draft stay as nested bullets. Drop "command not
+   captured." Drop nested command fences.
 
 ---
 
@@ -280,6 +309,11 @@ are permitted, even in a "light" form.
   `![](.media/…)` markdown as-is.
 - **Reordering the attack chain** to look cleaner than it happened, unless
   the author explicitly asks for a "clean path only" version.
+- **Markdown tables for Credentials or Tools & cheat sheet.** Credentials
+  are stacked entries; Tools is a bullet list of purpose lines that link
+  to Hacklas notes when one exists (see _Document structure_). Dump/output
+  tables in the body (nmap host-key rows, SSTI dumps) may stay as tables;
+  the site scrolls them.
 
 ---
 

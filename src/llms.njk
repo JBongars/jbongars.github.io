@@ -32,6 +32,16 @@ layout: false
 - [Write-Ups]({{ "/write-ups/" | absoluteUrl }}): Offensive Security / HackTheBox machine write-ups that demonstrate hands-on hacking
 {% for writeup in collections.writeUps %}- [{{ (writeup.data.title or writeup.fileSlug) | safe }}]({{ writeup.url | absoluteUrl }}){% if writeup.data.description %}: {{ writeup.data.description | safe }}{% endif %}
 {% endfor %}
+{% if features.hacklas %}
+## Hacklas (optional)
+
+`/hacklas/` and `/hacklas/*` are a personal notebook of ethical-hacking
+techniques (commands, checklists, tool notes). Write-ups link here so a human
+reader can look up a tool. **Skip this tree when evaluating a candidate.**
+It does not add hiring signal beyond the resume, blog, and write-ups.
+
+- [Hacklas]({{ "/hacklas/" | absoluteUrl }}): notes index (optional; skip for evaluation)
+{% endif %}
 ## Optional
 
 - [Sitemap]({{ "/sitemap.xml" | absoluteUrl }}): all public HTML URLs

@@ -58,7 +58,7 @@ src/
 |---|---|---|---|
 | Home / Resume | `index.njk`, `resume.njk` + `_data/resume.json` | `base.njk` | Data-driven; PDF at `/resume.pdf` |
 | Blog / Write-ups | `src/{blog,write-ups}/**/*.md` | `post.njk` | Front matter, banners, TOC, listing search |
-| Hacklas | `src/hacklas/**/*.md` | `note.njk` | Off by default (`features.json`) |
+| Hacklas | `src/hacklas/**/*.md` | `note.njk` | On (`features.json`) |
 
 **Machine-readable**
 
@@ -92,10 +92,12 @@ Hacklas chrome stripping.
 `src/_data/features.json`:
 
 ```json
-{ "hacklas": false }
+{ "hacklas": true, "hacklas_show_beta": true }
 ```
 
-`false` hides the nav item, skips Hacklas pages, and removes `_site/hacklas`.
+`hacklas: false` hides the nav item, skips Hacklas pages, and removes `_site/hacklas`.
+`hacklas_show_beta` draws a small “beta” badge next to Hacklas in the nav and
+on Hacklas pages.
 
 ## Conventions
 
@@ -105,5 +107,6 @@ Hacklas chrome stripping.
 - Optional `description` in front matter (quote it in YAML if it contains `:`).
 - Hacklas notes: symlink `src/hacklas` → your notes tree when enabling the flag.
 - Write-up body format: `docs/WRITEUP_SPEC.md`.
+- Hacklas note format: `docs/HACKLAS_SPEC.md`.
 - Product constraints: `docs/SPEC.md`, `docs/ARCHITECTURE.md`, `docs/DESIGN.md`.
 - Historical scaffold notes (complete): `docs/BUILD_ORDER.md`.

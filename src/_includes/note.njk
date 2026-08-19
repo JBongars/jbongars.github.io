@@ -7,7 +7,7 @@ layout: base.njk
   <a class="back-button" href="{{ '/hacklas/' | url }}" data-back>← Back</a>
   {% if noteTags and noteTags.length %}
   <nav class="breadcrumbs" aria-label="Breadcrumb">
-    <a class="breadcrumbs__link" href="{{ '/hacklas/' | url }}">Hacklas</a>
+    <a class="breadcrumbs__link" href="{{ '/hacklas/' | url }}">Hacklas{% include "hacklas-beta-badge.njk" %}</a>
     {% for part in noteTags %}
     <span class="breadcrumbs__sep" aria-hidden="true">/</span>
     {% if loop.last %}

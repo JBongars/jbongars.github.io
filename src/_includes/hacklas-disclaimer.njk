@@ -22,8 +22,15 @@
         bounds of the law.
       </p>
     </div>
-    <button type="button" class="disclaimer-modal__ack" data-hacklas-disclaimer-ack>
-      I understand
-    </button>
+    <div class="disclaimer-modal__actions">
+      <a
+        class="disclaimer-modal__refuse"
+        href="{{ '/' | url }}"
+        data-hacklas-disclaimer-refuse
+      >Take me back!</a>
+      <button type="button" class="disclaimer-modal__ack" data-hacklas-disclaimer-ack>
+        I understand
+      </button>
+    </div>
   </div>
 </div>

