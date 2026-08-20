@@ -347,6 +347,29 @@
   object-fit: contain;
 }
 
+/* `!![alt](src)` — stretch to the content column, skip the 40vh cap. */
+.prose picture:has(> img.prose-img--full),
+.prose img.prose-img--full {
+  width: 100%;
+  max-width: 100%;
+  max-height: none;
+  height: auto;
+}
+
+.post--blog .prose picture:has(> img.prose-img--full),
+.post--blog .prose img.prose-img--full {
+  width: 100%;
+  max-height: none;
+}
+
+.post--blog .prose picture:has(> img.prose-img--full) img {
+  width: 100%;
+  max-width: 100%;
+  max-height: none;
+  height: auto;
+  object-fit: contain;
+}
+
 .prose img[data-zoomable],
 .post-banner__img[data-zoomable] {
   cursor: zoom-in;

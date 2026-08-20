@@ -293,6 +293,11 @@ html.code-fs-open {
   max-width: min(22rem, 100%);
 }
 
+.prose blockquote picture:has(> img.prose-img--full),
+.prose blockquote img.prose-img--full {
+  max-width: 100%;
+}
+
 /* Prism token colors — muted dark theme, readable contrast */
 .token.comment,
 .token.prolog,
