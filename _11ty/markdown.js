@@ -259,6 +259,31 @@ function renderTaskLists(state) {
 }
 
 /**
+ * `!![alt](src)` is a full-width image. markdown-it already parses that as a
+ * literal "!" plus a normal image; strip the extra bang and mark the img.
+ */
+function markFullWidthImages(state) {
+  for (const token of state.tokens) {
+    if (token.type !== "inline" || !token.children) continue;
+
+    const children = token.children;
+    for (let i = children.length - 1; i >= 0; i--) {
+      const child = children[i];
+      if (child.type !== "image") continue;
+
+      const prev = children[i - 1];
+      if (!prev || prev.type !== "text" || !prev.content.endsWith("!")) {
+        continue;
+      }
+
+      prev.content = prev.content.slice(0, -1);
+      child.attrJoin("class", "prose-img--full");
+      if (prev.content === "") children.splice(i - 1, 1);
+    }
+  }
+}
+
+/**
  * Rewrite relative *.md links for Eleventy pretty URLs.
  * Source files sit beside each other, but pages live in …/slug/ directories,
  * so `./note.md` must become `../note/` (not `./note.md` or `./note/`).
@@ -304,6 +329,7 @@ function configureMarkdown(mdLib) {
   mdLib.core.ruler.push("demote_body_headings", demoteBodyHeadings);
   mdLib.core.ruler.push("soften_long_headings", softenLongHeadings);
   mdLib.core.ruler.after("inline", "task_lists", renderTaskLists);
+  mdLib.core.ruler.after("inline", "full_width_images", markFullWidthImages);
 
   const defaultLinkOpen =
     mdLib.renderer.rules.link_open ||

@@ -116,7 +116,11 @@ Each entry is a directory so images live next to markdown:
 
 Relative images: `![](.media/screenshot.png)`. Eleventy passthrough-copies
 each `.media/` folder and optional `banner.*` / `banner_path` targets
-(`_11ty/content.js`).
+(`_11ty/content.js`). Size is markdown-native:
+
+- `> ![alt](src)` — smaller screenshot (~22rem)
+- `![alt](src)` — default; blog posts cap height at 40vh
+- `!![alt](src)` — full content-column width
 
 ## Markdown pipeline
 
@@ -127,6 +131,7 @@ Implemented in `_11ty/markdown.js` (wired from `.eleventy.js`):
 - Heading IDs + TOC (`toc` filter); posts demote `#` so the layout title is
   the only h1
 - GitHub-style task lists
+- `!![alt](src)` images marked full-width (`.prose-img--full`)
 - Relative `*.md` links rewritten for pretty URLs
 - Hacklas: strip Author/Date/Path chrome; long `####` lines become bold
   paragraphs
