@@ -60,6 +60,9 @@
     if (typeof window.hydrateComments === "function") {
       window.hydrateComments();
     }
+    if (typeof window.hydrateSkillHints === "function") {
+      window.hydrateSkillHints();
+    }
   }
 
   window.syncSoftNavPath = function () {
