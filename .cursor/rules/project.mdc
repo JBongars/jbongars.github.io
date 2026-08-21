@@ -1,3 +1,8 @@
+---
+description: Core constraints for this personal website
+alwaysApply: true
+---
+
 # .cursor/rules/project.mdc
 
 These constraints apply to every change in this repo. Do not violate them
@@ -8,6 +13,10 @@ even if a prompt doesn't repeat them.
 - Never add a client-side JS dependency without checking ARCHITECTURE.md
   and SPEC.md first. Pages must work without JavaScript; existing scripts
   are progressive enhancement only.
+- CSS follows docs/CSS_ARCHITECTURE.md: BEM class names, SMACSS sheet
+  roles, and CSS custom properties in `src/css/tokens.css`. Do not use that
+  document's CSS-in-JS, Tailwind / utility-first, or preprocessor examples.
+  Visual tokens, motion, and banned looks still come from DESIGN.md.
 - Any animation must follow DESIGN.md's motion rules exactly, including the
   prefers-reduced-motion gating.
 - Follow the file structure in ARCHITECTURE.md. `_11ty/` is the Eleventy

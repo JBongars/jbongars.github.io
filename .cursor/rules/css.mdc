@@ -1,0 +1,23 @@
+---
+description: CSS writing standard — BEM, SMACSS, custom properties
+globs: src/css/**/*.css,src/**/*.njk
+alwaysApply: false
+---
+
+# CSS
+
+Follow [docs/CSS_ARCHITECTURE.md](docs/CSS_ARCHITECTURE.md). This repo uses
+only BEM, SMACSS file roles, and CSS custom properties from that document.
+Sheet map and stack limits: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Looks and motion: [docs/DESIGN.md](docs/DESIGN.md).
+
+- BEM: `.block`, `.block__element`, `.block--modifier`. Match existing
+  names (`.post__title`, `.site-header__inner`, `.post-banner--fallback`).
+- New rules go in the matching sheet under `src/css/`. Add a new sheet only
+  if asked; register it in `src/css/style.css`.
+- Color, type, space, radius, motion: `var(--token)` from `tokens.css`. Do
+  not hardcode a new palette or type size in a component sheet.
+- Theme is a token override in `tokens.css`, not per-component color forks.
+- Low specificity. No IDs for styling. No `!important`.
+- Motion only inside `@media (prefers-reduced-motion: no-preference)`.
+- Never Tailwind, Bootstrap, Sass/Less, CSS-in-JS, or a CSS framework.

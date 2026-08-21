@@ -32,6 +32,10 @@ markdown content, Eleventy 3, deployed on push to `main`.
 
 - No CMS, no WordPress, no server-side app.
 - No JS framework (React/Vue/etc.), no CSS framework (Tailwind/Bootstrap/etc.).
+  CSS is hand-written. The writing standard is
+  [CSS_ARCHITECTURE.md](CSS_ARCHITECTURE.md) (BEM class names, SMACSS sheet
+  roles, CSS custom properties). That document's CSS-in-JS, Tailwind /
+  utility-first, and preprocessor examples are out of scope here.
 - No animation library (GSAP, anime.js) unless I explicitly ask for one later.
 - No contact form requiring JS to submit (native `<form>` only, if added at all).
 - No interactive experiences embedded in the main site — those live as their
@@ -54,7 +58,9 @@ markdown content, Eleventy 3, deployed on push to `main`.
    format: `docs/HACKLAS_SPEC.md`.
 
 Dark is the default theme. A CSS-first light toggle persists in `localStorage`
-when JS is available.
+when JS is available. Visual direction and banned looks live in
+[DESIGN.md](DESIGN.md). How CSS is written — naming, sheet roles, tokens —
+is [CSS_ARCHITECTURE.md](CSS_ARCHITECTURE.md).
 
 ## Machine-readable surfaces
 

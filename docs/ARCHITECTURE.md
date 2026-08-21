@@ -5,7 +5,8 @@
 - Static site generator: Eleventy (11ty) v3.x, Nunjucks templates
 - Styling: hand-written CSS modules under `src/css/`, concatenated at build
   into `/css/style.css` (`src/css/bundle.11ty.js`). No preprocessor, no
-  framework.
+  framework. Writing standard: [CSS_ARCHITECTURE.md](CSS_ARCHITECTURE.md)
+  (BEM + SMACSS + custom properties only — not CSS-in-JS or Tailwind).
 - Client JS is progressive enhancement (site works without it). `theme-init.js`
   is inlined after the theme checkbox (CSP sha256). Other scripts are deferred
   and only included on pages that need them. See the README.
@@ -146,11 +147,41 @@ production. `eleventy:ignore` on icons and the footer signature.
 
 ## CSS modules
 
+Hand-written CSS under `src/css/` is the only styling layer. Follow
+[CSS_ARCHITECTURE.md](CSS_ARCHITECTURE.md) for naming, organization, and
+custom properties. That document's CSS-in-JS, Tailwind / utility-first, and
+preprocessor examples do **not** apply (see SPEC.md non-goals). Visual
+tokens, motion, and banned looks still come from [DESIGN.md](DESIGN.md).
+
 `src/css/style.css` lists `@import`s; `bundle.11ty.js` inlines them in that
 order into `/css/style.css`. `base.njk` loads it as `/css/style.css?v=<hash>`
 so a flag flip (Hacklas on/off) or sheet edit is not stuck behind the 24h
-asset cache. Current sheets: tokens, base, shell, cards, motion, home,
-listings, post, lightbox, code, resume, hacklas.
+asset cache.
+
+Methodology in this repo:
+
+- **BEM** for component class names: `.block`, `.block__element`,
+  `.block--modifier` (e.g. `.post__title`, `.post--with-toc`,
+  `.site-header__inner`). Match existing names; do not invent a second
+  convention.
+- **SMACSS** for file roles. Put new rules in an existing sheet; do not add
+  a sheet without asking. Register any new file in `style.css`.
+  - Base: `tokens.css`, `base.css`
+  - Layout / chrome: `shell.css`
+  - Modules: `cards.css`, `home.css`, `listings.css`, `post.css`,
+    `lightbox.css`, `code.css`, `resume.css`, `hacklas.css`
+  - State: prefer `:has()`, ARIA, or existing checkbox-hack patterns
+    (theme toggle, nav toggle) over stacked `is-*` classes
+  - Theme: token overrides in `tokens.css` (`:root` dark;
+    `html:has(#theme-toggle:checked)` light)
+  - Motion: `motion.css`, gated per DESIGN.md
+- **CSS custom properties** for color, type, space, radius, and motion.
+  New visual values go in `tokens.css` first; components consume `var(--…)`.
+- Keep specificity low (single class selectors). No IDs for styling. No
+  `!important`.
+
+Current sheets: tokens, base, shell, cards, motion, home, listings, post,
+lightbox, code, resume, hacklas.
 
 ## Agent / SEO wiring
 
