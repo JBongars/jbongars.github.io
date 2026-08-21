@@ -40,7 +40,7 @@
       <a class="site-brand" href="{{ '/' | url }}">{% if resume.name %}{{ resume.name }}{% else %}Home{% endif %}</a>
 
       <div class="site-header__actions">
-        <input type="checkbox" id="theme-toggle" class="theme-toggle">
+        <input type="checkbox" id="theme-toggle" class="theme-toggle visually-hidden">
         <script>{{ security.themeInitScript | safe }}</script>
         <label for="theme-toggle" class="theme-toggle-btn">
           <svg class="theme-toggle-btn__icon theme-toggle-btn__icon--to-light" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
@@ -52,7 +52,7 @@
           <span class="visually-hidden">Toggle light and dark mode</span>
         </label>
 
-        <input type="checkbox" id="nav-toggle" class="nav-toggle">
+        <input type="checkbox" id="nav-toggle" class="nav-toggle visually-hidden">
         <label for="nav-toggle" class="nav-toggle-btn">
           <span class="nav-toggle-btn__box" aria-hidden="true">
             <span class="nav-toggle-btn__bar"></span>

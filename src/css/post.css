@@ -46,50 +46,10 @@
   margin: 0 0 var(--space-4);
 }
 
-.post__facts {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  column-gap: var(--space-4);
-  row-gap: var(--space-2);
-  align-items: center;
-  margin: 0;
-  padding: 0;
-}
-
-/* Flatten each row so all labels share one column */
-.post__fact {
-  display: contents;
-}
-
-.post__fact dt {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  line-height: var(--leading-body);
-  letter-spacing: 0.02em;
-  color: var(--muted);
-  align-self: center;
-}
-
-.post__fact dd {
-  margin: 0;
-  font-size: var(--text-sm);
-  line-height: var(--leading-body);
-  color: var(--text);
-  overflow-wrap: anywhere;
-  align-self: center;
-}
-
-.post__fact code {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--muted);
-}
-
 .post__fact-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--space-2);
   max-width: 100%;
   color: var(--muted);
   text-decoration: none;
@@ -106,7 +66,7 @@
 }
 
 .post__fact-link:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: var(--focus-ring);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -119,20 +79,6 @@
 .post__fact-link:hover .icon-external,
 .post__fact-link:focus-visible .icon-external {
   opacity: 0.9;
-}
-
-.post__fact--tags dt,
-.post__fact--tags dd {
-  align-self: center;
-}
-
-.post__meta {
-  margin: 0 0 var(--space-3);
-}
-
-.post__machine {
-  margin: 0;
-  font-size: var(--text-sm);
 }
 
 /* Post layout with TOC — TOC on top (mobile), left rail (desktop) */
@@ -238,7 +184,7 @@
 .prose h4 {
   margin-top: var(--space-7);
   margin-bottom: var(--space-3);
-  scroll-margin-top: 5.5rem;
+  scroll-margin-top: calc(var(--site-header-height) + var(--space-4));
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -271,7 +217,7 @@
 }
 
 .prose .task-list-item__checkbox {
-  margin: 0 0.45em 0 0;
+  margin: 0 var(--space-2) 0 0;
   vertical-align: middle;
   accent-color: var(--accent);
 }
@@ -377,7 +323,7 @@
 
 .prose img[data-zoomable]:focus-visible,
 .post-banner__img[data-zoomable]:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: var(--focus-ring);
   outline-offset: 3px;
 }
 
@@ -410,12 +356,71 @@
   color-scheme: light dark;
 }
 
-.comments__mount .giscus-frame--loading {
-  opacity: 0;
-}
-
 .comments__noscript {
   margin: 0;
   color: var(--muted);
   font-size: var(--text-sm);
+}
+
+.prose hr {
+  margin: var(--space-7) 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.prose blockquote {
+  margin: 0 0 var(--space-4);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--border);
+  color: var(--muted);
+}
+
+/* A quoted image is the markdown-native “make this smaller” signal
+   (`> ![alt](src)`). Scale to a screenshot width; crop is not needed. */
+.prose blockquote:has(img) {
+  display: flex;
+  justify-content: center;
+  padding-left: 0;
+  border-left: 0;
+}
+
+.prose blockquote picture,
+.prose blockquote img {
+  max-width: min(22rem, 100%);
+}
+
+.prose blockquote picture:has(> img.prose-img--full),
+.prose blockquote img.prose-img--full {
+  max-width: 100%;
+}
+
+.prose pre,
+.prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.prose :not(pre) > code {
+  padding: var(--space-1) var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.prose pre {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-4);
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  line-height: var(--leading-body);
+}
+
+.prose pre code {
+  font-family: inherit;
+  font-size: inherit;
+  background: transparent;
+  border: 0;
+  padding: 0;
 }

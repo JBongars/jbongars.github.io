@@ -36,22 +36,8 @@ a.card:focus-visible .card__title {
 }
 
 a.card:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: var(--focus-ring);
   outline-offset: 2px;
-}
-
-.card__meta {
-  margin: 0 0 var(--space-3);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--muted);
-}
-
-.card__body {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--muted);
-  line-height: var(--leading-body);
 }
 
 /* Listing cards: equal height in the grid, banners cropped to 16:9.
@@ -109,31 +95,41 @@ a.card:focus-visible {
   margin: var(--space-4) var(--space-4) var(--space-2);
 }
 
-.card__facts {
+.card__facts,
+.post__facts {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
   column-gap: var(--space-3);
   row-gap: var(--space-2);
   align-items: center;
-  margin: auto var(--space-4) var(--space-4);
   padding: 0;
 }
 
-.card__fact {
+.card__facts {
+  margin: auto var(--space-4) var(--space-4);
+}
+
+.post__facts {
+  margin: 0;
+}
+
+.card__fact,
+.post__fact {
   display: contents;
 }
 
-.card__fact dt {
+.card__fact dt,
+.post__fact dt {
   margin: 0;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   line-height: var(--leading-body);
-  letter-spacing: 0.02em;
   color: var(--muted);
   align-self: center;
 }
 
-.card__fact dd {
+.card__fact dd,
+.post__fact dd {
   margin: 0;
   font-size: var(--text-sm);
   line-height: var(--leading-body);
@@ -142,14 +138,17 @@ a.card:focus-visible {
   align-self: center;
 }
 
-.card__fact code {
+.card__fact code,
+.post__fact code {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--muted);
 }
 
 .card__fact--tags dt,
-.card__fact--tags dd {
+.card__fact--tags dd,
+.post__fact--tags dt,
+.post__fact--tags dd {
   align-self: center;
 }
 
@@ -163,15 +162,14 @@ a.card:focus-visible {
 }
 
 .tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.35em 0.7em;
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--bg);
-  color: var(--text);
+  background: var(--surface);
+  color: var(--muted);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   line-height: var(--leading-tight);
-  white-space: nowrap;
+  text-decoration: none;
 }

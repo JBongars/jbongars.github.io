@@ -32,7 +32,7 @@ body {
   /* Light mode: solid #666 stencil via mask (opacity 1, muted so it doesn't fight text) */
   html:has(#theme-toggle:checked) body::before,
   html:has(#theme-toggle:checked) body::after {
-    background: #b8a8d4;
+    background: var(--heading);
     filter: none;
     opacity: 1;
   }

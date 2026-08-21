@@ -45,7 +45,6 @@
   margin: 0 0 var(--space-4);
   font-size: clamp(2.75rem, 12vw, 3.75rem);
   font-weight: 700;
-  letter-spacing: -0.03em;
   line-height: 0.95;
 }
 
@@ -63,10 +62,6 @@
   line-height: var(--leading-body);
 }
 
-.home-hero__location {
-  margin: 0 0 var(--space-6);
-}
-
 .home-hero__ctas {
   display: flex;
   flex-wrap: wrap;
@@ -81,8 +76,8 @@
 .home-hero__cta {
   display: inline-flex;
   align-items: center;
-  gap: 0.4em;
-  padding: 0.55em 1em;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
@@ -116,7 +111,7 @@
 }
 
 .home-hero__cta--icon {
-  padding: 0.55em;
+  padding: var(--space-2);
 }
 
 html:has(#theme-toggle:checked) .home-hero__cta,
