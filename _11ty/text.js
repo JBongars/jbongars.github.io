@@ -26,4 +26,31 @@ function plainSummary(html, max = 280) {
   return `${text.slice(0, max).replace(/\s+\S*$/, "")}…`;
 }
 
-module.exports = { xmlEscape, escapeHtml, plainSummary };
+const MONTHS_SHORT = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+function formatResumeDate(value) {
+  const raw = String(value == null ? "" : value).trim();
+  if (!raw) return "";
+  if (/^present$/i.test(raw)) return "Present";
+  const yearMonth = raw.match(/^(\d{4})-(\d{2})$/);
+  if (yearMonth) {
+    const month = MONTHS_SHORT[Number(yearMonth[2]) - 1];
+    if (month) return `${month} ${yearMonth[1]}`;
+  }
+  return raw.replace(/\s*[–-]\s*/g, " – ");
+}
+
+module.exports = { xmlEscape, escapeHtml, plainSummary, formatResumeDate };

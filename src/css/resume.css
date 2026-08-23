@@ -4,8 +4,7 @@ html:has(.resume) {
 }
 
 .resume {
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .resume__intro {
@@ -191,12 +190,12 @@ html:has(.resume) {
 }
 
 .resume-role__title {
-  margin: 0 0 var(--space-1);
+  margin: 0 0 var(--space-2);
   font-size: var(--text-base);
 }
 
 .resume-role__company {
-  margin: 0 0 var(--space-1);
+  margin: 0 0 var(--space-2);
   color: var(--muted);
   font-size: var(--text-sm);
   font-weight: 400;
@@ -209,6 +208,8 @@ html:has(.resume) {
 
 .resume-role__meta {
   margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
 }
 
 .resume-role__bullets {
@@ -220,11 +221,11 @@ html:has(.resume) {
 }
 
 .resume-role__bullets li + li {
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
 }
 
 .resume-item {
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
 }
 
 .resume-item:last-child {
@@ -232,19 +233,23 @@ html:has(.resume) {
 }
 
 .resume-item__title {
-  margin: 0 0 var(--space-1);
+  margin: 0 0 var(--space-2);
   font-size: var(--text-base);
   font-weight: 600;
+  line-height: var(--leading-body);
 }
 
 .resume-item__detail {
-  margin: 0 0 var(--space-1);
+  margin: 0;
   color: var(--muted);
   font-size: var(--text-sm);
+  line-height: var(--leading-body);
 }
 
-.resume-item .meta {
-  margin: 0;
+.resume-item__dates {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
 }
 
 a.tag--link {

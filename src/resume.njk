@@ -61,10 +61,10 @@ description: "Resume for Julien Bongars, Infrastructure, Cloud & Application Sec
           <header class="resume-role__header">
             <h3 class="resume-role__title">{{ role.title }}</h3>
             <p class="resume-role__company">
-              {{ role.company }}{% if role.agency %} <span class="resume-role__agency">(via {{ role.agency }})</span>{% endif %}
+              {{ role.company }}{% if role.location %}, {{ role.location }}{% endif %}{% if role.agency %} <span class="resume-role__agency">(via {{ role.agency }})</span>{% endif %}
             </p>
             <p class="resume-role__meta meta">
-              {{ role.start }}–{{ role.end }}{% if role.location %} · {{ role.location }}{% endif %}{% if role.duration %} · {{ role.duration }}{% endif %}
+              {{ role.start | formatResumeDate }} – {{ role.end | formatResumeDate }}{% if role.duration %} · {{ role.duration }}{% endif %}
             </p>
           </header>
           {% if role.bullets and role.bullets.length %}
@@ -128,7 +128,7 @@ description: "Resume for Julien Bongars, Infrastructure, Cloud & Application Sec
           <h3 class="resume-item__title">{{ item.institution }}</h3>
           <p class="resume-item__detail">{{ item.program }}</p>
           {% if item.dates %}
-          <p class="meta">{{ item.dates }}</p>
+          <p class="resume-item__dates meta">{{ item.dates | formatResumeDate }}</p>
           {% endif %}
         </article>
         {% endfor %}

@@ -5,7 +5,7 @@ const { eleventyImageTransformPlugin } = require("@11ty/eleventy-img");
 const features = require("./src/_data/features.json");
 const security = require("./src/_data/security.js");
 const { ROOT, pathPrefix, siteUrl, absoluteHref } = require("./_11ty/paths");
-const { xmlEscape, plainSummary } = require("./_11ty/text");
+const { xmlEscape, plainSummary, formatResumeDate } = require("./_11ty/text");
 const {
   isReadableFile,
   stripNoteChrome,
@@ -96,6 +96,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("cssDecls", cssDecls);
   eleventyConfig.addFilter("xmlEscape", xmlEscape);
   eleventyConfig.addFilter("plainSummary", (html) => plainSummary(html));
+  eleventyConfig.addFilter("formatResumeDate", formatResumeDate);
   eleventyConfig.addFilter("absoluteUrl", (pathname) => absoluteHref(pathname));
   eleventyConfig.addFilter("jsonLdGraph", function (collections) {
     const ctx = this.ctx || {};
