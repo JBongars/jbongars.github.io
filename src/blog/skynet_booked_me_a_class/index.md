@@ -1,7 +1,7 @@
 ---
 title: Skynet Helped Me Book A Gym Class
 author: Julien Bongars
-date: 2026-08
+date: 2026-08-20
 description: "On AI misalignment, accidental attackers, and why defenders don't get to sit this one out."
 banner_path: ./.media/gym-banner.jpg
 banner_style:
@@ -57,10 +57,8 @@ Same capability as the gym agent, just pointed on purpose. Offense and defense a
 
 So what's the takeaway?
 
-AI is collapsing the cost of attack and defense at the same time. That cuts both ways: trivial issues get patched faster than ever, but the attack surface is expanding exponentially, and the patch cycle isn't keeping up. The floor just dropped out. The average script kiddie with a Claude subscription is now punching at a level that used to take real skill, or they are getting Claude to book a doctor's appointment. They are becoming a mini Mr. Robot for twenty bucks a month.
+As this article suggests, there is a new class of attacker we should consider as part of our threat model. Not opportunsts that look to make a quick buck, hacktivists that look to make a point or state actors or organisation looking to accomplish some nation state goal but autonomous AI agents that don't yet fully understand the boundaries of cyberspace.
 
-For me, that underlines one thing: red team engagements and adversarial tooling matter _more_ now than ever before. The whole game is to find and fix the unlocked-door API before somebody's gym-booking agent stumbles into it for you. You want to be weeding out that missing authorization check faster than the average Joe can sign up for an agent and ask it to get him into a spin class.
+We are also starting to see organisations taking up AI to trim down some of these cybersecurity problems but although it's important to do everything we can to discover and patch exploits, these sorts of agentic hacking is only going to get worse. Red team engagements, monitoring, rapid containment and response is imperative to calm the incoming storm before it's too late. There really is no magic bullet for this. Even for platforms previously hidden by being too low stakes. _Security through obscurity_ is and no longer ever was a reasonable compromise.
 
-I don't think the answer is to knee-cap AI. I'll leave that argument to the AI safety people. It's their lane, not mine.
-
-Mine is making sure the door's locked before the accidental attacker tries the handle.
+I'll leave the question of whether we should have built this to the alignment people. But when their open problems fail in production, they arrive on my desk as an incident ticket. Mine is making sure the door's locked before the accidental attacker tries to book another gym class.
