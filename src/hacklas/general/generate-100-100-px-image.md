@@ -9,3 +9,7 @@
 ```bash
 convert -size 100x100 xc:white white_100x100.png
 ```
+
+## Resources
+
+- [ImageMagick convert](https://imagemagick.org/script/convert.php) — `convert` CLI

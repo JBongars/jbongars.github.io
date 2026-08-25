@@ -1,8 +1,8 @@
 # jndi-remote-execution
 
-Author: Julien Bongars
-Date: 2025-09-24 18:56:50
-Path: /opt/development/cybersec/hacklas/notes/general/java/jndi-remote-execution.md
+**Author:** Julien Bongars\
+**Date:** 2025-09-24 18:56:50
+**Path:** /opt/development/cybersec/hacklas/notes/general/java/jndi-remote-execution.md
 
 ---
 
@@ -96,7 +96,8 @@ nc -lvnp 4444
 - Input validation and sanitization
 - Network segmentation to prevent outbound LDAP connections
 
-## References
+## Resources
 
-- [Censys Blog: CVE-2021-44228 Log4j](https://censys.com/blog/cve-2021-44228-log4j)
-- [Apache Log4j Security Vulnerabilities](https://logging.apache.org/log4j/2.x/security.html)
+- [Apache Log4j Security Vulnerabilities](https://logging.apache.org/log4j/2.x/security.html) — patched versions
+- [Censys Blog: CVE-2021-44228 Log4j](https://censys.com/blog/cve-2021-44228-log4j) — attack surface notes
+- [marshalsec](https://github.com/mbechler/marshalsec) — LDAPRefServer used above

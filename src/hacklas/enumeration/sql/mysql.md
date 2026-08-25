@@ -86,3 +86,8 @@ SHOW TABLES;
 
 DESCRIBE TABLES; -- this is also really useful
 ```
+
+## Resources
+
+- [MySQL](https://www.mysql.com/) — official homepage (cited in the cheat.sh dump)
+- [cheat.sh mysql](https://cheat.sh/mysql) — extra flag examples

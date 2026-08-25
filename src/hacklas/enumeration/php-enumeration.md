@@ -1,4 +1,4 @@
-# php-enumeration
+# PHP enumeration
 
 **Author:** Julien Bongars\
 **Date:** 2026-02-12 14:11:10
@@ -8,22 +8,23 @@
 
 ## Feroxbuster
 
-You can enumerate php with the `-X php` tag
+Enumerate PHP paths with `-X php`. See [feroxbuster](./web/domain-path-feroxbuster.md).
 
 ## Functions
 
 ```php
 <!-- Get all the info from php -->
 <?php phpinfo(); ?>
-
-<!-- Get a list of all dangerous functions -->
-<?php
-
-
-
-?>
 ```
+
+Full dump notes: [phpinfo](./php/phpinfo.md).
 
 ## Dangerous Functions
 
-../infiltration/php/dangerous-functions.md
+The list lives in [dangerous-functions.md](../infiltration/deserialisation-injection-insecure-deserialisation/php/dangerous-functions.md).
+
+## Resources
+
+- [feroxbuster](./web/domain-path-feroxbuster.md) — recursive dirbust, `-X php`
+- [phpinfo](./php/phpinfo.md) — reading a phpinfo() dump
+- [dangerous-functions](../infiltration/deserialisation-injection-insecure-deserialisation/php/dangerous-functions.md) — disable_functions leftovers

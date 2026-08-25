@@ -6,7 +6,7 @@
 
 ---
 
-# Enumeration
+## Enumeration
 
 ## Dump Git repository
 
@@ -195,3 +195,8 @@ mkdir src && git-dumper 'http://<TARGET>/.git' ./src
 
 - [ ] Check `git status`
 - [ ] Check `git diff --cached HEAD` for changes to yet fond
+
+## Resources
+
+- [git-dumper](https://github.com/arthaud/git-dumper.git) — tool cited as source in this note
+- [HackTricks — .git](https://book.hacktricks.xyz/network-services-pentesting/pentesting-web/git) — exposed `.git` recon

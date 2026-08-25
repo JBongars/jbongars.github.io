@@ -1,4 +1,4 @@
-# tshark-cmd
+# tshark
 
 **Author:** Julien Bongars\
 **Date:** 2025-10-14 17:36:15
@@ -114,6 +114,14 @@ tshark -r capture.pcap -T json > capture.json
 - Use `-f` for **capture** filters (BPF syntax, faster, set before capture)
 - Use `-Y` for **display** filters (Wireshark syntax, applied after capture)
 - Combine filters: `tshark -r file.pcap -Y "http and ip.addr == 10.10.10.1"`
+- Display-filter syntax (TCP from an IP, hostname, DNS): [Wireshark display filters](./display-filters.md)
 - Use `-V` for verbose packet details
 - Use `-x` to show hex dump
 - Chain with grep: `tshark -r file.pcap -Y "http" | grep "User-Agent"`
+
+## Resources
+
+- [tshark man page](https://www.wireshark.org/docs/man-pages/tshark.html) — official docs
+- [Wireshark](https://www.wireshark.org/) — project homepage
+- [Wireshark display filters](./display-filters.md) — filter bar / `tshark -Y` (TCP from IP, hostname, DNS)
+

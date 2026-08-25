@@ -6,7 +6,7 @@
 
 ---
 
-# For External
+## For External
 
 ## External Reconnaissance
 
@@ -16,7 +16,7 @@
 - [ ] Shodan `ssl:"target.htb"`
 - [ ] Certificate transparency logs `crt.sh?q=%.target.htb`
 
-# HTB
+## HTB
 
 ## Surface
 
@@ -52,7 +52,7 @@
       - [ ] Try null byte `.php%00.jpg`
       - [ ] Try space url encoding`.php%20.jpg`
       - [ ] Can you smuggle a phar and then trigger it with page? See `../infiltration/deserialisation-injection-insecure-deserialisation/php/php-phar-rfi-smuggling.md`
-      - [ ] See !FILE_UPLOAwD
+
   - [ ] Check `/index.php`
   - [ ] Check `/config.php`
   - [ ] Check `/settings.php`
@@ -113,7 +113,7 @@
 
 ### Other
 
-- [ ] Can you upload files !FILE_UPLOAD?
+- [ ] Can you upload files?
   - [ ] Restrictions on extension?
   - [ ] Restrictions on size?
   - [ ] Try double extension `.php.jpg`
@@ -133,6 +133,7 @@
     - [ ] scan for vulnerabilities
       - copy source `find ./src -type f \( -name '*.js' -o -name '*.html' -o -name '*.json' \) | xargs cat | pbcopy` then paste to LLM
       - use semgrep to automatically scan source code for velnerabilities.
+
     - [ ] Hardcoded credentials `grep -r 'password\|apikey\|secret' *.js`
     - [ ] API endpoints `grep -r '/api/' *.js`
     - [ ] Comments with TODO/DEBUG
@@ -148,7 +149,7 @@
     - [ ] Dump context? explore client secrets? Check `__NEXT_DATA__` in page source
     - [ ] Check for .env exposure `/api/.env` or `/.env`
 
-# Exploitation
+## Exploitation
 
 ## User Registration
 
@@ -173,6 +174,7 @@
 - [ ] Default credentials? `admin:admin`, `admin:password`, etc.
 - [ ] Timing attacks for user enumeration
   - does valid user take longer time to outh than invalid one?
+
   - ffuf `ffuf -u http://target.htb/login -X POST -d "username=FUZZ&password=test" -w /usr/share/seclists/Usernames/top-usernames-shortlist.txt -o timing-results.json`
 - [ ] CRLF injection? %0d%0aSet-Cookie:admin=true
   - What it is: Carriage Return Line Feed injection - injecting newline characters (\r\n) to break out of one HTTP header and inject new ones.
@@ -229,3 +231,12 @@
     - [ ] `127.0.0.1`
     - [ ] `(admin|dev|any-vhost-you-find).somebox.htb`
     - [ ] `(admin|dev|any-vhost-you-find).somebox.htb/admin/login?redirect=/admin/` This one probably requires some work
+
+## Resources
+
+- [Wayback Machine](https://web.archive.org/web/*/target.htb) — archived paths for the target host
+- [crt.sh](https://crt.sh/?q=%.target.htb) — author's `crt.sh?q=%.target.htb`
+- [HackTricks](https://book.hacktricks.xyz) — per-service pentest notes
+- [jwt.io](https://jwt.io) — decode JWTs mentioned in this note
+- [AWS instance metadata](http://169.254.169.254/latest/meta-data/) — SSRF target for cloud boxes
+

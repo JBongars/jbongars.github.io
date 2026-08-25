@@ -15,3 +15,7 @@ for instance
 ### PHP
 
 `/usr/share/webshells/php/php-reverse-shell.php`
+
+## Resources
+
+- [pentestmonkey php-reverse-shell](https://github.com/pentestmonkey/php-reverse-shell) — the PHP shell this path usually ships

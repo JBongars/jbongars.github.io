@@ -75,3 +75,7 @@ nxc smb|ssh|ldap|ftp|wmi|winrm|rdp|vnc|mssql -M module_name -o OPTION_NAME=optio
 # View the options available for the specified protocol:
 nxc smb|ssh|ldap|ftp|wmi|winrm|rdp|vnc|mssql --help
 ```
+
+## Resources
+
+- [NetExec wiki](https://www.netexec.wiki/) — official docs (cited in the cheat.sh dump)

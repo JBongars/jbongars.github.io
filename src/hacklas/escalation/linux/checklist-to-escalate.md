@@ -1,10 +1,39 @@
-# checklist-to-escalate
+# Linux privilege escalation checklist
 
 **Author:** Julien Bongars\
 **Date:** 2025-10-13 01:17:38
 **Path:** notes/escalation/linux/checklist-to-escalate.md
 
 ---
+
+## First looks
+
+Most common misconfig first. Copy history out **before** you run LinPEAS or a dump — later commands pollute it, and it is the fastest password source.
+
+- [ ] **Save a copy of shell history** (`~/.bash_history`, `~/.zsh_history`, `~/.python_history`, `$HISTFILE`). `cat` it to your box; do not `echo` secrets back into the same file.
+- [ ] `sudo -l`
+- [ ] Recently updated files: `find /home /opt /var /etc /tmp /dev/shm -mtime -7 -type f 2>/dev/null`
+- [ ] `id` / groups (`docker`, `lxd`, `disk`, `adm`)
+- [ ] Cron / systemd timers / writable cron scripts
+- [ ] SUID / SGID / capabilities
+- [ ] World-writable service binaries and `/etc` files
+- [ ] Kernel / OS version (often patched; do this after the cheap checks)
+
+```bash
+# Copy history off the box first
+cat ~/.bash_history
+cat ~/.zsh_history
+cat "${HISTFILE:-$HOME/.bash_history}"
+cp ~/.bash_history /tmp/.bash_history.$(id -u) 2>/dev/null
+
+sudo -l 2>/dev/null
+
+# Touched in the last day / week
+find /home /opt /var/www /etc -mtime -1 -type f 2>/dev/null
+find /home /opt /var /etc /tmp /dev/shm -mtime -7 -type f 2>/dev/null
+```
+
+Then LinPEAS / the dump below.
 
 ## Feed the AI
 
@@ -162,6 +191,18 @@ wget https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh
 ---
 
 ## Manual Enumeration
+
+### History (do this first)
+
+```bash
+cat ~/.bash_history
+cat ~/.zsh_history
+cat ~/.python_history
+cat ~/.mysql_history
+cat "${HISTFILE:-$HOME/.bash_history}"
+# Keep a copy — later sudo/find/linpeas noise will append to the live history
+cp ~/.bash_history /tmp/.bash_history.$(id -u) 2>/dev/null
+```
 
 ### System Information
 
@@ -848,8 +889,12 @@ stty rows 38 columns 116
 
 ## Resources
 
-- GTFOBins: https://gtfobins.github.io/
-- PEASS-ng (LinPEAS): https://github.com/carlospolop/PEASS-ng
-- PayloadsAllTheThings: https://github.com/swisskyrepo/PayloadsAllTheThings
-- HackTricks: https://book.hacktricks.xyz/
-- Linux Privilege Escalation: https://payatu.com/blog/a-guide-to-linux-privilege-escalation/
+- [PEASS-ng (LinPEAS)](https://github.com/carlospolop/PEASS-ng) — LinPEAS download and repo
+- [linpeas.sh latest](https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh) — direct download used in the note
+- [GTFOBins](https://gtfobins.github.io/) — SUID / sudo command lookup
+- [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings) — methodology and payloads
+- [HackTricks](https://book.hacktricks.xyz/) — Linux privilege escalation
+- [Linux Privilege Escalation](https://payatu.com/blog/a-guide-to-linux-privilege-escalation/) — existing guide link
+- [linux-smart-enumeration lse.sh](https://github.com/diego-treitos/linux-smart-enumeration/releases/latest/download/lse.sh) — LSE download used in the note
+- [LinEnum.sh](https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh) — LinEnum download used in the note
+- [LAUREL](https://github.com/threathunters-io/laurel) — readable audit logs mentioned under hardening

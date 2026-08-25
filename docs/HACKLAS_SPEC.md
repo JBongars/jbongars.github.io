@@ -9,12 +9,15 @@ Read this whole file before formatting anything. It is strict.
 
 **Conflict rule:** presentation never wins by deletion. You may reformat
 and reorder. You may not remove links, drop sections, or change the
-information in a significant way. When a presentation rule here (short
-lede, no Wikipedia voice, empty `Path:`, identity placeholders, a
-Resources cap, no tables, no cheat.sh dumps) would require deleting,
-rewriting, or replacing anything the author already wrote, **keep the
-author's content** and attach an editor's note. Do not "fix" the conflict
-by changing the note.
+information in a significant way. **Exceptions you apply in place, then
+stop:** obvious typos, one-letter mistakes, missed flags (`-p`,
+`--threads`, `--top-ports`), leftover fence-language tags (`sql--`),
+and placeholder hrefs that are not real URLs (`link-to-your-writeup-if-you-have-one`).
+When a presentation rule here (short lede, no Wikipedia voice, empty
+`Path:`, a Resources cap, no tables, no cheat.sh dumps) would require
+deleting, rewriting, or replacing anything else the author already
+wrote, **keep the author's content**. Do not attach an editor's note
+just because you left it alone.
 
 ---
 
@@ -32,18 +35,24 @@ You do:
 - reorder sections if a job-oriented shape is clearer
 - add a `## Resources` section that includes every URL already in the note
 - fill a note only when it is otherwise unpresentable (see _Bare notes_)
-- flag identity / OSINT problems with an editor's note — do not strip them
+- fix obvious typos, missed flags, leftover language tags, and drop
+  placeholder links that are not real URLs
+- rarely, attach an editor's note when the author's material looks
+  factually wrong and a local one-token fix is not enough (see
+  _Editor's notes_)
 
 You do not:
 
 - remove information to make the page shorter or "more cheat-sheet-like"
 - write Wikipedia-length background **that was not already in the note**
 - add emoji, hype, or tutorial padding
-- "correct" or optimize the author's commands
+- "correct" or optimize the author's commands (except the one-token
+  typos / missed flags in the conflict rule)
 - invent box-specific IPs, cookies, hashes, or output
 - dump a full man page or `--help` **that the author did not already paste**
 - replace, redact, or delete keys, home paths, attacker IPs, or other
-  identity — flag them; leave the original in place
+  identity — leave the original in place
+- stamp an editor's note on every file
 
 ---
 
@@ -55,14 +64,16 @@ Keep, in full:
 
 - every command, payload, snippet, and log the author wrote
 - every URL and markdown/HTML link (inline, reference-style, bare, or
-  inside a fence comment)
+  inside a fence comment), except placeholder hrefs that are not URLs
 - every heading's body: overviews, use cases, advantages, attack chains,
   mitigations, checklists, tables, numbered steps
 - author comments inside fences (`# Search for an exploit…`, cheat.sh
   blurbs, `# installation`)
 - captured ASCII, prompts, and tool banners the author pasted
 
-Do not tidy flags, paths, typos, or spacing **inside** those blocks. Do
+Do not tidy flags, paths, typos, or spacing **inside** those blocks
+except the one-token fixes in the conflict rule (missed `-p`,
+`--top-ports`, `icalcs` → `icacls`, leftover `sql--`). Do
 not merge or split their fences. Do not truncate captured output. Do not
 paraphrase a paragraph into a sentence that drops detail.
 
@@ -87,41 +98,61 @@ the author's wording.
 
 ## Editor's notes
 
-When you hit a problem — identity leak, contradiction, broken command,
-stale URL, textbook-length background, unclear wording, a presentation
-rule you cannot apply without deleting something — **do not change the
-information.** Attach an editor's note and move on.
+An editor's note is a **community note**: a public fact-check or
+clarification. Use it when the author's material looks incorrect (or
+structurally misleading) and a one-token fix is not enough — ambiguous
+intent, a larger rewrite, or a command you cannot repair without
+inventing a new flow.
 
-Format: an **indented HTML comment** immediately under (or beside) the
-content it refers to. Start the comment with `EDITOR` so the author can
-grep `<!-- EDITOR`. Critique, clarify, or offer an opinion. Do not
-rewrite the surrounding note inside the comment.
+**Do not** use an editor's note for things you can just fix:
+
+- spelling / one-letter typos (`FILE_UPLOAwD`, `icalcs`, `phpgcc`)
+- missed flags (`sshpass -p`, `--threads`, `--top-ports`)
+- leftover fence-language tags (`sql--` → `--`)
+- placeholder hrefs that are not URLs — **delete the link**
+- heading labels that clearly name the wrong thing (`Internet` vs
+  InternalAllTheThings; a second `## Usage` that is `--help`)
+
+It is an **occasional** tool. Most notes should have **zero**. A pass that
+puts one on every Path, IP, or textbook paragraph is wrong.
+
+**Do not** use an editor's note for:
+
+- home / notes `Path:` values, attacker VPN IPs, prompts, keys, or other
+  identity you left in place (see _Identity_)
+- textbook-length background you kept because the author wrote it
+- missing Date, empty sections, marketing adjectives, or "I left this
+  as written"
+- presentation work you already did (demoted headings, tagged fences,
+  Resources last)
+
+**Do** use one when:
+
+- two interpretations are plausible and guessing would change the attack
+- a flow is contradictory in a way a one-line edit cannot settle
+- you have a structure recommendation the author must choose (fold two
+  notes, empty stub that might be an index)
+
+The body of the note is the correction or recommendation. Write the
+right command or the structure you would use — not "Left as written."
+
+Format: a markdown **block quote** immediately under the content it
+refers to. First line of the quote is the title `EDITOR NOTE` (bold).
+Do **not** four-space-indent the quote (that becomes a code block in
+this pipeline). At most three spaces before `>`.
 
 ```
-    <!-- EDITOR
-    10.10.14.147 looks like an HTB tun0 address. Consider ATTACKER_IP
-    before publishing. Left as written.
-    -->
+> **EDITOR NOTE**
+>
+> `script` writes `/dev/shm/linpeas.txt` but the exfil cats
+> `/tmp/linpeas.txt`. Unify the path, or this transfer is empty.
 ```
 
-Indent the whole comment (four spaces). One note per issue is fine;
-do not wrap the author's content in the comment. The author will walk
-these blocks and delete or apply them by hand. Never delete an editor's
-note you did not write in this pass, and never "resolve" one by editing
-the note.
+One note per issue. Do not wrap the author's content in the quote.
+Never delete an editor's note you did not write in this pass.
 
-Use editor's notes for (non-exhaustive):
-
-- SSH keys, passwords, home paths, attacker VPN IPs, phone numbers,
-  personal emails, API keys, HTB session prompts
-- Commands that look wrong, truncated, or copy-pasted from `--help`
-- Duplicate sections, conflicting ports/versions, or a title that does
-  not match the body
-- Background that reads like a textbook (keep it; say so)
-- Links that 404, point at a different tool, or are missing a title
-- Anything you are tempted to "clean up" by changing
-
-If there is no problem, do not add an editor's note.
+Grep: `EDITOR NOTE`. If a pass produces more than a handful across the
+tree, you are over-using them.
 
 ---
 
@@ -130,24 +161,20 @@ If there is no problem, do not add an editor's note.
 Notes are public. Keep the author name **Julien**. Do **not** silently
 strip fingerprints of a home machine, VPN session, or personal account.
 
-If you see an external IP, phone number, key, or home path: **leave it**
-and add an editor's note naming the token and a suggested placeholder.
-Do not invent a replacement in the note itself.
+If you see an external IP, phone number, key, or home path: **leave it**.
+That is not an editor's-note event.
 
-Tokens worth flagging (examples of placeholders to _suggest_ in the
-editor's note, not to apply):
+Do not invent a replacement in the note itself. Tokens you might
+otherwise have wanted to placeholder (for the author's later pass, not
+yours):
 
-- SSH public keys, passwords, passphrases → `<YOUR_SSH_PUBLIC_KEY>`,
-  `<password>`
-- Home and notes paths (`/home/julien/...`, `/opt/development/...`) →
-  empty `Path:` or `~/...`
-- Attacker VPN / tun0 IPs (`10.10.14.x`, OffSec `192.168.45.x`, and
-  similar) → `ATTACKER_IP`
-- HTB session prompts (`julien23@htb-…`, `eu-dedivip-1`, instance
-  hostnames) → `user@htb`
+- SSH public keys, passwords, passphrases
+- Home and notes paths (`/home/julien/...`, `/opt/development/...`)
+- Attacker VPN / tun0 IPs (`10.10.14.x`, OffSec `192.168.45.x`)
+- HTB session prompts (`julien23@htb-…`, `eu-dedivip-1`)
 - Phone numbers, personal emails, API keys, AWS account IDs
 
-Not identity (keep, no editor's note required):
+Not identity (keep):
 
 - The name Julien and the Author chrome
 - HTB *target* IPs (`10.129.x`), box names, fictional box credentials
@@ -196,9 +223,14 @@ Keep the Hacklas chrome so the layout can parse title / author / date
 ---
 ```
 
+The `#` title should name the topic **without the breadcrumbs**. Prefer
+`MSSQL / Linked servers` over `Enumeration`, `XSS enumeration` over
+`enumeration`, `Windows common utils` over `common`. A reader looking
+only at the H1 should know where they are.
+
 Do not change Author or Date. If `Path:` already has a value, **keep
-it** (flag a home-machine path with an editor's note; do not blank it).
-Leave `Path:` empty only when it was already empty. Do not invent a path.
+it**. Leave `Path:` empty only when it was already empty. Do not invent
+a path.
 
 After the `---`, the **body** uses `##` / `###` only. The page template
 already prints an `h1` from the title. A second `#` in the body becomes a
@@ -237,6 +269,14 @@ Always end with:
 - [Name](https://…) — why a reader would open it
 ```
 
+Do **not** annotate Resources with "already in this note". Describe the
+link (`man page`, `NSE script docs`, `GitHub source`).
+
+**Tools:** if Hacklas already has a note for that tool, Resources on
+*other* pages should point at that note. The tool's own page is where
+GitHub / the man page live. Do not add a Resources row for a source
+tarball or `…-1.1.tar.gz` just because an install command uses it.
+
 **Every URL that already appears in the note must appear here**, including
 bare `link: https://…` lines, URLs inside fence comments, and
 already-linked names. Do **not** remove those original occurrences from
@@ -268,14 +308,15 @@ a slug, you may give it a readable label; the href stays the same.
 
 Do not add new textbook framing ("think of it as a phonebook," protocol
 histories, feature lists that are not commands). If the author already
-wrote that framing, keep it and optionally flag it with an editor's note.
+wrote that framing, keep it. That is not an editor's-note event.
 
 ---
 
 ## Explicitly banned patterns
 
 - **Deleting the author's material** to satisfy any other bullet in this
-  list. Use an editor's note instead.
+  list. Keep it. Editor's notes are only for factual / structural
+  corrections you cannot apply.
 - **Adding Wikipedia entries.** Protocol histories and feature lists that
   are not in the source note. Existing ones stay.
 - **Adding full `--help` / man dumps.** If the author already pasted one,
@@ -283,15 +324,17 @@ wrote that framing, keep it and optionally flag it with an editor's note.
   note.
 - **Pasting cheat.sh ALL-CAPS blocks** when filling a bare note. Author
   dumps stay.
-- **Editing the author's commands** to be cleaner or more correct.
+- **Editing the author's commands** to be cleaner or more correct,
+  except the one-token typos / missed flags in the conflict rule.
 - **Inventing sample output** (nmap greps, whois records, cookies).
-- **Removing or swapping links.**
+- **Removing or swapping links**, except placeholder hrefs that are
+  not real URLs.
 - **Emoji.**
 - **Three-column markdown tables** for *new* tools / links / flags.
 - **Changing Author or Date.**
 - **Second `#` heading** in the body (demote; keep the text).
-- **Silent identity redaction.** Flag with an editor's note; leave the
-  token.
+- **Silent identity redaction.** Leave the token.
+- **An editor's note on every file.** Occasional, or none.
 
 ---
 
@@ -302,7 +345,9 @@ wrote that framing, keep it and optionally flag it with an editor's note.
   it presentable, then stop.
 - Copy every extra URL into `## Resources`; do not delete it from where
   it already lives.
-- When stuck, write `<!-- EDITOR` and leave the surrounding lines alone.
+- When the author's command has a one-token typo or missed flag, fix it.
+  When the href is not a URL, delete the link. When intent is ambiguous,
+  write `> **EDITOR NOTE**` and leave their lines alone.
 - Check the note on the site: TOC should list `##` sections, commands
-  should be copyable fences, Resources last. A grep for `<!-- EDITOR`
-  should list only the issues you meant to raise.
+  should be copyable fences, Resources last. A grep for `EDITOR NOTE`
+  should list only real fact-checks.

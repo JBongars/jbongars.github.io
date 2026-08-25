@@ -1,4 +1,10 @@
-# Enumeration
+# MSSQL / Linked servers
+
+**Author:** Julien Bongars\
+**Date:**
+**Path:**
+
+---
 
 ## 1. Check if linked servers exist:
 
@@ -56,10 +62,18 @@ EXEC sp_helplinkedsrvlogin 'DC01';
 
 -- Detailed login mapping info
 SELECT * FROM sys.linked_logins;
-4. Test what user context it runs as:
-sql-- Try to see what user the linked server uses
+```
+
+## 4. Test what user context it runs as:
+
+```sql
+-- Try to see what user the linked server uses
 SELECT * FROM [DC01].master.sys.database_principals;
 
 -- Four-part naming (doesn't need data access enabled)
 SELECT * FROM [DC01].master.dbo.sysobjects WHERE type = 'P';
 ```
+
+## Resources
+
+- [HackTricks — Pentesting MSSQL](https://book.hacktricks.xyz/network-services-pentesting/pentesting-mssql-microsoft-sql-server) — linked-server abuse lives with the MSSQL notes

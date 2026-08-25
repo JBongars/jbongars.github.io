@@ -75,3 +75,8 @@ sudo tcpdump -v
 # No hostname resolution (faster)
 sudo tcpdump -n
 ```
+
+## Resources
+
+- [tcpdump](https://www.tcpdump.org/) — official project homepage
+- [tcpdump man page](https://www.tcpdump.org/manpages/tcpdump.1.html) — flag reference

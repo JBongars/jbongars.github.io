@@ -1,10 +1,12 @@
-# Run Utilities
+# Windows Run menu
 
 **Author:** Julien Bongars\
 **Date:** 2026-01-05 03:33:53
 **Path:**
 
 ---
+
+Cmdlet versions of most of these: [PowerShell enumeration](./powershell-enumeration.md). Line editing: [PowerShell keybindings](./powershell-keybindings.md). Aliases: [PowerShell scripting](./powershell-scripting.md).
 
 ## Administrative Tools - GUI Utilities
 
@@ -142,3 +144,13 @@ Start-Process services.msc
 # Launch as different user
 Start-Process services.msc -Credential (Get-Credential)
 ```
+
+## Resources
+
+- [MMC and snap-ins](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/mmc) — launching .msc tools
+- [HackTricks — Windows local enumeration](https://book.hacktricks.xyz/windows-hardening/basic-cmd-for-pentesters) — GUI-vs-CLI enum
+- [PowerShell enumeration](./powershell-enumeration.md) — host/user/share enum
+- [PowerShell keybindings](./powershell-keybindings.md) — PSReadLine / help
+- [PowerShell scripting](./powershell-scripting.md) — aliases
+- [Windows common utils](./common.md) — icacls / Sysinternals live
+

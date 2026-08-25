@@ -18,7 +18,7 @@ HASH_CODE=""
 
 # For HTB just keep it simple?
 
-hashcat -m 10 users.txt --username -w /usr/share/wordlists/rockyou.txt
+hashcat -m 10 users.txt --username /usr/share/wordlists/rockyou.txt
 
 # Wordlists
 
@@ -96,3 +96,8 @@ hashcat --hash-type hash_type_id --attack-mode 1 hash_value /path/to/dictionary1
 # Show result of an already cracked hash:
 hashcat --show hash_value
 ```
+
+## Resources
+
+- [hashcat](https://hashcat.net/) — official site
+- [hashcat wiki](https://hashcat.net/wiki/doku.php?id=hashcat) — cited in the cheat.sh dump

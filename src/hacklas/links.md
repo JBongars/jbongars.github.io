@@ -15,7 +15,7 @@ Stages:-
 - [E]scalation
 - [P]ivot
 
-# Websites
+## Websites
 
 | URI            | Stage | Type          | Desciption                                                         | Remarks                                            |
 | -------------- | ----- | ------------- | ------------------------------------------------------------------ | -------------------------------------------------- |
@@ -27,9 +27,20 @@ Stages:-
 | exploitdb      | I/P   | exploit       | Database of CVEs and exploits, gives you the code directly         | better to try seearchploit first                   |
 | ippsec.rocks   | A     | handbook      | tldr of cyber security topics. link to videos                      |                                                    |
 
-# External Tools
+## External Tools
 
 | Name      | Stage | Type    | URI | Installation | Description       | Remarks |
 | --------- | ----- | ------- | --- | ------------ | ----------------- | ------- |
 | msfvenom  | I/P   | payload | -   | included     | payload generator | -       |
 | autorecon | E     | scanner | -   |              |                   |         |
+
+## Resources
+
+- [revshells.com](https://www.revshells.com) — reverse-shell generator from the table
+- [CyberChef](https://gchq.github.io/CyberChef/) — payload transforms
+- [hashes.com](https://hashes.com) — rainbow tables
+- [CrackStation](https://crackstation.net/) — rainbow tables
+- [HackTricks](https://book.hacktricks.wiki/) — handbook
+- [Exploit-DB](https://www.exploit-db.com/) — CVE/exploit DB
+- [ippsec.rocks](https://ippsec.rocks/) — video index
+- [Tib3rius/AutoRecon](https://github.com/Tib3rius/AutoRecon) — scanner named in the tools table

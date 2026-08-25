@@ -199,3 +199,8 @@ db.runCommand({ usersInfo: 1 }); // List all users with roles
 - No authentication by default
 - Check for blank passwords
 - Common usernames: admin, root, mongodb
+
+## Resources
+
+- [MongoDB documentation](https://www.mongodb.com/docs/) — official docs
+- [HackTricks — MongoDB](https://book.hacktricks.xyz/network-services-pentesting/27017-27018-mongodb) — pentest checklist

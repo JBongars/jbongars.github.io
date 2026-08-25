@@ -78,3 +78,8 @@ if __name__ == "__main__":
 pipx install pyAesCrypt
 python <file> <.... args>
 ```
+
+## Resources
+
+- [pyAesCrypt on PyPI](https://pypi.org/project/pyAesCrypt/) — AES file encrypt/decrypt library used by the script
+- [pyAesCrypt GitHub](https://github.com/marcobellaccini/pyAesCrypt) — source

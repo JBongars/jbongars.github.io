@@ -114,3 +114,9 @@ JWT_SECRET = FIAOKLQX4SBzvZ9eZnHYLTCiVGoBtkE4y5B7vMjzz3g
 ## Documentation
 
 https://docs.gitea.com/usage/actions/quickstart
+
+## Resources
+
+- [Gitea](https://gitea.io) — official project homepage
+- [Gitea Actions quickstart](https://docs.gitea.com/usage/actions/quickstart) — Actions docs
+- [Gitea config cheat sheet](https://docs.gitea.com/administration/config-cheat-sheet) — app.ini keys

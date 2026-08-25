@@ -31,5 +31,9 @@ wget -r -np http://tartarsauce.htb:8080/
 
 ```bash
 # On Attacker machine
-scp -r /path/to/directory your-user@10.10.14.97:/tmp/
+scp -r your-user@<target>:/path/to/directory /tmp/
 ```
+
+## Resources
+
+- [ncat](https://nmap.org/ncat/) — listener / pipe used above

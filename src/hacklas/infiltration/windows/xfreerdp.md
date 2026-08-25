@@ -94,7 +94,7 @@ xfreerdp /v:192.168.1.100 /u:username
 
 Expected Output:
 
-```
+```txt
 Password: [password prompt will appear]
 [INFO][com.freerdp.core] - freerdp_connect:freerdp_set_last_error_ex resetting error state
 [INFO][com.freerdp.core] - established connection to 192.168.1.100:3389
@@ -401,8 +401,15 @@ xfreerdp --version
 
 Expected Output:
 
-```
+```txt
 This is FreeRDP version 2.4.1 (git 2.4.1)
 Built with CMake 3.18.4
 Built with Compiler GCC 9.3.0
 ```
+
+## Resources
+
+- [FreeRDP](https://www.freerdp.com/) — official project
+- [FreeRDP GitHub](https://github.com/FreeRDP/FreeRDP) — source and issues
+- [RDP](./rdp.md) — connection methods, NLA, Dvorak
+- [Enable RDP / WinRM](./enable-rdp-winrm.md) — turn the listener on from a foothold

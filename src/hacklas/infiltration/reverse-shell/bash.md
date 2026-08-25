@@ -1,8 +1,8 @@
 # bash
 
-Author: Julien Bongars
-Date: 2025-09-21 10:30:31
-Path: /opt/development/cybersec/hacklas/notes/infiltration/reverse-shell/bash.md
+**Author:** Julien Bongars\
+**Date:** 2025-09-21 10:30:31
+**Path:** /opt/development/cybersec/hacklas/notes/infiltration/reverse-shell/bash.md
 
 ---
 
@@ -96,3 +96,8 @@ perl -e 'exec "/bin/bash";'
 ```bash
 ruby -e 'exec "/bin/bash"'
 ```
+
+## Resources
+
+- [revshells.com](https://www.revshells.com/) — generate bash `/dev/tcp` reverse shells
+- [PayloadsAllTheThings reverse shell cheatsheet](https://swisskyrepo.github.io/PayloadsAllTheThings/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet/) — extra payloads

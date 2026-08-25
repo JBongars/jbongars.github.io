@@ -26,16 +26,30 @@
 - [ ] `searchsploit <service>` (broader, in case version-specific search is too narrow)
 - [ ] `searchsploit -m <id>` to mirror anything promising
 
-### Google searches (in this order)
+### Google (copy and substitute)
 
-- [ ] `<service> <version> exploit`
-- [ ] `<service> <version> CVE`
-- [ ] `<service> <version> RCE`
-- [ ] `<service> <version> authenticated RCE` (for after you have creds)
-- [ ] `<service> <version> default credentials`
-- [ ] `<service> <version> pentest`
-- [ ] `<service> <version> hacktricks`
-- [ ] `<service> <version> privilege escalation` (for post-exploitation)
+```txt
+SERVICE=<service>
+VERSION=<version>
+
+<service> <version> exploit
+<service> <version> CVE
+<service> <version> RCE
+<service> <version> authenticated RCE
+<service> <version> default credentials
+<service> <version> pentest
+<service> <version> hacktricks
+<service> <version> privilege escalation
+```
+
+Run them in that order. `authenticated RCE` is for after you have creds.
+`privilege escalation` is post-exploitation on the box.
+
+- [ ] exploit / CVE / RCE (unauth first)
+- [ ] authenticated RCE (once you have creds)
+- [ ] default credentials
+- [ ] pentest / hacktricks write-ups
+- [ ] privilege escalation
 
 ### Reference pages
 
@@ -86,3 +100,12 @@ Read: ./external/oscp-enumeration-checklist.md (https://github.com/oncybersec/os
 - ExploitDB mirror: `https://www.exploit-db.com`
 - Always check if an exploit requires authentication — save those for after you find creds
 - When you find creds anywhere, circle back and try them on EVERY service
+
+## Resources
+
+- [HackTricks](https://book.hacktricks.xyz) — search the service name or port
+- [CIRT default passwords](https://www.cirt.net/passwords) — default credential lists
+- [default-password.info](https://default-password.info) — default credential lists
+- [OSCP enumeration cheat sheet](https://github.com/oncybersec/oscp-enumeration-cheat-sheet) — source linked from Step 3
+- [local oscp-enumeration-checklist](./external/oscp-enumeration-checklist.md) — same sheet in this repo
+- [Exploit-DB](https://www.exploit-db.com) — ExploitDB mirror mentioned in the tips

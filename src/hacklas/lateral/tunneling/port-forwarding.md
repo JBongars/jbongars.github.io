@@ -500,6 +500,9 @@ proxychains curl http://192.168.1.10
 proxychains4 -v nmap -sT 192.168.1.10
 ```
 
-## Additional Resources
+## Resources
 
-**Proxychains** https://github.com/haad/proxychains
+- [OpenSSH](https://www.openssh.com/) — official SSH
+- [proxychains](./proxychains.md) — SOCKS wrapper used throughout
+- [chisel](./chisel.md) — HTTP tunnel when SSH is not available
+- [ligolo-ng](./ligolo-ng.md) — TUN pivot for a whole internal subnet

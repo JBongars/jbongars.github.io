@@ -1,4 +1,4 @@
-# mssql
+# MSSQL enumeration
 
 **Author:** Julien Bongars\
 **Date:** 2025-10-14 18:12:36
@@ -6,7 +6,7 @@
 
 ---
 
-# Enumeration
+## Enumeration
 
 ```bash
 # Locate sql client
@@ -24,7 +24,7 @@ msf6 auxiliary(scanner/mssql/mssql_ping) > set rhosts {target ip} [[need]] to ge
 python3 mssqlclient.py Administrator@{target ip} -windows-auth
 ```
 
-## Metasploit
+### Metasploit
 
 ```bash
 #Set USERNAME, RHOSTS and PASSWORD
@@ -58,7 +58,7 @@ msf> use exploit/windows/mssql/mssql_payload #Uploads and execute a payload
 msf> use windows/manage/mssql_local_auth_bypass
 ```
 
-# Concepts
+## Concepts
 
 - Micrososft's version of SQL
 
@@ -66,7 +66,7 @@ msf> use windows/manage/mssql_local_auth_bypass
 
 - Popular with applications that are tied to Microsoft's .NET framework.
 
-## MSSQL Clients
+### MSSQL Clients
 
 - [SQL Server Management Studio](https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver15) (`SSMS`) comes as a feature that can be installed with the MSSQL install package or can be downloaded & installed separately
 
@@ -86,7 +86,7 @@ msf> use windows/manage/mssql_local_auth_bypass
 
   - Impacket's mssqlclient.py
 
-## MSSQL Default Databases
+### MSSQL Default Databases
 
 | Default System Database | Description                                                                                                                                                                                            |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -96,13 +96,13 @@ msf> use windows/manage/mssql_local_auth_bypass
 | `tempdb`                | Stores temporary objects                                                                                                                                                                               |
 | `resource`              | Read-only database containing system objects included with SQL server                                                                                                                                  |
 
-## Default Configuration
+### Default Configuration
 
 - When an admin initially installs and configures MSSQL to be network accessible, the SQL service will likely run as `NTSERVICE\MSSQLSERVER`
 
 - Authentication being set to Windows Authentication means that the underlying Windows OS will process the login request and use either the local SAM database or the domain controller (hosting Active Directory) before allowing connectivity to the database management system
 
-## Dangerous Settings
+### Dangerous Settings
 
 Look out for these general errors people make when configuring databases
 
@@ -116,7 +116,7 @@ Look out for these general errors people make when configuring databases
 
 - Weak & default `sa` credentials. Admins may forget to disable this account
 
-## Footprinting
+### Footprinting
 
 - Default port `TCP 1433`
 
@@ -124,7 +124,7 @@ Look out for these general errors people make when configuring databases
 
   - `sudo nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes --script-args mssql.instance-port=1433,mssql.username=sa,mssql.password=,mssql.instance-name=MSSQLSERVER -sV -p 1433 10.129.201.248`
 
-## Interacting
+### Interacting
 
 ```sql
 # Get version
@@ -161,7 +161,7 @@ use_link [NAME]
 select * from sys.database_principals;
 ```
 
-### Get row count for all tables in a database
+#### Get row count for all tables in a database
 
 **doesn't work...***
 
@@ -169,7 +169,7 @@ select * from sys.database_principals;
 SELECT t.NAME AS TableName, p.rows AS RowCount FROM sys.tables t INNER JOIN sys.partitions p ON t.object_id = p.object_id WHERE t.is_ms_shipped = 0 AND p.index_id IN (0,1) ORDER BY p.rows DESC;
 ```
 
-### Enum permissions
+#### Enum permissions
 
 ```sql
 # is user sysadmin
@@ -182,9 +182,9 @@ SELECT r.name FROM sys.server_role_members m JOIN sys.server_principals r ON m.r
 SELECT permission_name, state_desc FROM sys.database_permissions WHERE grantee_principal_id = USER_ID();
 ```
 
-## Register Keys
+### Register Keys
 
-### SQL Server instance info
+#### SQL Server instance info
 
 ```sql
 -- SQL Server instance info
@@ -201,17 +201,17 @@ EXEC xp_regread 'HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Microsoft SQL Server\M
 EXEC xp_regread 'HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQLServer', 'AuditLevel';
 ```
 
-### Credentials & Autologon
+#### Credentials & Autologon
 
 ```sql
-sql-- Windows autologon credentials (goldmine if found)
+-- Windows autologon credentials (goldmine if found)
 EXEC xp_regread 'HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon', 'DefaultUserName';
 EXEC xp_regread 'HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon', 'DefaultPassword';
 EXEC xp_regread 'HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon', 'DefaultDomainName';
 EXEC xp_regread 'HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon', 'AutoAdminLogon';
 ```
 
-### System Information
+#### System Information
 
 ```sql
 -- Computer name
@@ -222,13 +222,15 @@ EXEC xp_regread 'HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Windows NT\CurrentVers
 EXEC xp_regread 'HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'CurrentVersion';
 ```
 
-### Installed Software
+#### Installed Software
 
 ```sql
 -- Check for other software
 EXEC xp_regread 'HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall';
 ```
 
-# References
+## Resources
 
-[1433 - Pentesting MSSQL - Microsoft SQL Server | HackTricks](https://book.hacktricks.xyz/network-services-pentesting/pentesting-mssql-microsoft-sql-server)
+- [SQL Server Management Studio](https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver15) — already linked in this note
+- [Named pipes properties](https://docs.microsoft.com/en-us/sql/tools/configuration-manager/named-pipes-properties?view=sql-server-ver15) — already linked in this note
+- [HackTricks — Pentesting MSSQL](https://book.hacktricks.xyz/network-services-pentesting/pentesting-mssql-microsoft-sql-server) — folded from References
