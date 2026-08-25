@@ -11,6 +11,7 @@
   var ROWS = [
     { keys: ["h"], desc: "Go to Hacklas" },
     { keys: ["Type"], desc: "Search notes on the Hacklas index" },
+    { keys: ["Space"], desc: "Add the matching tag as a filter" },
     { keys: ["Enter"], desc: "Open the first matching note" },
     { keys: ["Backspace"], desc: "Go back from a note" }
   ];

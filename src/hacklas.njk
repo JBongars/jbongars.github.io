@@ -10,7 +10,7 @@ permalink: /hacklas/
   </header>
 
   {% if collections.hacklas.length %}
-  <div class="fuzzy-find" data-fuzzy-find>
+  <div class="fuzzy-find" data-fuzzy-find data-tag-search>
     <label class="visually-hidden" for="fuzzy-find-input">Search notes</label>
     <input
       id="fuzzy-find-input"
@@ -32,7 +32,7 @@ permalink: /hacklas/
         <a href="{{ note.url | url }}">
           <span class="fuzzy-find__title">{{ note.data.title or note.fileSlug }}</span>
           {% if note.data.notePath %}
-          <span class="fuzzy-find__path">{{ note.data.notePath }}</span>
+          <span class="fuzzy-find__path" title="{{ note.data.notePath }}">{{ note.data.notePath }}</span>
           {% endif %}
         </a>
       </li>

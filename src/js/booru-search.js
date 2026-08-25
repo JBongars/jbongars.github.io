@@ -1,5 +1,6 @@
-/* Progressive enhancement: listing sort + booru-style tag/title search.
-   Hydrated only when [data-sortable-list] is present. Safe without this file. */
+/* Progressive enhancement: tag chips, autocomplete, and listing sort.
+   Public methods: booruSearch.mountList(list), booruSearch.mountField(opts).
+   The page controller decides when to call them. Safe without this file. */
 (function () {
   "use strict";
 
@@ -213,35 +214,50 @@
   // ---------------------------------------------------------------------
   // Tag search component — input, autocomplete dropdown, and chips
   // ---------------------------------------------------------------------
-  function createTagSearch(tagIndex, filter) {
+  // opts.input              reuse an existing field (Hacklas)
+  // opts.mount              parent to attach the field (Hacklas wrap)
+  // opts.commitTagOnSpace   Space commits a matching tag
+  // opts.commitTitleOnEnter Enter turns leftover text into a title chip
+  // opts.arrowsOnlyWhenOpen Arrow keys skip to the host when the dropdown is closed
+  // opts.onInput            live callback after each keystroke
+  // opts.placeholder, opts.listboxId, opts.fieldClass
+  function createTagSearch(tagIndex, filter, opts) {
+    opts = opts || {};
     var debounceTimer = null;
     var activeIndex = -1;
     var suggestions = [];
+    var listboxId = opts.listboxId || "tag-search-listbox";
 
-    var field = Dom.el("div", "tag-search__field");
-    var input = Dom.el("input", "tag-search__input", {
-      type: "text",
-      placeholder: "Filter by tag…",
-      autocomplete: "off",
-      spellcheck: "false",
-      "aria-autocomplete": "list",
-      "aria-expanded": "false",
-      "aria-controls": "tag-search-listbox"
-    });
+    var field = Dom.el("div", opts.fieldClass || "tag-search__field");
+    var input = opts.input;
+    if (input) {
+      input.classList.add("tag-search__input");
+      if (opts.placeholder) input.setAttribute("placeholder", opts.placeholder);
+    } else {
+      input = Dom.el("input", "tag-search__input", {
+        type: "text",
+        placeholder: opts.placeholder || "Filter by tag…",
+        autocomplete: "off",
+        spellcheck: "false"
+      });
+    }
+    input.setAttribute("aria-autocomplete", "list");
+    input.setAttribute("aria-expanded", "false");
+    input.setAttribute("aria-controls", listboxId);
+
     var dropdown = Dom.el("ul", "tag-search__dropdown", {
-      id: "tag-search-listbox",
+      id: listboxId,
       role: "listbox"
     });
     dropdown.hidden = true;
 
+    if (opts.mount) opts.mount.appendChild(field);
     field.appendChild(input);
     field.appendChild(dropdown);
 
     field.addEventListener("click", function (e) {
       if (e.target === field) input.focus();
     });
-
-    // -- chips -----------------------------------------------------------
 
     function buildChip(entry, onRemove) {
       var color = entry.color || swatchColorForTag(entry.name);
@@ -275,8 +291,8 @@
     }
 
     function renderChips() {
-      Array.prototype.slice.call(field.querySelectorAll(".tag-chip")).forEach(function (el) {
-        el.remove();
+      Array.prototype.slice.call(field.querySelectorAll(".tag-chip")).forEach(function (node) {
+        node.remove();
       });
 
       filter.selected.forEach(function (entry, index) {
@@ -289,8 +305,6 @@
         field.insertBefore(chip, input);
       });
     }
-
-    // -- dropdown ----------------------------------------------------------
 
     function closeDropdown() {
       dropdown.hidden = true;
@@ -307,6 +321,38 @@
         row.classList.toggle("is-active", on);
         row.setAttribute("aria-selected", on ? "true" : "false");
       });
+    }
+
+    function commitTagSuggestion(tag, excluded) {
+      if (tag && filter.add(tag.name, "tag", excluded)) {
+        renderChips();
+        filter.apply();
+      }
+      input.value = "";
+      closeDropdown();
+      if (opts.onInput) opts.onInput();
+    }
+
+    function resolveTag(name) {
+      var lower = String(name || "").toLowerCase();
+      var i;
+      for (i = 0; i < tagIndex.length; i++) {
+        if (tagIndex[i].name.toLowerCase() === lower) return tagIndex[i];
+      }
+      return null;
+    }
+
+    function tryCommitTag() {
+      if (!dropdown.hidden && activeIndex >= 0 && suggestions[activeIndex]) {
+        commitTagSuggestion(suggestions[activeIndex], parseQuery().excluded);
+        return true;
+      }
+      var exact = resolveTag(input.value.trim());
+      if (exact) {
+        commitTagSuggestion(exact, false);
+        return true;
+      }
+      return false;
     }
 
     function buildOption(tag, index, excluded) {
@@ -366,17 +412,6 @@
       input.setAttribute("aria-expanded", "true");
     }
 
-    // -- committing input ---------------------------------------------------
-
-    function commitTagSuggestion(tag, excluded) {
-      if (tag && filter.add(tag.name, "tag", excluded)) {
-        renderChips();
-        filter.apply();
-      }
-      input.value = "";
-      closeDropdown();
-    }
-
     function commitTitleQuery() {
       var raw = input.value.trim();
       if (!raw) return;
@@ -402,9 +437,8 @@
       return input.value === "" && input.selectionStart === 0 && input.selectionEnd === 0;
     }
 
-    // -- events ---------------------------------------------------------
-
     input.addEventListener("input", function () {
+      if (opts.onInput) opts.onInput();
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(function () {
         var q = parseQuery();
@@ -413,80 +447,143 @@
     });
 
     input.addEventListener("keydown", function (e) {
+      if ((e.key === " " || e.key === "Spacebar") && opts.commitTagOnSpace) {
+        if (input.value.trim() && tryCommitTag()) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        return;
+      }
+
       if (dropdown.hidden && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
-        var q = parseQuery();
-        renderSuggestions(q.text, q.excluded);
+        if (opts.arrowsOnlyWhenOpen) return;
+        var openQ = parseQuery();
+        renderSuggestions(openQ.text, openQ.excluded);
       }
 
       if (e.key === "ArrowDown") {
+        if (dropdown.hidden) return;
         e.preventDefault();
+        e.stopPropagation();
         if (!suggestions.length) return;
         activeIndex = (activeIndex + 1) % suggestions.length;
         highlightActive();
       } else if (e.key === "ArrowUp") {
+        if (dropdown.hidden) return;
         e.preventDefault();
+        e.stopPropagation();
         if (!suggestions.length) return;
         activeIndex = (activeIndex - 1 + suggestions.length) % suggestions.length;
         highlightActive();
       } else if (e.key === "Enter") {
-        e.preventDefault();
         if (!dropdown.hidden && activeIndex >= 0 && suggestions[activeIndex]) {
+          e.preventDefault();
+          e.stopPropagation();
           commitTagSuggestion(suggestions[activeIndex], parseQuery().excluded);
-        } else {
+        } else if (opts.commitTitleOnEnter !== false) {
+          e.preventDefault();
           commitTitleQuery();
         }
       } else if (e.key === "Escape") {
         if (!dropdown.hidden) {
           e.preventDefault();
+          e.stopPropagation();
           closeDropdown();
         }
       } else if (e.key === "Backspace" && isInputEmpty()) {
         if (filter.removeLast()) {
           e.preventDefault();
+          e.stopPropagation();
           renderChips();
           filter.apply();
         }
       }
-    });
+    }, true);
+
+    if (filter.selected.length) renderChips();
 
     return { element: field, closeDropdown: closeDropdown };
   }
 
-  // ---------------------------------------------------------------------
-  // Wiring — build the widget and attach it above the list
-  // ---------------------------------------------------------------------
-  function hydrateListing() {
-    var list = document.querySelector("[data-sortable-list]");
-    if (!list || list.dataset.listingReady) return;
+  function tagNames(filter) {
+    return filter._names("tag", false);
+  }
+
+  // Create search + sort above a [data-sortable-list].
+  function mountList(list) {
+    if (!list || list.dataset.listingReady === "1") return;
     list.dataset.listingReady = "1";
 
     var filter = new Filter(list);
-    var tagIndex = TagData.buildIndex(list);
-
     var searchWrap = Dom.el("div", "tag-search");
-    var search = createTagSearch(tagIndex, filter);
-    searchWrap.appendChild(search.element);
-
-    var sortControls = createSortControls(list, filter);
+    searchWrap.appendChild(createTagSearch(TagData.buildIndex(list), filter).element);
 
     var tools = Dom.el("div", "list-tools");
     tools.appendChild(searchWrap);
-    tools.appendChild(sortControls.element);
+    tools.appendChild(createSortControls(list, filter).element);
     list.parentNode.insertBefore(tools, list);
   }
 
-  document.addEventListener("click", function (e) {
-    var search = document.querySelector(".tag-search");
-    if (!search || search.contains(e.target)) return;
-    var dropdown = search.querySelector(".tag-search__dropdown");
-    var input = search.querySelector(".tag-search__input");
-    if (dropdown) {
-      dropdown.hidden = true;
-      dropdown.textContent = "";
+  // Attach chips + autocomplete to an existing input. opts.onApply(query, tags)
+  // is called whenever the filter changes; the caller decides what that means.
+  function mountField(opts) {
+    opts = opts || {};
+    var list = opts.list;
+    var input = opts.input;
+    if (!list || !input) return;
+    if (input.getAttribute("data-tag-search-mounted") === "1") return;
+    input.setAttribute("data-tag-search-mounted", "1");
+
+    var filter = new Filter(list);
+    if (typeof opts.onApply === "function") {
+      filter.apply = function () {
+        opts.onApply(input.value, tagNames(this));
+      };
     }
-    if (input) input.setAttribute("aria-expanded", "false");
+
+    (opts.initialTags || []).forEach(function (name) {
+      filter.add(name, "tag", false);
+    });
+
+    var wrap = Dom.el("div", "tag-search");
+    input.parentNode.insertBefore(wrap, input);
+    createTagSearch(TagData.buildIndex(list), filter, {
+      input: input,
+      mount: wrap,
+      listboxId: opts.listboxId,
+      placeholder: opts.placeholder,
+      fieldClass: opts.fieldClass,
+      commitTagOnSpace: opts.commitTagOnSpace,
+      commitTitleOnEnter: opts.commitTitleOnEnter,
+      arrowsOnlyWhenOpen: opts.arrowsOnlyWhenOpen,
+      onInput: function () {
+        filter.apply();
+      }
+    });
+    filter.apply();
+  }
+
+  function hydrate() {
+    Array.prototype.forEach.call(
+      document.querySelectorAll("[data-sortable-list]"),
+      mountList
+    );
+  }
+
+  document.addEventListener("click", function (e) {
+    Array.prototype.forEach.call(document.querySelectorAll(".tag-search"), function (search) {
+      if (search.contains(e.target)) return;
+      var dropdown = search.querySelector(".tag-search__dropdown");
+      var input = search.querySelector(".tag-search__input");
+      if (dropdown) {
+        dropdown.hidden = true;
+        dropdown.textContent = "";
+      }
+      if (input) input.setAttribute("aria-expanded", "false");
+    });
   });
 
-  window.hydrateListing = hydrateListing;
-  hydrateListing();
+  window.booruSearch = { hydrate: hydrate, mountList: mountList, mountField: mountField };
+  window.hydrateListing = hydrate;
+  hydrate();
 })();
