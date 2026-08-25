@@ -76,7 +76,7 @@ Run them in that order. `authenticated RCE` is for after you have creds.
 
 ## Step 3: Per-service enumeration
 
-Read: ./external/oscp-enumeration-checklist.md (https://github.com/oncybersec/oscp-enumeration-cheat-sheet)
+Read: [OSCP enumeration checklist](./external/oscp-enumeration-checklist.md) ([oncybersec](https://github.com/oncybersec/oscp-enumeration-cheat-sheet))
 
 ---
 
