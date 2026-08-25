@@ -6,6 +6,8 @@
 
 ---
 
+sqlite3 is the command-line interface to SQLite.
+
 ## Open a connection
 
 ```bash
@@ -78,3 +80,8 @@ sqlite3 path/to/database.sqlite3
 # Execute an SQL statement against a database and then exit:
 sqlite3 path/to/database.sqlite3 'SELECT * FROM some_table;'
 ```
+
+## Resources
+
+- [SQLite](https://sqlite.org) — official project homepage (cited in the cheat.sh dump)
+- [cheat.sh sqlite3](https://cheat.sh/sqlite3) — lookup used in this note

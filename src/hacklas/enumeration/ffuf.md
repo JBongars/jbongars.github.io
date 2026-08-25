@@ -6,9 +6,9 @@
 
 ---
 
-## Subdomain and directory discovery tool.
+Subdomain and directory discovery tool.
 
-## More information: <https://github.com/ffuf/ffuf>.
+More information: https://github.com/ffuf/ffuf
 
 ### Burp to ffuf fuzz request
 
@@ -88,3 +88,9 @@ FFUF -W PATH/TO/POSTDATA.TXT -X POST -D "USERNAME=ADMIN\&PASSWORD=FUZZ" -U HTTPS
 # DISCOVER SUBDOMAINS USING A SUBDOMAIN LIST ON A TARGET WEBSITE:
 FFUF -W SUBDOMAINS.TXT -U HTTPS://WEBSITE.COM -H "HOST: FUZZ.WEBSITE.COM"
 ```
+
+## Resources
+
+- [ffuf GitHub](https://github.com/ffuf/ffuf) — source and releases
+- [cheat.sh ffuf](https://cheat.sh/ffuf) — extra flag examples
+- [feroxbuster](./web/domain-path-feroxbuster.md) — recursive alternative used in the dir examples

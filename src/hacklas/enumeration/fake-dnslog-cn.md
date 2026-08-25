@@ -9,3 +9,7 @@
 path: http://dnslog.cn/
 
 you can get fake subdomains
+
+## Resources
+
+- [dnslog.cn](http://dnslog.cn/) — out-of-band DNS callback

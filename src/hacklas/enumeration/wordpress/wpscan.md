@@ -14,6 +14,8 @@ Can be pointed to PHP webservers to enumerate wordpress plugins.
 
 **hints**: For WordPress, you can try to change the theme by modifying the theme. Usually a RCE is straightforward if you are able to inject PHP.
 
+**hints**: For WordPress, you can try to change the theme by modifying the theme. Usually a RCE is straightforward if you are able to inject PHP.
+
 ## Quick Guide
 
 ```bash
@@ -21,7 +23,6 @@ Can be pointed to PHP webservers to enumerate wordpress plugins.
 export WPSCAN_API_TOKEN="<TOKEN GOES HERE>"
 # -- or
 --api-token "<TOKEN GOES HERE>"
-
 
 # Enumerate all plugins
 wpscan --url http://.../wp -e ap -o wpscan.out
@@ -59,7 +60,7 @@ wpscan --url url --proxy protocol://ip:port --proxy-auth username:password
 wpscan --url url --enumerate u
 
 # Execute a password guessing attack on a WordPress website:
-wpscan --url url --usernames username|path/to/usernames.txt --passwords path/to/passwords.txt threads 20
+wpscan --url url --usernames username|path/to/usernames.txt --passwords path/to/passwords.txt --threads 20
 
 # Scan a WordPress website, collecting vulnerability data from the WPVulnDB (https://wpvulndb.com/):
 wpscan --url url --api-token token
@@ -233,3 +234,11 @@ Usage: wpscan [options]
         --login-uri URI                           The URI of the login page if different from /wp-login.php
         --stealthy                                Alias for --random-user-agent --detection-mode passive --plugins-version-detection passive
 ```
+
+## Resources
+
+- [WPScan GitHub](https://github.com/wpscanteam/wpscan) — official repo (already linked in this note)
+- [WPScan](https://wpscan.com/) — official homepage
+- [WPScan API profile](https://wpscan.com/profile) — cited in `--help` for `--api-token`
+- [WPVulnDB](https://wpvulndb.com/) — cited in the cheat.sh dump
+

@@ -1,8 +1,8 @@
 # sudo
 
-Author: Julien Bongars
-Date: 2025-09-23 16:12:13
-Path: /opt/development/cybersec/hacklas/notes/escalation/linux/sudo.md
+**Author:** Julien Bongars\
+**Date:** 2025-09-23 16:12:13
+**Path:** /opt/development/cybersec/hacklas/notes/escalation/linux/sudo.md
 
 ---
 
@@ -25,11 +25,11 @@ User postgres may run the following commands on vaccine:
     (ALL) /bin/vi /etc/postgresql/11/main/pg_hba.conf
 ```
 
-#### env_keep
+### env_keep
 
 sets various options for the current user environment
 
-#### secure_path
+### secure_path
 
 overrides the current path when using sudo. Prevents PATH injection attacks for sudo
 
@@ -41,3 +41,8 @@ User postgres may run the following commands on vaccine:
 ```
 
 In this example user can execute these executables including vi (escalation path)
+
+## Resources
+
+- [sudo](https://www.sudo.ws/) — official homepage
+- [GTFOBins sudo](https://gtfobins.github.io/gtfobins/sudo/) — allowed-command escapes (vi in the sample)

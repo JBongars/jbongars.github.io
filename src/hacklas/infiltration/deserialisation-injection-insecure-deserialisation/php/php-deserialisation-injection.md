@@ -1,12 +1,12 @@
 # php-deserialisation-injection
 
 **Author:** Julien Bongars\
-**Date:** 2026-02-13 01:36:15\
+**Date:** 2026-02-13 01:36:15
 **Path:**
 
 ---
 
-**NOTE** This is more theory than practice now. Can look at ./phpgcc docs for auto use.
+**NOTE** This is more theory than practice now. Can look at ./phpggc docs for auto use.
 
 ## PHP Objects
 
@@ -41,7 +41,7 @@ echo $obj->username; // "admin"
 
 The serialized format is just a string. You don't need PHP to craft one — you can write it by hand or in any language.
 
-```
+```txt
 O:4:"User":2:{s:8:"username";s:5:"admin";s:4:"role";s:5:"admin";}
 ```
 
@@ -290,4 +290,11 @@ curl -v --cookie "token=$(python3 -c 'import urllib.parse; print(urllib.parse.qu
 
 ## Dangerous Functions
 
-See [dangerous_functions.md](./dangerous-functions.md)
+See [dangerous-functions.md](./dangerous-functions.md)
+
+## Resources
+
+- [PHP unserialize](https://www.php.net/manual/en/function.unserialize.php) — official entry point for this class of bug
+- [phpggc](https://github.com/ambionics/phpggc) — generator referenced by the lede as ./phpggc
+- [dangerous-functions.md](./dangerous-functions.md) — sibling note linked above
+- [PayloadsAllTheThings: PHP deserialization](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Insecure%20Deserialization/PHP.md) — extra gadget-chain lookup

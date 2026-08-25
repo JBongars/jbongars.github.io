@@ -1,18 +1,18 @@
 # convert-to-interactive-shell
 
-Author: Julien Bongars
-Date: 2025-09-20 19:46:51
-Path: /opt/development/cybersec/hacklas/notes/convenience/reverse-shell/convert-to-interactive-shell.md
+**Author:** Julien Bongars\
+**Date:** 2025-09-20 19:46:51
+**Path:** /opt/development/cybersec/hacklas/notes/convenience/reverse-shell/convert-to-interactive-shell.md
 
 ---
 
-### Check current window rows ond cols
+## Check current window rows ond cols
 
 ```bash
 stty size
 ```
 
-### Make fully interactive
+## Make fully interactive
 
 **Method 1**
 
@@ -56,3 +56,7 @@ cd /tmp
 
 problem: the directory you are in no longer exists
 solution: cd /tmp
+
+## Resources
+
+- [ropnop: upgrading simple shells to fully interactive TTYs](https://blog.ropnop.com/upgrading-simple-shells-to-fully-interactive-ttys/) — PTY / `stty raw -echo` upgrade

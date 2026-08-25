@@ -1,5 +1,11 @@
 # Monolog/RCE1 Gadget Chain — PHAR Deserialization
 
+**Author:** Julien Bongars\
+**Date:**
+**Path:**
+
+---
+
 | Field             | Detail                                                                                                                       |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | **Affects**       | `monolog/monolog` 1.4.1–1.6.0, 1.17.2–2.7.0+                                                                                 |
@@ -82,7 +88,7 @@ We set `processors = ['current', 'system']`:
 
 ### Full Chain Summary
 
-```
+```txt
 SyslogUdpHandler.__destruct()
   → close()
     → $this->socket->close()              [socket = BufferHandler]
@@ -251,9 +257,12 @@ The Monolog gadget chain itself has no CVE. CVEs are assigned to the **applicati
 
 ---
 
-## References
+## Resources
 
-- **PHPGGC** — https://github.com/ambionics/phpggc
-- **BlackHat US 2018** — Sam Thomas, _"It's a PHP Unserialization Vulnerability Jim, But Not as We Know It"_
-- **PHP 8.0 migration** — `phar://` no longer auto-deserializes metadata on stream operations
-- **Monolog source** — https://github.com/Seldaek/monolog
+- [PHPGGC](https://github.com/ambionics/phpggc) — gadget-chain library (folded from References)
+- [Monolog/RCE1 chain.php](https://github.com/ambionics/phpggc/blob/master/gadgetchains/Monolog/RCE/1/chain.php) — chain source cited in the metadata table
+- [Monolog](https://github.com/Seldaek/monolog) — handler classes used in the chain (folded from References)
+- BlackHat US 2018 — Sam Thomas, _"It's a PHP Unserialization Vulnerability Jim, But Not as We Know It"_ (folded from References)
+- PHP 8.0 migration — `phar://` no longer auto-deserializes metadata on stream operations (folded from References)
+- [Black Hat US 2018 whitepaper](https://i.blackhat.com/us-18/Thu-August-9/us-18-Thomas-Its-A-PHP-Unserialization-Vulnerability-Jim-But-Not-As-We-Know-It-wp.pdf) — extra lookup for the talk named above
+- [PHP 8.0 incompatible changes](https://www.php.net/manual/en/migration80.incompatible.php) — extra lookup for the `phar://` metadata change

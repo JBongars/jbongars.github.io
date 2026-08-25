@@ -63,7 +63,7 @@ dnsenum --dnsserver DC01.somednssserver.htb --enum inlanefreight.com -f /usr/sha
 
 ### Sample Output
 
-```
+```txt
 inlanefreight.com.         300  IN  A  134.209.24.248
 www.inlanefreight.com.     300  IN  A  134.209.24.248
 support.inlanefreight.com. 300  IN  A  134.209.24.248
@@ -113,9 +113,9 @@ OUTPUT OPTIONS:
   -o --output <file>	Output in XML format. Can be imported in MagicTree (www.gremwell.com)
 ```
 
-# Appendix
+## Appendix
 
-## Aleternative Tools
+### Aleternative Tools
 
 | Tool            | Description                                                       |
 | --------------- | ----------------------------------------------------------------- |
@@ -125,3 +125,9 @@ OUTPUT OPTIONS:
 | **amass**       | Actively maintained, integrates with many data sources            |
 | **assetfinder** | Lightweight and fast subdomain finder                             |
 | **puredns**     | Powerful brute-forcing with effective filtering                   |
+
+## Resources
+
+- [dnsenum (Kali)](https://www.kali.org/tools/dnsenum/) — official package page
+- [MagicTree](http://www.gremwell.com) — cited in the dnsenum help text (`www.gremwell.com`)
+- [HackTricks — DNS pentesting](https://book.hacktricks.xyz/network-services-pentesting/pentesting-dns) — DNS recon lookup

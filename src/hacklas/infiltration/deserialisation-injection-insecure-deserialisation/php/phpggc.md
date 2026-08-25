@@ -1,7 +1,7 @@
 # phpggc - PHP Generic Gadget Chains
 
 **Author:** Julien Bongars\
-**Date:** 2026-02-13 01:36:15\
+**Date:** 2026-02-13 01:36:15
 **Path:**
 
 ---
@@ -12,7 +12,7 @@ Source: https://github.com/ambionics/phpggc
 
 PHPGGC is a library of unserialize() payloads along with a tool to generate them, from command line or programmatically. When encountering an unserialize on a website you don't have the code of, or simply when trying to build an exploit, this tool allows you to generate the payload without having to go through the tedious steps of finding gadgets and combining them. It can be seen as the equivalent of frohoff's ysoserial, but for PHP. Currently, the tool supports gadget chains such as: CodeIgniter4, Doctrine, Drupal7, Guzzle, Laravel, Magento, Monolog, Phalcon, Podio, Slim, SwiftMailer, Symfony, Wordpress, Yii and ZendFramework.
 
-## Quick Start
+## Quick start
 
 ```bash
 # PHPGGC Quick Reference
@@ -136,3 +136,9 @@ EXAMPLES
   ./phpggc Laravel/RCE1 system id
   ./phpggc SwiftMailer/FW1 /var/www/html/shell.php /path/to/local/shell.php
 ```
+
+## Resources
+
+- [phpggc GitHub](https://github.com/ambionics/phpggc) — official repo (source cited in Description and the quick-start comment)
+- [ysoserial](https://github.com/frohoff/ysoserial) — Java counterpart named in the Description
+- [PayloadsAllTheThings: PHP deserialization](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Insecure%20Deserialization/PHP.md) — extra lookup for phpggc-style chains

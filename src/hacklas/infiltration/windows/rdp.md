@@ -1,4 +1,4 @@
-# rdp
+# RDP
 
 **Author:** Julien Bongars\
 **Date:** 2025-12-29 23:37:33
@@ -9,6 +9,8 @@
 ## Overview
 
 RDP (Remote Desktop Protocol) is Microsoft's proprietary protocol for remote GUI access to Windows systems. Default port is **3389/TCP**.
+
+Foothold shell and the port is closed? Enable it (and WinRM) from inside: [Enable RDP / WinRM](./enable-rdp-winrm.md).
 
 ## Enumeration
 
@@ -335,3 +337,10 @@ comma = w
 # # Toggle between normal and dvorak_to_qwerty with ScrollLock
 # scrolllock = swap(dvorak_to_qwerty)
 ```
+
+## Resources
+
+- [keyd](https://github.com/rvaiya/keyd) — Dvorak-to-QWERTY scancode remapping
+- [FreeRDP](https://www.freerdp.com/) — xfreerdp client used above
+- [Enable RDP / WinRM](./enable-rdp-winrm.md) — turn the listener on from a foothold
+- [xfreerdp](./xfreerdp.md) — client flag dump

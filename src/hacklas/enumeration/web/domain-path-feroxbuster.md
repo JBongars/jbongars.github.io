@@ -1,4 +1,4 @@
-# domain-path-feroxbuster
+# feroxbuster
 
 **Author:** Julien Bongars\
 **Date:** 2026-06-23 20:19:54
@@ -35,3 +35,16 @@ feroxbuster -u "http://192.168.197.23/index.php?u=page/FUZZ" \
   -t 50 \
   --filter-similar-to "http://192.168.197.23/index.php?u=page/2"
 ```
+
+## Enumerate PHP extensions
+
+```bash
+feroxbuster -u http://target.htb -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -x php
+```
+
+## Resources
+
+- [feroxbuster GitHub](https://github.com/epi052/feroxbuster) — source and releases
+- [feroxbuster docs](https://epi052.github.io/feroxbuster-docs/docs/) — flag reference
+- [cheat.sh feroxbuster](https://cheat.sh/feroxbuster) — extra examples
+- [PHP enumeration](../php-enumeration.md) — `-X php` in context

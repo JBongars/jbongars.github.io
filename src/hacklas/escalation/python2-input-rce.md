@@ -16,10 +16,12 @@ name = input("Enter your name: ")
 
 You can get a shell:
 
-```
+```txt
 Enter your name: __import__("os").system("/bin/bash")
 ```
 
 Python 3 fixed this—`input()` behaves like Python 2's `raw_input()` and returns a string.
 
-**See also:** [HTB SiteIsUp](link-to-your-writeup-if-you-have-one)
+## Resources
+
+- [Python 2 input()](https://docs.python.org/2.7/library/functions.html#input) — eval-on-input behaviour

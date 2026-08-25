@@ -1,4 +1,4 @@
-# enumeration
+# XSS enumeration
 
 **Author:** Julien Bongars\
 **Date:** 2025-10-13 00:44:16
@@ -43,83 +43,7 @@ curl -I https://target.com
 - https://securityheaders.com
 - https://observatory.mozilla.org
 
----
-
-### Static Code Analysis Tools
-
-**JavaScript/Node.js:**
-
-```bash
-# ESLint with security plugin
-npm install -g eslint eslint-plugin-security eslint-plugin-no-unsanitized
-echo '{"extends": ["plugin:security/recommended", "plugin:no-unsanitized/DOM"]}' > .eslintrc
-eslint src/
-
-# Semgrep (pattern matching)
-semgrep --config=p/xss .
-semgrep --config=p/javascript .
-
-# RetireJS (vulnerable dependencies)
-retire --js --path ./
-
-# NodeJsScan
-nodejsscan --directory ./
-
-# Snyk (dependencies + code)
-snyk test
-snyk code test
-```
-
-**Python:**
-
-```bash
-# Bandit
-bandit -r . -f json -o report.json
-
-# Semgrep
-semgrep --config=p/xss .
-semgrep --config=p/flask .
-semgrep --config=p/django .
-```
-
-**PHP:**
-
-```bash
-# RIPS (commercial but has free tier)
-rips-scanner scan:start --path=/var/www/html
-
-# Progpilot
-progpilot --file=index.php
-
-# Semgrep
-semgrep --config=p/xss .
-semgrep --config=p/php .
-```
-
-**Java:**
-
-```bash
-# SpotBugs with Find Security Bugs plugin
-spotbugs -textui -effort:max -low -html:fancy.xsl -output report.html target/
-
-# Semgrep
-semgrep --config=p/xss .
-semgrep --config=p/java .
-```
-
-**Multi-Language:**
-
-```bash
-# SonarQube (self-hosted)
-sonar-scanner -Dsonar.projectKey=myproject
-
-# CodeQL (GitHub)
-codeql database create mydb --language=javascript
-codeql database analyze mydb --format=sarif-latest --output=results.sarif
-
-# Semgrep (recommended - fast and accurate)
-semgrep --config=auto .
-```
+For dumped JS/source, run [semgrep](../../semgrep.md) or paste into Cloudflare's [GLM-4.7-Flash](https://developers.cloudflare.com/workers-ai/models/glm-4.7-flash/) (Workers AI) and ask it to flag XSS sinks.
 
 ---
 
@@ -867,47 +791,50 @@ String safe = Encode.forHtml(userInput);
 7. **Regular Security Audits**: Automated and manual testing
 8. **Security Training**: Educate developers on XSS risks
 
-### 9. Common Mistakes to Avoid
+### 9. Common mistakes to avoid
 
-- ❌ Blacklist filtering (easily bypassed)
-- ❌ Client-side validation only
-- ❌ Using innerHTML with user input
-- ❌ Trusting data from URLs/cookies
-- ❌ Insufficient context-aware encoding
-- ❌ Allowing inline scripts without CSP nonces
-- ❌ Not setting HttpOnly on sensitive cookies
+- Blacklist filtering (easily bypassed)
+- Client-side validation only
+- Using innerHTML with user input
+- Trusting data from URLs/cookies
+- Insufficient context-aware encoding
+- Allowing inline scripts without CSP nonces
+- Not setting HttpOnly on sensitive cookies
 
-### 10. Secure Coding Practices
+### 10. Secure coding practices
 
 ```javascript
-// ✅ Good: Use textContent instead of innerHTML
+// Good: Use textContent instead of innerHTML
 element.textContent = userInput;
 
-// ❌ Bad: Using innerHTML with user input
+// Bad: Using innerHTML with user input
 element.innerHTML = userInput;
 
-// ✅ Good: Create elements programmatically
+// Good: Create elements programmatically
 const img = document.createElement("img");
 img.src = userInput;
 img.alt = "User image";
 
-// ❌ Bad: String concatenation with user input
+// Bad: String concatenation with user input
 html = "<img src=\"" + userInput + "\">";
 
-// ✅ Good: Use parameterized queries/prepared statements
-// ❌ Bad: String concatenation in SQL/HTML/JS
+// Good: Use parameterized queries/prepared statements
+// Bad: String concatenation in SQL/HTML/JS
 ```
 
 ---
 
+**Remember**: Always test for XSS on authorized systems only. Unauthorized testing is illegal.
+
 ## Resources
 
-- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
-- [PortSwigger XSS Labs](https://portswigger.net/web-security/cross-site-scripting)
-- [PayloadsAllTheThings - XSS](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/XSS%20Injection)
-- [HackTricks - XSS](https://book.hacktricks.xyz/pentesting-web/xss-cross-site-scripting)
-- [Content Security Policy Reference](https://content-security-policy.com/)
-
----
-
-**Remember**: Always test for XSS on authorized systems only. Unauthorized testing is illegal.
+- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html) — encoding and CSP patterns
+- [PortSwigger XSS Labs](https://portswigger.net/web-security/cross-site-scripting) — hands-on XSS labs
+- [PayloadsAllTheThings - XSS](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/XSS%20Injection) — extra payloads
+- [HackTricks - XSS](https://book.hacktricks.xyz/pentesting-web/xss-cross-site-scripting) — recon and bypass notes
+- [Content Security Policy Reference](https://content-security-policy.com/) — CSP directive cheat sheet
+- [securityheaders.com](https://securityheaders.com) — live header grade
+- [Mozilla Observatory](https://observatory.mozilla.org) — live header grade
+- [html2canvas](https://html2canvas.hertzen.com/dist/html2canvas.min.js) — screenshot exfil helper in the payload above
+- [semgrep](../../semgrep.md) — pattern scan for XSS sinks in dumped source
+- [GLM-4.7-Flash (Cloudflare Workers AI)](https://developers.cloudflare.com/workers-ai/models/glm-4.7-flash/) — fast model for spotting sinks in minified JS

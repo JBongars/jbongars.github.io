@@ -7,3 +7,7 @@
 ---
 
 https://www.revshells.com
+
+## Resources
+
+- [revshells.com](https://www.revshells.com) — reverse-shell generator

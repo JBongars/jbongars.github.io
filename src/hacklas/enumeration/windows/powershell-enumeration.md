@@ -1,10 +1,12 @@
-# powershell
+# PowerShell enumeration
 
 **Author:** Julien Bongars\
 **Date:** 2026-01-04 17:38:31
 **Path:**
 
 ---
+
+Keybindings, completion, and `Get-Help` live in [PowerShell keybindings](./powershell-keybindings.md). Objects / `?` / `Get-Member` / Linux mappings: [PowerShell scripting](./powershell-scripting.md). Win+R snap-ins: [Windows Run menu](./run-menu.md). Foothold → real session: [Enable RDP / WinRM](../../../infiltration/windows/enable-rdp-winrm.md).
 
 ## System Information
 
@@ -88,6 +90,11 @@ arp -a
 
 ```cmd
 netstat -ano
+```
+
+```powershell
+Get-NetTCPConnection -State Listen
+Get-NetTCPConnection -State Listen | ? LocalPort -eq 445
 ```
 
 ### Firewall Status
@@ -219,6 +226,11 @@ dir /s /b C:\*password*.txt
 dir /s /b C:\*config*.xml
 ```
 
+```powershell
+Get-ChildItem -Path C:\Users\ -Recurse -Filter *pass* -ErrorAction SilentlyContinue
+Get-ChildItem -Path C:\inetpub\wwwroot -Recurse | ? LastWriteTime -gt (Get-Date).AddDays(-7)
+```
+
 ### Recent Files
 
 ```powershell
@@ -292,6 +304,11 @@ netsh wlan show profile name="PROFILE_NAME" key=clear
 ```cmd
 findstr /si password *.txt *.xml *.config *.ini
 findstr /si username *.txt *.xml *.config *.ini
+```
+
+```powershell
+Select-String -Path C:\inetpub\wwwroot\*.config -Pattern "connectionString"
+Select-String -Path C:\Users\*\*.txt -Pattern "password" -ErrorAction SilentlyContinue
 ```
 
 ### PowerShell History
@@ -398,3 +415,14 @@ reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallEle
 ```powershell
 Get-Acl HKLM:\System\CurrentControlSet\Services\* | Format-List
 ```
+
+## Resources
+
+- [PowerShell documentation](https://learn.microsoft.com/en-us/powershell/) — official docs
+- [HackTricks — Windows local enumeration](https://book.hacktricks.xyz/windows-hardening/basic-cmd-for-pentesters) — enum command lookup
+- [PowerShell keybindings](./powershell-keybindings.md) — line editing, Tab/`Ctrl+Space`, help, jobs
+- [PowerShell scripting](./powershell-scripting.md) — aliases
+- [Windows Run menu](./run-menu.md) — `compmgmt.msc` vs cmdlets
+- [Windows common utils](./common.md) — icacls / Sysinternals live
+- [Enable RDP / WinRM](../../../infiltration/windows/enable-rdp-winrm.md) — front-door session from a foothold
+

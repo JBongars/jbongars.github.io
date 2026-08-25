@@ -73,7 +73,6 @@ Detected Plugins:
 [ HTML5 ]
 	HTML version 5, detected by the doctype declaration
 
-
 [ HTTPServer ]
 	HTTP server header string. This plugin also attempts to
 	identify the operating system from the server header.
@@ -99,7 +98,6 @@ Detected Plugins:
 [ Script ]
 	This plugin detects instances of script HTML elements and
 	returns the script language/type.
-
 
 [ UncommonHeaders ]
 	Uncommon HTTP server headers. The blacklist includes all
@@ -143,7 +141,7 @@ HTTP Headers:
 	Content-Encoding: gzip
 ```
 
-## Usage
+## Help
 
 ```bash
 .$$$     $.                                   .$$$     $.
@@ -154,7 +152,6 @@ $. $     $$$ $. $$$$$$ $. $$$$$$ `$  $. $  :' $. $     $$$ $. $$$$   $. $$$$$.
 $::$  .  $$$ $::$  $$$ $::$  $$$     $::$     $::$  .  $$$ $::$      $::$  $$$$
 $;;$ $$$ $$$ $;;$  $$$ $;;$  $$$     $;;$     $;;$ $$$ $$$ $;;$      $;;$  $$$$
 $$$$$$ $$$$$ $$$$  $$$ $$$$  $$$     $$$$     $$$$$$ $$$$$ $$$$$$$$$ $$$$$$$$$'
-
 
 WhatWeb - Next generation web scanner version 0.6.2.
 Developed by Andrew Horton (urbanadventurer) and Brendan Coles (bcoles).
@@ -294,3 +291,15 @@ EXAMPLE USAGE:
   ./whatweb -i plugin-development/alexa-top-100.txt \
   --url-suffix /crossdomain.xml -p crossdomain_xml
 ```
+
+## Resources
+
+- [WhatWeb GitHub](https://github.com/urbanadventurer/WhatWeb) — official repo (clone URL in this note)
+- [WhatWeb homepage](https://morningstarsecurity.com/research/whatweb) — cited in `--help`
+- [Django](https://www.djangoproject.com/) — cited in the sample report
+- [jQuery](http://jquery.com/) — cited in the sample report
+- [HTTP cookie (Wikipedia)](http://en.wikipedia.org/wiki/HTTP_cookie) — cited in the sample report
+- [X-Frame-Options (MSDN)](http://msdn.microsoft.com/en-us/library/cc288472%28VS.85%29.aspx) — cited in the sample report
+- [nginx](http://nginx.net/) — cited in the sample report
+- [http-stats](http://www.http-stats.com) — cited as `www.http-stats.com` in the sample report
+

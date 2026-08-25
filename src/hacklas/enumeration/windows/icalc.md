@@ -8,7 +8,7 @@
 
 ## Overview
 
-`icacls` is a command-line utility for managing NTFS file/folder permissions in Windows. Provides granular control over permissions without needing GUI.
+`icacls` is a command-line utility for managing NTFS file/folder permissions in Windows. Provides granular control over permissions without needing GUI. Short pointer plus Sysinternals live: [Windows common utils](./common.md).
 
 ## Basic Usage
 
@@ -27,7 +27,7 @@ icacls C:\path\to\file.txt
 
 ### Example Output
 
-```
+```txt
 C:\htb> icacls c:\windows
 c:\windows NT SERVICE\TrustedInstaller:(F)
            NT SERVICE\TrustedInstaller:(CI)(IO)(F)
@@ -83,7 +83,7 @@ icacls C:\Users /grant joe:f
 
 Output:
 
-```
+```txt
 C:\htb> icacls c:\users /grant joe:f
 processed file: c:\users
 Successfully processed 1 files; Failed processing 0 files
@@ -254,5 +254,6 @@ icacls <path> /setowner <user>
 
 ## Resources
 
-- [Microsoft icacls documentation](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/icacls)
-- Full permission matrix and inheritance rules in official docs
+- [Microsoft icacls documentation](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/icacls) — command reference
+- [Windows common utils](./common.md) — Sysinternals live and other builtins
+

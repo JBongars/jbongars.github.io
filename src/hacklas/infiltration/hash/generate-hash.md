@@ -79,3 +79,8 @@ python3 -c "import crypt; print(crypt.crypt('password123', '$salt'))"
 # Verify with openssl (extract salt first)
 echo 'password123' | openssl passwd -6 -stdin -salt extracted_salt
 ```
+
+## Resources
+
+- [openssl-passwd](https://www.openssl.org/docs/manmaster/man1/openssl-passwd.html) — `openssl passwd` man page
+- [mkpasswd (whois)](https://manpages.debian.org/mkpasswd) — `mkpasswd` man page

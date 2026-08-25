@@ -95,3 +95,8 @@
   - [ ] Can it be run locally?
   - [ ] Dynamic testing
   - [ ] Static analysis using ghidra
+
+## Resources
+
+- [GTFOBins](https://gtfobins.github.io/) — sudo / SUID escapes referenced as GTFO bins
+- [LinEnum](https://github.com/rebootuser/LinEnum) — the `linenum.sh` the foothold checklist curls

@@ -1,15 +1,17 @@
 # nmap
 
-**Author:** Julien Bongars  
+**Author:** Julien Bongars\
 **Date:** 2025-11-28 13:07:44
-**Path:** 
+**Path:**
 
 ---
 
-# Description
+## Description
+
 Network Mapper. **The industry-standard network discovery and security auditing tool**. Determines what hosts are available, what services they're running, what OS, firewall/packet filters in use, and dozens of other characteristics.
 
-# Install
+## Install
+
 ```bash
 # Debian/Ubuntu
 sudo apt install nmap
@@ -27,33 +29,37 @@ cd nmap-7.94
 ./configure && make && sudo make install
 ```
 
-# Run
+## Run
 
 **One IP Address**
+
 ```bash
 nmap -sC -sV -sS -T4 -p- -oN nmap.txt 10.129.192.27
 nmap -sC -sV -sS -T4 -p '30000-31000' -oN nmap.txt 10.129.192.27
-nmap -sC -sV -sS -T4 --top-port 2000 -oN nmap.txt 10.129.192.27
+nmap -sC -sV -sS -T4 --top-ports 2000 -oN nmap.txt 10.129.192.27
 ```
 
 **Ip Range**
+
 ```bash
-nmap -sC -sV -sS -oN --top-port 100 nmap.txt 10.1.0.0/16
+nmap -sC -sV -sS --top-ports 100 -oN nmap.txt 10.1.0.0/16
 ```
 
 **Full TCP scan with timing:**
+
 ```bash
 nmap -p- -T4 --min-rate=1000 -oN nmap/full.txt 10.10.10.100
 ```
 
 **UDP scan (top 100):**
+
 ```bash
 sudo nmap -sU --top-ports 100 -oN nmap/udp.txt 10.10.10.100
 ```
 
+## Common Flags / Options
 
-# Common Flags / Options
-```
+```txt
 -sS         TCP SYN scan (stealth, default with root)
 -sT         TCP connect scan (default without root)
 -sU         UDP scan
@@ -80,7 +86,8 @@ sudo nmap -sU --top-ports 100 -oN nmap/udp.txt 10.10.10.100
 -6          Enable IPv6 scanning
 ```
 
-# NSE Scripts (Nmap Scripting Engine)
+## NSE Scripts (Nmap Scripting Engine)
+
 ```bash
 # List all scripts
 ls /usr/share/nmap/scripts/
@@ -92,11 +99,14 @@ nmap --script <script-name> <target>
 nmap --script "http-* and not http-brute" <target>
 ```
 
-# Related Notes
-[MOC - Reconnaissance](../0%20-%20MOCs/MOC%20-%20Reconnaissance.md)
+## Related Notes
+
 [rustscan](rustscan.md)
 
-# References
-- https://nmap.org/book/man.html
-- https://nmap.org/nsedoc/
-- https://github.com/nmap/nmap
+## Resources
+
+- [Nmap](https://nmap.org/) — project homepage
+- [nmap(1) man page](https://nmap.org/book/man.html) — flags and scan types
+- [NSE documentation](https://nmap.org/nsedoc/) — script catalogue
+- [nmap/nmap](https://github.com/nmap/nmap) — source
+- [rustscan](rustscan.md) — faster first-pass scanner

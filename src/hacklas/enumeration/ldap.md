@@ -1,7 +1,7 @@
 # LDAP Enumeration
 
 **Author:** Julien Bongars\
-**Date:** 2025-09-24 23:55:48\
+**Date:** 2025-09-24 23:55:48
 **Path:** `notes/enumeration/ldap.md`
 
 ---
@@ -91,3 +91,8 @@ ldapsearch -x -H ldap://target-ip -s base > /dev/null && echo "Anonymous bind al
 # Check LDAPS
 openssl s_client -connect target-ip:636
 ```
+
+## Resources
+
+- [OpenLDAP ldapsearch](https://www.openldap.org/software/man.cgi?query=ldapsearch) — official man page
+- [HackTricks — Pentesting LDAP](https://book.hacktricks.xyz/network-services-pentesting/pentesting-ldap) — LDAP enum lookup

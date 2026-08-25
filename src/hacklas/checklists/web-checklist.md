@@ -6,9 +6,9 @@
 
 ---
 
-# For External
+## For External
 
-## External Reconnaissance
+### External Reconnaissance
 
 - [ ] Wayback Machine `https://web.archive.org/web/*/target.htb`
 - [ ] Google dorks `site:target.htb filetype:pdf`, `site:target.htb inurl:admin`
@@ -16,9 +16,9 @@
 - [ ] Shodan `ssl:"target.htb"`
 - [ ] Certificate transparency logs `crt.sh?q=%.target.htb`
 
-# HTB
+## HTB
 
-## Surface
+### Surface
 
 - [ ] **Open ports?**
   - [ ] nmap `nmap -sC -sV -p '80,443,7000-7100,7443,8000-8100,8443,9000-9100,9443' -oA nmap/web.nmap $IP_ADDRESS`
@@ -36,7 +36,7 @@
   - wappalyzer (browser extension)
   - nikto `nikto -h http://target.htb`
 
-## Fingerprinting
+### Fingerprinting
 
 - [ ] **PHP web?**
   - [ ] Does URL end in `?q=page/home.php` or similar?
@@ -52,7 +52,7 @@
       - [ ] Try null byte `.php%00.jpg`
       - [ ] Try space url encoding`.php%20.jpg`
       - [ ] Can you smuggle a phar and then trigger it with page? See `../infiltration/deserialisation-injection-insecure-deserialisation/php/php-phar-rfi-smuggling.md`
-      - [ ] See !FILE_UPLOAwD
+
   - [ ] Check `/index.php`
   - [ ] Check `/config.php`
   - [ ] Check `/settings.php`
@@ -85,9 +85,9 @@
   - [ ] can you see list of dangerous functions? See `../infiltration/deserialisation-injection-insecure-deserialisation/php/dangerous-functions.md`
   - [ ] can you run deserialisationn with gadget chain? See `../infiltration/deserialisation-injection-insecure-deserialisation/php/phpggc.md`
 
-## Enumeration
+### Enumeration
 
-### Subdirectories
+#### Subdirectories
 
 - [ ] is there a `/robots.txt`
 - [ ] Check static file discovery
@@ -111,9 +111,9 @@
   - hakrawler `echo http://target.htb | hakrawler -d 3`
 - [ ] Check for extensions `feroxbuster -u http://target.com -x txt,config,xml,php,bak,old`
 
-### Other
+#### Other
 
-- [ ] Can you upload files !FILE_UPLOAD?
+- [ ] Can you upload files?
   - [ ] Restrictions on extension?
   - [ ] Restrictions on size?
   - [ ] Try double extension `.php.jpg`
@@ -148,9 +148,9 @@
     - [ ] Dump context? explore client secrets? Check `__NEXT_DATA__` in page source
     - [ ] Check for .env exposure `/api/.env` or `/.env`
 
-# Exploitation
+## Exploitation
 
-## User Registration
+### User Registration
 
 - [ ] Registration?
 - [ ] Create account
@@ -180,7 +180,7 @@
   - `curl -v "http://target.htb/page?name=test%0d%0aX-Injected-Header:pwned"`
   - `curl -v "http://target.htb/login?next=/%0d%0aSet-Cookie:session=attacker_controlled_value"`
 
-## Forms
+### Forms
 
 - [ ] **Forms**
   - [ ] Any SSTI? `{{7*7}}`, `${7*7}`, `<%= 7*7 %>`, `{{config}}`
@@ -196,7 +196,7 @@
   - [ ] Command injection? `; id`, `| whoami`, `&& ls`, backticks
   - [ ] File inclusion? Check parameters for file paths, try LFI/RFI
 
-## Other
+### Other
 
 - [ ] **Advanced Injection Testing**
   - [ ] SSRF? Try `http://localhost`, `http://127.0.0.1`, `http://169.254.169.254/latest/meta-data/` (AWS metadata)
@@ -211,7 +211,7 @@
   - [ ] Check different error codes (400, 401, 403, 404, 500)
   - [ ] Timing attacks for user enumeration
 
-## API
+### API
 
 - [ ] Check response headers
   - [ ] Server version disclosure?
@@ -229,3 +229,16 @@
     - [ ] `127.0.0.1`
     - [ ] `(admin|dev|any-vhost-you-find).somebox.htb`
     - [ ] `(admin|dev|any-vhost-you-find).somebox.htb/admin/login?redirect=/admin/` This one probably requires some work
+
+## Resources
+
+- [Wayback Machine](https://web.archive.org/web/*/target.htb) — historical snapshots of the target
+- [crt.sh query](https://crt.sh/?q=%.target.htb) — certificate transparency as written in the note
+- [HackTricks](https://book.hacktricks.xyz) — CMS / service lookup
+- [jwt.io](https://jwt.io) — decode JWTs mentioned under Authentication/Session
+- [PHP include-page injection](../enumeration/php/include-page-injection.md) — LFI / php://filter notes
+- [PHP phar RFI smuggling](../infiltration/deserialisation-injection-insecure-deserialisation/php/php-phar-rfi-smuggling.md) — upload + phar trigger
+- [PHP dangerous functions](../infiltration/deserialisation-injection-insecure-deserialisation/php/dangerous-functions.md) — disable_functions / dangerous PHP
+- [phpggc](../infiltration/deserialisation-injection-insecure-deserialisation/php/phpggc.md) — gadget chains
+- [AWS IMDS](http://169.254.169.254/latest/meta-data/) — SSRF target listed in Advanced Injection Testing
+- [crt.sh](https://crt.sh/) — official certificate transparency homepage

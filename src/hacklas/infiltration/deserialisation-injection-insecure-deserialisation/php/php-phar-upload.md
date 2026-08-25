@@ -1,7 +1,7 @@
 # php-phar
 
 **Author:** Julien Bongars\
-**Date:** 2026-02-13 01:36:15\
+**Date:** 2026-02-13 01:36:15
 **Path:**
 
 ---
@@ -242,3 +242,10 @@ $phar->setStub("GIF89a<?php __HALT_COMPILER(); ?>");
 $jpeg = file_get_contents('legit.jpg');  // any valid JPEG
 $phar->setStub($jpeg . "<?php __HALT_COMPILER(); ?>");
 ```
+
+## Resources
+
+- [PHP Phar](https://www.php.net/manual/en/book.phar.php) — official archive / `phar://` docs
+- [HackTricks: PHAR deserialization](https://book.hacktricks.wiki/en/pentesting-web/file-inclusion/phar-deserialization.html) — source linked in the lede
+- [php-phar-rfi-smuggling.md](./php-phar-rfi-smuggling.md) — sibling note linked above
+- [phpggc](https://github.com/ambionics/phpggc) — extra lookup for PHAR gadget generation

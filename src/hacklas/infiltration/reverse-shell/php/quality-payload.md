@@ -1,8 +1,8 @@
 # quality-payload
 
-Author: Julien Bongars
-Date: 2025-09-21 09:48:44
-Path: /opt/development/cybersec/hacklas/notes/infiltration/reverse-shell/php/quality-payload.md
+**Author:** Julien Bongars\
+**Date:** 2025-09-21 09:48:44
+**Path:** /opt/development/cybersec/hacklas/notes/infiltration/reverse-shell/php/quality-payload.md
 
 ---
 
@@ -56,3 +56,7 @@ foreach ($_SESSION['history'] as $entry) {
 ```
 
 ## I have terminal Access
+
+## Resources
+
+- [PHP shell_exec](https://www.php.net/manual/en/function.shell-exec.php) — command runner used in the payload

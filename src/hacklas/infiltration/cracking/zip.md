@@ -1,8 +1,8 @@
 # zip
 
-Author: Julien Bongars
-Date: 2025-09-21 09:29:02
-Path: /opt/development/cybersec/hacklas/notes/infiltration/cracking/zip.md
+**Author:** Julien Bongars\
+**Date:** 2025-09-21 09:29:02
+**Path:** /opt/development/cybersec/hacklas/notes/infiltration/cracking/zip.md
 
 ---
 
@@ -12,3 +12,8 @@ Path: /opt/development/cybersec/hacklas/notes/infiltration/cracking/zip.md
 zip2john protected_archive.zip > hash.txt
 john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
 ```
+
+## Resources
+
+- [openwall/john](https://github.com/openwall/john) — zip2john / john
+- [cheat.sh/john](https://cheat.sh/john) — extra john flags

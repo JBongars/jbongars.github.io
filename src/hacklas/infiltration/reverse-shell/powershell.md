@@ -30,3 +30,8 @@ $client.Close()
 ```
 
 Refer ./bash.md for more
+
+## Resources
+
+- [revshells.com](https://www.revshells.com/) — generate PowerShell reverse shells
+- [PayloadsAllTheThings reverse shell cheatsheet](https://swisskyrepo.github.io/PayloadsAllTheThings/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet/) — extra payloads

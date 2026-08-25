@@ -16,3 +16,7 @@ curl -s "https://crt.sh/?q=facebook.com&output=json" | jq -r '.[]' | sort -u
 curl -s — Fetches JSON output from crt.sh
 jq -r '... | contains("dev")' — Filters for entries containing "dev"
 sort -u — Sorts and removes duplicates
+
+## Resources
+
+- [crt.sh](https://crt.sh/) — certificate transparency search used above

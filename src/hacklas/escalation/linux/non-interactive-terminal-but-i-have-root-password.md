@@ -6,7 +6,7 @@
 
 ---
 
-### Alternative Escalation Methods
+## Alternative Escalation Methods
 
 **Try Different su Variations**
 
@@ -30,7 +30,7 @@ ssh root@127.0.0.1
 sudo -l
 ```
 
-### Environment Setup After TTY Upgrade
+## Environment Setup After TTY Upgrade
 
 ```bash
 # Set proper environment
@@ -43,7 +43,7 @@ export HOME=/root
 clear
 ```
 
-### Language-Specific PTY Spawning
+## Language-Specific PTY Spawning
 
 ```bash
 # Python
@@ -78,7 +78,7 @@ less /etc/passwd
 # Then type: !/bin/bash
 ```
 
-### Troubleshooting
+## Troubleshooting
 
 **If Python isn't available:**
 
@@ -108,7 +108,7 @@ echo $TERM
 su -s /bin/bash
 ```
 
-### Quick Test Commands
+## Quick Test Commands
 
 **Test if TTY upgrade worked:**
 
@@ -124,4 +124,9 @@ top                # Should display properly
 python3 -c 'import pty; pty.spawn("/bin/bash")' 2>/dev/null || python -c 'import pty; pty.spawn("/bin/bash")' 2>/dev/null || script /dev/null
 ```
 
-see: notes/convenience/reverse-shell/convert-to-interactive-shell.md
+see: [convert-to-interactive-shell](../../convenience/reverse-shell/convert-to-interactive-shell.md)
+
+## Resources
+
+- [convert-to-interactive-shell](../../convenience/reverse-shell/convert-to-interactive-shell.md) — TTY upgrade note referenced in the body
+- [GTFOBins](https://gtfobins.github.io/) — more interpreters that spawn a shell

@@ -71,3 +71,11 @@ INFO: Reflections took 54 ms to scan 1 urls, producing 18 keys and 153 values
 ```bash
 git clone https://github.com/frohoff/ysoserial.git /opt/external/ysoserial
 ```
+
+## Resources
+
+- [ysoserial website](https://whysoserial.cc/) — payload picker; author notes it works with Chrome only
+- [ysoserial GitHub](https://github.com/frohoff/ysoserial) — source and builds
+- [Marshalling Pickles (AppSecCali)](https://frohoff.github.io/appseccali-marshalling-pickles/) — talk notes on Java deserialization
+- [PayloadsAllTheThings: Java deserialization](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Insecure%20Deserialization/Java.md) — extra gadget and ysoserial examples
+- [HackTricks: deserialization](https://book.hacktricks.wiki/en/pentesting-web/deserialization.html) — extra lookup for insecure deserialization

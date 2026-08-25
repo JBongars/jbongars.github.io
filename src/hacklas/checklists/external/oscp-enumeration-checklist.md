@@ -1,5 +1,11 @@
 # OSCP Enumeration Cheat Sheet
 
+**Author:** Julien Bongars\
+**Date:**
+**Path:**
+
+---
+
 A collection of commands and tools used for conducting enumeration during my OSCP journey.
 
 ## Description
@@ -10,46 +16,11 @@ This is an enumeration cheat sheet that I created while pursuing the OSCP. It al
 
 This cheat sheet should not be considered to be complete and only represents a snapshot in time when I used these commands for performing enumeration during my OSCP journey. These commands should only be used for educational purposes or authorised testing.
 
-# Table of Contents
+## Enumeration
 
-- [Enumeration](#enumeration)
-  - [Host](#host)
-    - [Nmap](#nmap)
-    - [Proxychains](#proxychains)
-    - [Autorecon](#autorecon)
-  - [Services](#services)
-    - [FTP (21/tcp)](#ftp-21tcp)
-    - [SSH (22/tcp)](#ssh-22tcp)
-    - [SMTP (25/tcp)](#smtp-25tcp)
-    - [DNS (53/tcp, 53/udp)](#dns-53tcp-53udp)
-    - [HTTP/HTTPS (80/tcp, 443/tcp)](#httphttps-80tcp-443tcp)
-    - [Kerberos (88/tcp, 464/tcp)](#kerberos-88tcp-464tcp)
-    - [POP3/POP3S (110/tcp, 995/tcp)](#pop3pop3s-110tcp-995tcp)
-    - [RPC (111/tcp, 135/tcp)](#rpc-111tcp-135tcp)
-    - [ident (113/tcp)](#ident-113tcp)
-    - [NTP (123/udp)](#ntp-123udp)
-    - [NetBIOS-NS (137/udp)](#netbios-ns-137udp)
-    - [SMB (139/tcp, 445/tcp)](#smb-139tcp-445tcp)
-    - [IMAP/IMAPS (143/tcp, 993/tcp)](#imapimaps-143tcp-993tcp)
-    - [SNMP (161/udp)](#snmp-161udp)
-    - [LDAP (389/tcp, 3268/tcp)](#ldap-389tcp-3268tcp)
-    - [Java RMI (1100/tcp)](#java-rmi-1100tcp)
-    - [MSSQL (1433/tcp)](#mssql-1433tcp)
-    - [Oracle TNS listener (1521/tcp)](#oracle-tns-listener-1521tcp)
-    - [NFS (2049/tcp)](#nfs-2049tcp)
-    - [MySQL (3306/tcp)](#mysql-3306tcp)
-    - [RDP (3389/tcp)](#rdp-3389tcp)
-    - [SIP (5060/udp)](#sip-5060udp)
-    - [PostgreSQL (5432/tcp)](#postgresql-5432tcp)
-    - [VNC (5900/tcp)](#vnc-5900tcp)
-    - [AJP (8009/tcp)](#ajp-8009tcp)
-  - [Active Directory](#active-directory)
+### Host
 
-# Enumeration
-
-## Host
-
-### Nmap
+#### Nmap
 
 ```text
 # Full TCP port scan
@@ -62,7 +33,7 @@ sudo nmap -Pn -sC -sV -p- -oN alltcp.txt $ip
 sudo nmap -Pn -sU -sV -sC --top-ports=20 -oN top_20_udp_nmap.txt $ip
 ```
 
-### Proxychains
+#### Proxychains
 
 ```text
 # Top 20 TCP port scan
@@ -75,7 +46,7 @@ proxychains nmap -Pn -sT --top-ports=1000 --open -oN top_1000_tcp_nmap.txt $ip
 proxychains nmap -Pn -sT -sC -sV -p 21,22,80 -oN tcp_nmap_sC_sV.txt $ip
 ```
 
-### Autorecon
+#### Autorecon
 
 ```text
 # Scan single target
@@ -85,23 +56,23 @@ sudo autorecon -o enumeration $ip
 sudo autorecon -o enumeration $ip1 $ip2 $ip3 $ip4
 ```
 
-## Services
+### Services
 
-### FTP (21/tcp)
+#### FTP (21/tcp)
 
 ```text
 # Version detection + NSE scripts
 nmap -Pn -sV -p 21 --script="banner,(ftp* or ssl*) and not (brute or broadcast or dos or external or fuzzer)" -oN "tcp_21_ftp_nmap.txt" $ip
 ```
 
-### SSH (22/tcp)
+#### SSH (22/tcp)
 
 ```text
 # Version detection + NSE scripts
 nmap -Pn -sV -p 22 --script=banner,ssh2-enum-algos,ssh-hostkey,ssh-auth-methods -oN tcp_22_ssh_nmap.txt $ip
 ```
 
-### SMTP (25/tcp)
+#### SMTP (25/tcp)
 
 ```text
 # Version detection + NSE scripts
@@ -114,7 +85,7 @@ nmap -Pn -sV -p 25 "--script=banner,(smtp* or ssl*) and not (brute or broadcast 
 /home/kali/.local/bin/smtp-user-enum -V -m RCPT -w -f '<user@example.com>' -d 'domain.local' -U "/usr/share/metasploit-framework/data/wordlists/unix_users.txt" $ip 25 2>&1 | tee "tcp_25_smtp_user-enum.txt"
 ```
 
-### DNS (53/tcp, 53/udp)
+#### DNS (53/tcp, 53/udp)
 
 ```text
 # Version detection + NSE scripts
@@ -132,7 +103,7 @@ nslookup $ip $ip
 gobuster dns -d $domain -w /usr/share/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt -t 16 -o "tcp_53_dns_gobuster.txt"
 ```
 
-### HTTP/HTTPS (80/tcp, 443/tcp)
+#### HTTP/HTTPS (80/tcp, 443/tcp)
 
 ```text
 # Version detection + NSE scripts
@@ -216,21 +187,21 @@ wfuzz -c -z file,/usr/share/seclists/Discovery/Web-Content/CGIs.txt --hc 404 -t 
 Webmin uses cgi files - versions up to 1.700 vulnerable to shellshock (http://www.webmin.com/security.html)
 ```
 
-### Kerberos (88/tcp, 464/tcp)
+#### Kerberos (88/tcp, 464/tcp)
 
 ```text
 # Version detection + NSE scripts
 nmap -Pn -sV -p $port --script="banner,krb5-enum-users" -oN "tcp_port_kerberos_nmap.txt" $ip
 ```
 
-### POP3/POP3S (110/tcp, 995/tcp)
+#### POP3/POP3S (110/tcp, 995/tcp)
 
 ```text
 # Version detection + NSE scripts
 nmap -Pn -sV -p $port "--script=banner,(pop3* or ssl*) and not (brute or broadcast or dos or external or fuzzer)" -oN tcp_port_pop3_nmap.txt $ip
 ```
 
-### RPC (111/tcp, 135/tcp)
+#### RPC (111/tcp, 135/tcp)
 
 **msrpc/rpcbind**
 
@@ -261,7 +232,7 @@ rpcclient -U "" -N $ip
     netshareenumall
 ```
 
-### ident (113/tcp)
+#### ident (113/tcp)
 
 **Enumerate users services running as**
 
@@ -269,14 +240,14 @@ rpcclient -U "" -N $ip
 ident-user-enum $ip 22 25 80 445
 ```
 
-### NTP (123/udp)
+#### NTP (123/udp)
 
 ```text
 # Run ntp-info NSE script
 sudo nmap -sU -p 123 --script ntp-info $ip
 ```
 
-### NetBIOS-NS (137/udp)
+#### NetBIOS-NS (137/udp)
 
 **enum4linux**
 
@@ -290,7 +261,7 @@ enum4linux -a -M -l -d $ip 2>&1 | tee "enum4linux.txt"
 nbtscan -rvh $ip 2>&1 | tee "nbtscan.txt"
 ```
 
-### SMB (139/tcp, 445/tcp)
+#### SMB (139/tcp, 445/tcp)
 
 ```text
 # Version detection + NSE scripts
@@ -356,17 +327,17 @@ nmap -Pn -sV -p 445 --script="smb-vuln-ms08-067" --script-args="unsafe=1" -oN "t
 
 # Eternalblue
 # https://docs.microsoft.com/en-us/security-updates/securitybulletins/2017/ms17-010    
-nmap -p 445 --script smb-vuln-ms17-010 -oN "tcp_445_smb_ms08-067.txt" $ip
+nmap -p 445 --script smb-vuln-ms17-010 -oN "tcp_445_smb_ms17-010.txt" $ip
 ```
 
-### IMAP/IMAPS (143/tcp, 993/tcp)
+#### IMAP/IMAPS (143/tcp, 993/tcp)
 
 ```text
 # Version detection + NSE scripts
 nmap -Pn -sV -p $port "--script=banner,(imap* or ssl*) and not (brute or broadcast or dos or external or fuzzer)" -oN tcp_port_imap_nmap.txt $ip
 ```
 
-### SNMP (161/udp)
+#### SNMP (161/udp)
 
 ```text
 # Version detection + NSE scripts
@@ -404,7 +375,7 @@ snmpwalk -c public -v1 $ip 1.3.6.1.2.1.25.6.3.1.2
 snmp-check $ip -c public
 ```
 
-### LDAP (389/tcp, 3268/tcp)
+#### LDAP (389/tcp, 3268/tcp)
 
 ```text
 # Version detection + NSE scripts
@@ -417,14 +388,14 @@ nmap -Pn -sV -p $port --script="banner,(ldap* or ssl*) and not (brute or broadca
 enum4linux -a -M -l -d $ip 2>&1 | tee "enum4linux.txt"
 ```
 
-### Java RMI (1100/tcp)
+#### Java RMI (1100/tcp)
 
 ```text
 # Version detection + NSE scripts
 nmap -Pn -sV -p 1100 --script="banner,rmi-vuln-classloader,rmi-dumpregistry" -oN "tcp_110_rmi_nmap.txt" $ip
 ```
 
-### MSSQL (1433/tcp)
+#### MSSQL (1433/tcp)
 
 ```text
 # Version detection + NSE scripts
@@ -447,7 +418,7 @@ SELECT * FROM <database_name>.INFORMATION_SCHEMA.TABLES
 SELECT sp.name AS login, sp.type_desc AS login_type, sl.password_hash, sp.create_date, sp.modify_date, CASE WHEN sp.is_disabled = 1 THEN 'Disabled' ELSE 'Enabled' END AS status FROM sys.server_principals sp LEFT JOIN sys.sql_logins sl ON sp.principal_id = sl.principal_id WHERE sp.type NOT IN ('G', 'R') ORDER BY sp.name
 ```
 
-### Oracle TNS listener (1521/tcp)
+#### Oracle TNS listener (1521/tcp)
 
 **tnscmd10g**
 
@@ -456,7 +427,7 @@ tnscmd10g version -h $ip
 tnscmd10g status -h $ip
 ```
 
-### NFS (2049/tcp)
+#### NFS (2049/tcp)
 
 ```text
 # Version detection + NSE scripts
@@ -478,7 +449,7 @@ sudo mount -o rw,vers=2 $ip:/home /mnt
 sudo mount -o nolock $ip:/home /mnt/
 ```
 
-### MySQL (3306/tcp)
+#### MySQL (3306/tcp)
 
 ```text
 # Version detection + NSE scripts
@@ -522,14 +493,14 @@ SELECT grantee, table_schema, privilege_type FROM information_schema.schema_priv
 SELECT user FROM mysql.user WHERE file_priv='Y';
 ```
 
-### RDP (3389/tcp)
+#### RDP (3389/tcp)
 
 ```text
 # Version detection + NSE scripts
 nmap -Pn -sV -p 3389 --script="banner,(rdp* or ssl*) and not (brute or broadcast or dos or external or fuzzer)" -oN "tcp_3389_rdp_nmap.txt" $ip
 ```
 
-### SIP (5060/udp)
+#### SIP (5060/udp)
 
 **Scans for SIP devices on network**
 
@@ -543,7 +514,7 @@ svmap $ip
 svwar -m INVITE -e 200-250 $ip
 ```
 
-### PostgreSQL (5432/tcp)
+#### PostgreSQL (5432/tcp)
 
 **Log into postgres remotely**
 
@@ -625,21 +596,21 @@ SELECT lanname,lanacl FROM pg_language WHERE lanname = 'plpgsql'
 SHOW config_file;
 ```
 
-### VNC (5900/tcp)
+#### VNC (5900/tcp)
 
 ```text
 # Version detection + NSE scripts
 nmap -Pn -sV -p 5900 --script="banner,(vnc* or realvnc* or ssl*) and not (brute or broadcast or dos or external or fuzzer)" --script-args="unsafe=1" -oN "tcp_5900_vnc_nmap.txt" $ip
 ```
 
-### AJP (8009/tcp)
+#### AJP (8009/tcp)
 
 ```text
 # Version detection + NSE scripts
 nmap -Pn -sV -p 8009 -n --script ajp-auth,ajp-headers,ajp-methods,ajp-request -oN tcp_8009_ajp_nmap.txt $ip
 ```
 
-## Active Directory
+### Active Directory
 
 **Enumerate users**
 
@@ -683,3 +654,15 @@ PS> Get-NetSession -ComputerName $hostname
 # Enumerate SPNs
 PS> Get-NetUser -SPN | select serviceprincipalname
 ```
+
+## Resources
+
+- [AutoRecon](https://github.com/Tib3rius/AutoRecon) — several commands here follow Autorecon's scans
+- [smtp-user-enum](https://pypi.org/project/smtp-user-enum) — SMTP user enumeration
+- [Webmin security](http://www.webmin.com/security.html) — CGI / Shellshock note in the HTTP section
+- [MS06-025](https://docs.microsoft.com/en-us/security-updates/securitybulletins/2006/ms06-025) — RRAS overflow NSE
+- [MS07-029](https://docs.microsoft.com/en-us/security-updates/securitybulletins/2007/ms07-029) — DNS RPC overflow NSE
+- [MS08-067](https://docs.microsoft.com/en-us/security-updates/securitybulletins/2008/ms08-067) — Server Service NSE
+- [MS17-010](https://docs.microsoft.com/en-us/security-updates/securitybulletins/2017/ms17-010) — EternalBlue NSE
+- [MySQL FILE privilege](https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html#priv_file) — file_priv discussion
+- [HackTricks](https://book.hacktricks.xyz/) — service enumeration lookups
