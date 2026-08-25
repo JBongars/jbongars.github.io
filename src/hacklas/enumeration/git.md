@@ -6,11 +6,15 @@
 
 ---
 
-Dump an exposed `.git` with git-dumper, then inspect the working tree.
+# Enumeration
 
 ## Dump Git repository
 
+Enumeration
+
 Use git-dumper to enumerate through files
+
+source https://github.com/arthaud/git-dumper.git
 
 ### Install
 
@@ -24,8 +28,8 @@ mkdir src && git-dumper 'http://<TARGET>/.git' ./src
 
 ### Example
 
-```txt
-┌─[htb]─[ATTACKER_IP]─[user@htb]─[~/git-dumper]
+```bash
+┌─[eu-dedivip-1]─[10.10.14.23]─[julien23@htb-xudfyic7tk]─[~/git-dumper]
 └──╼ [★]$ python ./git_dumper.py 'http://pilgrimage.htb/.git' ~/box/git
 [-] Testing http://pilgrimage.htb/.git/HEAD [200]
 [-] Testing http://pilgrimage.htb/.git/ [403]
@@ -191,8 +195,3 @@ mkdir src && git-dumper 'http://<TARGET>/.git' ./src
 
 - [ ] Check `git status`
 - [ ] Check `git diff --cached HEAD` for changes to yet fond
-
-## Resources
-
-- [git-dumper](https://github.com/arthaud/git-dumper) — dump a web-accessible `.git`
-- [PayloadsAllTheThings — `.git`](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Git/README.md) — exposure and reconstruction notes

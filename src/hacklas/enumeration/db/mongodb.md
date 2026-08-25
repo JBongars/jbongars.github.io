@@ -6,8 +6,6 @@
 
 ---
 
-Connect, list databases/collections, dump documents, and try server-side JS if enabled.
-
 ## Connection Methods
 
 **TCP Connection:**
@@ -201,8 +199,3 @@ db.runCommand({ usersInfo: 1 }); // List all users with roles
 - No authentication by default
 - Check for blank passwords
 - Common usernames: admin, root, mongodb
-
-## Resources
-
-- [MongoDB Shell](https://www.mongodb.com/docs/mongodb-shell/) — `mongosh` / `mongo` connection and eval
-- [HackTricks — MongoDB](https://book.hacktricks.wiki/en/network-services-pentesting/27017-27018-mongodb.html) — unauth enum and NoSQL injection

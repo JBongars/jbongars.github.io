@@ -6,8 +6,6 @@
 
 ---
 
-Open a SQLite file, list tables, dump rows.
-
 ## Open a connection
 
 ```bash
@@ -80,8 +78,3 @@ sqlite3 path/to/database.sqlite3
 # Execute an SQL statement against a database and then exit:
 sqlite3 path/to/database.sqlite3 'SELECT * FROM some_table;'
 ```
-
-## Resources
-
-- [SQLite CLI](https://sqlite.org/cli.html) — `.tables`, `.schema`, `.mode`
-- [cheat.sh/sqlite3](https://cheat.sh/sqlite3) — one-shot invocations

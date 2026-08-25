@@ -6,16 +6,18 @@
 
 ---
 
-Fast TCP port scan, then hand open ports to nmap. Can miss ports; confirm with nmap if it looks wrong.
+# Description
 
-## Run with Docker
+The Modern Port Scanner. **Find ports quickly (3 seconds at its fastest)**.
+
+# Run with Docker
 
 ```bash
 IP=""
 docker run -it --rm --name rustscan rustscan/rustscan:2.1.1 -a "$IP" --range 1-65535 --ulimit 5000 -- -sV -sC -oN "rustscan.txt"
 ```
 
-## Install
+# Install
 
 ```bash
 curl -L https://github.com/bee-san/RustScan/releases/download/2.4.1/x86_64-linux-rustscan.tar.gz.zip -o rustscan.tar.gz.zip 
@@ -27,13 +29,13 @@ sudo mv ./rustscan /usr/local/bin
 rustscan
 ```
 
-## Run
+# Run
 
 ```bash
 rustscan -a ${ADDRESS} --range 1-65535 --ulimit 5000 -- -Pn -oN rustscan.txt -sV --script vuln
 ```
 
-## Command Syntax
+# Command Syntax
 
 ```bash
 # Basic RustScan:
@@ -73,17 +75,26 @@ rustscan -a <target-ip> -p 1-65535 -- -O
 rustscan -a <target-ip> -p 1-65535 -- -sS -sU
 ```
 
-## Use Cases
+# Common Flags / Options
+
+-flag: Description of what this flag does
+
+# Use Cases
 
 When you need to run an initial search on a large network. This is faster than Nmap. Though for some reason it sometimes isn't accurate.
 
-## Examples
+# Examples
+
+Practical example from a lab machine or HTB.
 
 ```sh
 example-command -flag target
 ```
 
-## Resources
+# Related Notes
 
-- [bee-san/RustScan](https://github.com/bee-san/RustScan) — install and flags
-- [cheat.sh/rustscan](https://cheat.sh/rustscan) — extra invocations
+[MOC - Reconnaissance](../0%20-%20MOCs/MOC%20-%20Reconnaissance.md)
+
+# References
+
+https://github.com/bee-san/RustScan

@@ -1,14 +1,6 @@
-# sp-linked-server
+# Enumeration
 
-**Author:** Julien Bongars\
-**Date:** 2026-08-19 18:19:27
-**Path:**
-
----
-
-MSSQL linked-server enum: list, config, login mappings, then four-part naming / OPENQUERY.
-
-## Check if linked servers exist
+## 1. Check if linked servers exist:
 
 ```sql
 -- List all linked servers
@@ -35,7 +27,7 @@ Source: `SELECT * FROM sys.servers;`
 | provider                | SQLNCLI    | Connection provider             |
 | data_source             | DC01       | Target server                   |
 
-## Check linked server configuration
+## 2. Check linked server configuration:
 
 ```sql
 -- Detailed config for each linked server
@@ -55,7 +47,7 @@ SELECT
 FROM sys.servers;
 ```
 
-## Check authentication/login mappings
+## 3. Check authentication/login mappings:
 
 ```sql
 -- How does the linked server authenticate?
@@ -71,8 +63,3 @@ SELECT * FROM [DC01].master.sys.database_principals;
 -- Four-part naming (doesn't need data access enabled)
 SELECT * FROM [DC01].master.dbo.sysobjects WHERE type = 'P';
 ```
-
-## Resources
-
-- [sp_linkedservers](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-linkedservers-transact-sql) — list linked servers
-- [HackTricks — MSSQL linked servers](https://book.hacktricks.wiki/en/network-services-pentesting/pentesting-mssql-microsoft-sql-server/linked-servers.html) — abuse after enum

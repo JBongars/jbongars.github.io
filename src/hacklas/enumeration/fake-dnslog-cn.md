@@ -6,17 +6,6 @@
 
 ---
 
-Out-of-band DNS callback when the target can resolve names but you cannot see HTTP.
+path: http://dnslog.cn/
 
-Open [dnslog.cn](http://dnslog.cn/), copy a subdomain, trigger a lookup, refresh the record table.
-
-```bash
-curl "http://<unique>.dnslog.cn/"
-ping -c 1 "<unique>.dnslog.cn"
-nslookup "<unique>.dnslog.cn"
-```
-
-## Resources
-
-- [dnslog.cn](http://dnslog.cn/) — public DNS callback
-- [Interactsh](https://github.com/projectdiscovery/interactsh) — self-hosted alternative (HTTP/DNS/SMTP)
+you can get fake subdomains

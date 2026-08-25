@@ -6,35 +6,33 @@
 
 ---
 
-Host, user, service, and credential enumeration from a Windows shell.
+## System Information
 
-## System information
-
-### Get most fields from computer
+### Get most fields from Computer
 
 ```powershell
 Get-ComputerInfo
 ```
 
-### Get build number
+### Get Build Number
 
 ```powershell
 Get-WmiObject -Class win32_OperatingSystem | select Version,BuildNumber
 ```
 
-### System info (CMD)
+### System Info (CMD)
 
 ```cmd
 systeminfo
 ```
 
-### OS version
+### OS Version
 
 ```powershell
 [System.Environment]::OSVersion.Version
 ```
 
-### NT-version
+### NT-Version
 
 ```powershell
 # Method 1
@@ -61,112 +59,112 @@ hostname
 
 ## Networking
 
-### Full network configuration
+### Full Network Configuration
 
 ```cmd
 ipconfig /all
 ```
 
-### Network adapters
+### Network Adapters
 
 ```powershell
 Get-NetIPAddress
 Get-NetAdapter
 ```
 
-### Routing table
+### Routing Table
 
 ```cmd
 route print
 ```
 
-### ARP cache
+### ARP Cache
 
 ```cmd
 arp -a
 ```
 
-### Active connections
+### Active Connections
 
 ```cmd
 netstat -ano
 ```
 
-### Firewall status
+### Firewall Status
 
 ```powershell
 netsh advfirewall show allprofiles
 ```
 
-### DNS cache
+### DNS Cache
 
 ```cmd
 ipconfig /displaydns
 ```
 
-## Users and groups
+## Users and Groups
 
-### Current user
+### Current User
 
 ```cmd
 whoami
 echo %username%
 ```
 
-### User privileges
+### User Privileges
 
 ```cmd
 whoami /priv
 whoami /groups
 ```
 
-### All local users
+### All Local Users
 
 ```cmd
 net user
 ```
 
-### Specific user info
+### Specific User Info
 
 ```cmd
 net user username
 ```
 
-### Local groups
+### Local Groups
 
 ```cmd
 net localgroup
 ```
 
-### Administrators group
+### Administrators Group
 
 ```cmd
 net localgroup administrators
 ```
 
-### Domain users (if domain joined)
+### Domain Users (if domain joined)
 
 ```cmd
 net user /domain
 ```
 
-### Logged on users
+### Logged On Users
 
 ```cmd
 query user
 qwinsta
 ```
 
-## Processes and services
+## Processes and Services
 
-### Running processes
+### Running Processes
 
 ```cmd
 tasklist
 tasklist /svc
 ```
 
-### Process details
+### Process Details
 
 ```powershell
 Get-Process
@@ -180,14 +178,14 @@ net start
 sc query
 ```
 
-### Service details
+### Service Details
 
 ```powershell
 Get-Service
 Get-Service | where {$_.Status -eq "Running"}
 ```
 
-### Scheduled tasks
+### Scheduled Tasks
 
 ```cmd
 schtasks /query /fo LIST /v
@@ -197,9 +195,9 @@ schtasks /query /fo LIST /v
 Get-ScheduledTask
 ```
 
-## Installed software
+## Installed Software
 
-### Installed programs (registry)
+### Installed Programs (Registry)
 
 ```powershell
 Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* | select DisplayName, DisplayVersion, Publisher, InstallDate
@@ -212,22 +210,22 @@ Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | s
 wmic product get name,version
 ```
 
-## File system
+## File System
 
-### Search for files
+### Search for Files
 
 ```cmd
 dir /s /b C:\*password*.txt
 dir /s /b C:\*config*.xml
 ```
 
-### Recent files
+### Recent Files
 
 ```powershell
 Get-ChildItem C:\Users\*\AppData\Roaming\Microsoft\Windows\Recent\
 ```
 
-### Interesting directories
+### Interesting Directories
 
 ```cmd
 dir C:\
@@ -236,67 +234,67 @@ dir C:\Program Files
 dir C:\inetpub
 ```
 
-### Find writable directories
+### Find Writable Directories
 
 ```powershell
 Get-ChildItem C:\ -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.PSIsContainer -and (Get-Acl $_.FullName).Access | Where-Object {$_.FileSystemRights -match "Write" -and $_.IdentityReference -match "Users"}}
 ```
 
-## Security and patches
+## Security and Patches
 
-### Windows updates
+### Windows Updates
 
 ```powershell
 Get-HotFix
 ```
 
-### Specific update
+### Specific Update
 
 ```cmd
 wmic qfe get Caption,Description,HotFixID,InstalledOn
 ```
 
-### Antivirus status
+### Antivirus Status
 
 ```powershell
 Get-MpComputerStatus
 ```
 
-### Windows Defender exclusions
+### Windows Defender Exclusions
 
 ```powershell
 Get-MpPreference | select ExclusionPath, ExclusionExtension
 ```
 
-### UAC status
+### UAC Status
 
 ```cmd
 reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
 ```
 
-## Credentials and sensitive data
+## Credentials and Sensitive Data
 
-### Saved credentials
+### Saved Credentials
 
 ```cmd
 cmdkey /list
 ```
 
-### WiFi passwords
+### WiFi Passwords
 
 ```cmd
 netsh wlan show profiles
 netsh wlan show profile name="PROFILE_NAME" key=clear
 ```
 
-### Search for credentials in files
+### Search for Credentials in Files
 
 ```cmd
 findstr /si password *.txt *.xml *.config *.ini
 findstr /si username *.txt *.xml *.config *.ini
 ```
 
-### PowerShell history
+### PowerShell History
 
 ```powershell
 Get-Content (Get-PSReadlineOption).HistorySavePath
@@ -308,30 +306,30 @@ Get-Content (Get-PSReadlineOption).HistorySavePath
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 ```
 
-## Shares and drives
+## Shares and Drives
 
-### Network shares
+### Network Shares
 
 ```cmd
 net share
 ```
 
-### Mounted drives
+### Mounted Drives
 
 ```cmd
 wmic logicaldisk get caption,description,providername
 ```
 
-### Accessible shares
+### Accessible Shares
 
 ```cmd
 net view \\localhost
 net view \\computername
 ```
 
-## Additional commands
+## Additional Commands
 
-### Environment variables
+### Environment Variables
 
 ```cmd
 set
@@ -341,7 +339,7 @@ set
 Get-ChildItem Env:
 ```
 
-### Startup programs
+### Startup Programs
 
 ```cmd
 wmic startup get caption,command
@@ -353,36 +351,36 @@ wmic startup get caption,command
 driverquery
 ```
 
-### Event logs (recent)
+### Event Logs (Recent)
 
 ```powershell
 Get-EventLog -LogName System -Newest 100
 Get-EventLog -LogName Security -Newest 100
 ```
 
-## PowerShell-specific
+## PowerShell-Specific
 
-### Execution policy
+### Execution Policy
 
 ```powershell
 Get-ExecutionPolicy
 ```
 
-### PowerShell version
+### PowerShell Version
 
 ```powershell
 $PSVersionTable
 ```
 
-### Module listing
+### Module Listing
 
 ```powershell
 Get-Module -ListAvailable
 ```
 
-## Quick win checks
+## Quick Win Checks
 
-### Check for unquoted service paths
+### Check for Unquoted Service Paths
 
 ```cmd
 wmic service get name,pathname,displayname,startmode | findstr /i auto | findstr /i /v "C:\Windows\\" | findstr /i /v """
@@ -395,13 +393,8 @@ reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallEle
 reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 ```
 
-### Weak service permissions
+### Weak Service Permissions
 
 ```powershell
 Get-Acl HKLM:\System\CurrentControlSet\Services\* | Format-List
 ```
-
-## Resources
-
-- [Microsoft PowerShell](https://learn.microsoft.com/en-us/powershell/) — cmdlet reference
-- [HackTricks — Windows local privilege escalation](https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation) — what to do with enum output

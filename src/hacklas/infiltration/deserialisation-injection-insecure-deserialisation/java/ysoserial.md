@@ -6,9 +6,19 @@
 
 ---
 
-Java gadget-chain generator: pick a payload, wrap a command, serialize to stdout for an unsafe deserializer.
+## Description
 
-## Usage
+ysoserial is a collection of utilities and property-oriented programming "gadget chains" discovered in common java libraries that can, under the right conditions, exploit Java applications performing unsafe deserialization of objects. The main driver program takes a user-specified command and wraps it in the user-specified gadget chain, then serializes these objects to stdout. When an application with the required gadgets on the classpath unsafely deserializes this data, the chain will automatically be invoked and cause the command to be executed on the application host.
+
+Website (works with chrome only): https://whysoserial.cc/
+
+Information: https://frohoff.github.io/appseccali-marshalling-pickles/
+
+Github: https://github.com/frohoff/ysoserial
+
+## Package
+
+### Usage
 
 ```bash
 java -jar ysoserial.jar
@@ -56,14 +66,8 @@ INFO: Reflections took 54 ms to scan 1 urls, producing 18 keys and 153 values
      Wicket1             @jacob-baines                          wicket-util:6.23.0, slf4j-api:1.6.4
 ```
 
-## Installation
+### Installation
 
 ```bash
 git clone https://github.com/frohoff/ysoserial.git /opt/external/ysoserial
 ```
-
-## Resources
-
-- [frohoff/ysoserial](https://github.com/frohoff/ysoserial) — gadget generator
-- [whysoserial.cc](https://whysoserial.cc/) — payload picker (Chrome)
-- [Marshalling Pickles](https://frohoff.github.io/appseccali-marshalling-pickles/) — talk on the technique

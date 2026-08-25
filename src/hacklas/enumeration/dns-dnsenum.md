@@ -2,11 +2,13 @@
 
 **Author:** Julien Bongars\
 **Date:** 2026-03-22 16:25:21
-**Path:**
+**Path:** `/home/julien/.hacklas/notes/enumeration/dns-dnsenum.md`
 
 ---
 
-DNS records, AXFR, and subdomain brute-force (`dig`, gobuster, dnsenum).
+## Description
+
+Not super common but still worth scanning/exploring.
 
 ## Manual dig commands
 
@@ -38,7 +40,14 @@ gobuster dns -d tombwatcher.htb -r DC01.tombwatcher.htb -w /usr/share/seclists/D
 dnsenum --dnsserver DC01.tombwatcher.htb --enum tombwatcher.htb
 ```
 
-Perl DNS recon: records, AXFR, wordlist brute-force.
+A Perl-based command-line tool offering comprehensive DNS reconnaissance:
+
+- **DNS Record Enumeration** — Retrieves A, AAAA, NS, MX, TXT records
+- **Zone Transfer Attempts** — Automatically tries AXFR on discovered name servers
+- **Subdomain Brute-Forcing** — Tests wordlist entries against target
+- **Google Scraping** — Finds additional subdomains via search results
+- **Reverse Lookup** — Identifies domains sharing an IP address
+- **WHOIS Lookups** — Gathers domain ownership info
 
 ### Example Command
 
@@ -46,15 +55,15 @@ Perl DNS recon: records, AXFR, wordlist brute-force.
 dnsenum --dnsserver DC01.somednssserver.htb --enum inlanefreight.com -f /usr/share/seclists/Discovery/DNS/subdomains-top1million-20000.txt -r
 ```
 
-**`--enum`** — Shortcut enabling enumeration options
-
-**`-f <wordlist>`** — Path to subdomain wordlist
-
-**`-r`** — Enable recursive brute-forcing (enumerate subdomains of subdomains)
+| Flag            | Purpose                                                             |
+| --------------- | ------------------------------------------------------------------- |
+| `--enum`        | Shortcut enabling enumeration options                               |
+| `-f <wordlist>` | Path to subdomain wordlist                                          |
+| `-r`            | Enable recursive brute-forcing (enumerate subdomains of subdomains) |
 
 ### Sample Output
 
-```txt
+```
 inlanefreight.com.         300  IN  A  134.209.24.248
 www.inlanefreight.com.     300  IN  A  134.209.24.248
 support.inlanefreight.com. 300  IN  A  134.209.24.248
@@ -62,7 +71,7 @@ support.inlanefreight.com. 300  IN  A  134.209.24.248
 
 ### Help text
 
-```txt
+```bash
 dnsenum VERSION:1.3.1
 Usage: dnsenum [Options] <domain>
 [Options]:
@@ -104,21 +113,15 @@ OUTPUT OPTIONS:
   -o --output <file>	Output in XML format. Can be imported in MagicTree (www.gremwell.com)
 ```
 
-## Alternative Tools
+# Appendix
 
-**dnsenum** — DNS enumeration with dictionary/brute-force support
+## Aleternative Tools
 
-**fierce** — Recursive discovery with wildcard detection
-
-**dnsrecon** — Multiple techniques and custom output formats
-
-**amass** — Integrates with many data sources
-
-**assetfinder** — Lightweight subdomain finder
-
-**puredns** — Brute-forcing with filtering
-
-## Resources
-
-- [dnsenum (Kali)](https://www.kali.org/tools/dnsenum/) — package and flag list
-- [dig(1)](https://bind9.readthedocs.io/en/latest/manpages.html#dig-dns-lookup-utility) — record queries and AXFR
+| Tool            | Description                                                       |
+| --------------- | ----------------------------------------------------------------- |
+| **dnsenum**     | Comprehensive DNS enumeration with dictionary/brute-force support |
+| **fierce**      | User-friendly recursive discovery with wildcard detection         |
+| **dnsrecon**    | Versatile tool with multiple techniques and custom output formats |
+| **amass**       | Actively maintained, integrates with many data sources            |
+| **assetfinder** | Lightweight and fast subdomain finder                             |
+| **puredns**     | Powerful brute-forcing with effective filtering                   |

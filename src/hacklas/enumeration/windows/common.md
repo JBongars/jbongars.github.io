@@ -6,23 +6,16 @@
 
 ---
 
-Windows odds and ends.
+## List of Common commands
 
-## icacls
-
-Integrity / ACL listing:
+Integrity Control Access Control List (icacls)
 
 ```ps1
 icalcs C:\windows
 ```
 
-## Sysinternals live share
+## Address of common core utils in Windows
 
 ```txt
 \\live.sysinternals.com\tools
 ```
-
-## Resources
-
-- [icacls](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/icacls) — ACL dump
-- [Sysinternals Live](https://learn.microsoft.com/en-us/sysinternals/downloads/sysinternals-live) — `\\live.sysinternals.com\tools`

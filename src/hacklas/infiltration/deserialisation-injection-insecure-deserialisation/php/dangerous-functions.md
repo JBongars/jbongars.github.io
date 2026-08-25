@@ -6,7 +6,13 @@
 
 ---
 
-PHP functions that run commands, eval code, take callbacks, or touch the filesystem.
+# Dangerous Functions
+
+source: https://gist.githubusercontent.com/mccabe615/b0907514d34b2de088c4996933ea1720/raw/c67bf65a0fe107cea6f5c6a88b5f3910ff062800/phpdangerousfuncs.md
+
+source: https://stackoverflow.com/a/3697776
+
+source: https://book.hacktricks.wiki/en/network-services-pentesting/pentesting-web/php-tricks-esp/php-useful-functions-disable_functions-open_basedir-bypass/index.html
 
 ## Note
 
@@ -76,7 +82,7 @@ pcntl_exec     - Executes a program
 
 ## PHP Code Execution
 
-Apart from eval there are other ways to execute PHP code: include/require can be used for remote code execution in the form of Local File Include and Remote File Include vulnerabilities.
+#### Apart from eval there are other ways to execute PHP code: include/require can be used for remote code execution in the form of Local File Include and Remote File Include vulnerabilities.
 
 ```eval()
 assert()  - identical to eval()
@@ -92,7 +98,7 @@ $func = new ReflectionFunction($_GET['func_name']); $func->invoke(); or $func->i
 
 ## List of functions which accept callbacks
 
-These functions accept a string parameter which could be used to call a function of the attacker's choice. Depending on the function the attacker may or may not have the ability to pass a parameter. In that case an Information Disclosure function like phpinfo() could be used.
+#### These functions accept a string parameter which could be used to call a function of the attacker's choice. Depending on the function the attacker may or may not have the ability to pass a parameter. In that case an Information Disclosure function like phpinfo() could be used.
 
 ```
 Function                     => Position of callback arguments
@@ -132,7 +138,7 @@ Function                     => Position of callback arguments
 
 ## Information Disclosure
 
-Most of these function calls are not sinks. But rather it maybe a vulnerability if any of the data returned is viewable to an attacker. If an attacker can see phpinfo() it is definitely a vulnerability.
+#### Most of these function calls are not sinks. But rather it maybe a vulnerability if any of the data returned is viewable to an attacker. If an attacker can see phpinfo() it is definitely a vulnerability.
 
 ```
 phpinfo
@@ -178,7 +184,7 @@ posix_setuid
 
 ## Filesystem Functions
 
-According to RATS all filesystem functions in php are nasty. Some of these don't seem very useful to the attacker. Others are more useful than you might think. For instance if allow_url_fopen=On then a url can be used as a file path, so a call to copy($_GET['s'], $_GET['d']); can be used to upload a PHP script anywhere on the system. Also if a site is vulnerable to a request send via GET everyone of those file system functions can be abused to channel and attack to another host through your server.
+#### According to RATS all filesystem functions in php are nasty. Some of these don't seem very useful to the attacker. Others are more useful than you might think. For instance if allow_url_fopen=On then a url can be used as a file path, so a call to copy($_GET['s'], $_GET['d']); can be used to upload a PHP script anywhere on the system. Also if a site is vulnerable to a request send via GET everyone of those file system functions can be abused to channel and attack to another host through your server.
 
 ```
 // open filesystem handler
@@ -273,7 +279,7 @@ get_meta_tags
 
 ## PHP Dangerous Functions - Abuse Examples
 
-### Command Execution
+#### Command Execution
 
 ```php
 // exec - attacker runs OS commands
@@ -303,7 +309,7 @@ echo stream_get_contents($pipes[1]);
 pcntl_exec("/bin/bash", ["-c", $_GET['cmd']]);
 ```
 
-### PHP Code Execution
+#### PHP Code Execution
 
 ```php
 // eval - executes string as PHP
@@ -506,9 +512,3 @@ getimagesize($_GET['url']); // ?url=http://internal-service/
 // exif_read_data - code exec via crafted EXIF
 exif_read_data('uploaded_image.jpg'); // malicious EXIF metadata
 ```
-
-## Resources
-
-- [phpdangerousfuncs gist](https://gist.githubusercontent.com/mccabe615/b0907514d34b2de088c4996933ea1720/raw/c67bf65a0fe107cea6f5c6a88b5f3910ff062800/phpdangerousfuncs.md) — original function list
-- [HackTricks — PHP disable_functions](https://book.hacktricks.wiki/en/network-services-pentesting/pentesting-web/php-tricks-esp/php-useful-functions-disable_functions-open_basedir-bypass/index.html) — bypass notes
-- [Stack Overflow — dangerous PHP functions](https://stackoverflow.com/a/3697776) — callback / filesystem discussion

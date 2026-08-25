@@ -6,8 +6,6 @@
 
 ---
 
-Capture and dissect packets from the CLI (Wireshark engine).
-
 ## Basic Capture
 
 **Capture on interface:**
@@ -32,7 +30,7 @@ sudo tshark -i tun0 -f "udp port 53"
 **Capture between two hosts:**
 
 ```bash
-sudo tshark -i tun0 -f "host ATTACKER_IP and host 10.129.1.100"
+sudo tshark -i tun0 -f "host 10.10.14.5 and host 10.129.1.100"
 ```
 
 ## Reading and Analyzing Captures
@@ -95,27 +93,21 @@ tshark -r capture.pcap -T json > capture.json
 
 ## Useful Options
 
-**`-i`** — Interface to capture on
+| Option | Description                        |
+| ------ | ---------------------------------- |
+| `-i`   | Interface to capture on            |
+| `-r`   | Read from pcap file                |
+| `-w`   | Write to pcap file                 |
+| `-f`   | Capture filter (BPF syntax)        |
+| `-Y`   | Display filter (Wireshark syntax)  |
+| `-T`   | Output format (fields, json, text) |
+| `-e`   | Field to display with `-T fields`  |
+| `-q`   | Quiet mode (for statistics)        |
+| `-z`   | Statistics option                  |
+| `-d`   | Decode as specific protocol        |
+| `-c`   | Capture only N packets             |
 
-**`-r`** — Read from pcap file
-
-**`-w`** — Write to pcap file
-
-**`-f`** — Capture filter (BPF syntax)
-
-**`-Y`** — Display filter (Wireshark syntax)
-
-**`-T`** — Output format (fields, json, text)
-
-**`-e`** — Field to display with `-T fields`
-
-**`-q`** — Quiet mode (for statistics)
-
-**`-z`** — Statistics option
-
-**`-d`** — Decode as specific protocol
-
-**`-c`** — Capture only N packets
+---
 
 ## Quick Tips
 
@@ -125,8 +117,3 @@ tshark -r capture.pcap -T json > capture.json
 - Use `-V` for verbose packet details
 - Use `-x` to show hex dump
 - Chain with grep: `tshark -r file.pcap -Y "http" | grep "User-Agent"`
-
-## Resources
-
-- [tshark(1)](https://www.wireshark.org/docs/man-pages/tshark.html) — flags and filter syntax
-- [cheat.sh/tshark](https://cheat.sh/tshark) — extra one-liners

@@ -6,9 +6,7 @@
 
 ---
 
-Root password in hand, no TTY: try `su`/`ssh` variants, then spawn a PTY.
-
-## Alternative Escalation Methods
+### Alternative Escalation Methods
 
 **Try Different su Variations**
 
@@ -32,7 +30,7 @@ ssh root@127.0.0.1
 sudo -l
 ```
 
-## Environment Setup After TTY Upgrade
+### Environment Setup After TTY Upgrade
 
 ```bash
 # Set proper environment
@@ -45,7 +43,7 @@ export HOME=/root
 clear
 ```
 
-## Language-Specific PTY Spawning
+### Language-Specific PTY Spawning
 
 ```bash
 # Python
@@ -80,7 +78,7 @@ less /etc/passwd
 # Then type: !/bin/bash
 ```
 
-## Troubleshooting
+### Troubleshooting
 
 **If Python isn't available:**
 
@@ -110,7 +108,7 @@ echo $TERM
 su -s /bin/bash
 ```
 
-## Quick Test Commands
+### Quick Test Commands
 
 **Test if TTY upgrade worked:**
 
@@ -127,8 +125,3 @@ python3 -c 'import pty; pty.spawn("/bin/bash")' 2>/dev/null || python -c 'import
 ```
 
 see: notes/convenience/reverse-shell/convert-to-interactive-shell.md
-
-## Resources
-
-- [util-linux su(1)](https://man7.org/linux/man-pages/man1/su.1.html) — `su -` / `-s` behaviour
-- [convert-to-interactive-shell](../../convenience/reverse-shell/convert-to-interactive-shell.md) — Ctrl-Z / `stty` TTY upgrade

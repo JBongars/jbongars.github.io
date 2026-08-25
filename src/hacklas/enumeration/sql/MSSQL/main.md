@@ -6,9 +6,7 @@
 
 ---
 
-Microsoft SQL Server (default TCP 1433). Enum with nmap NSE / mssqlclient.py, then T-SQL.
-
-## Enumeration
+# Enumeration
 
 ```bash
 # Locate sql client
@@ -60,36 +58,70 @@ msf> use exploit/windows/mssql/mssql_payload #Uploads and execute a payload
 msf> use windows/manage/mssql_local_auth_bypass
 ```
 
-## Default system databases
+# Concepts
 
-**`master`** — Tracks all system information for an SQL server instance
+- Micrososft's version of SQL
 
-**`model`** — Template database that acts as a structure for every new database created. Any setting changed in the model database will be reflected in any new database created after changes to the model database
+- Closed source and made to run on Windows
 
-**`msdb`** — The SQL Server Agent uses this database to schedule jobs & alerts
+- Popular with applications that are tied to Microsoft's .NET framework.
 
-**`tempdb`** — Stores temporary objects
+## MSSQL Clients
 
-**`resource`** — Read-only database containing system objects included with SQL server
+- [SQL Server Management Studio](https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver15) (`SSMS`) comes as a feature that can be installed with the MSSQL install package or can be downloaded & installed separately
 
-## Default configuration
+- Can be installed anywhere since its a client-side application, doesn't have to be on the server.
 
-When an admin initially installs and configures MSSQL to be network accessible, the SQL service will likely run as `NTSERVICE\MSSQLSERVER`.
+- This means that some people can have the app with the credentials saved, and we can use that to connect to the database
 
-Authentication being set to Windows Authentication means that the underlying Windows OS will process the login request and use either the local SAM database or the domain controller (hosting Active Directory) before allowing connectivity to the database management system.
+- MSSQL Clients;
 
-## Dangerous settings
+  - mssql-cli
+
+  - SQL Server Powershell
+
+  - HeidiSQL
+
+  - SQLPro
+
+  - Impacket's mssqlclient.py
+
+## MSSQL Default Databases
+
+| Default System Database | Description                                                                                                                                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `master`                | Tracks all system information for an SQL server instance                                                                                                                                               |
+| `model`                 | Template database that acts as a structure for every new database created. Any setting changed in the model database will be reflected in any new database created after changes to the model database |
+| `msdb`                  | The SQL Server Agent uses this database to schedule jobs & alerts                                                                                                                                      |
+| `tempdb`                | Stores temporary objects                                                                                                                                                                               |
+| `resource`              | Read-only database containing system objects included with SQL server                                                                                                                                  |
+
+## Default Configuration
+
+- When an admin initially installs and configures MSSQL to be network accessible, the SQL service will likely run as `NTSERVICE\MSSQLSERVER`
+
+- Authentication being set to Windows Authentication means that the underlying Windows OS will process the login request and use either the local SAM database or the domain controller (hosting Active Directory) before allowing connectivity to the database management system
+
+## Dangerous Settings
+
+Look out for these general errors people make when configuring databases
 
 - MSSQL clients not using encryption to connect to the MSSQL server
+
 - Check for linked server and option for whether server links to itself. More information in sp-linked-server.md page.
+
 - The use of self-signed certificates when encryption is being used. It is possible to spoof self-signed certificates
-- The use of [named pipes](https://docs.microsoft.com/en-us/sql/tools/configuration-manager/named-pipes-properties?view=sql-server-ver15)
-- Weak & default `sa` credentials. Admins may forget to disable this account
+
+- The use of [named pipes](https://docs.microsoft.com/en-us/sql/tools/configuration-manager/named-pipes-properties?view=sql-server-ver15)
+
+- Weak & default `sa` credentials. Admins may forget to disable this account
 
 ## Footprinting
 
 - Default port `TCP 1433`
+
 - nmap scanning:
+
   - `sudo nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes --script-args mssql.instance-port=1433,mssql.username=sa,mssql.password=,mssql.instance-name=MSSQLSERVER -sV -p 1433 10.129.201.248`
 
 ## Interacting
@@ -197,7 +229,6 @@ EXEC xp_regread 'HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Windows NT\CurrentVers
 EXEC xp_regread 'HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall';
 ```
 
-## Resources
+# References
 
-- [SQL Server](https://learn.microsoft.com/en-us/sql/sql-server/) — product docs
-- [HackTricks — Pentesting MSSQL](https://book.hacktricks.xyz/network-services-pentesting/pentesting-mssql-microsoft-sql-server) — NSE, links, xp_cmdshell
+[1433 - Pentesting MSSQL - Microsoft SQL Server | HackTricks](https://book.hacktricks.xyz/network-services-pentesting/pentesting-mssql-microsoft-sql-server)

@@ -1,20 +1,18 @@
 # convert-to-interactive-shell
 
-**Author:** Julien Bongars\
-**Date:** 2025-09-20 19:46:51
-**Path:**
+Author: Julien Bongars
+Date: 2025-09-20 19:46:51
+Path: /opt/development/cybersec/hacklas/notes/convenience/reverse-shell/convert-to-interactive-shell.md
 
 ---
 
-Upgrade a dumb reverse shell to a PTY with job control and a sized terminal.
-
-## Check current window rows and cols
+### Check current window rows ond cols
 
 ```bash
 stty size
 ```
 
-## Make fully interactive
+### Make fully interactive
 
 **Method 1**
 
@@ -56,9 +54,5 @@ www-data@dog:/var/www/html/modules/rvz722c62$ cd /tmp
 cd /tmp
 ```
 
-The directory you are in no longer exists. `cd /tmp`.
-
-## Resources
-
-- [PayloadsAllTheThings — Reverse Shell](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md) — spawn/upgrade snippets
-- [HackTricks — full TTY](https://book.hacktricks.wiki/en/generic-hacking/revshells/full-ttys.html) — PTY upgrade variants
+problem: the directory you are in no longer exists
+solution: cd /tmp

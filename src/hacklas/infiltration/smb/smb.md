@@ -6,11 +6,9 @@
 
 ---
 
-List, mount, and transfer over SMB/CIFS (445/TCP, 139/TCP).
+## Linux Client - smbclient
 
-## Linux client — smbclient
-
-### List shares (enumeration)
+### List Shares (Enumeration)
 
 ```bash
 # List shares on target
@@ -25,7 +23,7 @@ smbclient -L //SERVER_IP -U username
 smbclient -L //SERVER_IP -U DOMAIN/username
 ```
 
-### Connect to share (interactive)
+### Connect to Share (Interactive)
 
 ```bash
 # Connect to specific share
@@ -40,7 +38,7 @@ smbclient '//SERVER_IP/ADMIN$' -U administrator # Windows directory
 smbclient '//SERVER_IP/IPC$' -N                 # Null session enum
 ```
 
-### Interactive commands (once connected)
+### Interactive Commands (once connected)
 
 ```bash
 smb: \> ls                    # List files
@@ -55,7 +53,7 @@ smb: \> help                  # Show commands
 smb: \> exit                  # Quit
 ```
 
-### Non-interactive (download)
+### Non-Interactive (Download)
 
 ```bash
 # Download specific file
@@ -68,7 +66,9 @@ smbclient '//SERVER_IP/Share' -U user -c 'prompt OFF;recurse ON;mget *'
 smbclient '//SERVER_IP/Share' -U user%password -c 'get file.txt'
 ```
 
-## Mount SMB share to Linux
+## Mount SMB Share to Linux
+
+### Mount to Directory
 
 ```bash
 # Basic mount
@@ -90,9 +90,9 @@ sudo mount -t cifs -o username=user,password=pass,uid=$(id -u),gid=$(id -g) //SE
 sudo umount /mnt/smb
 ```
 
-## Windows PowerShell — SMB shares
+## Windows PowerShell - SMB Shares
 
-### List available shares (local)
+### List Available Shares (Local)
 
 ```powershell
 # List all SMB shares on local machine
@@ -106,7 +106,7 @@ Get-SmbShare
 # IPC$   *                                   Remote IPC
 ```
 
-### Create new share
+### Create New Share
 
 ```powershell
 # Share a directory
@@ -119,14 +119,14 @@ New-SmbShare -Name "CompanyData" -Path "C:\Data" -ReadAccess "DOMAIN\Users" -Ful
 New-SmbShare -Name "Backup" -Path "C:\Backups" -Description "Backup files" -FullAccess "Administrators"
 ```
 
-### Remove share
+### Remove Share
 
 ```powershell
 # Remove SMB share
 Remove-SmbShare -Name "ShareName" -Force
 ```
 
-### Access remote shares
+### Access Remote Shares
 
 ```powershell
 # Map network drive (persistent)
@@ -146,7 +146,7 @@ Get-ChildItem \\SERVER\Share
 Remove-PSDrive -Name "Z"
 ```
 
-### Net use (CMD/PowerShell — legacy but useful)
+### Net Use (CMD/PowerShell - Legacy but useful)
 
 ```powershell
 # Map drive
@@ -165,7 +165,7 @@ net use Z: /delete
 net use * /delete
 ```
 
-## File transfer
+## File Transfer Methods
 
 ### Linux to Windows (via SMB)
 
@@ -206,7 +206,7 @@ copy C:\file.txt Z:\
 copy C:\file.txt \\LINUX_IP\share\
 ```
 
-### PowerShell file transfer via SMB
+### PowerShell File Transfer via SMB
 
 ```powershell
 # Copy file to remote share
@@ -225,9 +225,9 @@ Copy-Item "C:\file.txt" "Temp:\file.txt"
 Remove-PSDrive -Name "Temp"
 ```
 
-## Enumeration
+## Enumeration Commands
 
-### Linux — enumerate SMB
+### Linux - Enumerate SMB
 
 ```bash
 # Nmap SMB scripts
@@ -252,7 +252,7 @@ smbmap -H TARGET_IP -u user -p pass
 smbmap -H TARGET_IP -u user -p pass -r  # Recursive listing
 ```
 
-### PowerShell — enumerate local/remote
+### PowerShell - Enumerate Local/Remote
 
 ```powershell
 # List local shares
@@ -274,17 +274,17 @@ Test-NetConnection -ComputerName SERVER -Port 445
 Get-SmbShare -CimSession SERVER
 ```
 
-### Computer Management (comptmgmt.msc)
+#### Computer Management (comptmgmt.msc)
 
 - Computer Management -> Shared Folder -> Shares/Sessions
 
-### Event Viewer (eventvwr.msc)
+#### Event Viewer (eventvwr.msc)
 
 - Event Viewer ->
 
-## Common pentesting scenarios
+## Common Pentesting Scenarios
 
-### Null session enumeration
+### Null Session Enumeration
 
 ```bash
 # Try null authentication
@@ -293,7 +293,7 @@ enum4linux -a TARGET_IP
 smbmap -H TARGET_IP -u '' -p ''
 ```
 
-### Password spraying
+### Password Spraying
 
 ```bash
 # CrackMapExec
@@ -303,13 +303,13 @@ crackmapexec smb TARGET_IP -u users.txt -p 'Password123!' --continue-on-success
 crackmapexec smb TARGET_IP -u users.txt -p passwords.txt
 ```
 
-### Check for EternalBlue
+### Check for Eternal Blue
 
 ```bash
 nmap -p 445 --script smb-vuln-ms17-010 TARGET_IP
 ```
 
-### Access admin shares (C$, ADMIN$)
+### Access Admin Shares (C$, ADMIN$)
 
 ```bash
 # Requires local admin creds
@@ -336,5 +336,6 @@ dir Z:\Users
 
 ## Resources
 
-- [Impacket](https://github.com/SecureAuthCorp/impacket) — `impacket-smbserver` and related tools
-- [smbclient(1)](https://www.samba.org/samba/docs/current/man-html/smbclient.1.html) — Samba client flags
+- Impacket tools: https://github.com/SecureAuthCorp/impacket
+- SMB enumeration: enum4linux, smbmap, crackmapexec
+- Windows SMB cmdlets: `Get-Command *Smb*`

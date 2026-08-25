@@ -6,69 +6,56 @@
 
 ---
 
-PowerShell aliases for Unix-muscle-memory: `ls`, `?`, `%`, then the same pipeline in cmdlets.
-
 ## Aliases
 
-**Scripting**
+### Categories
 
-`?` → Where-Object
+#### Scripting
 
-`%` → ForEach-Object
+? → Where-Object
+% → ForEach-Object
 
-**Navigation & Files**
+#### Navigation & Files
 
-`cd` → Set-Location
+cd → Set-Location
+ls → Get-ChildItem
+dir → Get-ChildItem
+pwd → Get-Location
+cat → Get-Content
+cp → Copy-Item
+mv → Move-Item
+rm → Remove-Item
 
-`ls` → Get-ChildItem
+#### Objects & Filtering
 
-`dir` → Get-ChildItem
+? → Where-Object
+% → ForEach-Object
+select → Select-Object
+sort → Sort-Object
 
-`pwd` → Get-Location
+#### Output
 
-`cat` → Get-Content
+echo → Write-Output
+write → Write-Output
 
-`cp` → Copy-Item
+#### Process Management
 
-`mv` → Move-Item
+ps → Get-Process
+kill → Stop-Process
 
-`rm` → Remove-Item
+#### Services
 
-**Objects & Filtering**
+gsv → Get-Service
 
-`?` → Where-Object
+#### Searching
 
-`%` → ForEach-Object
+sls → Select-String (like grep!)
 
-`select` → Select-Object
+#### Help
 
-`sort` → Sort-Object
+man → Get-Help
 
-**Output**
-
-`echo` → Write-Output
-
-`write` → Write-Output
-
-**Process Management**
-
-`ps` → Get-Process
-
-`kill` → Stop-Process
-
-**Services**
-
-`gsv` → Get-Service
-
-**Searching**
-
-`sls` → Select-String (like grep!)
-
-**Help**
-
-`man` → Get-Help
-
-## Examples
+### Examples
 
 ```ps1
 # Verbose version:
@@ -95,8 +82,3 @@ Get-LocalUser | ? Enabled | select Name, LastLogon
 gsv | ? {$_.Status -eq "Running"} | select Name, DisplayName
 ps | ? {$_.CPU -gt 100} | sort CPU -Desc
 ```
-
-## Resources
-
-- [about_Aliases](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_aliases) — alias list
-- [cheat.sh/powershell](https://cheat.sh/powershell) — extra one-liners

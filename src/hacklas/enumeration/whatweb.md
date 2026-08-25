@@ -6,7 +6,7 @@
 
 ---
 
-Fingerprint web technologies (CMS, server, cookies, headers) from HTTP responses. Replaces webappanalyzer.
+replaces webappanalyzer which may not be accurate.
 
 ## Installation
 
@@ -41,7 +41,7 @@ whatweb <website-or-ip>
 ## Sample report
 
 ```bash
-┌─[htb]─[ATTACKER_IP]─[user@htb]─[~/WhatWeb]
+┌─[eu-dedivip-1]─[10.10.14.146]─[julien23@htb-nbfbjjrw2v]─[~/WhatWeb]
 └──╼ [★]$ ./whatweb http://hacknet.htb/profile \
   --cookie "csrftoken=zmTOWVjBHk3Xr2tLdSHgsa0dutqfehDs; sessionid=wyaqqs6uwihjvx0u5nq9tros32jzyjfc" \
   --user-agent "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" \
@@ -143,7 +143,7 @@ HTTP Headers:
 	Content-Encoding: gzip
 ```
 
-## Help
+## Usage
 
 ```bash
 .$$$     $.                                   .$$$     $.
@@ -184,7 +184,7 @@ reliability.
   3. Aggressive			If a level 1 plugin is matched, additional
   				requests will be made.
   4. Heavy			Makes a lot of HTTP requests per target. URLs
-				from all plugins are attempted.
+  				from all plugins are attempted.
 
 HTTP OPTIONS:
   --user-agent, -U=AGENT	Identify as AGENT instead of WhatWeb/0.6.2.
@@ -294,8 +294,3 @@ EXAMPLE USAGE:
   ./whatweb -i plugin-development/alexa-top-100.txt \
   --url-suffix /crossdomain.xml -p crossdomain_xml
 ```
-
-## Resources
-
-- [WhatWeb](https://github.com/urbanadventurer/WhatWeb) — source, plugins, and install
-- [WhatWeb homepage](https://morningstarsecurity.com/research/whatweb) — project page

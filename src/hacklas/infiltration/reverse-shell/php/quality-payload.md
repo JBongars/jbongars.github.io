@@ -1,12 +1,10 @@
 # quality-payload
 
-**Author:** Julien Bongars\
-**Date:** 2025-09-21 09:48:44
-**Path:**
+Author: Julien Bongars
+Date: 2025-09-21 09:48:44
+Path: /opt/development/cybersec/hacklas/notes/infiltration/reverse-shell/php/quality-payload.md
 
 ---
-
-PHP webshell: `?cmd=` runs via `shell_exec`, history in the session, `?clear=1` wipes it.
 
 ## Payload
 
@@ -57,7 +55,4 @@ foreach ($_SESSION['history'] as $entry) {
 </html>
 ```
 
-## Resources
-
-- [PHP shell_exec](https://www.php.net/manual/en/function.shell-exec.php) — command execution
-- [PayloadsAllTheThings — PHP webshells](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Web%20Shells/PHP.md) — smaller droppers
+## I have terminal Access

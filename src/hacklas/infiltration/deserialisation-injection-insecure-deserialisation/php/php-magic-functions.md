@@ -4,9 +4,11 @@
 **Date:** 2026-02-12 14:11:10
 **Path:**
 
----
+Link: https://www.php.net/manual/en/language.oop5.magic.php
 
-Magic methods PHP calls on construct, serialize, property access, and string conversion — gadget-chain entry points. All magic methods must be declared as `public`. PHP reserves names starting with `__`.
+All magic methods must be declared as `public`. PHP reserves all function names starting with `__` as magical.
+
+---
 
 ## Lifecycle
 
@@ -21,6 +23,8 @@ Called when an object is destroyed (garbage collected, script ends, `unset()`).
 ### `__clone(): void`
 
 Called after an object is duplicated via the `clone` keyword. Useful for deep copying internal objects.
+
+---
 
 ## Serialization
 
@@ -40,6 +44,8 @@ Called by `serialize()` (PHP 7.4+). Returns an associative array representing th
 
 Called by `unserialize()` (PHP 7.4+). Receives the array from `__serialize()`. If both `__unserialize()` and `__wakeup()` exist, only `__unserialize()` is called.
 
+---
+
 ## Property Overloading
 
 ### `__get(string $name): mixed`
@@ -58,6 +64,8 @@ Called when `isset()` or `empty()` is used on an inaccessible or non-existent pr
 
 Called when `unset()` is used on an inaccessible or non-existent property.
 
+---
+
 ## Method Overloading
 
 ### `__call(string $name, array $arguments): mixed`
@@ -67,6 +75,8 @@ Called when an inaccessible or undefined **instance method** is invoked on an ob
 ### `__callStatic(string $name, array $arguments): mixed`
 
 Called when an inaccessible or undefined **static method** is invoked.
+
+---
 
 ## Type Casting / Conversion
 
@@ -78,6 +88,8 @@ Called when an object is treated as a string (e.g. `echo $obj`, string concatena
 
 Called when an object is used as a function (e.g. `$obj()`). Available since PHP 5.3. **Triggered in chains when `call_user_func()` is used on a controlled object.**
 
+---
+
 ## Export / Debug
 
 ### `__set_state(array $properties): object`
@@ -88,35 +100,33 @@ Static method called by `var_export()`. Receives an array of exported properties
 
 Called by `var_dump()` to control which properties are shown. If not defined, all properties are dumped.
 
+---
+
 ## Exploitation Relevance
 
 ### High value for gadget chains
 
-**`__wakeup()`** — `unserialize()` is called. First code that runs on deserialization.
-
-**`__destruct()`** — Object is destroyed. Always fires when script ends — guaranteed execution.
-
-**`__toString()`** — Object used as string. Fires on concatenation, `echo`, string comparisons.
-
-**`__call()`** — Undefined method invoked. Redirects method calls — chain hopping between classes.
-
-**`__get()`** — Undefined property read. Redirects property access to attacker-controlled logic.
-
-**`__invoke()`** — Object called as function. Fires via `call_user_func($controlledObj)`.
+| Method         | Trigger                   | Why it matters                                         |
+| -------------- | ------------------------- | ------------------------------------------------------ |
+| `__wakeup()`   | `unserialize()` is called | First code that runs on deserialization                |
+| `__destruct()` | Object is destroyed       | Always fires when script ends — guaranteed execution   |
+| `__toString()` | Object used as string     | Fires on concatenation, `echo`, string comparisons     |
+| `__call()`     | Undefined method invoked  | Redirects method calls — chain hopping between classes |
+| `__get()`      | Undefined property read   | Redirects property access to attacker-controlled logic |
+| `__invoke()`   | Object called as function | Fires via `call_user_func($controlledObj)`             |
 
 ### Lower value (but still worth noting)
 
-**`__set()`** — Write to inaccessible property. Can trigger side effects on assignment.
-
-**`__isset()`** — `isset()` on inaccessible property. Occasionally useful if chained with conditional logic.
-
-**`__unserialize()`** — `unserialize()` (PHP 7.4+). Modern replacement for `__wakeup()`, same exploitation value.
-
-**`__callStatic()`** — Undefined static method invoked. Less common in chains but same principle as `__call()`.
+| Method            | Trigger                            | Why it matters                                               |
+| ----------------- | ---------------------------------- | ------------------------------------------------------------ |
+| `__set()`         | Write to inaccessible property     | Can trigger side effects on assignment                       |
+| `__isset()`       | `isset()` on inaccessible property | Occasionally useful if chained with conditional logic        |
+| `__unserialize()` | `unserialize()` (PHP 7.4+)         | Modern replacement for `__wakeup()`, same exploitation value |
+| `__callStatic()`  | Undefined static method invoked    | Less common in chains but same principle as `__call()`       |
 
 ### Typical chain flow
 
-```txt
+```
 unserialize()
   → __wakeup() or __destruct()
     → calls method on $this->controlledProperty
@@ -125,8 +135,3 @@ unserialize()
           → __toString() (if object used as string)
             → dangerous sink: system(), exec(), file_put_contents(), eval(), etc.
 ```
-
-## Resources
-
-- [PHP Magic Methods](https://www.php.net/manual/en/language.oop5.magic.php) — official signatures and call rules
-- [PayloadsAllTheThings — PHP deserialization](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/PHP%20deserialization/README.md) — gadget-chain examples

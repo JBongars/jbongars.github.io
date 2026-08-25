@@ -1,12 +1,14 @@
 # LDAP Enumeration
 
 **Author:** Julien Bongars\
-**Date:** 2025-09-24 23:55:48
-**Path:**
+**Date:** 2025-09-24 23:55:48\
+**Path:** `notes/enumeration/ldap.md`
 
 ---
 
-LDAP on 389 / LDAPS on 636: anonymous bind, naming contexts, then dump users and groups.
+## Overview
+
+Lightweight Directory Access Protocol - typically runs on ports 389 (LDAP) and 636 (LDAPS)
 
 ## Port Discovery
 
@@ -76,11 +78,9 @@ enum4linux target-ip
 
 ## Common LDAP Implementations
 
-**Active Directory** — 389, 636, 3268, 3269
-
-**OpenLDAP** — 389, 636
-
-**Apache Directory Server** — 10389
+- **Active Directory** (389, 636, 3268, 3269)
+- **OpenLDAP** (389, 636)
+- **Apache Directory Server** (10389)
 
 ## Quick Checks
 
@@ -91,8 +91,3 @@ ldapsearch -x -H ldap://target-ip -s base > /dev/null && echo "Anonymous bind al
 # Check LDAPS
 openssl s_client -connect target-ip:636
 ```
-
-## Resources
-
-- [ldapsearch](https://www.openldap.org/software/man.cgi?query=ldapsearch) — bind, base DN, filters
-- [HackTricks — LDAP](https://book.hacktricks.wiki/en/network-services-pentesting/pentesting-ldap.html) — anonymous bind and dumps

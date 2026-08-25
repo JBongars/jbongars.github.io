@@ -6,97 +6,63 @@
 
 ---
 
-Win+R snap-ins and PowerShell equivalents for local Windows enum.
-
 ## Administrative Tools - GUI Utilities
 
-Path: `C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools`
+### Path: `C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools`
 
-**`comexp.msc`** / **`dcomcnfg`** — Component Services
-
-**`compmgmt.msc`** — Computer Management. PowerShell: `Get-ComputerInfo`, `Get-Disk`, `Get-Service`
-
-**`dfrgui`** — Defragment and Optimize Drives. PowerShell: `Optimize-Volume -DriveLetter C -Defrag`
-
-**`cleanmgr`** — Disk Cleanup. PowerShell: `Clear-RecycleBin`, custom scripts
-
-**`eventvwr.msc`** — Event Viewer. PowerShell: `Get-EventLog`, `Get-WinEvent`
-
-**`iscsicpl`** — iSCSI Initiator. PowerShell: `Get-IscsiTarget`, `Connect-IscsiTarget`
-
-**`mdsched`** — Memory Diagnostics Tool (reboot required)
-
-**`C:\Windows\SysWOW64\odbcad32.exe`** — ODBC Data Sources (32-bit)
-
-**`odbcad32`** — ODBC Data Sources (64-bit)
-
-**`perfmon.msc`** / **`perfmon`** — Performance Monitor. PowerShell: `Get-Counter`
-
-**`printmanagement.msc`** — Print Management. PowerShell: `Get-Printer`, `Get-PrintJob`
-
-**`recoverydrive`** — Recovery Drive
-
-**`regedit`** — Registry Editor. PowerShell: `Get-ItemProperty`, `Set-ItemProperty`
-
-**`resmon`** — Resource Monitor. PowerShell: `Get-Process`, `Get-NetTCPConnection`
-
-**`secpol.msc`** — Security Configuration Management. PowerShell: `Get-LocalSecurityPolicy` (limited)
-
-**`services.msc`** — Services. PowerShell: `Get-Service`, `Start-Service`, `Stop-Service`
-
-**`msconfig`** — System Configuration (boot config)
-
-**`msinfo32`** — System Information. PowerShell: `Get-ComputerInfo`, `systeminfo`
-
-**`taskschd.msc`** — Task Scheduler. PowerShell: `Get-ScheduledTask`, `New-ScheduledTask`
-
-**`wf.msc`** — Windows Defender Firewall. PowerShell: `Get-NetFirewallRule`, `New-NetFirewallRule`
+| Description                       | Command (Win+R)                    | PowerShell Alternative                         |
+| --------------------------------- | ---------------------------------- | ---------------------------------------------- |
+| Component Services                | `comexp.msc` or `dcomcnfg`         | N/A                                            |
+| Computer Management               | `compmgmt.msc`                     | `Get-ComputerInfo`, `Get-Disk`, `Get-Service`  |
+| Defragment and Optimize Drives    | `dfrgui`                           | `Optimize-Volume -DriveLetter C -Defrag`       |
+| Disk Cleanup                      | `cleanmgr`                         | `Clear-RecycleBin`, custom scripts             |
+| Event Viewer                      | `eventvwr.msc`                     | `Get-EventLog`, `Get-WinEvent`                 |
+| iSCSI Initiator                   | `iscsicpl`                         | `Get-IscsiTarget`, `Connect-IscsiTarget`       |
+| Memory Diagnostics Tool           | `mdsched`                          | N/A (reboot required)                          |
+| ODBC Data Sources (32-bit)        | `C:\Windows\SysWOW64\odbcad32.exe` | N/A                                            |
+| ODBC Data Sources (64-bit)        | `odbcad32`                         | N/A                                            |
+| Performance Monitor               | `perfmon.msc` or `perfmon`         | `Get-Counter`                                  |
+| Print Management                  | `printmanagement.msc`              | `Get-Printer`, `Get-PrintJob`                  |
+| Recovery Drive                    | `recoverydrive`                    | N/A                                            |
+| Registry Editor                   | `regedit`                          | `Get-ItemProperty`, `Set-ItemProperty`         |
+| Resource Monitor                  | `resmon`                           | `Get-Process`, `Get-NetTCPConnection`          |
+| Security Configuration Management | `secpol.msc`                       | `Get-LocalSecurityPolicy` (limited)            |
+| Services                          | `services.msc`                     | `Get-Service`, `Start-Service`, `Stop-Service` |
+| System Configuration              | `msconfig`                         | N/A (boot config)                              |
+| System Information                | `msinfo32`                         | `Get-ComputerInfo`, `systeminfo`               |
+| Task Scheduler                    | `taskschd.msc`                     | `Get-ScheduledTask`, `New-ScheduledTask`       |
+| Windows Defender Firewall         | `wf.msc`                           | `Get-NetFirewallRule`, `New-NetFirewallRule`   |
 
 ## Additional Common Administrative Tools
 
-**`lusrmgr.msc`** — Local Users and Groups. PowerShell: `Get-LocalUser`, `Get-LocalGroup`
-
-**`diskmgmt.msc`** — Disk Management. PowerShell: `Get-Disk`, `Get-Partition`, `Get-Volume`
-
-**`devmgmt.msc`** — Device Manager. PowerShell: `Get-PnpDevice`
-
-**`certmgr.msc`** — Certificates. PowerShell: `Get-ChildItem Cert:\`
-
-**`secpol.msc`** — Local Security Policy (limited alternatives)
-
-**`gpedit.msc`** — Group Policy Editor (Pro/Enterprise only)
-
-**`fsmgmt.msc`** — Shared Folders. PowerShell: `Get-SmbShare`, `Get-SmbSession`
-
-**`optionalfeatures`** — Windows Features. PowerShell: `Get-WindowsOptionalFeature`
-
-**`appwiz.cpl`** — Programs and Features. PowerShell: `Get-Package`, `Get-WmiObject Win32_Product`
+| Description            | Command (Win+R)    | PowerShell Alternative                       |
+| ---------------------- | ------------------ | -------------------------------------------- |
+| Local Users and Groups | `lusrmgr.msc`      | `Get-LocalUser`, `Get-LocalGroup`            |
+| Disk Management        | `diskmgmt.msc`     | `Get-Disk`, `Get-Partition`, `Get-Volume`    |
+| Device Manager         | `devmgmt.msc`      | `Get-PnpDevice`                              |
+| Certificates           | `certmgr.msc`      | `Get-ChildItem Cert:\`                       |
+| Local Security Policy  | `secpol.msc`       | Limited alternatives                         |
+| Group Policy Editor    | `gpedit.msc`       | N/A (Pro/Enterprise only)                    |
+| Shared Folders         | `fsmgmt.msc`       | `Get-SmbShare`, `Get-SmbSession`             |
+| Windows Features       | `optionalfeatures` | `Get-WindowsOptionalFeature`                 |
+| Programs and Features  | `appwiz.cpl`       | `Get-Package`, `Get-WmiObject Win32_Product` |
 
 ## Control Panel Items (.cpl)
 
-**`appwiz.cpl`** — Add/Remove Programs
-
-**`timedate.cpl`** — Date and Time
-
-**`desk.cpl`** — Display Settings
-
-**`firewall.cpl`** — Firewall
-
-**`inetcpl.cpl`** — Internet Properties
-
-**`main.cpl keyboard`** — Keyboard Properties
-
-**`main.cpl`** — Mouse Properties
-
-**`ncpa.cpl`** — Network Connections
-
-**`powercfg.cpl`** — Power Options
-
-**`mmsys.cpl`** — Sound
-
-**`sysdm.cpl`** — System Properties
-
-**`userpasswords`** / **`netplwiz`** — User Accounts
+| Description         | Command (Win+R)               |
+| ------------------- | ----------------------------- |
+| Add/Remove Programs | `appwiz.cpl`                  |
+| Date and Time       | `timedate.cpl`                |
+| Display Settings    | `desk.cpl`                    |
+| Firewall            | `firewall.cpl`                |
+| Internet Properties | `inetcpl.cpl`                 |
+| Keyboard Properties | `main.cpl keyboard`           |
+| Mouse Properties    | `main.cpl`                    |
+| Network Connections | `ncpa.cpl`                    |
+| Power Options       | `powercfg.cpl`                |
+| Sound               | `mmsys.cpl`                   |
+| System Properties   | `sysdm.cpl`                   |
+| User Accounts       | `userpasswords` or `netplwiz` |
 
 ## Quick Pentesting Reference
 
@@ -176,8 +142,3 @@ Start-Process services.msc
 # Launch as different user
 Start-Process services.msc -Credential (Get-Credential)
 ```
-
-## Resources
-
-- [MMC](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/mmc) — snap-in launcher
-- [Microsoft — Windows commands](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands) — `.msc` / `.cpl` names

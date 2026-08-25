@@ -6,8 +6,6 @@
 
 ---
 
-SUID bash: set the bit as root, then `-p` keeps the effective uid.
-
 ## Escalation
 
 ```bash
@@ -34,8 +32,3 @@ chmod u+s /bin/bash
        tive user and group ids to be set to the real user and group
        ids.
 ```
-
-## Resources
-
-- [GNU Bash — Invoking Bash](https://www.gnu.org/software/bash/manual/html_node/Invoking-Bash.html) — `-p` privileged mode
-- [GTFOBins — bash](https://gtfobins.github.io/gtfobins/bash/) — SUID and sudo

