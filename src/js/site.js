@@ -51,6 +51,9 @@
     if (typeof window.hydrateHacklasDisclaimer === "function") {
       window.hydrateHacklasDisclaimer();
     }
+    if (typeof window.hydrateHacklasHelp === "function") {
+      window.hydrateHacklasHelp();
+    }
     if (typeof window.hydrateCodeBlocks === "function") {
       window.hydrateCodeBlocks();
     }
