@@ -59,6 +59,27 @@ hashcat -hh | grep 'HASH_TYPE_HERE'
 hashcat -m <HASH-CODE> hash.txt /usr/share/wordlists/rockyou.txt
 ```
 
+## NVIDIA GPU
+
+Default OpenCL on a laptop is often the Intel iGPU — slow. Force the NVIDIA device and raise the workload:
+
+```bash
+hashcat -I                          # list backends / devices (look for CUDA / NVIDIA)
+hashcat -d 1 …                      # first GPU in that list (check -I)
+hashcat -D 2 …                      # GPU only (skip CPU)
+hashcat -O -w 3 …                   # optimized kernel + high workload
+hashcat -O -w 4 …                   # "nightmare" workload if the card stays cool
+hashcat --backend-ignore-opencl …  # prefer CUDA on NVIDIA (hashcat 6+)
+```
+
+Example:
+
+```bash
+hashcat -m 10 -O -w 3 -D 2 hashes.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule
+```
+
+`-O` caps max password length (fine for rockyou). Drop it if you need long candidates.
+
 ## Popular Rules (Start Here)
 
 | Rule                 | Size          | Description                                    |
@@ -101,3 +122,4 @@ hashcat --show hash_value
 
 - [hashcat](https://hashcat.net/) — official site
 - [hashcat wiki](https://hashcat.net/wiki/doku.php?id=hashcat) — cited in the cheat.sh dump
+- [hashcat backends](https://hashcat.net/wiki/doku.php?id=frequently_asked_questions) — CUDA vs OpenCL / `-I`

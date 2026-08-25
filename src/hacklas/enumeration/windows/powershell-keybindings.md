@@ -146,4 +146,4 @@ Get-Process notepad | Stop-Process
 - [PowerShell enumeration](./powershell-enumeration.md) — host/user/share enum
 - [PowerShell scripting](./powershell-scripting.md) — aliases (`gsv`, `?`, `%`)
 - [Windows Run menu](./run-menu.md) — GUI snap-ins vs cmdlets
-- [Enable RDP / WinRM](../../../infiltration/windows/enable-rdp-winrm.md) — front-door session from a foothold
+- [Enable RDP / WinRM](../../infiltration/windows/enable-rdp-winrm.md) — front-door session from a foothold

@@ -41,7 +41,7 @@ https://live.sysinternals.com/tools/
 - [PowerShell enumeration](./powershell-enumeration.md)
 - [PowerShell keybindings](./powershell-keybindings.md)
 - [SMB enumeration](./smb.md)
-- [Enable RDP / WinRM](../../../infiltration/windows/enable-rdp-winrm.md)
+- [Enable RDP / WinRM](../../infiltration/windows/enable-rdp-winrm.md)
 
 ## Resources
 

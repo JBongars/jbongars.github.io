@@ -247,7 +247,7 @@ icacls <path> /setowner <user>
 ## Tips
 
 - Always check inheritance flags - `(F)` alone only applies to the folder itself
-- Use `2>nul` to suppress "Access Denied" errors during enumeration
+- Use `2>nul` (cmd) or `2>$null` (PowerShell) to suppress "Access Denied" errors during enumeration
 - `Everyone` and `BUILTIN\Users` with `(F)` or `(M)` are red flags
 - Check service binaries, application folders, and scheduled task executables
 - PowerShell alternative: `Get-Acl` and `Set-Acl` cmdlets

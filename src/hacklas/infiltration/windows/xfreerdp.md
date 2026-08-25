@@ -1,10 +1,14 @@
-# xfreerdp
+# xfreerdp / xfreerdp3
 
 **Author:** Julien Bongars\
 **Date:** 2025-12-29 23:36:56
 **Path:**
 
 ---
+
+Prefer **Remmina** when xfreerdp is being flaky (NLA, clipboard, Dvorak, random disconnects). Current Kali ships **`xfreerdp3`** (`freerdp3-x11`); `xfreerdp` below is the 2.x name. Same flags on 3 for the commands here — if a switch 404s, try `xfreerdp3 /help`.
+
+Foothold and the port is closed: [Enable RDP / WinRM](./enable-rdp-winrm.md). Connection notes (NLA, Dvorak): [RDP](./rdp.md).
 
 ## What is xfreerdp?
 
@@ -27,7 +31,9 @@ Before using xfreerdp, you need to install it on your Linux system. The installa
 
 ```bash
 sudo apt update
-sudo apt install freerdp2-x11
+sudo apt install freerdp3-x11
+# older boxes: sudo apt install freerdp2-x11
+# binary is xfreerdp3 (or xfreerdp on 2.x)
 ```
 
 **Red Hat/CentOS/Fedora**
@@ -413,3 +419,5 @@ Built with Compiler GCC 9.3.0
 - [FreeRDP GitHub](https://github.com/FreeRDP/FreeRDP) — source and issues
 - [RDP](./rdp.md) — connection methods, NLA, Dvorak
 - [Enable RDP / WinRM](./enable-rdp-winrm.md) — turn the listener on from a foothold
+- [Remmina](https://remmina.org/) — GUI client when xfreerdp is flaky
+- [FreeRDP 3 wiki](https://github.com/FreeRDP/FreeRDP/wiki) — xfreerdp3

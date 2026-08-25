@@ -10,7 +10,7 @@ link: https://book.hacktricks.wiki/en/pentesting-web/file-inclusion/phar-deseria
 
 ## PHP RFI (Smuggling)
 
-See ./php-phar-rfi-smuggling.md
+See [PHP PHAR RFI smuggling](./php-phar-rfi-smuggling.md).
 
 ## PHP deserialisation chain attack
 

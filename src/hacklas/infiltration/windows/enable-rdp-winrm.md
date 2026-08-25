@@ -12,7 +12,7 @@
 
 You have a foothold (webshell, reverse shell, RunAs, stolen local-admin token). Prefer a **front-door** session over living in that shell: WinRM (5985/5986) for a proper PowerShell prompt, RDP (3389) for a desktop.
 
-Needs **local admin** (or already being in `Remote Management Users` / `Remote Desktop Users` with the service already on). Client commands: [RDP](./rdp.md), [xfreerdp](./xfreerdp.md). Native enum while you are in: [PowerShell enumeration](../../enumeration/windows/powershell-enumeration.md).
+Needs **local admin** (or already being in `Remote Management Users` / `Remote Desktop Users` with the service already on). Client commands: [RDP](./rdp.md), [xfreerdp](./xfreerdp.md). Native enum while you are in: [PowerShell enumeration](../../enumeration/windows/powershell-enumeration.md). Windows order of operations: [Windows pivot — WinRM first](../../lateral/tunneling/windows-pivot.md).
 
 ## 0. Is it already on?
 
@@ -130,3 +130,4 @@ If the box is only reachable from an internal net, pivot first ([ligolo-ng](../.
 - [ligolo-ng](../../lateral/tunneling/ligolo-ng.md) — if 3389/5985 are only on an internal net
 - [chisel](../../lateral/tunneling/chisel.md) — HTTP tunnel / SOCKS
 - [SSH tunneling](../../lateral/tunneling/port-forwarding.md) — `-L` / `-D`
+- [Windows pivot — WinRM first](../../lateral/tunneling/windows-pivot.md) — order of operations

@@ -50,3 +50,4 @@ proxychains4 -f /tmp/pc.conf nmap -sT -Pn 172.16.1.10
 - [chisel](./chisel.md) — typical SOCKS producer (`R:socks`)
 - [ligolo-ng](./ligolo-ng.md) — TUN pivot (often no proxychains needed)
 - [SSH tunneling](./port-forwarding.md) — `ssh -D 1080`
+- [sshuttle](./sshuttle.md) — NAT CIDRs, no prefix on each command

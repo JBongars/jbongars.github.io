@@ -10,6 +10,8 @@
 
 Cross-Site Scripting (XSS) allows attackers to inject malicious scripts into web pages viewed by other users. XSS occurs when user input is rendered in the browser without proper sanitization or encoding.
 
+Recon / headers / semgrep / payloads live here.
+
 ### Types of XSS
 
 - **Reflected XSS**: Payload is part of the request (URL, form) and immediately reflected back

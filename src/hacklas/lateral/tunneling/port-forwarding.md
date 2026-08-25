@@ -191,22 +191,11 @@ ssh -i id_rsa -D 1080 user@next-target
 
 ## Windows SSH (Windows 10+)
 
-### Check if SSH Client Available
-
-```powershell
-Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Client*'
-```
-
-### Windows SSH Tunnel
-
-```powershell
-# Same syntax as Linux
-
-# Background (using PowerShell Start-Process)
-Start-Process ssh -ArgumentList "-D 1080 user@pivot-host" -WindowStyle Hidden
-```
+Moved. WinRM/RDP first, OpenSSH last: [Windows pivot — WinRM first](./windows-pivot.md). Enable the listener from a foothold: [Enable RDP / WinRM](../../infiltration/windows/enable-rdp-winrm.md).
 
 ## Proxychains Configuration
+
+Full note: [proxychains](./proxychains.md). NAT a whole subnet instead: [sshuttle](./sshuttle.md).
 
 ### Edit /etc/proxychains4.conf
 
@@ -362,25 +351,6 @@ iptables -t nat -A PREROUTING -p tcp --dport 8080 -j DNAT --to-destination 192.1
 iptables -t nat -A POSTROUTING -j MASQUERADE
 ```
 
-### SSH Alternatives (Stealthy)
-
-#### Using RDP for Tunneling
-
-```bash
-# If RDP available, can tunnel through it
-xfreerdp /v:target /u:user /p:pass /drive:share,/tmp
-
-# Then use SMB or other services through RDP
-```
-
-#### Windows Remote Management (WinRM)
-
-```powershell
-# If WinRM available (port 5985/5986)
-# Can use for remote code execution
-Enter-PSSession -ComputerName target -Credential (Get-Credential)
-```
-
 ## Alternative LOTL Tools
 
 ### Using Built-in Tools
@@ -442,18 +412,20 @@ proxychains nmap -sT 192.168.1.0/24
 
 **Use SSH when**:
 
-- ✅ SSH is already installed on target
-- ✅ Stealth is priority
-- ✅ You have SSH credentials or keys
-- ✅ SSH traffic is normal in environment
+- SSH is already installed on the (Linux) target
+- Stealth is priority
+- You have SSH credentials or keys
+- SSH traffic is normal in the environment
 
 **Use Chisel when**:
 
-- ✅ No SSH available (Windows servers)
-- ✅ Don't have SSH credentials
-- ✅ Need HTTP-based tunnel (firewall bypass)
-- ✅ Simpler syntax preferred
-- ✅ Stealth is not critical
+- No SSH available
+- Don't have SSH credentials
+- Need HTTP-based tunnel (firewall bypass)
+- Simpler syntax preferred
+- Stealth is not critical
+
+Windows foothold: [Windows pivot — WinRM first](./windows-pivot.md) — do not tunnel over OpenSSH until WinRM/RDP are ruled out.
 
 ## Troubleshooting
 
@@ -506,3 +478,5 @@ proxychains4 -v nmap -sT 192.168.1.10
 - [proxychains](./proxychains.md) — SOCKS wrapper used throughout
 - [chisel](./chisel.md) — HTTP tunnel when SSH is not available
 - [ligolo-ng](./ligolo-ng.md) — TUN pivot for a whole internal subnet
+- [sshuttle](./sshuttle.md) — NAT CIDRs over SSH (no proxychains prefix)
+- [Windows pivot — WinRM first](./windows-pivot.md) — Windows foothold, not SSH

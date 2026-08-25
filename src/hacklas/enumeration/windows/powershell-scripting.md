@@ -150,5 +150,5 @@ ps | ? {$_.CPU -gt 100} | sort CPU -Desc
 - [PowerShell enumeration](./powershell-enumeration.md) — host/user/share enum
 - [PowerShell keybindings](./powershell-keybindings.md) — completion and `Get-Help`
 - [Windows Run menu](./run-menu.md) — GUI snap-ins vs cmdlets
-- [Enable RDP / WinRM](../../../infiltration/windows/enable-rdp-winrm.md) — front-door session from a foothold
+- [Enable RDP / WinRM](../../infiltration/windows/enable-rdp-winrm.md) — front-door session from a foothold
 

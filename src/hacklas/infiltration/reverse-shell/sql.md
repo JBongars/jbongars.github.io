@@ -1,4 +1,4 @@
-# sql
+# SQL reverse shells
 
 **Author:** Julien Bongars\
 **Date:** 2025-09-20 17:19:28
@@ -73,3 +73,9 @@ powercat -l -p 4444 -e cmd
 
 - [revshells.com](https://www.revshells.com/) — MSSQL note says get base64 from here
 - [powercat](https://github.com/besimorhino/powercat) — listener used in the MSSQL payload
+- [MySQL](../../enumeration/sql/mysql.md) — client + FILE / INTO OUTFILE
+- [MSSQL enumeration](../../enumeration/sql/MSSQL/main.md) — xp_cmdshell from a client
+- [MSSQL linked servers](../../enumeration/sql/MSSQL/sp-linked-server.md)
+- [Manual SQLi](../../enumeration/sql/manual.md) — quote / delay / UNION
+- [sqlmap](../../enumeration/sql/sqlmap.md) — `--os-shell` when HTTP-injectable
+- [Identify SQL engine](../../enumeration/sql/identify-sql-engine.md)

@@ -6,7 +6,7 @@
 
 ---
 
-Keybindings, completion, and `Get-Help` live in [PowerShell keybindings](./powershell-keybindings.md). Objects / `?` / `Get-Member` / Linux mappings: [PowerShell scripting](./powershell-scripting.md). Win+R snap-ins: [Windows Run menu](./run-menu.md). Foothold → real session: [Enable RDP / WinRM](../../../infiltration/windows/enable-rdp-winrm.md).
+Keybindings, completion, and `Get-Help` live in [PowerShell keybindings](./powershell-keybindings.md). Objects / `?` / `Get-Member` / Linux mappings: [PowerShell scripting](./powershell-scripting.md). Win+R snap-ins: [Windows Run menu](./run-menu.md). Foothold → real session: [Enable RDP / WinRM](../../infiltration/windows/enable-rdp-winrm.md).
 
 ## System Information
 
@@ -424,5 +424,5 @@ Get-Acl HKLM:\System\CurrentControlSet\Services\* | Format-List
 - [PowerShell scripting](./powershell-scripting.md) — aliases
 - [Windows Run menu](./run-menu.md) — `compmgmt.msc` vs cmdlets
 - [Windows common utils](./common.md) — icacls / Sysinternals live
-- [Enable RDP / WinRM](../../../infiltration/windows/enable-rdp-winrm.md) — front-door session from a foothold
+- [Enable RDP / WinRM](../../infiltration/windows/enable-rdp-winrm.md) — front-door session from a foothold
 

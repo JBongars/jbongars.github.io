@@ -82,7 +82,7 @@ pcntl_exec     - Executes a program
 
 ## PHP Code Execution
 
-### Apart from eval there are other ways to execute PHP code: include/require can be used for remote code execution in the form of Local File Include and Remote File Include vulnerabilities.
+Apart from eval there are other ways to execute PHP code: include/require can be used for remote code execution in the form of Local File Include and Remote File Include vulnerabilities.
 
 ```txt
 eval()
@@ -99,7 +99,7 @@ $func = new ReflectionFunction($_GET['func_name']); $func->invoke(); or $func->i
 
 ## List of functions which accept callbacks
 
-### These functions accept a string parameter which could be used to call a function of the attacker's choice. Depending on the function the attacker may or may not have the ability to pass a parameter. In that case an Information Disclosure function like phpinfo() could be used.
+These functions accept a string parameter which could be used to call a function of the attacker's choice. Depending on the function the attacker may or may not have the ability to pass a parameter. In that case an Information Disclosure function like phpinfo() could be used.
 
 ```txt
 Function                     => Position of callback arguments
@@ -139,7 +139,7 @@ Function                     => Position of callback arguments
 
 ## Information Disclosure
 
-### Most of these function calls are not sinks. But rather it maybe a vulnerability if any of the data returned is viewable to an attacker. If an attacker can see phpinfo() it is definitely a vulnerability.
+Most of these function calls are not sinks. But rather it maybe a vulnerability if any of the data returned is viewable to an attacker. If an attacker can see phpinfo() it is definitely a vulnerability.
 
 ```txt
 phpinfo
@@ -185,7 +185,7 @@ posix_setuid
 
 ## Filesystem Functions
 
-### According to RATS all filesystem functions in php are nasty. Some of these don't seem very useful to the attacker. Others are more useful than you might think. For instance if allow_url_fopen=On then a url can be used as a file path, so a call to copy($_GET['s'], $_GET['d']); can be used to upload a PHP script anywhere on the system. Also if a site is vulnerable to a request send via GET everyone of those file system functions can be abused to channel and attack to another host through your server.
+According to RATS all filesystem functions in php are nasty. Some of these don't seem very useful to the attacker. Others are more useful than you might think. For instance if allow_url_fopen=On then a url can be used as a file path, so a call to copy($_GET['s'], $_GET['d']); can be used to upload a PHP script anywhere on the system. Also if a site is vulnerable to a request send via GET everyone of those file system functions can be abused to channel and attack to another host through your server.
 
 ```txt
 // open filesystem handler
