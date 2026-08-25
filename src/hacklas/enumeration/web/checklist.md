@@ -6,11 +6,9 @@
 
 ---
 
-External OSINT, then HTB surface / fingerprint / enum, then exploitation checks.
+# For External
 
-## For External
-
-### External Reconnaissance
+## External Reconnaissance
 
 - [ ] Wayback Machine `https://web.archive.org/web/*/target.htb`
 - [ ] Google dorks `site:target.htb filetype:pdf`, `site:target.htb inurl:admin`
@@ -18,9 +16,9 @@ External OSINT, then HTB surface / fingerprint / enum, then exploitation checks.
 - [ ] Shodan `ssl:"target.htb"`
 - [ ] Certificate transparency logs `crt.sh?q=%.target.htb`
 
-## HTB
+# HTB
 
-### Surface
+## Surface
 
 - [ ] **Open ports?**
   - [ ] nmap `nmap -sC -sV -p '80,443,7000-7100,7443,8000-8100,8443,9000-9100,9443' -oA nmap/web.nmap $IP_ADDRESS`
@@ -38,7 +36,7 @@ External OSINT, then HTB surface / fingerprint / enum, then exploitation checks.
   - wappalyzer (browser extension)
   - nikto `nikto -h http://target.htb`
 
-### Fingerprinting
+## Fingerprinting
 
 - [ ] **PHP web?**
   - [ ] Does URL end in `?q=page/home.php` or similar?
@@ -87,7 +85,7 @@ External OSINT, then HTB surface / fingerprint / enum, then exploitation checks.
   - [ ] can you see list of dangerous functions? See `../infiltration/deserialisation-injection-insecure-deserialisation/php/dangerous-functions.md`
   - [ ] can you run deserialisationn with gadget chain? See `../infiltration/deserialisation-injection-insecure-deserialisation/php/phpggc.md`
 
-### Enumeration
+## Enumeration
 
 ### Subdirectories
 
@@ -150,9 +148,9 @@ External OSINT, then HTB surface / fingerprint / enum, then exploitation checks.
     - [ ] Dump context? explore client secrets? Check `__NEXT_DATA__` in page source
     - [ ] Check for .env exposure `/api/.env` or `/.env`
 
-## Exploitation
+# Exploitation
 
-### User Registration
+## User Registration
 
 - [ ] Registration?
 - [ ] Create account
@@ -182,7 +180,7 @@ External OSINT, then HTB surface / fingerprint / enum, then exploitation checks.
   - `curl -v "http://target.htb/page?name=test%0d%0aX-Injected-Header:pwned"`
   - `curl -v "http://target.htb/login?next=/%0d%0aSet-Cookie:session=attacker_controlled_value"`
 
-### Forms
+## Forms
 
 - [ ] **Forms**
   - [ ] Any SSTI? `{{7*7}}`, `${7*7}`, `<%= 7*7 %>`, `{{config}}`
@@ -198,7 +196,7 @@ External OSINT, then HTB surface / fingerprint / enum, then exploitation checks.
   - [ ] Command injection? `; id`, `| whoami`, `&& ls`, backticks
   - [ ] File inclusion? Check parameters for file paths, try LFI/RFI
 
-### Other
+## Other
 
 - [ ] **Advanced Injection Testing**
   - [ ] SSRF? Try `http://localhost`, `http://127.0.0.1`, `http://169.254.169.254/latest/meta-data/` (AWS metadata)
@@ -213,7 +211,7 @@ External OSINT, then HTB surface / fingerprint / enum, then exploitation checks.
   - [ ] Check different error codes (400, 401, 403, 404, 500)
   - [ ] Timing attacks for user enumeration
 
-### API
+## API
 
 - [ ] Check response headers
   - [ ] Server version disclosure?
@@ -231,8 +229,3 @@ External OSINT, then HTB surface / fingerprint / enum, then exploitation checks.
     - [ ] `127.0.0.1`
     - [ ] `(admin|dev|any-vhost-you-find).somebox.htb`
     - [ ] `(admin|dev|any-vhost-you-find).somebox.htb/admin/login?redirect=/admin/` This one probably requires some work
-
-## Resources
-
-- [OWASP WSTG](https://owasp.org/www-project-web-security-testing-guide/) — test cases by class
-- [HackTricks — Web](https://book.hacktricks.wiki/en/pentesting-web/index.html) — stack-specific notes

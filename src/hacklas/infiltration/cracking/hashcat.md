@@ -6,8 +6,6 @@
 
 ---
 
-Identify the hash, pick `-m`, then wordlist ± rules. Escalate wordlist and rule size if it misses.
-
 ## Hashcat Quick Start
 
 ```bash
@@ -63,13 +61,12 @@ hashcat -m <HASH-CODE> hash.txt /usr/share/wordlists/rockyou.txt
 
 ## Popular Rules (Start Here)
 
-**`best64.rule`** — 64 rules. Best balance of speed and coverage. Use first.
-
-**`rockyou-30000.rule`** — 30,000 rules. Comprehensive. Much slower but thorough.
-
-**`d3ad0ne.rule`** — ~35,000 rules. Large ruleset, good coverage.
-
-**`dive.rule`** — ~99,000 rules. Very large, deep mutations.
+| Rule                 | Size          | Description                                    |
+| -------------------- | ------------- | ---------------------------------------------- |
+| `best64.rule`        | 64 rules      | Best balance of speed and coverage. Use first. |
+| `rockyou-30000.rule` | 30,000 rules  | Comprehensive. Much slower but thorough.       |
+| `d3ad0ne.rule`       | ~35,000 rules | Large ruleset, good coverage.                  |
+| `dive.rule`          | ~99,000 rules | Very large, deep mutations.                    |
 
 ## Cheat.sh
 
@@ -99,8 +96,3 @@ hashcat --hash-type hash_type_id --attack-mode 1 hash_value /path/to/dictionary1
 # Show result of an already cracked hash:
 hashcat --show hash_value
 ```
-
-## Resources
-
-- [hashcat wiki](https://hashcat.net/wiki/doku.php?id=hashcat) — modes and attacks
-- [cheat.sh/hashcat](https://cheat.sh/hashcat) — brute / dict / rules

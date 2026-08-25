@@ -1,12 +1,10 @@
 # sudo
 
-**Author:** Julien Bongars\
-**Date:** 2025-09-23 16:12:13
-**Path:**
+Author: Julien Bongars
+Date: 2025-09-23 16:12:13
+Path: /opt/development/cybersec/hacklas/notes/escalation/linux/sudo.md
 
 ---
-
-What the current user may run as root, then match the binary on GTFOBins.
 
 ## List permissions
 
@@ -27,20 +25,19 @@ User postgres may run the following commands on vaccine:
     (ALL) /bin/vi /etc/postgresql/11/main/pg_hba.conf
 ```
 
-**env_keep** — options kept from the user environment.
+#### env_keep
 
-**secure_path** — PATH for sudo, blocks PATH injection.
+sets various options for the current user environment
 
-The usable line:
+#### secure_path
+
+overrides the current path when using sudo. Prevents PATH injection attacks for sudo
+
+The most critical part of this output is this part:-
 
 ```bash
 User postgres may run the following commands on vaccine:
     (ALL) /bin/vi /etc/postgresql/11/main/pg_hba.conf
 ```
 
-Here `vi` is the escalation path.
-
-## Resources
-
-- [sudoers(5)](https://www.sudo.ws/docs/man/sudoers.man/) — `env_keep`, `secure_path`
-- [GTFOBins](https://gtfobins.github.io/) — allowed binary → shell
+In this example user can execute these executables including vi (escalation path)

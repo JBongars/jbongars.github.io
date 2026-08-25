@@ -6,9 +6,11 @@
 
 ---
 
-Gitea config is `/data/gitea/config/app.ini` (repo root, DB path, tokens).
+you can find app.ini at
 
-```ini
+/data/gitea/config/app.ini
+
+```app.ini
 APP_NAME = Gitea: Git with a cup of tea
 RUN_MODE = prod
 RUN_USER = git
@@ -109,7 +111,6 @@ DEFAULT_TRUST_MODEL = committer
 JWT_SECRET = FIAOKLQX4SBzvZ9eZnHYLTCiVGoBtkE4y5B7vMjzz3g
 ```
 
-## Resources
+## Documentation
 
-- [Gitea](https://about.gitea.com/) — project
-- [Gitea Actions quickstart](https://docs.gitea.com/usage/actions/quickstart) — CI config
+https://docs.gitea.com/usage/actions/quickstart

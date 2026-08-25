@@ -6,18 +6,13 @@
 
 ---
 
-Pull names from Certificate Transparency via crt.sh JSON.
-
 ```bash
 curl -s "https://crt.sh/?q=facebook.com&output=json" | jq -r '.[] | select(.name_value | contains("dev")) | .name_value' | sort -u
 curl -s "https://crt.sh/?q=facebook.com&output=json" | jq -r '.[]' | sort -u
 ```
 
-**curl -s** — JSON from crt.sh.
-**jq `contains("dev")`** — names with `dev`.
-**sort -u** — unique.
+## Breakdown
 
-## Resources
-
-- [crt.sh](https://crt.sh/) — CT search
-- [crt.sh JSON](https://github.com/crtsh/certwatch_db) — schema behind `output=json`
+curl -s — Fetches JSON output from crt.sh
+jq -r '... | contains("dev")' — Filters for entries containing "dev"
+sort -u — Sorts and removes duplicates

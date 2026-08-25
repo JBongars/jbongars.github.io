@@ -6,15 +6,17 @@
 
 ---
 
-Web fuzzer: directories, vhosts, and request files. Filter on status, size, words, or lines.
+## Subdomain and directory discovery tool.
 
-## Burp to ffuf fuzz request
+## More information: <https://github.com/ffuf/ffuf>.
+
+### Burp to ffuf fuzz request
 
 ```bash
 ffuf -request login.req -request-proto http ...
 ```
 
-## Search hosts
+### Search hosts
 
 ```bash
 # Using ffuf (fast, preferred)
@@ -24,7 +26,7 @@ ffuf -u http://target.htb -H "Host: FUZZ.target.htb" -w /usr/share/seclists/Disc
 gobuster vhost -u http://target.htb -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt --append-domain
 ```
 
-## Search subdirectory
+### Search subdirectory
 
 ```bash
 # Using ffuf (fast, preferred)
@@ -37,9 +39,9 @@ gobuster dir -u http://target.htb -w /usr/share/seclists/Discovery/Web-Content/d
 feroxbuster -u http://target.htb -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt
 ```
 
-## Filter / matcher
+### FILTER ATTRIBUTE
 
-```bash
+```BASH
   -AC                 AUTOMATICALLY CALIBRATE FILTERING OPTIONS (DEFAULT: FALSE)
   -ACC                CUSTOM AUTO-CALIBRATION STRING. CAN BE USED MULTIPLE TIMES. IMPLIES -AC
   -ACH                PER HOST AUTOCALIBRATION (DEFAULT: FALSE)
@@ -65,9 +67,9 @@ FILTER OPTIONS:
   -FW                 FILTER BY AMOUNT OF WORDS IN RESPONSE. COMMA SEPARATED LIST OF WORD COUNTS AND RANGES
 ```
 
-## Cheat.sh
+### CHEAT.SH
 
-```bash
+```BASH
 # DISCOVER DIRECTORIES USING A [W]ORDLIST ON A TARGET [U]RL WITH [C]OLORIZED AND [V]ERBOSE OUTPUT:
 FFUF -W PATH/TO/WORDLIST -U HTTPS://TARGET/FUZZ -C -V
 
@@ -86,8 +88,3 @@ FFUF -W PATH/TO/POSTDATA.TXT -X POST -D "USERNAME=ADMIN\&PASSWORD=FUZZ" -U HTTPS
 # DISCOVER SUBDOMAINS USING A SUBDOMAIN LIST ON A TARGET WEBSITE:
 FFUF -W SUBDOMAINS.TXT -U HTTPS://WEBSITE.COM -H "HOST: FUZZ.WEBSITE.COM"
 ```
-
-## Resources
-
-- [ffuf/ffuf](https://github.com/ffuf/ffuf) — flags and examples
-- [cheat.sh/ffuf](https://cheat.sh/ffuf) — extra recipes

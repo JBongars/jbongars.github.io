@@ -1,4 +1,4 @@
-# wpscan
+# WordPress Plugin Enumeration (WPScan)
 
 **Author:** Julien Bongars\
 **Date:** 2026-02-07 00:55:22
@@ -6,7 +6,13 @@
 
 ---
 
-WordPress plugin, theme, and user enumeration. Theme edit often yields PHP RCE.
+## Description
+
+Can be pointed to PHP webservers to enumerate wordpress plugins.
+
+**link**: https://github.com/wpscanteam/wpscan
+
+**hints**: For WordPress, you can try to change the theme by modifying the theme. Usually a RCE is straightforward if you are able to inject PHP.
 
 ## Quick Guide
 
@@ -74,7 +80,7 @@ docker run -it --rm wpscanteam/wpscan --url https://target.tld/ --enumerate u1-1
 
 ## Detailed
 
-```txt
+```bash
 _______________________________________________________________
          __          _______   _____
          \ \        / /  __ \ / ____|
@@ -197,15 +203,15 @@ Usage: wpscan [options]
         --themes-threshold THRESHOLD              Raise an error when the number of detected themes via known locations reaches the threshold. Set to 0 to ignore the threshold.
                                                   Default: 20
         --timthumbs-list FILE-PATH                List of timthumbs' location to use
-                                                  Default: ~/.wpscan/db/timthumbs-v3.txt
+                                                  Default: /home/julien/.wpscan/db/timthumbs-v3.txt
         --timthumbs-detection MODE                Use the supplied mode to enumerate Timthumbs, instead of the global (--detection-mode) mode.
                                                   Available choices: mixed, passive, aggressive
         --config-backups-list FILE-PATH           List of config backups' filenames to use
-                                                  Default: ~/.wpscan/db/config_backups.txt
+                                                  Default: /home/julien/.wpscan/db/config_backups.txt
         --config-backups-detection MODE           Use the supplied mode to enumerate Config Backups, instead of the global (--detection-mode) mode.
                                                   Available choices: mixed, passive, aggressive
         --db-exports-list FILE-PATH               List of DB exports' paths to use
-                                                  Default: ~/.wpscan/db/db_exports.txt
+                                                  Default: /home/julien/.wpscan/db/db_exports.txt
         --db-exports-detection MODE               Use the supplied mode to enumerate DB Exports, instead of the global (--detection-mode) mode.
                                                   Available choices: mixed, passive, aggressive
         --medias-detection MODE                   Use the supplied mode to enumerate Medias, instead of the global (--detection-mode) mode.
@@ -227,8 +233,3 @@ Usage: wpscan [options]
         --login-uri URI                           The URI of the login page if different from /wp-login.php
         --stealthy                                Alias for --random-user-agent --detection-mode passive --plugins-version-detection passive
 ```
-
-## Resources
-
-- [WPScan](https://github.com/wpscanteam/wpscan) — scanner and `--enumerate` flags
-- [WPScan API](https://wpscan.com/api) — token for vulnerability data

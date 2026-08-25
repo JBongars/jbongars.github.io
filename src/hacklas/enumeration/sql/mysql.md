@@ -6,8 +6,6 @@
 
 ---
 
-Connect, dump/restore, then `SHOW` / `GRANT` / CRUD from the client.
-
 ## cheat.sh
 
 ```bash
@@ -81,15 +79,10 @@ mysql --user user --password < path/to/backup.sql
 
 ## Show all Tables
 
-```sql
+```bash
 SHOW DATABASE;
 
 SHOW TABLES;
 
 DESCRIBE TABLES; -- this is also really useful
 ```
-
-## Resources
-
-- [MySQL command-line](https://dev.mysql.com/doc/refman/8.4/en/mysql.html) — client flags
-- [cheat.sh/mysql](https://cheat.sh/mysql) — connect / dump / GRANT

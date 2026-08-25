@@ -6,8 +6,6 @@
 
 ---
 
-Wordlist decrypt of a pyAesCrypt (AES) file. Writes output on first password that decrypts.
-
 ## Source Code
 
 ```py
@@ -80,8 +78,3 @@ if __name__ == "__main__":
 pipx install pyAesCrypt
 python <file> <.... args>
 ```
-
-## Resources
-
-- [marcobellaccini/pyAesCrypt](https://github.com/marcobellaccini/pyAesCrypt) — AES file encrypt/decrypt
-- [pyAesCrypt on PyPI](https://pypi.org/project/pyAesCrypt/) — install

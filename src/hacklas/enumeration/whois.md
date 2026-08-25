@@ -6,13 +6,12 @@
 
 ---
 
-Query registration data for a domain or IP (registrar, dates, name servers, contacts when not redacted).
+WHOIS is a widely used query and response protocol designed to access databases that store information about registered internet resources. Primarily associated with domain names, WHOIS can also provide details about IP address blocks and autonomous systems. Think of it as a giant phonebook for the internet, letting you look up who owns or is responsible for various online assets.
+WHOIS
+
+julien23@htb[/htb]$ whois inlanefreight.com
 
 ```bash
-whois inlanefreight.com
-```
-
-```txt
 Domain Name: inlanefreight.com
 Registry Domain ID: 2420436757_DOMAIN_COM-VRSN
 Registrar WHOIS Server: whois.registrar.amazon
@@ -21,15 +20,12 @@ Updated Date: 2023-07-03T01:11:15Z
 Creation Date: 2019-08-05T22:43:09Z
 ```
 
-Typical fields: domain, registrar, registrant / admin / tech contacts, creation and expiry, name servers.
+Each WHOIS record typically contains the following information:
 
-```bash
-whois example.com
-whois 8.8.8.8
-whois -h whois.nic.xyz example.xyz
-```
-
-## Resources
-
-- [rfc1036/whois](https://github.com/rfc1036/whois) — client used by most Linux distros
-- [cheat.sh/whois](https://cheat.sh/whois) — extra flags (`-h`, `-p`, `-H`)
+Domain Name: The domain name itself (e.g., example.com)
+Registrar: The company where the domain was registered (e.g., GoDaddy, Namecheap)
+Registrant Contact: The person or organization that registered the domain.
+Administrative Contact: The person responsible for managing the domain.
+Technical Contact: The person handling technical issues related to the domain.
+Creation and Expiration Dates: When the domain was registered and when it's set to expire.
+Name Servers: Servers that translate the domain name into an IP address.

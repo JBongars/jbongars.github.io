@@ -6,11 +6,9 @@
 
 ---
 
-PHP-specific enum: extensions with ferox, `phpinfo`, dangerous function list.
-
 ## Feroxbuster
 
-Enumerate PHP with `-X php`.
+You can enumerate php with the `-X php` tag
 
 ## Functions
 
@@ -26,11 +24,6 @@ Enumerate PHP with `-X php`.
 ?>
 ```
 
-## Dangerous functions
+## Dangerous Functions
 
-See [dangerous-functions](../infiltration/deserialisation-injection-insecure-deserialisation/php/dangerous-functions.md).
-
-## Resources
-
-- [PHP phpinfo](https://www.php.net/manual/en/function.phpinfo.php) — config dump
-- [HackTricks — PHP](https://book.hacktricks.wiki/en/network-services-pentesting/pentesting-web/php.html) — wrappers and dangerous funcs
+../infiltration/php/dangerous-functions.md

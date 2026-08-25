@@ -2,11 +2,9 @@
 
 **Author:** Julien Bongars\
 **Date:** 2025-10-13 01:17:38
-**Path:**
+**Path:** notes/escalation/linux/checklist-to-escalate.md
 
 ---
-
-Linux privilege-escalation checklist: dump the box, run LinPEAS, then work sudo, SUID, cron, NFS, and Docker by hand.
 
 ## Feed the AI
 
@@ -850,6 +848,8 @@ stty rows 38 columns 116
 
 ## Resources
 
-- [GTFOBins](https://gtfobins.github.io/) — sudo / SUID binary abuse
-- [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings) — Linux privesc methodology
-- [HackTricks — Linux Privilege Escalation](https://book.hacktricks.xyz/linux-hardening/privilege-escalation) — extra vectors
+- GTFOBins: https://gtfobins.github.io/
+- PEASS-ng (LinPEAS): https://github.com/carlospolop/PEASS-ng
+- PayloadsAllTheThings: https://github.com/swisskyrepo/PayloadsAllTheThings
+- HackTricks: https://book.hacktricks.xyz/
+- Linux Privilege Escalation: https://payatu.com/blog/a-guide-to-linux-privilege-escalation/

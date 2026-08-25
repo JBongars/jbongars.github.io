@@ -2,11 +2,27 @@
 
 **Author:** Julien Bongars\
 **Date:** 2025-09-24 23:55:48
-**Path:**
+**Path:** notes/infiltration/general/ldap.md
 
 ---
 
-Directory lookups over LDAP. Commonly used for PAM auth and, via JNDI, Log4Shell class loading.
+## LDAP Overview
+
+Lightweight Directory Access Protocol
+
+### Legitimate Uses
+
+- **Authentication**: Key-value store for PAM authentication
+- **Directory Services**: Centralized storage for user accounts, groups, and organizational data
+- **Configuration Management**: Application settings and resource lookups
+- **Corporate Directories**: Employee information, contact details, organizational structure
+
+### Common LDAP Implementations
+
+- **Active Directory** (Microsoft)
+- **OpenLDAP** (Open source)
+- **Apache Directory Server**
+- **389 Directory Server** (Red Hat)
 
 ## Authentication Exploitation
 
@@ -102,8 +118,29 @@ curl -X POST \
 # - Any user input that gets logged
 ```
 
-## Resources
+## Attack Flow
 
-- [OpenLDAP](https://www.openldap.org/) — slapd and client config
-- [marshalsec](https://github.com/mbechler/marshalsec) — JNDI LDAPRefServer
-- [Sprocket — UniFi Log4j](https://www.sprocketsecurity.com/blog/another-log4j-on-the-fire-unifi) — LDAP callback in the wild
+1. **Setup Infrastructure**
+
+   - Malicious LDAP server (marshalsec)
+   - HTTP server hosting malicious Java class
+   - Reverse shell listener
+
+2. **Payload Injection**
+
+   - Inject JNDI LDAP payload into target application
+   - Payload gets processed by Log4j during logging
+
+3. **LDAP Callback**
+
+   - Target connects to attacker's LDAP server
+   - LDAP server responds with Java class reference
+
+4. **Remote Code Execution**
+   - Target downloads and executes malicious Java class
+   - Reverse shell established
+
+## References
+
+- [another-log4j-on-the-fire-unifi](https://www.sprocketsecurity.com/blog/another-log4j-on-the-fire-unifi)
+- [Marshalsec JNDI Attack Tool](https://github.com/mbechler/marshalsec)

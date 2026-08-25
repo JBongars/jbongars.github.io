@@ -1,4 +1,4 @@
-# icacls
+# icacls - Windows NTFS Permissions
 
 **Author:** Julien Bongars\
 **Date:** 2026-01-05 02:47:47
@@ -6,9 +6,13 @@
 
 ---
 
-View and change NTFS ACLs on Windows files and folders.
+## Overview
 
-## List permissions
+`icacls` is a command-line utility for managing NTFS file/folder permissions in Windows. Provides granular control over permissions without needing GUI.
+
+## Basic Usage
+
+### List Permissions
 
 ```powershell
 # Current directory
@@ -21,7 +25,9 @@ icacls C:\Windows
 icacls C:\path\to\file.txt
 ```
 
-```txt
+### Example Output
+
+```
 C:\htb> icacls c:\windows
 c:\windows NT SERVICE\TrustedInstaller:(F)
            NT SERVICE\TrustedInstaller:(CI)(IO)(F)
@@ -40,42 +46,44 @@ c:\windows NT SERVICE\TrustedInstaller:(F)
 Successfully processed 1 files; Failed processing 0 files
 ```
 
-## Permission flags
+## Permission Flags
 
-### Inheritance
+### Inheritance Settings
 
-**(CI):** Container Inherit — subfolders inherit
-**(OI):** Object Inherit — files inherit
-**(IO):** Inherit Only — applies to children, not this object
-**(NP):** No Propagate — don't propagate to children
-**(I):** Permission inherited from parent
+- `(CI)` - Container Inherit - subfolders inherit
+- `(OI)` - Object Inherit - files inherit
+- `(IO)` - Inherit Only - applies to children, not this object
+- `(NP)` - No Propagate - don't propagate to children
+- `(I)` - Permission inherited from parent
 
-### Access rights
+### Access Rights
 
-**F:** Full access
-**M:** Modify access
-**RX:** Read and execute
-**R:** Read-only
-**W:** Write-only
-**D:** Delete access
-**N:** No access
+- `F` - Full access
+- `M` - Modify access
+- `RX` - Read and execute
+- `R` - Read-only
+- `W` - Write-only
+- `D` - Delete access
+- `N` - No access
 
-### Common combinations
+### Common Combinations
 
-**(OI)(CI)(F):** Full control, inherited by all files and subfolders
-**(OI)(CI)(IO)(F):** Full control for children only, not this folder
-**RX:** Read and execute, no inheritance specified
+- `(OI)(CI)(F)` - Full control, inherited by all files and subfolders
+- `(OI)(CI)(IO)(F)` - Full control for children only, not this folder
+- `RX` - Read and execute, no inheritance specified
 
-## Granting permissions
+## Granting Permissions
 
-### Grant full control (no inheritance)
+### Grant Full Control (no inheritance)
 
 ```powershell
 # User gets full control ONLY on this folder, not contents
 icacls C:\Users /grant joe:f
 ```
 
-```txt
+Output:
+
+```
 C:\htb> icacls c:\users /grant joe:f
 processed file: c:\users
 Successfully processed 1 files; Failed processing 0 files
@@ -92,7 +100,7 @@ c:\users WS01\joe:(F)
 Successfully processed 1 files; Failed processing 0 files
 ```
 
-### Grant with inheritance
+### Grant with Inheritance
 
 ```powershell
 # Full control on folder AND all contents
@@ -105,7 +113,9 @@ icacls C:\Data /grant "DOMAIN\user":(OI)(CI)M
 icacls C:\Shared /grant Everyone:(OI)(CI)R
 ```
 
-## Removing permissions
+## Removing Permissions
+
+### Remove User Permissions
 
 ```powershell
 # Remove all permissions for user
@@ -115,9 +125,9 @@ icacls C:\Users /remove joe
 icacls C:\Data /remove:g joe
 ```
 
-## Pentest checks
+## Common Pentest Use Cases
 
-### Weak permissions
+### Check for Weak Permissions
 
 ```powershell
 # Find directories where Users have write access
@@ -129,14 +139,14 @@ icacls C:\Program Files\* 2>nul | findstr /i "Everyone:.*F"
 icacls "C:\Program Files\VulnerableApp\service.exe"
 ```
 
-### Current user
+### Check Current User Permissions
 
 ```powershell
 # See what access current user has
 icacls C:\sensitive\file.txt | findstr /i "%username%"
 ```
 
-### Writable directories
+### Enumerate Writable Directories
 
 ```powershell
 # Find folders you can write to
@@ -145,9 +155,9 @@ icacls C:\* 2>nul | findstr /i "%username%:(M)"
 icacls C:\* 2>nul | findstr /i "BUILTIN\Users:(F)"
 ```
 
-## Privilege escalation checks
+## Privilege Escalation Checks
 
-### Unquoted service paths with weak folder permissions
+### Unquoted Service Paths with Weak Folder Permissions
 
 ```powershell
 # Check if you can write to Program Files
@@ -156,7 +166,7 @@ icacls "C:\Program Files\Vulnerable App\"
 # If (F) or (M), you can place malicious binary in path
 ```
 
-### DLL hijacking
+### DLL Hijacking Opportunities
 
 ```powershell
 # Check application directory permissions
@@ -165,7 +175,7 @@ icacls "C:\Program Files\TargetApp\"
 # If writable, can drop malicious DLL
 ```
 
-### AlwaysInstallElevated + MSI write access
+### AlwaysInstallElevated + MSI Write Access
 
 ```powershell
 # Check if you can write MSI to accessible location
@@ -173,43 +183,43 @@ icacls C:\Temp
 icacls C:\Users\Public
 ```
 
-## Advanced usage
+## Advanced Usage
 
-### Save current permissions
+### Save Current Permissions
 
 ```powershell
 # Backup permissions before modifying
 icacls C:\Important /save perms.txt /t
 ```
 
-### Restore permissions
+### Restore Permissions
 
 ```powershell
 icacls C:\ /restore perms.txt
 ```
 
-### Reset to defaults
+### Reset to Defaults
 
 ```powershell
 # Reset to inherited permissions
 icacls C:\folder /reset /t
 ```
 
-### Deny permissions
+### Deny Permissions
 
 ```powershell
 # Explicitly deny access (overrides allow)
 icacls C:\Restricted /deny joe:(OI)(CI)F
 ```
 
-### Take ownership
+### Take Ownership
 
 ```powershell
 # Must be admin or have SeRestorePrivilege
 icacls C:\file.txt /setowner "NT AUTHORITY\SYSTEM"
 ```
 
-## Quick reference
+## Quick Reference Commands
 
 ```powershell
 # View permissions
@@ -234,8 +244,15 @@ icacls <path> /reset
 icacls <path> /setowner <user>
 ```
 
-`(F)` alone applies only to the folder itself. Use `2>nul` to hide Access Denied during enum. `Everyone` / `BUILTIN\Users` with `(F)` or `(M)` is a red flag. Check service binaries, app folders, and scheduled-task executables. PowerShell alternative: `Get-Acl` / `Set-Acl`.
+## Tips
+
+- Always check inheritance flags - `(F)` alone only applies to the folder itself
+- Use `2>nul` to suppress "Access Denied" errors during enumeration
+- `Everyone` and `BUILTIN\Users` with `(F)` or `(M)` are red flags
+- Check service binaries, application folders, and scheduled task executables
+- PowerShell alternative: `Get-Acl` and `Set-Acl` cmdlets
 
 ## Resources
 
-- [Microsoft icacls](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/icacls) — flags, inheritance, and examples
+- [Microsoft icacls documentation](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/icacls)
+- Full permission matrix and inheritance rules in official docs

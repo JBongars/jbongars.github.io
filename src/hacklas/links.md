@@ -6,31 +6,30 @@
 
 ---
 
-Bookmarks by stage: [A]ll, [O]SINT, [E]numeration, [I]nfiltration, [E]scalation, [P]ivot.
+Stages:-
 
-## Websites
+- [A]ll
+- [O]SINT
+- [E]numeration
+- [I]nfiltration/Foothold
+- [E]scalation
+- [P]ivot
 
-**[revshells.com](https://www.revshells.com)** — E/I, reverse-shell. Copy payloads for various tools/formats.
+# Websites
 
-**[CyberChef](https://gchq.github.io/CyberChef/)** — E/I, payload. Encode / decode / transform.
+| URI            | Stage | Type          | Desciption                                                         | Remarks                                            |
+| -------------- | ----- | ------------- | ------------------------------------------------------------------ | -------------------------------------------------- |
+| revshells.com  | E/I   | reverse-shell | copy reverse shells for various tools/formats                      |                                                    |
+| cyberchef      | E/I   | payload       | encode/decode/transformation on payloads                           |                                                    |
+| hashes.com     | E/I/P | cracking      | crack passwords using rainbow tables. More low stakes than hashcat | Assume not crackable if this doesn't work for OSCP |
+| crackstation   | E/I/P | cracking      | crack passwords using rainbow tables                               | Less accurate than hashes.com                      |
+| hacktricks.com | A     | handbook      | handboox for vulnerabilities                                       |                                                    |
+| exploitdb      | I/P   | exploit       | Database of CVEs and exploits, gives you the code directly         | better to try seearchploit first                   |
+| ippsec.rocks   | A     | handbook      | tldr of cyber security topics. link to videos                      |                                                    |
 
-**[hashes.com](https://hashes.com/en/decrypt/hash)** — E/I/P, cracking. Rainbow tables; assume not crackable if this fails (OSCP).
+# External Tools
 
-**[CrackStation](https://crackstation.net/)** — E/I/P, cracking. Rainbow tables; less complete than hashes.com.
-
-**[HackTricks](https://book.hacktricks.wiki/)** — A, handbook.
-
-**[Exploit-DB](https://www.exploit-db.com/)** — I/P, exploit. Prefer `searchsploit` locally first.
-
-**[ippsec.rocks](https://ippsec.rocks/)** — A, handbook. Short notes plus video links.
-
-## External tools
-
-**msfvenom** — I/P, payload. Included with Metasploit.
-
-**autorecon** — E, scanner.
-
-## Resources
-
-- [revshells.com](https://www.revshells.com) — payload builder
-- [HackTricks](https://book.hacktricks.wiki/) — service playbooks
+| Name      | Stage | Type    | URI | Installation | Description       | Remarks |
+| --------- | ----- | ------- | --- | ------------ | ----------------- | ------- |
+| msfvenom  | I/P   | payload | -   | included     | payload generator | -       |
+| autorecon | E     | scanner | -   |              |                   |         |

@@ -6,7 +6,9 @@
 
 ---
 
-Capture packets on the wire: filter by host, port, or protocol; write a pcap or print payloads.
+## Overview
+
+TCPDump is a command-line packet analyzer that captures network traffic in real-time. It's like a simpler, lightweight version of Wireshark that runs in the terminal.
 
 ## Basic Usage
 
@@ -73,8 +75,3 @@ sudo tcpdump -v
 # No hostname resolution (faster)
 sudo tcpdump -n
 ```
-
-## Resources
-
-- [tcpdump man page](https://www.tcpdump.org/manpages/tcpdump.1.html) — filters and flags
-- [cheat.sh/tcpdump](https://cheat.sh/tcpdump) — extra capture recipes

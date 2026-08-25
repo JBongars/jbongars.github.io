@@ -1,14 +1,12 @@
 # XSS (Cross-Site Scripting)
 
-**Author:** Julien Bongars\
-**Date:** 2025-10-13 00:03:48
-**Path:**
+## **Author:** Julien Bongars\*_Date:_* 2025-10-13 00:03:48**Path:** infiltration/web/xss-cross-site-scripting/main.md
 
----
+## Overview
 
-Inject a script into a page another user will render when input is reflected without encoding.
+Cross-Site Scripting (XSS) allows attackers to inject malicious scripts into web pages viewed by other users. XSS occurs when user input is rendered in the browser without proper sanitization or encoding.
 
-## Types of XSS
+### Types of XSS
 
 - **Reflected XSS**: Payload is part of the request (URL, form) and immediately reflected back
 - **Stored XSS**: Payload is saved on the server (database, comments) and executed when page loads
@@ -867,40 +865,45 @@ String safe = Encode.forHtml(userInput);
 
 ### 9. Common Mistakes to Avoid
 
-- Blacklist filtering (easily bypassed)
-- Client-side validation only
-- Using innerHTML with user input
-- Trusting data from URLs/cookies
-- Insufficient context-aware encoding
-- Allowing inline scripts without CSP nonces
-- Not setting HttpOnly on sensitive cookies
+- ❌ Blacklist filtering (easily bypassed)
+- ❌ Client-side validation only
+- ❌ Using innerHTML with user input
+- ❌ Trusting data from URLs/cookies
+- ❌ Insufficient context-aware encoding
+- ❌ Allowing inline scripts without CSP nonces
+- ❌ Not setting HttpOnly on sensitive cookies
 
 ### 10. Secure Coding Practices
 
 ```javascript
-// Good: Use textContent instead of innerHTML
+// ✅ Good: Use textContent instead of innerHTML
 element.textContent = userInput;
 
-// Bad: Using innerHTML with user input
+// ❌ Bad: Using innerHTML with user input
 element.innerHTML = userInput;
 
-// Good: Create elements programmatically
+// ✅ Good: Create elements programmatically
 const img = document.createElement("img");
 img.src = userInput;
 img.alt = "User image";
 
-// Bad: String concatenation with user input
+// ❌ Bad: String concatenation with user input
 html = "<img src=\"" + userInput + "\">";
 
-// Good: Use parameterized queries/prepared statements
-// Bad: String concatenation in SQL/HTML/JS
+// ✅ Good: Use parameterized queries/prepared statements
+// ❌ Bad: String concatenation in SQL/HTML/JS
 ```
 
 ---
 
 ## Resources
 
-- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html) — encoding and CSP
-- [PayloadsAllTheThings — XSS](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/XSS%20Injection) — payload list
-- [HackTricks — XSS](https://book.hacktricks.xyz/pentesting-web/xss-cross-site-scripting) — testing notes
+- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
+- [PortSwigger XSS Labs](https://portswigger.net/web-security/cross-site-scripting)
+- [PayloadsAllTheThings - XSS](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/XSS%20Injection)
+- [HackTricks - XSS](https://book.hacktricks.xyz/pentesting-web/xss-cross-site-scripting)
+- [Content Security Policy Reference](https://content-security-policy.com/)
 
+---
+
+**Remember**: Always test for XSS on authorized systems only. Unauthorized testing is illegal.
