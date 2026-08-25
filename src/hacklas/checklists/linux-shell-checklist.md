@@ -6,8 +6,6 @@
 
 ---
 
-Linux foothold enum: sudo, files, SUID, cron, docker; then root and jail breakout.
-
 ## Foothold
 
 - [ ] We have the password for the current user
@@ -97,9 +95,3 @@ Linux foothold enum: sudo, files, SUID, cron, docker; then root and jail breakou
   - [ ] Can it be run locally?
   - [ ] Dynamic testing
   - [ ] Static analysis using ghidra
-
-## Resources
-
-- [rebootuser/LinEnum](https://github.com/rebootuser/LinEnum) — the script in the checklist
-- [GTFOBins](https://gtfobins.github.io/) — sudo/SUID binary → shell
-- [HackTricks — Linux privilege escalation](https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html) — checklist depth

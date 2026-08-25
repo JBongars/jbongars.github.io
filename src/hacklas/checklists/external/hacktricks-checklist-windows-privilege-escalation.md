@@ -1,0 +1,1 @@
+../../../external/hacktricks/src/windows-hardening/checklist-windows-privilege-escalation.md
