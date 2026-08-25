@@ -31,6 +31,9 @@ const LANGUAGE_ALIASES = {
   html: "markup",
   xml: "markup",
   svg: "markup",
+  ps1: "powershell",
+  pwsh: "powershell",
+  posh: "powershell",
 };
 
 function resolveLanguage(lang) {
@@ -236,25 +239,48 @@ function renderTaskLists(state) {
       }
     }
 
-    listItem.attrJoin("class", "task-list-item");
+    if (!/\btask-list-item\b/.test(listItem.attrGet("class") || "")) {
+      listItem.attrJoin("class", "task-list-item");
+    }
 
     for (let j = i - 1; j >= 0; j--) {
       if (tokens[j].type === "bullet_list_open") {
-        tokens[j].attrJoin("class", "task-list");
+        if (!/\btask-list\b/.test(tokens[j].attrGet("class") || "")) {
+          tokens[j].attrJoin("class", "task-list");
+        }
         break;
       }
       if (tokens[j].type === "bullet_list_close") break;
     }
 
-    const checkbox = new state.Token("html_inline", "", 0);
-    checkbox.content =
-      `<input type="checkbox" class="task-list-item__checkbox"` +
-      `${checked ? " checked" : ""}`;
-    const space = new state.Token("text", "", 0);
-    space.content = " ";
-    inline.children = inline.children || [];
-    inline.children.unshift(space);
-    inline.children.unshift(checkbox);
+    const env = state.env || (state.env = {});
+    const id = `task-${(env._taskListId = (env._taskListId || 0) + 1)}`;
+
+    const checkbox = new state.Token("checkbox", "input", 0);
+    checkbox.attrSet("type", "checkbox");
+    checkbox.attrSet("class", "task-list-item__checkbox");
+    checkbox.attrSet("id", id);
+    if (checked) checkbox.attrSet("checked", "");
+
+    const controlOpen = new state.Token("label_open", "label", 1);
+    controlOpen.attrSet("class", "task-list-item__control");
+    controlOpen.attrSet("for", id);
+    const controlClose = new state.Token("label_close", "label", -1);
+
+    const bodyOpen = new state.Token("label_open", "label", 1);
+    bodyOpen.attrSet("class", "task-list-item__body");
+    bodyOpen.attrSet("for", id);
+    const bodyClose = new state.Token("label_close", "label", -1);
+
+    const rest = inline.children || [];
+    inline.children = [
+      controlOpen,
+      checkbox,
+      controlClose,
+      bodyOpen,
+      ...rest,
+      bodyClose,
+    ];
   }
 }
 

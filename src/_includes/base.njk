@@ -154,10 +154,11 @@
   {% if features.hacklas %}
   {# Loaded on every page so site.js main-swaps onto /hacklas/ still have handlers. #}
   <script src="{{ '/js/site-url.js' | url }}" defer></script>
-  <script src="{{ '/js/fuzzy-find.js' | url }}" defer></script>
+  <script src="{{ '/js/fuzzy-find.js' | url }}?v={{ cssRev }}" defer></script>
   <script src="{{ '/js/hacklas-disclaimer.js' | url }}" defer></script>
   <script src="{{ '/js/hacklas-shortcuts.js' | url }}?v={{ cssRev }}" defer></script>
   <script src="{{ '/js/hacklas-help.js' | url }}?v={{ cssRev }}" defer></script>
+  <script src="{{ '/js/hacklas-checklists.js' | url }}" defer></script>
   {% endif %}
   {% if comments.enabled %}
   {# Loaded on every page so site.js main-swaps onto a post still inject Giscus. #}
