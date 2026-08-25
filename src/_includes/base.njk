@@ -79,7 +79,7 @@
           </li>
           {% if features.hacklas %}
           <li>
-            <a href="{{ '/hacklas/' | url }}" {% if "/hacklas/" in page.url %}aria-current="page"{% endif %}>Hacklas{% include "hacklas-beta-badge.njk" %}</a>
+            <a href="{{ '/hacklas/' | url }}" {% if "/hacklas/" in page.url %}aria-current="page"{% endif %}><span><span class="nav-list__key">H</span>acklas</span>{% include "hacklas-beta-badge.njk" %}</a>
           </li>
           {% endif %}
           {% if resume.linkedin %}
@@ -156,6 +156,8 @@
   <script src="{{ '/js/site-url.js' | url }}" defer></script>
   <script src="{{ '/js/fuzzy-find.js' | url }}" defer></script>
   <script src="{{ '/js/hacklas-disclaimer.js' | url }}" defer></script>
+  <script src="{{ '/js/hacklas-shortcuts.js' | url }}?v={{ cssRev }}" defer></script>
+  <script src="{{ '/js/hacklas-help.js' | url }}?v={{ cssRev }}" defer></script>
   {% endif %}
   {% if comments.enabled %}
   {# Loaded on every page so site.js main-swaps onto a post still inject Giscus. #}

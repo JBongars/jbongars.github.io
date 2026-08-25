@@ -82,6 +82,8 @@ Hacklas chrome stripping.
 - `booru-search.js` — blog/write-up listing sort + tag/title search
 - `fuzzy-find.js` — Hacklas finder (`?q=` in URL)
 - `hacklas-disclaimer.js` / `hacklas-disclaimer-init.js` — disclaimer gate
+- `hacklas-shortcuts.js` — desktop Hacklas keyboard shortcuts
+- `hacklas-help.js` — desktop `?` shortcuts dialog (JS-only)
 - `code-blocks.js` — copy / fullscreen, line numbers, collapse tall fences
 - `image-lightbox.js` — fullscreen images, zoom/pan
 - `back-button.js` — history back for notes/posts
