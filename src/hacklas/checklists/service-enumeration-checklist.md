@@ -6,8 +6,6 @@
 
 ---
 
-Per-host service enum: identify, searchsploit/Google, default creds, then per-service checks.
-
 ## Step 0: Identify what's running
 
 - [ ] `nmap -sC -sV -p- -oN alltcp.txt $ip`
@@ -88,9 +86,3 @@ Read: ./external/oscp-enumeration-checklist.md (https://github.com/oncybersec/os
 - ExploitDB mirror: `https://www.exploit-db.com`
 - Always check if an exploit requires authentication — save those for after you find creds
 - When you find creds anywhere, circle back and try them on EVERY service
-
-## Resources
-
-- [Exploit-DB](https://www.exploit-db.com) — searchsploit upstream
-- [oncybersec/oscp-enumeration-cheat-sheet](https://github.com/oncybersec/oscp-enumeration-cheat-sheet) — per-service enum
-- [HackTricks](https://book.hacktricks.xyz) — service pages

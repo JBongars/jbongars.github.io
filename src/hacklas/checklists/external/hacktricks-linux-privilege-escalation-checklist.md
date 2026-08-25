@@ -1,0 +1,1 @@
+../../../external/hacktricks/src/linux-hardening/linux-privilege-escalation-checklist.md

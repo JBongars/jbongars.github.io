@@ -1,12 +1,51 @@
 # OSCP Enumeration Cheat Sheet
 
-**Author:** Julien Bongars\
-**Date:** 2026-08-19 18:19:27
-**Path:**
+A collection of commands and tools used for conducting enumeration during my OSCP journey.
 
----
+## Description
 
-Host, service, and AD enumeration commands used during OSCP, including Autorecon-style nmap wrappers.
+This is an enumeration cheat sheet that I created while pursuing the OSCP. It also includes the commands that I used on platforms such as Vulnhub and Hack the Box. Some of these commands are based on those executed by the [Autorecon](https://github.com/Tib3rius/AutoRecon) tool.
+
+## Disclaimer
+
+This cheat sheet should not be considered to be complete and only represents a snapshot in time when I used these commands for performing enumeration during my OSCP journey. These commands should only be used for educational purposes or authorised testing.
+
+# Table of Contents
+
+- [Enumeration](#enumeration)
+  - [Host](#host)
+    - [Nmap](#nmap)
+    - [Proxychains](#proxychains)
+    - [Autorecon](#autorecon)
+  - [Services](#services)
+    - [FTP (21/tcp)](#ftp-21tcp)
+    - [SSH (22/tcp)](#ssh-22tcp)
+    - [SMTP (25/tcp)](#smtp-25tcp)
+    - [DNS (53/tcp, 53/udp)](#dns-53tcp-53udp)
+    - [HTTP/HTTPS (80/tcp, 443/tcp)](#httphttps-80tcp-443tcp)
+    - [Kerberos (88/tcp, 464/tcp)](#kerberos-88tcp-464tcp)
+    - [POP3/POP3S (110/tcp, 995/tcp)](#pop3pop3s-110tcp-995tcp)
+    - [RPC (111/tcp, 135/tcp)](#rpc-111tcp-135tcp)
+    - [ident (113/tcp)](#ident-113tcp)
+    - [NTP (123/udp)](#ntp-123udp)
+    - [NetBIOS-NS (137/udp)](#netbios-ns-137udp)
+    - [SMB (139/tcp, 445/tcp)](#smb-139tcp-445tcp)
+    - [IMAP/IMAPS (143/tcp, 993/tcp)](#imapimaps-143tcp-993tcp)
+    - [SNMP (161/udp)](#snmp-161udp)
+    - [LDAP (389/tcp, 3268/tcp)](#ldap-389tcp-3268tcp)
+    - [Java RMI (1100/tcp)](#java-rmi-1100tcp)
+    - [MSSQL (1433/tcp)](#mssql-1433tcp)
+    - [Oracle TNS listener (1521/tcp)](#oracle-tns-listener-1521tcp)
+    - [NFS (2049/tcp)](#nfs-2049tcp)
+    - [MySQL (3306/tcp)](#mysql-3306tcp)
+    - [RDP (3389/tcp)](#rdp-3389tcp)
+    - [SIP (5060/udp)](#sip-5060udp)
+    - [PostgreSQL (5432/tcp)](#postgresql-5432tcp)
+    - [VNC (5900/tcp)](#vnc-5900tcp)
+    - [AJP (8009/tcp)](#ajp-8009tcp)
+  - [Active Directory](#active-directory)
+
+# Enumeration
 
 ## Host
 
@@ -644,9 +683,3 @@ PS> Get-NetSession -ComputerName $hostname
 # Enumerate SPNs
 PS> Get-NetUser -SPN | select serviceprincipalname
 ```
-
-## Resources
-
-- [AutoRecon](https://github.com/Tib3rius/AutoRecon) — many of these nmap lines match its wrappers
-- [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings) — service follow-ups
-- [HackTricks](https://book.hacktricks.xyz/) — per-port pentest notes
