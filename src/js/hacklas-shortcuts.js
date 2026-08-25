@@ -36,6 +36,11 @@
     return true;
   }
 
+  function isSearchUi(el) {
+    if (!el || !el.closest) return false;
+    return !!(el.closest(".tag-search") || el.closest("[data-fuzzy-find]"));
+  }
+
   function overlayOpen() {
     var help = document.querySelector("[data-shortcuts-modal]");
     if (help && !help.hidden) return true;
@@ -118,7 +123,7 @@
       if (e.defaultPrevented || e.isComposing) return;
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       if (overlayOpen()) return;
-      if (isTextField(document.activeElement)) return;
+      if (isTextField(document.activeElement) || isSearchUi(document.activeElement)) return;
 
       if (e.key === "Enter") {
         if (isActivateKey(document.activeElement)) return;

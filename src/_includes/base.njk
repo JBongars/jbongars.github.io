@@ -146,15 +146,16 @@
       {% endif %}
     </div>
   </footer>
-  {% set isListing = page.url == "/blog/" or page.url == "/write-ups/" %}
   {% set isPost = (page.url != "/blog/" and "/blog/" in page.url) or (page.url != "/write-ups/" and "/write-ups/" in page.url) or (page.url != "/hacklas/" and "/hacklas/" in page.url) %}
-  {% if isListing %}
-  <script src="{{ '/js/booru-search.js' | url }}" defer></script>
-  {% endif %}
   {% if features.hacklas %}
-  {# Loaded on every page so site.js main-swaps onto /hacklas/ still have handlers. #}
+  {# fuzzy-find before booru-search; site.js (last) composes them. #}
   <script src="{{ '/js/site-url.js' | url }}" defer></script>
   <script src="{{ '/js/fuzzy-find.js' | url }}?v={{ cssRev }}" defer></script>
+  {% endif %}
+  {# Loaded on every page so site.js main-swaps onto /blog/ or /write-ups/ still have handlers. #}
+  <script src="{{ '/js/booru-search.js' | url }}?v={{ cssRev }}" defer></script>
+  {% if features.hacklas %}
+  {# Loaded on every page so site.js main-swaps onto /hacklas/ still have handlers. #}
   <script src="{{ '/js/hacklas-disclaimer.js' | url }}" defer></script>
   <script src="{{ '/js/hacklas-shortcuts.js' | url }}?v={{ cssRev }}" defer></script>
   <script src="{{ '/js/hacklas-help.js' | url }}?v={{ cssRev }}" defer></script>
@@ -171,6 +172,6 @@
   {% endif %}
   {# Loaded on every page so site.js main-swaps onto /resume/ still have handlers. #}
   <script src="{{ '/js/skill-hints.js' | url }}" defer></script>
-  <script src="{{ '/js/site.js' | url }}" defer></script>
+  <script src="{{ '/js/site.js' | url }}?v={{ cssRev }}" defer></script>
 </body>
 </html>

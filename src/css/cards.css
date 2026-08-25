@@ -41,10 +41,15 @@ a.card:focus-visible {
 }
 
 /* Listing cards: equal height in the grid, banners cropped to 16:9.
-   Post-page `.post-banner` is separate and keeps the source image size. */
+   Post-page `.post-banner` is separate and keeps the source image size.
+   `display: flex` is gated on :not([hidden]) so tag-search can hide items
+   without fighting this rule (the hidden attribute alone is not enough). */
 .card-grid > li {
-  display: flex;
   min-width: 0;
+}
+
+.card-grid > li:not([hidden]) {
+  display: flex;
 }
 
 .card--with-media {

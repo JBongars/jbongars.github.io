@@ -81,6 +81,32 @@
   outline-offset: 2px;
 }
 
+/* Tag chips are created by booruSearch.mountField; keep this row from eating list height. */
+.fuzzy-find .tag-search {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.fuzzy-find__field {
+  width: 100%;
+}
+
+.fuzzy-find__field .fuzzy-find__input {
+  width: auto;
+  flex: 1 1 8rem;
+  min-width: 6rem;
+  padding: 0.35em 0.25em;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+}
+
+.fuzzy-find__field .fuzzy-find__input:focus {
+  outline: none;
+}
+
 .fuzzy-find__list {
   list-style: none;
   flex: 1 1 auto;
@@ -100,10 +126,11 @@
 
 .fuzzy-find__list a {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-2) var(--space-5);
+  min-width: 0;
   padding: var(--space-3) var(--space-4);
   color: inherit;
   text-decoration: none;
@@ -115,16 +142,23 @@
 }
 
 .fuzzy-find__title {
+  flex: 0 1 auto;
+  min-width: 0;
   font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
 }
 
 .fuzzy-find__path {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--muted);
   text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Hacklas disclaimer modal */

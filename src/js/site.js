@@ -1,26 +1,85 @@
 /* Progressive enhancement: theme persistence + same-origin page swaps.
-   Site works without this file. No page cache — browser HTTP cache only. */
+   Site works without this file. No page cache — browser HTTP cache only.
+   enhance() is the page controller: it calls each module's public methods. */
 (function () {
   var KEY = "theme";
   var toggle = document.getElementById("theme-toggle");
   var main = document.querySelector("main");
   var path = location.pathname + location.search;
-  if (!toggle || !main) return;
 
   function applyTheme(light) {
+    if (!toggle) return;
     toggle.checked = !!light;
     try {
       localStorage.setItem(KEY, light ? "light" : "dark");
     } catch (_) {}
   }
 
-  try {
-    if (localStorage.getItem(KEY) === "light") toggle.checked = true;
-  } catch (_) {}
+  if (toggle) {
+    try {
+      if (localStorage.getItem(KEY) === "light") toggle.checked = true;
+    } catch (_) {}
+    toggle.addEventListener("change", function () {
+      applyTheme(toggle.checked);
+    });
+  }
 
-  toggle.addEventListener("change", function () {
-    applyTheme(toggle.checked);
-  });
+  function tagsFromUrl() {
+    try {
+      var raw = new URL(location.href).searchParams.get("t") || "";
+      return raw.split(",").map(function (t) { return t.trim(); }).filter(Boolean);
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function call(obj, method) {
+    if (obj && typeof obj[method] === "function") obj[method]();
+    else if (typeof obj === "function") obj();
+  }
+
+  // Compose tag chips onto a fuzzy-find field when the markup asks for it.
+  function mountTagSearchOnFuzzyFind() {
+    if (!window.booruSearch || !window.fuzzyFind) return;
+    Array.prototype.forEach.call(
+      document.querySelectorAll("[data-fuzzy-find][data-tag-search]"),
+      function (root) {
+        var list = root.querySelector("[data-fuzzy-list]");
+        var input = root.querySelector(".fuzzy-find__input");
+        if (!list || !input) return;
+        window.booruSearch.mountField({
+          list: list,
+          input: input,
+          initialTags: tagsFromUrl(),
+          listboxId: "fuzzy-find-tags",
+          placeholder: "Search notes or tags…",
+          fieldClass: "tag-search__field fuzzy-find__field",
+          commitTagOnSpace: true,
+          commitTitleOnEnter: false,
+          arrowsOnlyWhenOpen: true,
+          onApply: function (query, tags) {
+            window.fuzzyFind.apply(query, tags);
+          }
+        });
+      }
+    );
+  }
+
+  function enhance() {
+    call(window.fuzzyFind, "hydrate");
+    call(window.booruSearch, "hydrate");
+    mountTagSearchOnFuzzyFind();
+    call(window.hydrateHacklasDisclaimer);
+    call(window.hydrateHacklasHelp);
+    call(window.hydrateCodeBlocks);
+    call(window.hydrateImageLightbox);
+    call(window.hydrateComments);
+    call(window.hydrateSkillHints);
+  }
+
+  if (!main) return;
+
+  enhance();
 
   function sameOrigin(href) {
     try {
@@ -39,33 +98,6 @@
     var next = doc.querySelector(".site-nav");
     var cur = document.querySelector(".site-nav");
     if (next && cur) cur.replaceWith(next);
-  }
-
-  function afterNavigate() {
-    if (typeof window.hydrateListing === "function") {
-      window.hydrateListing();
-    }
-    if (typeof window.hydrateFuzzyFind === "function") {
-      window.hydrateFuzzyFind();
-    }
-    if (typeof window.hydrateHacklasDisclaimer === "function") {
-      window.hydrateHacklasDisclaimer();
-    }
-    if (typeof window.hydrateHacklasHelp === "function") {
-      window.hydrateHacklasHelp();
-    }
-    if (typeof window.hydrateCodeBlocks === "function") {
-      window.hydrateCodeBlocks();
-    }
-    if (typeof window.hydrateImageLightbox === "function") {
-      window.hydrateImageLightbox();
-    }
-    if (typeof window.hydrateComments === "function") {
-      window.hydrateComments();
-    }
-    if (typeof window.hydrateSkillHints === "function") {
-      window.hydrateSkillHints();
-    }
   }
 
   window.syncSoftNavPath = function () {
@@ -92,7 +124,7 @@
         var next = new URL(url, location.href);
         path = next.pathname + next.search;
         window.scrollTo(0, 0);
-        afterNavigate();
+        enhance();
       });
   }
 

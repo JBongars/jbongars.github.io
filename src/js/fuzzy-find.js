@@ -1,9 +1,10 @@
-/* Progressive enhancement: Spotlight-style fuzzy filter for Hacklas notes.
+/* Progressive enhancement: rank and filter Hacklas notes.
    Hydrated only when [data-fuzzy-find] is present. Safe without this file.
-   Breadcrumb links use ?q=path/prefix — this file prefills and filters from that.
-   Backspace at the start of the field steps up the path / goes to the previous page. */
+   Breadcrumb links use ?q=path/prefix. Tag chips come from booru-search.js. */
 (function () {
   "use strict";
+
+  var sessions = [];
 
   function normalize(s) {
     return String(s || "")
@@ -19,67 +20,156 @@
     }
   }
 
+  function tagsFromUrl() {
+    try {
+      var raw = new URL(location.href).searchParams.get("t") || "";
+      return raw
+        .split(",")
+        .map(function (t) {
+          return t.trim();
+        })
+        .filter(Boolean);
+    } catch (_) {
+      return [];
+    }
+  }
+
   function syncSoftPath() {
     if (typeof window.syncSoftNavPath === "function") {
       window.syncSoftNavPath();
     }
   }
 
-  function syncQueryUrl(q) {
-    if (!location.pathname.replace(/\/$/, "").endsWith("/hacklas") &&
-        location.pathname !== "/hacklas/") {
-      return;
-    }
+  function onHacklasIndex() {
+    return (
+      location.pathname.replace(/\/$/, "").endsWith("/hacklas") ||
+      location.pathname === "/hacklas/"
+    );
+  }
+
+  function syncQueryUrl(q, tagNames) {
+    if (!onHacklasIndex()) return;
     var withPrefix =
       typeof window.siteUrl === "function"
         ? window.siteUrl
         : function (p) {
             return p;
           };
+    var parts = [];
+    if (tagNames && tagNames.length) {
+      parts.push(
+        "t=" +
+          tagNames
+            .map(function (name) {
+              return encodeURIComponent(name);
+            })
+            .join(",")
+      );
+    }
+    if (q && String(q).length) {
+      parts.push("q=" + encodeURIComponent(q));
+    }
     var next =
-      q && String(q).length
-        ? withPrefix("/hacklas/") + "?q=" + encodeURIComponent(q)
-        : withPrefix("/hacklas/");
+      withPrefix("/hacklas/") + (parts.length ? "?" + parts.join("&") : "");
     var cur = location.pathname + location.search;
     if (cur === next) return;
     history.replaceState(null, "", next);
     syncSoftPath();
   }
 
-  /** True if query characters appear in order (subsequence) in haystack. */
-  function fuzzyMatch(haystack, query) {
+  function origIndex(li) {
+    var n = parseInt(li.getAttribute("data-orig"), 10);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function liTags(li) {
+    return (li.getAttribute("data-tags") || "")
+      .split(",")
+      .map(function (t) {
+        return t.trim().toLowerCase();
+      })
+      .filter(Boolean);
+  }
+
+  function matchesTags(li, tagNames) {
+    if (!tagNames || !tagNames.length) return true;
+    var tags = liTags(li);
+    return tagNames.every(function (name) {
+      return tags.indexOf(String(name).toLowerCase()) !== -1;
+    });
+  }
+
+  /** Shortest subsequence window; higher when the query is compact and early. */
+  function fuzzyScore(haystack, query) {
     var h = normalize(haystack);
-    var q = normalize(query);
-    if (!q) return true;
+    var q = normalize(query).replace(/\s+/g, "");
+    if (!q) return 0;
     var hi = 0;
-    for (var qi = 0; qi < q.length; qi++) {
-      var ch = q.charAt(qi);
-      if (ch === " ") continue;
-      hi = h.indexOf(ch, hi);
-      if (hi < 0) return false;
+    var first = -1;
+    var last = -1;
+    var run = 0;
+    var bestRun = 0;
+    var prev = -2;
+    var qi;
+    for (qi = 0; qi < q.length; qi++) {
+      hi = h.indexOf(q.charAt(qi), hi);
+      if (hi < 0) return -1;
+      if (first < 0) first = hi;
+      last = hi;
+      if (hi === prev + 1) {
+        run += 1;
+        if (run > bestRun) bestRun = run;
+      } else {
+        run = 1;
+      }
+      prev = hi;
       hi += 1;
     }
-    return true;
+    var compactness = q.length / (last - first + 1);
+    var earliness = 1 / (1 + first);
+    return Math.round(
+      40 * compactness + 15 * earliness + 15 * (bestRun / q.length)
+    );
   }
 
-  function itemHaystack(li) {
-    return [
-      li.getAttribute("data-title") || "",
-      li.getAttribute("data-path") || "",
-      li.getAttribute("data-tags") || "",
-    ].join(" ");
+  function containsScore(field, q, exact, prefix, contains) {
+    if (field === q) return exact;
+    if (field.indexOf(q) === 0) return prefix;
+    var at = field.indexOf(q);
+    if (at >= 0) return contains - Math.min(at, 40);
+    return -1;
   }
 
-  /** Prefer path-prefix matches (breadcrumb ?q=), else fuzzy on title/path/tags. */
-  function itemMatches(li, query) {
+  /**
+   * Rank a note for the query. Higher is better; -1 is no match.
+   * Contiguous title/path hits beat loose subsequence matches.
+   */
+  function scoreItem(li, query) {
     var q = normalize(query);
-    if (!q) return true;
+    if (!q) return 0;
 
+    var title = normalize(li.getAttribute("data-title") || "");
     var path = normalize(li.getAttribute("data-path") || "");
+    var tags = normalize((li.getAttribute("data-tags") || "").replace(/,/g, " "));
+    var slug = path.split("/").pop() || "";
     var asPath = q.replace(/\s+/g, "/");
-    if (path === asPath || path.indexOf(asPath + "/") === 0) return true;
 
-    return fuzzyMatch(itemHaystack(li), query);
+    if (path === asPath) return 1000;
+    if (path.indexOf(asPath + "/") === 0) return 900;
+
+    var titleHit = containsScore(title, q, 800, 700, 600);
+    if (titleHit >= 0) return titleHit;
+
+    var slugHit = containsScore(slug, q, 550, 500, 450);
+    if (slugHit >= 0) return slugHit;
+
+    var pathHit = containsScore(path, q, 400, 380, 350);
+    if (pathHit >= 0) return pathHit;
+
+    var tagHit = containsScore(tags, q, 320, 300, 280);
+    if (tagHit >= 0) return tagHit;
+
+    return fuzzyScore([title, path, tags].join(" "), query);
   }
 
   function visibleItems(list) {
@@ -112,37 +202,65 @@
     return trimmed.slice(0, idx);
   }
 
+  function applySession(session, query, tagNames) {
+    var q = query == null ? session.input.value : query;
+    var tags = tagNames || [];
+    var ranked = Array.prototype.map.call(session.list.children, function (li) {
+      var score = matchesTags(li, tags) ? scoreItem(li, q) : -1;
+      return { li: li, score: score };
+    });
+    ranked.sort(function (a, b) {
+      if (b.score !== a.score) return b.score - a.score;
+      return origIndex(a.li) - origIndex(b.li);
+    });
+    ranked.forEach(function (row) {
+      row.li.style.display = row.score < 0 ? "none" : "";
+      session.list.appendChild(row.li);
+    });
+    var items = visibleItems(session.list);
+    session.listActive = items.length ? setActive(items, 0) : -1;
+    syncQueryUrl(q, tags);
+  }
+
   function hydrate(root) {
     if (!root || root.getAttribute("data-fuzzy-ready") === "1") return;
     var input = root.querySelector(".fuzzy-find__input");
     var list = root.querySelector("[data-fuzzy-list]");
     if (!input || !list) return;
     root.setAttribute("data-fuzzy-ready", "1");
+    Array.prototype.forEach.call(list.children, function (li, i) {
+      if (!li.hasAttribute("data-orig")) li.setAttribute("data-orig", String(i));
+    });
 
-    var activeIndex = -1;
+    var session = { root: root, input: input, list: list, listActive: -1 };
+    sessions.push(session);
+
+    function currentTags() {
+      try {
+        return tagsFromUrl();
+      } catch (_) {
+        return [];
+      }
+    }
 
     function filter() {
-      var q = input.value;
-      Array.prototype.forEach.call(list.children, function (li) {
-        li.style.display = itemMatches(li, q) ? "" : "none";
-      });
-      var items = visibleItems(list);
-      activeIndex = items.length ? setActive(items, 0) : -1;
-      syncQueryUrl(q);
+      applySession(session, input.value, currentTags());
     }
 
     var preset = queryFromUrl();
     if (preset) {
       input.value = preset;
-      filter();
       if (typeof input.focus === "function") input.focus();
-    } else {
-      syncQueryUrl(input.value);
     }
+    applySession(session, input.value, currentTags());
 
     input.addEventListener("input", filter);
 
     input.addEventListener("keydown", function (e) {
+      var items;
+      var cur;
+      var link;
+
       if (e.key === "Backspace" && input.selectionStart === 0 && input.selectionEnd === 0) {
         e.preventDefault();
         if (input.value) {
@@ -154,21 +272,24 @@
         return;
       }
 
-      var items = visibleItems(list);
-      if (!items.length && e.key !== "Escape") return;
+      items = visibleItems(list);
+      if (!items.length && e.key !== "Escape" && e.key !== "Enter") return;
 
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        activeIndex = setActive(items, activeIndex + 1);
+        session.listActive = setActive(items, session.listActive + 1);
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        activeIndex = setActive(items, activeIndex <= 0 ? items.length - 1 : activeIndex - 1);
+        session.listActive = setActive(
+          items,
+          session.listActive <= 0 ? items.length - 1 : session.listActive - 1
+        );
       } else if (e.key === "Enter") {
-        var cur = items[activeIndex] || items[0];
-        var link = cur && cur.querySelector("a[href]");
+        cur = items[session.listActive] || items[0];
+        link = cur && cur.querySelector("a[href]");
         if (link) {
           e.preventDefault();
-          syncQueryUrl(input.value);
+          syncQueryUrl(input.value, currentTags());
           link.click();
         }
       } else if (e.key === "Escape") {
@@ -184,22 +305,32 @@
       var li = e.target.closest && e.target.closest("li");
       if (!li || !list.contains(li) || li.style.display === "none") return;
       var items = visibleItems(list);
-      activeIndex = setActive(items, items.indexOf(li));
+      session.listActive = setActive(items, items.indexOf(li));
     });
 
-    // Keep the current query in history before leaving via a result click.
     list.addEventListener("click", function () {
-      syncQueryUrl(input.value);
+      syncQueryUrl(input.value, currentTags());
     });
   }
 
   function hydrateAll() {
+    sessions = sessions.filter(function (session) {
+      return session.root && document.contains(session.root);
+    });
     Array.prototype.forEach.call(
       document.querySelectorAll("[data-fuzzy-find]"),
       hydrate
     );
   }
 
+  function apply(query, tagNames) {
+    sessions.forEach(function (session) {
+      applySession(session, query, tagNames);
+    });
+  }
+
+  window.fuzzyFind = { hydrate: hydrateAll, apply: apply };
+  window.applyFuzzyFind = apply;
   window.hydrateFuzzyFind = hydrateAll;
 
   if (document.readyState === "loading") {
