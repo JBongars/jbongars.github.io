@@ -38,7 +38,7 @@
 }
 
 @media (min-width: 48rem) {
-  .nav-list a .nav-list__key {
+  .nav-list a[aria-current="page"] .nav-list__key {
     text-decoration: underline;
     text-underline-offset: 0.12em;
   }
