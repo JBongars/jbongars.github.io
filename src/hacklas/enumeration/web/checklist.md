@@ -1,3 +1,10 @@
+---
+note_tags:
+  - recon
+  - fuzzing
+  - directory
+  - http
+---
 # Web Enumeration Checklist
 
 **Author:** Julien Bongars\

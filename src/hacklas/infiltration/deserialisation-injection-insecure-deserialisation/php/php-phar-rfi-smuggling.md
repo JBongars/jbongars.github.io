@@ -1,3 +1,9 @@
+---
+note_tags:
+  - phar
+  - rfi
+  - deserialization
+---
 # php phar RFI smuggling
 
 **Author:** Julien Bongars\

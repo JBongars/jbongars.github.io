@@ -1,3 +1,9 @@
+---
+note_tags:
+  - powershell
+  - scripting
+  - bypass
+---
 # PowerShell scripting
 
 **Author:** Julien Bongars\

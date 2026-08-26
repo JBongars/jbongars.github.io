@@ -1,3 +1,8 @@
+---
+note_tags:
+  - active-directory
+  - windows
+---
 # ldap
 
 **Author:** Julien Bongars\

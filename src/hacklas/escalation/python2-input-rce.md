@@ -1,3 +1,10 @@
+---
+note_tags:
+  - python
+  - rce
+  - privesc
+  - python2
+---
 # python2-input-rce
 
 **Author:** Julien Bongars\

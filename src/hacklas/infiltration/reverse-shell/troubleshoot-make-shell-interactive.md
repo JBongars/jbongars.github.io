@@ -1,3 +1,10 @@
+---
+note_tags:
+  - pty
+  - python
+  - bash
+  - tty
+---
 # cant-make-shell-interactive
 
 **Author:** Julien Bongars\

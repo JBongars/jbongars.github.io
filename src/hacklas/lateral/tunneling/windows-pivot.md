@@ -1,3 +1,9 @@
+---
+note_tags:
+  - windows
+  - winrm
+  - pivot
+---
 # Windows pivot — WinRM first
 
 **Author:** Julien Bongars\

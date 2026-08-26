@@ -1,3 +1,9 @@
+---
+note_tags:
+  - powershell
+  - recon
+  - active-directory
+---
 # PowerShell enumeration
 
 **Author:** Julien Bongars\

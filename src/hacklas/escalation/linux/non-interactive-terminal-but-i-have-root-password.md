@@ -1,3 +1,10 @@
+---
+note_tags:
+  - privesc
+  - su
+  - password
+  - tty
+---
 # non-interactive-terminal-but-i-have-root-password
 
 **Author:** Julien Bongars\

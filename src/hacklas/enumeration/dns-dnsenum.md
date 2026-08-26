@@ -1,3 +1,10 @@
+---
+note_tags:
+  - recon
+  - dns
+  - dnsenum
+  - osint
+---
 # dns-dnsenum
 
 **Author:** Julien Bongars\

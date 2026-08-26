@@ -1,3 +1,9 @@
+---
+note_tags:
+  - ligolo
+  - tun
+  - pivot
+---
 # ligolo-ng
 
 **Author:** Julien Bongars\

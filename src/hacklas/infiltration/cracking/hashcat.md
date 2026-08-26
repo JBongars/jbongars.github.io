@@ -1,3 +1,9 @@
+---
+note_tags:
+  - hash
+  - wordlist
+  - john
+---
 # hashcat
 
 **Author:** Julien Bongars\

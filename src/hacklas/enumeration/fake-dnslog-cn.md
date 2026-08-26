@@ -1,3 +1,11 @@
+---
+note_tags:
+  - oob
+  - dns
+  - dnslog
+  - rce
+  - ssti
+---
 # fake-dnslog-cn
 
 **Author:** Julien Bongars\

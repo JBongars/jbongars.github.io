@@ -1,3 +1,9 @@
+---
+note_tags:
+  - sqli
+  - database
+  - fingerprint
+---
 # Identify SQL engine
 
 **Author:** Julien Bongars\

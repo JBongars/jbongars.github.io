@@ -1,3 +1,9 @@
+---
+note_tags:
+  - pcap
+  - network
+  - sniffing
+---
 # tcpdump
 
 **Author:** Julien Bongars\

@@ -1,3 +1,10 @@
+---
+note_tags:
+  - python
+  - jinja2
+  - rce
+  - flask
+---
 # Jinja2 SSTI
 
 **Author:** Julien Bongars\

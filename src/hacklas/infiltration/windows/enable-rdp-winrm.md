@@ -1,3 +1,10 @@
+---
+note_tags:
+  - rdp
+  - winrm
+  - foothold
+  - remote-desktop
+---
 # Enable RDP / WinRM
 
 **Author:** Julien Bongars\

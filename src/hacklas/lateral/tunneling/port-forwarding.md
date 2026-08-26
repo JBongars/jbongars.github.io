@@ -1,3 +1,10 @@
+---
+note_tags:
+  - ssh
+  - port-forward
+  - socks
+  - pivot
+---
 # SSH Tunneling - Living Off The Land
 
 **Author:** Julien Bongars\

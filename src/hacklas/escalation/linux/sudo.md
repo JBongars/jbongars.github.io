@@ -1,3 +1,9 @@
+---
+note_tags:
+  - privesc
+  - gtfobins
+  - nopasswd
+---
 # sudo / sudoers
 
 **Author:** Julien Bongars\

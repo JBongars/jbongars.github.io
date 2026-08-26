@@ -1,3 +1,10 @@
+---
+note_tags:
+  - lfi
+  - rfi
+  - file-traversal
+  - rce
+---
 # file-traversal-lfi-rfi
 
 **Author:** Julien Bongars\

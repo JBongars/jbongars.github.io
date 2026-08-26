@@ -1,3 +1,9 @@
+---
+note_tags:
+  - encoding
+  - decoding
+  - payload
+---
 # CyberChef
 
 **Author:** Julien Bongars\

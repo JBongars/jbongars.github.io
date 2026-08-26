@@ -1,3 +1,8 @@
+---
+note_tags:
+  - deserialization
+  - gadget
+---
 # phpggc - PHP Generic Gadget Chains
 
 **Author:** Julien Bongars\

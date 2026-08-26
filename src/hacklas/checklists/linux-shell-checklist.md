@@ -1,3 +1,11 @@
+---
+note_tags:
+  - linux
+  - recon
+  - checklist
+  - privesc
+  - linpeas
+---
 # Linux Shell Enumeration Checklist
 
 **Author:** Julien Bongars\

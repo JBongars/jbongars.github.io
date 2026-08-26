@@ -1,3 +1,11 @@
+---
+note_tags:
+  - ldap
+  - jndi
+  - java
+  - log4shell
+  - rce
+---
 # ldap for jndi attack
 
 **Author:** Julien Bongars\

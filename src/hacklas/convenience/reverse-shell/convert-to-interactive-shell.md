@@ -1,3 +1,11 @@
+---
+note_tags:
+  - linux
+  - pty
+  - python
+  - bash
+  - tty
+---
 # convert-to-interactive-shell
 
 **Author:** Julien Bongars\

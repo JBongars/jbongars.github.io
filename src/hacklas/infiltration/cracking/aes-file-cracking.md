@@ -1,3 +1,9 @@
+---
+note_tags:
+  - aes
+  - encryption
+  - brute-force
+---
 # aes-file-cracking
 
 **Author:** Julien Bongars\

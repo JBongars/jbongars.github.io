@@ -1,3 +1,9 @@
+---
+note_tags:
+  - feroxbuster
+  - fuzzing
+  - directory
+---
 # feroxbuster
 
 **Author:** Julien Bongars\

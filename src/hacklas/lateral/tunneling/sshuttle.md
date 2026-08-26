@@ -1,3 +1,9 @@
+---
+note_tags:
+  - ssh
+  - pivot
+  - vpn
+---
 # sshuttle
 
 **Author:** Julien Bongars\

@@ -1,3 +1,8 @@
+---
+note_tags:
+  - database
+  - recon
+---
 # MySQL
 
 **Author:** Julien Bongars\

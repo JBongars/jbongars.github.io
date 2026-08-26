@@ -211,9 +211,16 @@ the dump they already have.** Add Resources and tidy presentation only.
 ## Document structure
 
 Keep the Hacklas chrome so the layout can parse title / author / date
-(`parseHacklasMeta` / `stripNoteChrome` in `_11ty/content.js`):
+(`parseHacklasMeta` / `stripNoteChrome` in `_11ty/content.js`). Optional YAML
+front matter may precede the `#` title. Use `note_tags` (not Eleventy `tags:`)
+for extra booru-search terms — path segments are already tags.
 
 ```
+---
+note_tags:
+  - xss
+  - javascript
+---
 # <title>
 
 **Author:** Julien Bongars\
@@ -222,6 +229,10 @@ Keep the Hacklas chrome so the layout can parse title / author / date
 
 ---
 ```
+
+`note_tags` are lowercase, hyphenated aliases and extra terms a reader would
+type (`lfi`, `privesc`, `netexec`). Do not repeat a path segment. Four to
+eight extras is enough.
 
 The `#` title should name the topic **without the breadcrumbs**. Prefer
 `MSSQL / Linked servers` over `Enumeration`, `XSS enumeration` over

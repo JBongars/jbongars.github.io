@@ -1,3 +1,9 @@
+---
+note_tags:
+  - database
+  - windows
+  - xp_cmdshell
+---
 # MSSQL enumeration
 
 **Author:** Julien Bongars\

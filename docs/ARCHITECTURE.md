@@ -92,6 +92,10 @@ Blog post front matter:
 Write-up front matter: same shape, plus platform tags. Formatting rules for
 the body live in [WRITEUP_SPEC.md](WRITEUP_SPEC.md).
 
+Hacklas notes keep Author/Date/Path chrome in the markdown body (see
+[HACKLAS_SPEC.md](HACKLAS_SPEC.md)). Optional YAML `note_tags` (not `tags:`)
+are merged with path segments for booru search; breadcrumbs stay on the path.
+
 Resume data (`_data/resume.json`): `name`, `title`, `location`, `linkedin`,
 `github`, `skills`, `education`, `certificates`, `experience` (company, title,
 `start` / `end`, bullets, tools, optional agency, location, links,

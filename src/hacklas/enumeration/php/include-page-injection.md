@@ -1,3 +1,10 @@
+---
+note_tags:
+  - lfi
+  - rfi
+  - include
+  - web
+---
 # php-page-injection
 
 **Author:** Julien Bongars\

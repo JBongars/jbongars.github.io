@@ -1,3 +1,10 @@
+---
+note_tags:
+  - exfil
+  - nc
+  - tar
+  - reverse-shell
+---
 # directory-with-nc
 
 **Author:** Julien Bongars\

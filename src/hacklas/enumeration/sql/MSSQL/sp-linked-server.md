@@ -1,3 +1,10 @@
+---
+note_tags:
+  - database
+  - linked-server
+  - rce
+  - windows
+---
 # MSSQL / Linked servers
 
 **Author:** Julien Bongars\

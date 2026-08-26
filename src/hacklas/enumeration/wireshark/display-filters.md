@@ -1,3 +1,9 @@
+---
+note_tags:
+  - pcap
+  - network
+  - filters
+---
 # Wireshark display filters
 
 **Author:** Julien Bongars\

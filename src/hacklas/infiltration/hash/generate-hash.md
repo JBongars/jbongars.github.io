@@ -1,3 +1,9 @@
+---
+note_tags:
+  - openssl
+  - password
+  - linux
+---
 # Hash Generation & Enumeration
 
 **Author:** Julien Bongars\

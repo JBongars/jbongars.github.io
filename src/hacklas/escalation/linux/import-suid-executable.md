@@ -1,3 +1,9 @@
+---
+note_tags:
+  - suid
+  - privesc
+  - binary
+---
 # import-suid-executable
 
 **Author:** Julien Bongars\

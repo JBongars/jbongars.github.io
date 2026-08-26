@@ -1,3 +1,8 @@
+---
+note_tags:
+  - windows
+  - payload
+---
 # powershell
 
 **Author:** Julien Bongars\

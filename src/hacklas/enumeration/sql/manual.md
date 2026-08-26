@@ -1,3 +1,10 @@
+---
+note_tags:
+  - sqli
+  - database
+  - union
+  - error-based
+---
 # Manual SQLi Enumeration
 
 **Author:** Julien Bongars\

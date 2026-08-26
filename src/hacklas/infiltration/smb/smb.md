@@ -1,3 +1,9 @@
+---
+note_tags:
+  - windows
+  - shares
+  - smbclient
+---
 # SMB client
 
 **Author:** Julien Bongars\

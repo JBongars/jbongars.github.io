@@ -1,3 +1,9 @@
+---
+note_tags:
+  - vim
+  - privesc
+  - gtfobins
+---
 # vi
 
 **Author:** Julien Bongars\

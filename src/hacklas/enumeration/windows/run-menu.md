@@ -1,3 +1,9 @@
+---
+note_tags:
+  - run
+  - living-off-the-land
+  - shortcuts
+---
 # Windows Run menu
 
 **Author:** Julien Bongars\

@@ -1,3 +1,9 @@
+---
+note_tags:
+  - java
+  - deserialization
+  - rce
+---
 # ysoserial
 
 **Author:** Julien Bongars\

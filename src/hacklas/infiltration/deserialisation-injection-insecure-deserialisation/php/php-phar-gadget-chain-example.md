@@ -1,3 +1,10 @@
+---
+note_tags:
+  - phar
+  - deserialization
+  - monolog
+  - rce
+---
 # Monolog/RCE1 Gadget Chain — PHAR Deserialization
 
 **Author:** Julien Bongars\

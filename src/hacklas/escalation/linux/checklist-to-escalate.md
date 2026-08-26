@@ -1,3 +1,9 @@
+---
+note_tags:
+  - privesc
+  - checklist
+  - linpeas
+---
 # Linux privilege escalation checklist
 
 **Author:** Julien Bongars\

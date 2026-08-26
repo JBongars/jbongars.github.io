@@ -1,3 +1,9 @@
+---
+note_tags:
+  - password
+  - fcrackzip
+  - john
+---
 # zip
 
 **Author:** Julien Bongars\

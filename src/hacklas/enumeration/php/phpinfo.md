@@ -1,3 +1,9 @@
+---
+note_tags:
+  - recon
+  - web
+  - fingerprint
+---
 # phpinfo
 
 **Author:** Julien Bongars\

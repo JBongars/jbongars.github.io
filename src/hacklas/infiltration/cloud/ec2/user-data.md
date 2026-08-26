@@ -1,3 +1,9 @@
+---
+note_tags:
+  - aws
+  - metadata
+  - ssrf
+---
 # user-data
 
 **Author:** Julien Bongars\

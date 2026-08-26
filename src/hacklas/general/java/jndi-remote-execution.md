@@ -1,3 +1,10 @@
+---
+note_tags:
+  - jndi
+  - rce
+  - ldap
+  - log4shell
+---
 # jndi-remote-execution
 
 **Author:** Julien Bongars\

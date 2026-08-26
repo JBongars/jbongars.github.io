@@ -1,3 +1,9 @@
+---
+note_tags:
+  - recon
+  - source
+  - git-dumper
+---
 # gitea
 
 **Author:** Julien Bongars\

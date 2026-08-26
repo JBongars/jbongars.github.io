@@ -1,3 +1,9 @@
+---
+note_tags:
+  - privesc
+  - checklist
+  - powershell
+---
 # Windows privilege escalation checklist
 
 **Author:** Julien Bongars\

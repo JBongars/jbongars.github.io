@@ -1,3 +1,9 @@
+---
+note_tags:
+  - foothold
+  - xfreerdp
+  - remote-desktop
+---
 # RDP
 
 **Author:** Julien Bongars\
