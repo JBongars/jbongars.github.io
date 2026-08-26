@@ -118,6 +118,23 @@
     return window.matchMedia("(min-width: 48rem)").matches;
   }
 
+  // iOS retargets the click that follows pointerdown onto whatever is
+  // under the finger after the suggestion row closes (usually a note).
+  function swallowNextClick() {
+    var timeout;
+    function swallow(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      cleanup();
+    }
+    function cleanup() {
+      document.removeEventListener("click", swallow, true);
+      clearTimeout(timeout);
+    }
+    document.addEventListener("click", swallow, true);
+    timeout = setTimeout(cleanup, 500);
+  }
+
   // ---------------------------------------------------------------------
   // Sorting
   // ---------------------------------------------------------------------
@@ -360,11 +377,19 @@
 
       chip.appendChild(label);
       chip.appendChild(x);
-      chip.addEventListener("click", function (e) {
+      var removed = false;
+      function removeChip(e) {
         e.preventDefault();
         e.stopPropagation();
+        if (removed) return;
+        removed = true;
         onRemove();
+      }
+      chip.addEventListener("pointerdown", function (e) {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        removeChip(e);
       });
+      chip.addEventListener("click", removeChip);
       return chip;
     }
 
@@ -461,8 +486,19 @@
         activeIndex = index;
         highlightActive();
       });
-      li.addEventListener("mousedown", function (e) {
+      // pointerdown (not mousedown): iOS blurs the field — and dismisses
+      // this list — before mouse events fire on a tap. Swallow the click
+      // that would otherwise land on the note under the overlay.
+      li.addEventListener("pointerdown", function (e) {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
         e.preventDefault();
+        e.stopPropagation();
+        swallowNextClick();
+        commitTagSuggestion(tag, excluded);
+      });
+      li.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
         commitTagSuggestion(tag, excluded);
       });
 
@@ -566,11 +602,20 @@
       }
 
       if (e.key === "Enter") {
-        if (opts.commitTagOnEnter !== false && suggestOpen() && suggestions[activeIndex]) {
+        // Desktop Hacklas: Enter opens a note. Mobile keyboards only
+        // expose Enter/Go, so commit a tag instead of following a result.
+        var mobileCommit = opts.commitTagOnEnter !== false || !isDesktopSearch();
+        if (mobileCommit && tryCommitTag()) {
           e.preventDefault();
           e.stopPropagation();
-          commitTagSuggestion(suggestions[activeIndex], parseQuery().excluded);
-        } else if (opts.commitTitleOnEnter !== false) {
+          return;
+        }
+        if (mobileCommit && input.value.trim()) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+        if (opts.commitTitleOnEnter !== false) {
           e.preventDefault();
           commitTitleQuery();
         }

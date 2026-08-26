@@ -20,6 +20,37 @@ layout: base.njk
   {% endif %}
 </div>
 <article class="note post--with-toc">
+  <header class="post__header">
+    <h1 class="post__title">{{ title }}</h1>
+    {% if author or date or noteTags %}
+    <dl class="post__facts">
+      {% if author %}
+      <div class="post__fact">
+        <dt>Author</dt>
+        <dd>{{ author }}</dd>
+      </div>
+      {% endif %}
+      {% if date %}
+      <div class="post__fact">
+        <dt>Date</dt>
+        <dd><time datetime="{{ date.toISOString().slice(0, 10) }}">{{ date.toISOString().slice(0, 10) }}</time></dd>
+      </div>
+      {% endif %}
+      {% if noteTags and noteTags.length %}
+      <div class="post__fact post__fact--tags">
+        <dt>Tags</dt>
+        <dd>
+          <ul class="tag-list">
+            {% for tag in noteTags %}
+            <li><a class="tag tag--link" href="{{ '/hacklas/' | url }}?t={{ tag | urlencode }}">{{ tag }}</a></li>
+            {% endfor %}
+          </ul>
+        </dd>
+      </div>
+      {% endif %}
+    </dl>
+    {% endif %}
+  </header>
   <nav class="toc" aria-label="Table of contents">
     {% if tocHtml %}
     {{ tocHtml | safe }}
@@ -28,37 +59,6 @@ layout: base.njk
     {% endif %}
   </nav>
   <div class="post__body">
-    <header class="post__header">
-      <h1 class="post__title">{{ title }}</h1>
-      {% if author or date or noteTags %}
-      <dl class="post__facts">
-        {% if author %}
-        <div class="post__fact">
-          <dt>Author</dt>
-          <dd>{{ author }}</dd>
-        </div>
-        {% endif %}
-        {% if date %}
-        <div class="post__fact">
-          <dt>Date</dt>
-          <dd><time datetime="{{ date.toISOString().slice(0, 10) }}">{{ date.toISOString().slice(0, 10) }}</time></dd>
-        </div>
-        {% endif %}
-        {% if noteTags and noteTags.length %}
-        <div class="post__fact post__fact--tags">
-          <dt>Tags</dt>
-          <dd>
-            <ul class="tag-list">
-              {% for tag in noteTags %}
-              <li><a class="tag tag--link" href="{{ '/hacklas/' | url }}?t={{ tag | urlencode }}">{{ tag }}</a></li>
-              {% endfor %}
-            </ul>
-          </dd>
-        </div>
-        {% endif %}
-      </dl>
-      {% endif %}
-    </header>
     <div class="prose">
       {{ bodyHtml | safe }}
     </div>

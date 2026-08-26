@@ -31,6 +31,11 @@ even if a prompt doesn't repeat them.
   it first.
 - Treat the "Explicitly banned patterns" list in DESIGN.md as hard
   constraints, not suggestions. If you're about to add a gradient, a blob
-  shape, a glassmorphism card, or a drop-shadow-on-everything look, stop —
-  that's the wrong direction for this project even if it looks polished in
-  isolation. When in doubt, prefer plainer and flatter over more decorated.
+  shape, a glassmorphism card, a drop-shadow-on-everything look, a
+  stretched image, or a 1px/2px spacing hack, stop — that's the wrong
+  direction even if it looks polished in isolation. When in doubt, prefer
+  plainer and flatter over more decorated.
+- CSS layout is progressive: trust normal flow, flex, and grid. Do not
+  micromanage with `object-fit: cover`, `calc()` optical nudges, or
+  one-off paddings. If a layout is broken, delete rules until it looks
+  like a document, then tweak to taste. See DESIGN.md (Layout).

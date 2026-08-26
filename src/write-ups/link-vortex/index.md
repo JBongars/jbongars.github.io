@@ -13,12 +13,6 @@ tags:
   - Hacking
 ---
 
-# LinkVortex — Writeup
-
-> Platform: HackTheBox · Difficulty: **Easy** · OS: **Linux**
-> Target: `10.129.193.249` (`linkvortex.htb`)
-> Ref: [app.hackthebox.com/machines/LinkVortex](https://app.hackthebox.com/machines/LinkVortex)
-
 ## Summary
 
 LinkVortex is an Easy Linux box built around abusable symbolic links. Port 80 redirects to `linkvortex.htb`; vhost discovery surfaces `dev.linkvortex.htb`, which exposes a `.git` directory. Dumping that repo and reviewing the staged (not yet committed) diff yields Ghost CMS credentials. The running Ghost is **5.58.0**, vulnerable to **CVE-2023-40028** — an authenticated symlink-upload arbitrary file read inside the Ghost container. Reading the production config leaks SMTP credentials for `bob@linkvortex.htb`, which reuse as SSH access on the host.

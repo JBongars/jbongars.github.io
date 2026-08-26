@@ -13,11 +13,6 @@ tags:
   - Hacking
 ---
 
-# Hacknet — Writeup
-
-> Platform: HackTheBox · Difficulty: **Medium** · OS: **Linux**
-> Target: `10.129.232.4` (`hacknet.htb`)
-
 ## Summary
 
 Hacknet is a **Medium** Linux box built around a Django social-network app. The app splits accounts into "main" users (searchable) and "hidden" users (IDs 25+, excluded from search with broken messaging), and a large amount of time can be lost probing SQLi, SSTI, upload RCE, CSRF, and path traversal that all lead nowhere.

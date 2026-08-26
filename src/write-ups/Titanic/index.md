@@ -13,12 +13,6 @@ tags:
   - Hacking
 ---
 
-# Titanic — Writeup
-
-> Platform: HackTheBox · Difficulty: **Medium** · OS: **Linux**
-> Target: `10.129.231.221` (`titanic.htb`)
-> Ref: [app.hackthebox.com/machines/Titanic](https://app.hackthebox.com/machines/Titanic)
-
 ## Summary
 
 Titanic exposes only SSH and Apache, and the web root redirects to `titanic.htb`. VHost fuzzing surfaces `dev.titanic.htb`, a Gitea instance whose repositories hold the booking app's source. That source leaks the app's `docker-compose.yml` (MySQL credentials) and shows that each booking is stored as a JSON file served by a `/download?ticket=` endpoint. The `ticket` parameter has no traversal filtering, so it doubles as a **local file read (path-traversal LFI)**. Reading `/etc/passwd`, the app's `app.py` (via the `/proc/self/cwd` trick) and Gitea's `app.ini` reveals the path to Gitea's SQLite database; pulling `gitea.db` through the same LFI yields the `developer` account's pbkdf2 hash, which cracks to a password and logs in over SSH.

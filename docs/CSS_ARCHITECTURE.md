@@ -15,7 +15,15 @@ title: css-architecture
 
 ## Overview
 
-Build maintainable CSS systems using methodologies like BEM (Block Element Modifier), SMACSS, and CSS-in-JS patterns with proper organization and conventions.
+This repo uses **only** BEM class names, SMACSS sheet roles, and CSS custom
+properties. The CSS-in-JS, Tailwind / utility-first, and preprocessor
+examples later in this file do **not** apply.
+
+Layout is progressive: trust the browser. Images keep their aspect ratio
+(do not stretch). Spacing is the `--space-*` tokens in `tokens.css`, not
+1px/2px one-offs or `calc()` nudges. If a layout is broken, remove rules
+until the page is a normal document, then tweak to taste. Canonical
+write-up: [DESIGN.md](DESIGN.md) (Layout).
 
 ## When to Use
 

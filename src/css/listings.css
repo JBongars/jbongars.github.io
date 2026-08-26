@@ -51,6 +51,7 @@
 
 .list-tools {
   position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
@@ -251,6 +252,7 @@
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .tag-search__option.is-active,
@@ -297,6 +299,9 @@
 }
 
 @media (max-width: 47.999rem) {
+  /* Overlay above the listing. Parent z-index (list-tools / .tag-search)
+     is required: without it, later siblings paint over this dropdown and
+     taps hit notes/posts instead of tags. */
   .tag-search__suggest:not([hidden]) {
     position: absolute;
     z-index: 40;

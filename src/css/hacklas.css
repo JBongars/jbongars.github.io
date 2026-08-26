@@ -81,8 +81,11 @@
   outline-offset: 2px;
 }
 
-/* Tag chips + suggestion row stay out of the list's leftover height. */
+/* Tag chips + suggestion row stay out of the list's leftover height.
+   z-index keeps the mobile overlay above the notes list so taps hit tags. */
 .fuzzy-find .tag-search {
+  position: relative;
+  z-index: 2;
   flex: 0 0 auto;
   width: 100%;
 }
@@ -159,6 +162,25 @@
   text-align: right;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+@media (max-width: 47.999rem) {
+  .fuzzy-find__list a {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: var(--space-1);
+  }
+
+  .fuzzy-find__title,
+  .fuzzy-find__path {
+    flex: none;
+    width: 100%;
+  }
+
+  .fuzzy-find__path {
+    text-align: left;
+  }
 }
 
 /* Hacklas disclaimer modal */
@@ -262,16 +284,12 @@ html.disclaimer-open {
   filter: brightness(1.08);
 }
 
-.note .prose {
-  max-width: 48rem;
-}
-
 .note-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--space-3) var(--space-5);
-  margin: 0 0 var(--space-5);
+  margin: 0 0 var(--space-6);
 }
 
 .back-button {
@@ -294,13 +312,12 @@ html.disclaimer-open {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.35rem 0.5rem;
+  gap: var(--space-1) var(--space-2);
   margin: 0;
   padding: 0;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  line-height: var(--leading-tight);
-  letter-spacing: 0.01em;
+  line-height: var(--leading-body);
   color: var(--muted);
 }
 
@@ -318,7 +335,7 @@ html.disclaimer-open {
 .breadcrumbs__link:has(.beta-badge) {
   display: inline-flex;
   align-items: center;
-  gap: 0.45em;
+  gap: var(--space-2);
 }
 
 .breadcrumbs__link:hover,

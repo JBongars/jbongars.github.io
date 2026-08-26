@@ -40,6 +40,31 @@ Codecademy (2010-2013) — clean, confident, approachable.
 - Real photos over icons or vector illustrations wherever possible:
   headshot in the hero, real screenshots in write-ups and blog posts.
 - No decorative SVG illustrations.
+- **Do not stretch images.** Let the file keep its aspect ratio. Typical
+  pattern: `width: 100%; height: auto;`. Do not force a box with
+  `object-fit: cover` / `fill`, a locked `height` plus `width: 100%`, or
+  `position: absolute; inset: 0` on the `<img>`. Cropping in CSS is not a
+  substitute for choosing the right asset.
+
+## Layout (progressive, not micromanaged)
+
+Trust the browser. Normal flow, flex, and grid already know how to stack,
+wrap, and size things. This site is progressive enhancement: HTML should
+read as a document; CSS refines it. It should not fight the document.
+
+- **Spacing comes from tokens.** Use `--space-1` … `--space-8` and
+  `--content-gap` / `--container-pad`. Do not sprinkle `1px`, `2px`,
+  `0.15em`, `0.45rem`, or other one-off paddings and margins “to make it
+  line up.” If the token scale is wrong, change the token, not one
+  component.
+- **No forced calculations.** Do not `calc()` a negative margin, a tap
+  target, or an optical nudge (`padding-top: 0.45rem` to fake alignment).
+  Prefer `gap`, `align-items: center`, and wrapping. `min-width: 0` on a
+  grid child is acceptable when overflow is real; it is not a default.
+- **When CSS looks broken, subtract.** Delete the extra rules (absolute
+  positioning, min-height boxes, object-fit, magic breakpoints) until the
+  page looks like a normal document again. Then add back the smallest
+  tweak that earns its keep. Do not pile on a compensating property.
 
 ## Motion
 
@@ -86,10 +111,16 @@ glance. None of these are permitted, even as a "subtle" version:
   the images-over-vector rule already in place.
 - Colorful rainbow tag/badge pills (each tag a different bright color).
   Tags use one muted neutral style, differentiated by text only.
+- Stretched or CSS-cropped photos (`object-fit: cover` / `fill` on content
+  images, or width+height both forced to fill a frame).
+- One-off spacing and optical hacks: `1px`/`2px` padding, `0.15em` gaps,
+  `calc()` negative margins, `min-height` used to shove a checkbox into
+  place. Use the token scale and let flex/grid align.
 
 ## What to do instead (the actual direction)
 
-- Flat surfaces, thin 1px borders, muted teal + lavender, real photos.
-- Confident whitespace and a clear type hierarchy instead of decoration
-  doing the work.
+- Flat surfaces, thin 1px borders, muted teal + lavender, real photos
+  at their own aspect ratio.
+- Confident whitespace from the token scale and a clear type hierarchy
+  instead of decoration — or extra CSS — doing the work.
 - Copy that describes what things are, plainly, without selling them.

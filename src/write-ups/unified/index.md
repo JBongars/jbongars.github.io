@@ -13,12 +13,6 @@ tags:
   - Hacking
 ---
 
-# Unified — Writeup
-
-> Platform: HackTheBox · Difficulty: **Very Easy** · OS: **Linux**
-> Target: `10.129.71.133`
-> Ref: [app.hackthebox.com/machines/Unified](https://app.hackthebox.com/machines/Unified)
-
 ## Summary
 
 Unified is a Very Easy Linux box running a UniFi Network Controller. Several ports are open; the useful surface is the HTTPS dashboard on **8443** (with **8080** proxying into it). The login API logs the JSON `remember` field through Log4j, so a `${jndi:ldap://…}` payload in that field triggers **CVE-2021-44228 (Log4Shell)**. Confirming the outbound LDAP connect with `tcpdump`, then serving a malicious LDAP/JNDI payload, yields a reverse shell on the box.
