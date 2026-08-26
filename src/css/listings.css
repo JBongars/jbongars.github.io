@@ -7,20 +7,24 @@
 
 .list-sort {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   flex-shrink: 0;
   align-items: stretch;
-  align-self: flex-start;
+  align-self: stretch;
   gap: var(--space-2);
   margin: 0;
 }
 
 .list-sort__btn {
+  -webkit-appearance: none;
+  appearance: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  min-height: 100%;
+  margin: 0;
+  min-height: 0;
+  height: 2.75rem;
   padding: 0 0.85em;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -28,7 +32,8 @@
   color: var(--muted);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  line-height: var(--leading-tight);
+  line-height: 1;
+  overflow: hidden;
   cursor: pointer;
 }
 
@@ -81,6 +86,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  box-sizing: border-box;
+  min-height: 2.75rem;
   gap: var(--space-2);
   padding: 0.4em 0.55em;
   border: 1px solid var(--border);
@@ -321,4 +328,77 @@
     padding: 0.5em 0.65em;
     border: 0;
   }
+}
+
+/* Soft-nav skeletons — JS-only; bones are flat placeholder bars */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  pointer-events: none;
+}
+
+.skeleton__bone {
+  background: var(--placeholder);
+  border-radius: var(--radius);
+}
+
+.skeleton__title,
+.skeleton__line,
+.skeleton__banner {
+  border: 1px solid var(--border);
+}
+
+.skeleton__title {
+  width: min(12rem, 50%);
+  height: 2rem;
+}
+
+.skeleton__line {
+  height: 0.75rem;
+  width: 100%;
+}
+
+.skeleton__line--title {
+  width: 70%;
+  height: 1.1rem;
+  margin: var(--space-4) var(--space-4) var(--space-2);
+  border: 0;
+}
+
+.skeleton__line--short {
+  width: 40%;
+}
+
+.skeleton__facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: auto var(--space-4) var(--space-4);
+}
+
+.skeleton__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.skeleton--cards .card__media.skeleton__bone {
+  border: 0;
+}
+
+.skeleton--post .skeleton__banner {
+  height: 50vh;
+  max-height: 50vh;
+  min-height: 8rem;
+  margin: 0 0 var(--space-7);
+}
+
+.skeleton--post .skeleton__title {
+  width: min(24rem, 80%);
+  height: 2.25rem;
+}
+
+.skeleton--post .skeleton__line {
+  max-width: 48rem;
 }
