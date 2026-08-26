@@ -85,7 +85,7 @@ Hacklas chrome stripping.
 - `hacklas-shortcuts.js` — desktop Hacklas keyboard shortcuts
 - `hacklas-help.js` — desktop `?` shortcuts dialog (JS-only)
 - `hacklas-checklists.js` — parent checkbox checks/unchecks nested items
-- `code-blocks.js` — copy / fullscreen, line numbers, collapse tall fences
+- `code-blocks.js` — copy / fullscreen, line numbers, collapse tall fences; click inline `code` to copy
 - `image-lightbox.js` — fullscreen images, zoom/pan
 - `back-button.js` — history back for notes/posts
 - `comments.js` — inject Giscus on posts when comments are enabled

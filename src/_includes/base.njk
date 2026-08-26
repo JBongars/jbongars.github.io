@@ -165,8 +165,9 @@
   {# Loaded on every page so site.js main-swaps onto a post still inject Giscus. #}
   <script src="{{ '/js/comments.js' | url }}" defer></script>
   {% endif %}
+  {# Loaded on every page so site.js main-swaps onto a post still hydrate copy buttons. #}
+  <script src="{{ '/js/code-blocks.js' | url }}?v={{ cssRev }}" defer></script>
   {% if isPost %}
-  <script src="{{ '/js/code-blocks.js' | url }}" defer></script>
   <script src="{{ '/js/image-lightbox.js' | url }}" defer></script>
   <script src="{{ '/js/back-button.js' | url }}" defer></script>
   {% endif %}
