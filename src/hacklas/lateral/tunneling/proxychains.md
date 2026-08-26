@@ -3,6 +3,8 @@ note_tags:
   - socks
   - pivot
   - proxy
+  - socks5
+  - nmap
 ---
 # proxychains
 

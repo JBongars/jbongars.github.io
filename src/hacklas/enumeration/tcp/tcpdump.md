@@ -3,6 +3,9 @@ note_tags:
   - pcap
   - network
   - sniffing
+  - recon
+  - wireshark
+  - udp
 ---
 # tcpdump
 

@@ -3,6 +3,7 @@ note_tags:
   - linpeas
   - privesc
   - ansi
+  - privilege-escalation
 ---
 # export-linpeas-output-as-ansi
 

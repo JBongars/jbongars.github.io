@@ -3,6 +3,10 @@ note_tags:
   - xss
   - javascript
   - cookie
+  - recon
+  - cross-site-scripting
+  - dom
+  - reflected
 ---
 # XSS enumeration
 

@@ -3,6 +3,7 @@ note_tags:
   - ligolo
   - tun
   - pivot
+  - proxy
 ---
 # ligolo-ng
 

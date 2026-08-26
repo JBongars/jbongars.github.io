@@ -3,6 +3,8 @@ note_tags:
   - vim
   - privesc
   - gtfobins
+  - privilege-escalation
+  - sudo
 ---
 # vi
 

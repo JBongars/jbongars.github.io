@@ -3,6 +3,9 @@ note_tags:
   - ncat
   - listener
   - payload
+  - foothold
+  - bash
+  - python
 ---
 # nc
 

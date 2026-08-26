@@ -3,6 +3,9 @@ note_tags:
   - xp_cmdshell
   - mssql
   - payload
+  - foothold
+  - mysql
+  - rce
 ---
 # SQL reverse shells
 

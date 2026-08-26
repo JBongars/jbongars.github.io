@@ -4,6 +4,10 @@ note_tags:
   - rfi
   - file-traversal
   - rce
+  - recon
+  - local-file-inclusion
+  - remote-file-inclusion
+  - php
 ---
 # file-traversal-lfi-rfi
 

@@ -3,6 +3,8 @@ note_tags:
   - recon
   - source
   - git-dumper
+  - web
+  - scm
 ---
 # gitea
 

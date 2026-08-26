@@ -3,6 +3,8 @@ note_tags:
   - suid
   - privesc
   - binary
+  - privilege-escalation
+  - upload
 ---
 # import-suid-executable
 

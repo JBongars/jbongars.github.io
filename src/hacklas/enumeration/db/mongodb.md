@@ -3,6 +3,8 @@ note_tags:
   - database
   - nosql
   - recon
+  - unauth
+  - dump
 ---
 # mongodb
 

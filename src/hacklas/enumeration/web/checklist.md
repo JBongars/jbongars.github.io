@@ -4,6 +4,12 @@ note_tags:
   - fuzzing
   - directory
   - http
+  - xss
+  - lfi
+  - sqli
+  - cross-site-scripting
+  - local-file-inclusion
+  - sql-injection
 ---
 # Web Enumeration Checklist
 

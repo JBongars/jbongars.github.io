@@ -3,6 +3,9 @@ note_tags:
   - aes
   - encryption
   - brute-force
+  - foothold
+  - openssl
+  - password
 ---
 # aes-file-cracking
 

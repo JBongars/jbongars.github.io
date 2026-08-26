@@ -4,6 +4,9 @@ note_tags:
   - php
   - asp
   - payload
+  - foothold
+  - aspx
+  - jsp
 ---
 # webshells
 

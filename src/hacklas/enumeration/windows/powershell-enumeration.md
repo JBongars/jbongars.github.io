@@ -3,6 +3,8 @@ note_tags:
   - powershell
   - recon
   - active-directory
+  - whoami
+  - domain
 ---
 # PowerShell enumeration
 

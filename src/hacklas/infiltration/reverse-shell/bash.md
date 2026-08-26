@@ -3,6 +3,9 @@ note_tags:
   - linux
   - dev-tcp
   - payload
+  - foothold
+  - ncat
+  - listener
 ---
 # bash
 

@@ -3,6 +3,7 @@ note_tags:
   - rdp
   - foothold
   - remote-desktop
+  - nla
 ---
 # xfreerdp / xfreerdp3
 

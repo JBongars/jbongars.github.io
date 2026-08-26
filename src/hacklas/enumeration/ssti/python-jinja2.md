@@ -4,6 +4,8 @@ note_tags:
   - jinja2
   - rce
   - flask
+  - recon
+  - template-injection
 ---
 # Jinja2 SSTI
 

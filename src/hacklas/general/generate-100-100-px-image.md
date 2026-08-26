@@ -4,6 +4,9 @@ note_tags:
   - magick
   - image
   - payload
+  - utility
+  - polyglot
+  - upload
 ---
 # generate-100-100-px-image
 

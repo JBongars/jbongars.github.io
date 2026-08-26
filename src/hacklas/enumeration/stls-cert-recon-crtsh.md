@@ -5,6 +5,8 @@ note_tags:
   - crtsh
   - osint
   - recon
+  - subdomain
+  - https
 ---
 # stls-cert-recon-crtsh
 

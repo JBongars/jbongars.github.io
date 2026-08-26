@@ -2,6 +2,10 @@
 note_tags:
   - active-directory
   - windows
+  - foothold
+  - ldapsearch
+  - kerberos
+  - anonymous
 ---
 # ldap
 

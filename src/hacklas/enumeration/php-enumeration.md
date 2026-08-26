@@ -4,6 +4,8 @@ note_tags:
   - recon
   - web
   - phpinfo
+  - fingerprint
+  - version
 ---
 # PHP enumeration
 

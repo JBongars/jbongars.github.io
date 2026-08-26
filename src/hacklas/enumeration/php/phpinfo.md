@@ -3,6 +3,8 @@ note_tags:
   - recon
   - web
   - fingerprint
+  - disclosure
+  - config
 ---
 # phpinfo
 

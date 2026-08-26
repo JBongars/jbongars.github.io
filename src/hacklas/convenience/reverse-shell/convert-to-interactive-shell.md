@@ -5,6 +5,7 @@ note_tags:
   - python
   - bash
   - tty
+  - utility
 ---
 # convert-to-interactive-shell
 

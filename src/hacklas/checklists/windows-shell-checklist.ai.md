@@ -5,6 +5,9 @@ note_tags:
   - checklist
   - powershell
   - privesc
+  - foothold
+  - privilege-escalation
+  - winpeas
 ---
 # Windows Shell Enumeration Checklist
 

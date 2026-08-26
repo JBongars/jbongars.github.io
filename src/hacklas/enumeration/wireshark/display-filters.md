@@ -3,6 +3,9 @@ note_tags:
   - pcap
   - network
   - filters
+  - recon
+  - http
+  - tcp
 ---
 # Wireshark display filters
 

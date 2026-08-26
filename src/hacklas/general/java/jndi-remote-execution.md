@@ -4,6 +4,9 @@ note_tags:
   - rce
   - ldap
   - log4shell
+  - utility
+  - log4j
+  - oob
 ---
 # jndi-remote-execution
 

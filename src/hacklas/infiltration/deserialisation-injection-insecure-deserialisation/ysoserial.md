@@ -3,6 +3,9 @@ note_tags:
   - java
   - deserialization
   - rce
+  - foothold
+  - insecure-deserialization
+  - gadget
 ---
 # ysoserial
 

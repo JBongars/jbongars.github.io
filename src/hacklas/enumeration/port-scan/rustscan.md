@@ -3,6 +3,7 @@ note_tags:
   - recon
   - ports
   - nmap
+  - tcp
 ---
 # rustscan
 

@@ -3,6 +3,8 @@ note_tags:
   - socks
   - port-forward
   - pivot
+  - reverse
+  - http
 ---
 # Chisel - Fast TCP/UDP Tunnel over HTTP
 

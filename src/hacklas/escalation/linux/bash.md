@@ -3,6 +3,8 @@ note_tags:
   - privesc
   - suid
   - gtfobins
+  - privilege-escalation
+  - shell
 ---
 # bash
 

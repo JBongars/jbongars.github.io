@@ -4,6 +4,9 @@ note_tags:
   - su
   - password
   - tty
+  - privilege-escalation
+  - pty
+  - python
 ---
 # non-interactive-terminal-but-i-have-root-password
 

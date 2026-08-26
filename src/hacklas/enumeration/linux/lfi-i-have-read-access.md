@@ -4,6 +4,8 @@ note_tags:
   - file-read
   - recon
   - proc
+  - local-file-inclusion
+  - passwd
 ---
 # LFI Read Access Cheat Sheet
 

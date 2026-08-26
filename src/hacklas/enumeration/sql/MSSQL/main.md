@@ -3,6 +3,8 @@ note_tags:
   - database
   - windows
   - xp_cmdshell
+  - recon
+  - impacket
 ---
 # MSSQL enumeration
 

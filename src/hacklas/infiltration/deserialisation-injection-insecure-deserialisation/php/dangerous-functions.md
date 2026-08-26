@@ -2,6 +2,9 @@
 note_tags:
   - rce
   - webshell
+  - foothold
+  - eval
+  - system
 ---
 # php-dangerous functions
 

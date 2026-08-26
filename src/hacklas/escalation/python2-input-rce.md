@@ -4,6 +4,9 @@ note_tags:
   - rce
   - privesc
   - python2
+  - privilege-escalation
+  - eval
+  - input
 ---
 # python2-input-rce
 

@@ -3,6 +3,11 @@ note_tags:
   - privesc
   - checklist
   - linpeas
+  - privilege-escalation
+  - suid
+  - sudo
+  - cron
+  - capabilities
 ---
 # Linux privilege escalation checklist
 

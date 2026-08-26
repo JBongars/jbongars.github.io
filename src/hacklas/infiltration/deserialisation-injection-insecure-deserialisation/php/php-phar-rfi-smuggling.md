@@ -3,6 +3,9 @@ note_tags:
   - phar
   - rfi
   - deserialization
+  - foothold
+  - insecure-deserialization
+  - remote-file-inclusion
 ---
 # php phar RFI smuggling
 

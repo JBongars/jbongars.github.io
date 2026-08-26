@@ -3,6 +3,8 @@ note_tags:
   - foothold
   - xfreerdp
   - remote-desktop
+  - hydra
+  - nla
 ---
 # RDP
 

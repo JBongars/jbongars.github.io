@@ -3,6 +3,7 @@ note_tags:
   - powershell
   - scripting
   - bypass
+  - recon
 ---
 # PowerShell scripting
 

@@ -3,6 +3,8 @@ note_tags:
   - osint
   - recon
   - dns
+  - registrar
+  - domain
 ---
 # whois
 

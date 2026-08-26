@@ -3,6 +3,9 @@ note_tags:
   - windows
   - winrm
   - pivot
+  - netsh
+  - portproxy
+  - powershell
 ---
 # Windows pivot — WinRM first
 

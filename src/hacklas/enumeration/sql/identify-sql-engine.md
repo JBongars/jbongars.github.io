@@ -3,6 +3,10 @@ note_tags:
   - sqli
   - database
   - fingerprint
+  - recon
+  - mysql
+  - mssql
+  - sql-injection
 ---
 # Identify SQL engine
 

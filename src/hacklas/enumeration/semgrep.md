@@ -4,6 +4,9 @@ note_tags:
   - source
   - recon
   - code-review
+  - php
+  - python
+  - javascript
 ---
 # semgrep
 
