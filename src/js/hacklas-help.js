@@ -29,6 +29,19 @@
     return node;
   }
 
+  function onHacklas() {
+    var p = location.pathname.replace(/\/$/, "");
+    return p.slice(-8) === "/hacklas" || p.indexOf("/hacklas/") !== -1;
+  }
+
+  function unmount() {
+    var btn = document.querySelector(".shortcuts-help");
+    var modal = getModal();
+    if (btn) btn.remove();
+    if (modal) modal.remove();
+    document.documentElement.classList.remove("shortcuts-open");
+  }
+
   function hacklasNavItem() {
     var links = document.querySelectorAll(".nav-list a[href]");
     for (var i = 0; i < links.length; i++) {
@@ -158,6 +171,10 @@
   }
 
   function hydrate() {
+    if (!onHacklas()) {
+      unmount();
+      return;
+    }
     ensureModal();
     mountButton();
   }
