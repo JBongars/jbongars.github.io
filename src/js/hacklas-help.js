@@ -12,7 +12,10 @@
     { keys: ["h"], desc: "Go to Hacklas" },
     { keys: ["Type"], desc: "Search notes on the Hacklas index" },
     { keys: ["Space"], desc: "Add the matching tag as a filter" },
-    { keys: ["Enter"], desc: "Open the first matching note" },
+    { keys: ["Tab"], desc: "Add the highlighted tag as a filter" },
+    { keys: ["Left", "Right"], desc: "Highlight a matching tag" },
+    { keys: ["Up", "Down"], desc: "Highlight a note" },
+    { keys: ["Enter"], desc: "Open the highlighted note" },
     { keys: ["Backspace"], desc: "Go back from a note" }
   ];
 

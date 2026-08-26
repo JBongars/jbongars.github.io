@@ -55,8 +55,9 @@
           placeholder: "Search notes or tags…",
           fieldClass: "tag-search__field fuzzy-find__field",
           commitTagOnSpace: true,
+          commitTagOnTab: true,
+          commitTagOnEnter: false,
           commitTitleOnEnter: false,
-          arrowsOnlyWhenOpen: true,
           onApply: function (query, tags) {
             window.fuzzyFind.apply(query, tags);
           }

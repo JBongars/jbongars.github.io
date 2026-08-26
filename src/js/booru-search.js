@@ -58,6 +58,66 @@
     }
   };
 
+  function normalize(s) {
+    return String(s || "").toLowerCase().trim();
+  }
+
+  // Same subsequence window idea as fuzzy-find.js (that file is not on
+  // listing-only pages, so this copy lives here).
+  function fuzzyScore(haystack, query) {
+    var h = normalize(haystack);
+    var q = normalize(query).replace(/\s+/g, "");
+    var hi = 0;
+    var first = -1;
+    var last = -1;
+    var run = 0;
+    var bestRun = 0;
+    var prev = -2;
+    var qi;
+    if (!q) return 0;
+    for (qi = 0; qi < q.length; qi++) {
+      hi = h.indexOf(q.charAt(qi), hi);
+      if (hi < 0) return -1;
+      if (first < 0) first = hi;
+      last = hi;
+      if (hi === prev + 1) {
+        run += 1;
+        if (run > bestRun) bestRun = run;
+      } else {
+        run = 1;
+      }
+      prev = hi;
+      hi += 1;
+    }
+    return Math.round(
+      40 * (q.length / (last - first + 1)) +
+        15 * (1 / (1 + first)) +
+        15 * (bestRun / q.length)
+    );
+  }
+
+  function rankTags(tagIndex, filter, query) {
+    var q = normalize(query);
+    var scored = [];
+    if (!q) return scored;
+    tagIndex.forEach(function (tag) {
+      var score;
+      if (filter.has(tag.name)) return;
+      score = fuzzyScore(tag.name, q);
+      if (score < 0) return;
+      scored.push({ tag: tag, score: score });
+    });
+    scored.sort(function (a, b) {
+      if (b.score !== a.score) return b.score - a.score;
+      return b.tag.count - a.tag.count;
+    });
+    return scored.slice(0, 10).map(function (row) { return row.tag; });
+  }
+
+  function isDesktopSearch() {
+    return window.matchMedia("(min-width: 48rem)").matches;
+  }
+
   // ---------------------------------------------------------------------
   // Sorting
   // ---------------------------------------------------------------------
@@ -212,13 +272,14 @@
   }
 
   // ---------------------------------------------------------------------
-  // Tag search component — input, autocomplete dropdown, and chips
+  // Tag search component — input, suggestion row, and chips
   // ---------------------------------------------------------------------
   // opts.input              reuse an existing field (Hacklas)
   // opts.mount              parent to attach the field (Hacklas wrap)
-  // opts.commitTagOnSpace   Space commits a matching tag
+  // opts.commitTagOnSpace   Space commits a matching tag (default on)
+  // opts.commitTagOnTab     Tab commits the highlighted suggestion
+  // opts.commitTagOnEnter   Enter commits the highlighted suggestion
   // opts.commitTitleOnEnter Enter turns leftover text into a title chip
-  // opts.arrowsOnlyWhenOpen Arrow keys skip to the host when the dropdown is closed
   // opts.onInput            live callback after each keystroke
   // opts.placeholder, opts.listboxId, opts.fieldClass
   function createTagSearch(tagIndex, filter, opts) {
@@ -227,6 +288,7 @@
     var activeIndex = -1;
     var suggestions = [];
     var listboxId = opts.listboxId || "tag-search-listbox";
+    var wrap = opts.mount || Dom.el("div", "tag-search");
 
     var field = Dom.el("div", opts.fieldClass || "tag-search__field");
     var input = opts.input;
@@ -245,18 +307,34 @@
     input.setAttribute("aria-expanded", "false");
     input.setAttribute("aria-controls", listboxId);
 
+    var suggest = Dom.el("div", "tag-search__suggest");
+    suggest.hidden = true;
+
+    var closeBtn = Dom.el("button", "tag-search__close", { type: "button" });
+    closeBtn.setAttribute("aria-label", "Close tag suggestions");
+    closeBtn.textContent = "×";
+
     var dropdown = Dom.el("ul", "tag-search__dropdown", {
       id: listboxId,
       role: "listbox"
     });
-    dropdown.hidden = true;
 
-    if (opts.mount) opts.mount.appendChild(field);
+    suggest.appendChild(closeBtn);
+    suggest.appendChild(dropdown);
+    wrap.appendChild(field);
+    wrap.appendChild(suggest);
     field.appendChild(input);
-    field.appendChild(dropdown);
 
     field.addEventListener("click", function (e) {
       if (e.target === field) input.focus();
+    });
+
+    closeBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      wrap.setAttribute("data-suggest-dismissed", "1");
+      closeSuggest();
+      input.focus();
     });
 
     function buildChip(entry, onRemove) {
@@ -306,12 +384,16 @@
       });
     }
 
-    function closeDropdown() {
-      dropdown.hidden = true;
+    function closeSuggest() {
+      suggest.hidden = true;
       dropdown.textContent = "";
       suggestions = [];
       activeIndex = -1;
       input.setAttribute("aria-expanded", "false");
+    }
+
+    function suggestOpen() {
+      return !suggest.hidden && suggestions.length > 0;
     }
 
     function highlightActive() {
@@ -329,7 +411,7 @@
         filter.apply();
       }
       input.value = "";
-      closeDropdown();
+      closeSuggest();
       if (opts.onInput) opts.onInput();
     }
 
@@ -343,7 +425,7 @@
     }
 
     function tryCommitTag() {
-      if (!dropdown.hidden && activeIndex >= 0 && suggestions[activeIndex]) {
+      if (suggestOpen() && activeIndex >= 0 && suggestions[activeIndex]) {
         commitTagSuggestion(suggestions[activeIndex], parseQuery().excluded);
         return true;
       }
@@ -388,17 +470,15 @@
     }
 
     function renderSuggestions(query, excluded) {
-      var q = query.toLowerCase();
-      suggestions = tagIndex
-        .filter(function (tag) {
-          return !filter.has(tag.name) && tag.name.toLowerCase().indexOf(q) === 0;
-        })
-        .sort(function (a, b) { return b.count - a.count; })
-        .slice(0, 10);
+      if (wrap.getAttribute("data-suggest-dismissed") === "1") {
+        closeSuggest();
+        return;
+      }
 
+      suggestions = rankTags(tagIndex, filter, query);
       dropdown.textContent = "";
-      if (!q || !suggestions.length) {
-        closeDropdown();
+      if (!query || !suggestions.length) {
+        closeSuggest();
         return;
       }
 
@@ -408,7 +488,7 @@
 
       activeIndex = 0;
       highlightActive();
-      dropdown.hidden = false;
+      suggest.hidden = false;
       input.setAttribute("aria-expanded", "true");
     }
 
@@ -419,7 +499,7 @@
       var name = excluded ? raw.slice(1).trim() : raw;
 
       input.value = "";
-      closeDropdown();
+      closeSuggest();
 
       if (filter.add(name, "title", excluded)) {
         renderChips();
@@ -438,6 +518,7 @@
     }
 
     input.addEventListener("input", function () {
+      wrap.removeAttribute("data-suggest-dismissed");
       if (opts.onInput) opts.onInput();
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(function () {
@@ -447,36 +528,45 @@
     });
 
     input.addEventListener("keydown", function (e) {
-      if ((e.key === " " || e.key === "Spacebar") && opts.commitTagOnSpace) {
-        if (input.value.trim() && tryCommitTag()) {
+      if ((e.key === " " || e.key === "Spacebar") && opts.commitTagOnSpace !== false) {
+        if (input.value.trim()) {
+          var spaceQuery;
+          if (!suggestOpen()) {
+            wrap.removeAttribute("data-suggest-dismissed");
+            spaceQuery = parseQuery();
+            renderSuggestions(spaceQuery.text, spaceQuery.excluded);
+          }
+          if (tryCommitTag()) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }
+        return;
+      }
+
+      if (e.key === "Tab" && opts.commitTagOnTab && !e.shiftKey) {
+        if (tryCommitTag()) {
           e.preventDefault();
           e.stopPropagation();
         }
         return;
       }
 
-      if (dropdown.hidden && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
-        if (opts.arrowsOnlyWhenOpen) return;
-        var openQ = parseQuery();
-        renderSuggestions(openQ.text, openQ.excluded);
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        if (!suggestOpen()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.key === "ArrowRight") {
+          activeIndex = (activeIndex + 1) % suggestions.length;
+        } else {
+          activeIndex = (activeIndex - 1 + suggestions.length) % suggestions.length;
+        }
+        highlightActive();
+        return;
       }
 
-      if (e.key === "ArrowDown") {
-        if (dropdown.hidden) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if (!suggestions.length) return;
-        activeIndex = (activeIndex + 1) % suggestions.length;
-        highlightActive();
-      } else if (e.key === "ArrowUp") {
-        if (dropdown.hidden) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if (!suggestions.length) return;
-        activeIndex = (activeIndex - 1 + suggestions.length) % suggestions.length;
-        highlightActive();
-      } else if (e.key === "Enter") {
-        if (!dropdown.hidden && activeIndex >= 0 && suggestions[activeIndex]) {
+      if (e.key === "Enter") {
+        if (opts.commitTagOnEnter !== false && suggestOpen() && suggestions[activeIndex]) {
           e.preventDefault();
           e.stopPropagation();
           commitTagSuggestion(suggestions[activeIndex], parseQuery().excluded);
@@ -484,13 +574,20 @@
           e.preventDefault();
           commitTitleQuery();
         }
-      } else if (e.key === "Escape") {
-        if (!dropdown.hidden) {
+        return;
+      }
+
+      if (e.key === "Escape") {
+        if (suggestOpen()) {
           e.preventDefault();
           e.stopPropagation();
-          closeDropdown();
+          wrap.setAttribute("data-suggest-dismissed", "1");
+          closeSuggest();
         }
-      } else if (e.key === "Backspace" && isInputEmpty()) {
+        return;
+      }
+
+      if (e.key === "Backspace" && isInputEmpty()) {
         if (filter.removeLast()) {
           e.preventDefault();
           e.stopPropagation();
@@ -502,7 +599,7 @@
 
     if (filter.selected.length) renderChips();
 
-    return { element: field, closeDropdown: closeDropdown };
+    return { element: wrap, closeSuggest: closeSuggest };
   }
 
   function tagNames(filter) {
@@ -515,11 +612,11 @@
     list.dataset.listingReady = "1";
 
     var filter = new Filter(list);
-    var searchWrap = Dom.el("div", "tag-search");
-    searchWrap.appendChild(createTagSearch(TagData.buildIndex(list), filter).element);
 
     var tools = Dom.el("div", "list-tools");
-    tools.appendChild(searchWrap);
+    tools.appendChild(createTagSearch(TagData.buildIndex(list), filter, {
+      commitTagOnSpace: true
+    }).element);
     tools.appendChild(createSortControls(list, filter).element);
     list.parentNode.insertBefore(tools, list);
   }
@@ -554,8 +651,9 @@
       placeholder: opts.placeholder,
       fieldClass: opts.fieldClass,
       commitTagOnSpace: opts.commitTagOnSpace,
+      commitTagOnTab: opts.commitTagOnTab,
+      commitTagOnEnter: opts.commitTagOnEnter,
       commitTitleOnEnter: opts.commitTitleOnEnter,
-      arrowsOnlyWhenOpen: opts.arrowsOnlyWhenOpen,
       onInput: function () {
         filter.apply();
       }
@@ -571,14 +669,15 @@
   }
 
   document.addEventListener("click", function (e) {
+    if (isDesktopSearch()) return;
     Array.prototype.forEach.call(document.querySelectorAll(".tag-search"), function (search) {
+      var suggest;
+      var input;
       if (search.contains(e.target)) return;
-      var dropdown = search.querySelector(".tag-search__dropdown");
-      var input = search.querySelector(".tag-search__input");
-      if (dropdown) {
-        dropdown.hidden = true;
-        dropdown.textContent = "";
-      }
+      search.setAttribute("data-suggest-dismissed", "1");
+      suggest = search.querySelector(".tag-search__suggest");
+      input = search.querySelector(".tag-search__input");
+      if (suggest) suggest.hidden = true;
       if (input) input.setAttribute("aria-expanded", "false");
     });
   });

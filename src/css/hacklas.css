@@ -81,7 +81,7 @@
   outline-offset: 2px;
 }
 
-/* Tag chips are created by booruSearch.mountField; keep this row from eating list height. */
+/* Tag chips + suggestion row stay out of the list's leftover height. */
 .fuzzy-find .tag-search {
   flex: 0 0 auto;
   width: 100%;
