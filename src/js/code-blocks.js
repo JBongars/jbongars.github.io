@@ -292,9 +292,51 @@
     }
   }
 
+  function hydrateInlineCode() {
+    document.querySelectorAll(".prose :not(pre) > code").forEach(function (code) {
+      var text;
+      var resetTimer;
+      function copied() {
+        copyText(text)
+          .then(function () {
+            code.classList.add("is-copied");
+            code.setAttribute("aria-label", "Copied");
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(function () {
+              code.classList.remove("is-copied");
+              code.setAttribute("aria-label", "Copy " + text);
+            }, COPY_RESET_MS);
+          })
+          .catch(function () {});
+      }
+
+      if (code.getAttribute("data-copy-ready") === "1") return;
+      if (code.closest("a, button, .code-block")) return;
+      text = (code.textContent || "").trim();
+      if (!text) return;
+
+      code.setAttribute("data-copy-ready", "1");
+      code.setAttribute("tabindex", "0");
+      code.setAttribute("role", "button");
+      code.setAttribute("aria-label", "Copy " + text);
+      code.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        copied();
+      });
+      code.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        e.preventDefault();
+        e.stopPropagation();
+        copied();
+      });
+    });
+  }
+
   function hydrateCodeBlocks() {
     closeFullscreen();
     document.querySelectorAll(".prose pre").forEach(enhance);
+    hydrateInlineCode();
   }
 
   window.hydrateCodeBlocks = hydrateCodeBlocks;
