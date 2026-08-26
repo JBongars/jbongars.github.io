@@ -59,4 +59,28 @@
     text-decoration: none;
     background-size: 100% 1px;
   }
+
+  @keyframes skeleton-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.55;
+    }
+  }
+
+  .skeleton__bone {
+    animation: skeleton-pulse 1.2s var(--motion-ease) infinite;
+  }
+
+  img.is-pending {
+    opacity: 0;
+  }
+
+  img.is-loaded {
+    opacity: 1;
+    transition: opacity var(--motion-fast) var(--motion-ease);
+  }
 }
