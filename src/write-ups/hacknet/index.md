@@ -4,6 +4,8 @@ author: Julien Bongars
 date: 2025-11
 link: "[app.hackthebox.com/machines/Hacknet](https://app.hackthebox.com/machines/Hacknet)"
 banner_path: ../hackthebox.png
+banner_style_light:
+  filter: invert(1) hue-rotate(180deg) brightness(1.5);
 tags:
   - HackTheBox
   - Medium

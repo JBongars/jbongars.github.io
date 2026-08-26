@@ -4,6 +4,8 @@ author: Julien Bongars
 date: 2026-02
 link: "[app.hackthebox.com/machines/LinkVortex](https://app.hackthebox.com/machines/LinkVortex)"
 banner_path: ../hackthebox.png
+banner_style_light:
+  filter: invert(1) hue-rotate(180deg) brightness(1.5);
 tags:
   - HackTheBox
   - Easy

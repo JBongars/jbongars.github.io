@@ -4,6 +4,8 @@ author: Julien Bongars
 date: 2026-02
 link: "[portal.offsec.com/machine/exfiltrated-17398](https://portal.offsec.com/machine/exfiltrated-17398/overview/details)"
 banner_path: ../offsec.jpg
+banner_style_light:
+  filter: invert(1) hue-rotate(180deg);
 tags:
   - Offsec
   - TJNull
