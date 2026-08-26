@@ -1,3 +1,10 @@
+---
+note_tags:
+  - imagemagick
+  - magick
+  - image
+  - payload
+---
 # generate-100-100-px-image
 
 **Author:** Julien Bongars\

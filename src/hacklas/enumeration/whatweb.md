@@ -1,3 +1,10 @@
+---
+note_tags:
+  - recon
+  - web
+  - fingerprint
+  - wappalyzer
+---
 # whatweb
 
 **Author:** Julien Bongars\

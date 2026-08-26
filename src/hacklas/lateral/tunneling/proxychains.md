@@ -1,3 +1,9 @@
+---
+note_tags:
+  - socks
+  - pivot
+  - proxy
+---
 # proxychains
 
 **Author:** Julien Bongars\

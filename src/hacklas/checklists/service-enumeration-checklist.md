@@ -1,3 +1,11 @@
+---
+note_tags:
+  - recon
+  - checklist
+  - nmap
+  - services
+  - port-scan
+---
 # Service Enumeration & Vulnerability Research Checklist
 
 **Author:** Julien Bongars\

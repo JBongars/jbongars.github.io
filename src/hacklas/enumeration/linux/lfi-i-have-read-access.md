@@ -1,3 +1,10 @@
+---
+note_tags:
+  - lfi
+  - file-read
+  - recon
+  - proc
+---
 # LFI Read Access Cheat Sheet
 
 **Author:** Julien Bongars\

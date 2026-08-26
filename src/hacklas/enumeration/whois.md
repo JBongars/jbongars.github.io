@@ -1,3 +1,9 @@
+---
+note_tags:
+  - osint
+  - recon
+  - dns
+---
 # whois
 
 **Author:** Julien Bongars\

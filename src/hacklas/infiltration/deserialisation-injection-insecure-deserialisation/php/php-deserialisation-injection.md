@@ -1,3 +1,8 @@
+---
+note_tags:
+  - deserialization
+  - rce
+---
 # php-deserialisation-injection
 
 **Author:** Julien Bongars\

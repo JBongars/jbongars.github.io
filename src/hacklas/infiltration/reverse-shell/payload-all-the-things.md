@@ -1,3 +1,9 @@
+---
+note_tags:
+  - payload
+  - cheatsheet
+  - revshells
+---
 # payload-all-the-things
 
 **Author:** Julien Bongars\

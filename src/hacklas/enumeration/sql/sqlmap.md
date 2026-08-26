@@ -1,3 +1,9 @@
+---
+note_tags:
+  - sqli
+  - database
+  - dump
+---
 # sqlmap
 
 **Author:** Julien Bongars\

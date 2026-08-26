@@ -1,3 +1,10 @@
+---
+note_tags:
+  - recon
+  - nse
+  - service-scan
+  - ports
+---
 # nmap
 
 **Author:** Julien Bongars\

@@ -1,3 +1,8 @@
+---
+note_tags:
+  - deserialization
+  - magic-methods
+---
 # php-magic-functions
 
 **Author:** Julien Bongars\

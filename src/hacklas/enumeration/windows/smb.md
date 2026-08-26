@@ -1,3 +1,9 @@
+---
+note_tags:
+  - recon
+  - shares
+  - enum4linux
+---
 # SMB enumeration
 
 **Author:** Julien Bongars\

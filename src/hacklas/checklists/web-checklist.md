@@ -1,3 +1,12 @@
+---
+note_tags:
+  - web
+  - recon
+  - checklist
+  - xss
+  - lfi
+  - sqli
+---
 # Web Enumeration Checklist
 
 **Author:** Julien Bongars\

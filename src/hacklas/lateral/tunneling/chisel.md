@@ -1,3 +1,9 @@
+---
+note_tags:
+  - socks
+  - port-forward
+  - pivot
+---
 # Chisel - Fast TCP/UDP Tunnel over HTTP
 
 **Author:** Julien Bongars\

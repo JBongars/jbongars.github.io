@@ -1,3 +1,9 @@
+---
+note_tags:
+  - payload
+  - cheatsheet
+  - revshells
+---
 # revshells
 
 **Author:** Julien Bongars\

@@ -1,3 +1,11 @@
+---
+note_tags:
+  - tls
+  - cert
+  - crtsh
+  - osint
+  - recon
+---
 # stls-cert-recon-crtsh
 
 **Author:** Julien Bongars\

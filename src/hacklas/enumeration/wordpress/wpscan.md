@@ -1,3 +1,9 @@
+---
+note_tags:
+  - cms
+  - web
+  - plugins
+---
 # WordPress Plugin Enumeration (WPScan)
 
 **Author:** Julien Bongars\

@@ -1,3 +1,9 @@
+---
+note_tags:
+  - linpeas
+  - privesc
+  - ansi
+---
 # export-linpeas-output-as-ansi
 
 **Author:** Julien Bongars\

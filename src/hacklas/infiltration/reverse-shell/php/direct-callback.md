@@ -1,3 +1,9 @@
+---
+note_tags:
+  - webshell
+  - rce
+  - payload
+---
 # direct-callback
 
 **Author:** Julien Bongars\

@@ -1,3 +1,9 @@
+---
+note_tags:
+  - tshark
+  - pcap
+  - network
+---
 # tshark
 
 **Author:** Julien Bongars\

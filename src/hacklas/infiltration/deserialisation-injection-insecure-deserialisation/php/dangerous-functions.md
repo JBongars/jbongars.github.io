@@ -1,3 +1,8 @@
+---
+note_tags:
+  - rce
+  - webshell
+---
 # php-dangerous functions
 
 **Author:** Julien Bongars\

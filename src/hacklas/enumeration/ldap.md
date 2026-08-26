@@ -1,3 +1,9 @@
+---
+note_tags:
+  - recon
+  - active-directory
+  - windows
+---
 # LDAP Enumeration
 
 **Author:** Julien Bongars\

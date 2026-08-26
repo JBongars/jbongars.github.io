@@ -1,3 +1,11 @@
+---
+note_tags:
+  - recon
+  - web
+  - fuzzing
+  - vhost
+  - directory
+---
 # ffuf
 
 **Author:** Julien Bongars\

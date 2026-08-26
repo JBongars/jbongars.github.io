@@ -1,3 +1,10 @@
+---
+note_tags:
+  - php
+  - recon
+  - web
+  - phpinfo
+---
 # PHP enumeration
 
 **Author:** Julien Bongars\

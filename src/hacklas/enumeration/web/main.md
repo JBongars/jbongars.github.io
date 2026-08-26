@@ -1,3 +1,9 @@
+---
+note_tags:
+  - recon
+  - http
+  - headers
+---
 # Web enumeration
 
 **Author:** Julien Bongars\

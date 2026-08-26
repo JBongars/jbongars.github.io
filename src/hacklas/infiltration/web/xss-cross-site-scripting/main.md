@@ -1,3 +1,9 @@
+---
+note_tags:
+  - xss
+  - javascript
+  - cookie
+---
 # XSS (Cross-Site Scripting)
 
 **Author:** Julien Bongars\

@@ -1,3 +1,9 @@
+---
+note_tags:
+  - recon
+  - living-off-the-land
+  - sysinternals
+---
 # Windows common utils
 
 **Author:** Julien Bongars\

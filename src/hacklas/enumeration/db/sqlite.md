@@ -1,3 +1,9 @@
+---
+note_tags:
+  - database
+  - recon
+  - file-read
+---
 # sqlite
 
 **Author:** Julien Bongars\

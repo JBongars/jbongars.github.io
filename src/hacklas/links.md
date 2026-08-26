@@ -1,3 +1,11 @@
+---
+note_tags:
+  - osint
+  - reference
+  - cheatsheet
+  - reverse-shell
+  - cracking
+---
 # Useful Links
 
 **Author:** Julien Bongars\

@@ -1,3 +1,9 @@
+---
+note_tags:
+  - xp_cmdshell
+  - mssql
+  - payload
+---
 # SQL reverse shells
 
 **Author:** Julien Bongars\

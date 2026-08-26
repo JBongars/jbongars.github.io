@@ -1,3 +1,9 @@
+---
+note_tags:
+  - linux
+  - dev-tcp
+  - payload
+---
 # bash
 
 **Author:** Julien Bongars\

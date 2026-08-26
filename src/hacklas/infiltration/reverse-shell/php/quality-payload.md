@@ -1,3 +1,9 @@
+---
+note_tags:
+  - webshell
+  - rce
+  - payload
+---
 # quality-payload
 
 **Author:** Julien Bongars\

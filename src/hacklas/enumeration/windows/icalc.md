@@ -1,3 +1,10 @@
+---
+note_tags:
+  - icacls
+  - ntfs
+  - permissions
+  - acl
+---
 # icacls - Windows NTFS Permissions
 
 **Author:** Julien Bongars\

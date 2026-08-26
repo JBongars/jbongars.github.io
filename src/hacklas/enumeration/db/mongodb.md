@@ -1,3 +1,9 @@
+---
+note_tags:
+  - database
+  - nosql
+  - recon
+---
 # mongodb
 
 **Author:** Julien Bongars\

@@ -1,3 +1,9 @@
+---
+note_tags:
+  - phar
+  - file-upload
+  - deserialization
+---
 # php-phar
 
 **Author:** Julien Bongars\

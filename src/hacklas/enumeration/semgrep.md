@@ -1,3 +1,10 @@
+---
+note_tags:
+  - sast
+  - source
+  - recon
+  - code-review
+---
 # semgrep
 
 **Author:** Julien Bongars\

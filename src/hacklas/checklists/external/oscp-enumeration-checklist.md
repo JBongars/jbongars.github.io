@@ -1,3 +1,11 @@
+---
+note_tags:
+  - oscp
+  - recon
+  - checklist
+  - linux
+  - windows
+---
 # OSCP Enumeration Cheat Sheet
 
 **Author:** Julien Bongars\

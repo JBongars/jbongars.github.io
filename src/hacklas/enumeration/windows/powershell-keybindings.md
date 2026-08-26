@@ -1,3 +1,9 @@
+---
+note_tags:
+  - powershell
+  - cheatsheet
+  - readline
+---
 # PowerShell keybindings and help
 
 **Author:** Julien Bongars\

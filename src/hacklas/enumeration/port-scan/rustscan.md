@@ -1,3 +1,9 @@
+---
+note_tags:
+  - recon
+  - ports
+  - nmap
+---
 # rustscan
 
 **Author:** Julien Bongars\

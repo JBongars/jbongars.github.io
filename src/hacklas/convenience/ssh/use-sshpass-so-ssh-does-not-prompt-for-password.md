@@ -1,3 +1,9 @@
+---
+note_tags:
+  - sshpass
+  - automation
+  - linux
+---
 # use-sshpass-so-ssh-does-not-prompt-for-password
 
 **Author:** Julien Bongars\

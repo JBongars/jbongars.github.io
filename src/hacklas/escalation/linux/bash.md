@@ -1,3 +1,9 @@
+---
+note_tags:
+  - privesc
+  - suid
+  - gtfobins
+---
 # bash
 
 **Author:** Julien Bongars\

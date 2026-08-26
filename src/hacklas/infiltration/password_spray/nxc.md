@@ -1,3 +1,10 @@
+---
+note_tags:
+  - netexec
+  - password-spray
+  - ssh
+  - brute-force
+---
 # NXC SSH Password Spray
 
 **Author:** Julien Bongars\

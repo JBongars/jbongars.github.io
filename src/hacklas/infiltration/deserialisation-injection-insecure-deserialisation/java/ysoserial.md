@@ -1,3 +1,9 @@
+---
+note_tags:
+  - deserialization
+  - rce
+  - gadget
+---
 # ysoserial
 
 **Author:** Julien Bongars\
