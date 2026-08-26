@@ -20,8 +20,6 @@
   width: 100%;
   height: 50vh;
   max-height: 50vh;
-  object-fit: cover;
-  object-position: center;
 }
 
 .post-banner--fallback {
@@ -38,16 +36,53 @@
 
 .post__header {
   margin: 0 0 var(--space-6);
-  padding-bottom: var(--space-5);
+  padding-bottom: var(--space-6);
   border-bottom: 1px solid var(--border);
 }
 
 .post__title {
-  margin: 0 0 var(--space-4);
+  margin: 0 0 var(--space-5);
+}
+
+.post__facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: var(--space-4);
+  row-gap: var(--space-3);
+  align-items: start;
+  margin: 0;
+  padding: 0;
+}
+
+.post__fact {
+  display: contents;
+}
+
+.post__fact dt {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--muted);
+}
+
+.post__fact dd {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.post__fact code {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--muted);
 }
 
 .post__fact-link {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
   max-width: 100%;
@@ -81,12 +116,29 @@
   opacity: 0.9;
 }
 
-/* Post layout with TOC — TOC on top (mobile), left rail (desktop) */
+/* Header → TOC → body on small screens. Left rail from 48rem. */
 .post--with-toc {
   display: grid;
   grid-template-columns: 1fr;
+  grid-template-areas:
+    "header"
+    "toc"
+    "body";
   gap: var(--space-6);
   align-items: start;
+}
+
+.post--with-toc .post__header {
+  grid-area: header;
+  margin: 0;
+}
+
+.post--with-toc .toc {
+  grid-area: toc;
+}
+
+.post--with-toc .post__body {
+  grid-area: body;
 }
 
 .post__body {
@@ -94,7 +146,7 @@
 }
 
 .toc {
-  padding-bottom: var(--space-4);
+  padding-bottom: var(--space-5);
   border-bottom: 1px solid var(--border);
 }
 
@@ -109,7 +161,7 @@
 }
 
 .toc__item + .toc__item {
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
 }
 
 .toc__item a {
@@ -117,7 +169,7 @@
   max-width: 100%;
   color: var(--muted);
   font-size: var(--text-sm);
-  line-height: var(--leading-tight);
+  line-height: var(--leading-body);
   text-decoration: none;
   overflow-wrap: anywhere;
 }
@@ -141,26 +193,31 @@
   margin: 0;
   color: var(--muted);
   font-size: var(--text-sm);
-  line-height: var(--leading-tight);
+  line-height: var(--leading-body);
 }
 
-@media (min-width: 56rem) {
+@media (min-width: 48rem) {
   .post--with-toc {
-    grid-template-columns: minmax(11rem, 15rem) minmax(0, 1fr);
-    gap: var(--space-7);
+    grid-template-columns: 1fr minmax(0, 3fr);
+    grid-template-areas:
+      "toc header"
+      "toc body";
+    column-gap: var(--space-7);
+    row-gap: var(--space-6);
   }
 
   .toc {
     position: sticky;
     top: calc(var(--site-header-height) + var(--space-4));
-    max-height: calc(100vh - var(--site-header-height) - var(--space-8));
+    align-self: start;
+    max-height: calc(100dvh - var(--site-header-height) - var(--space-6));
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
     padding-bottom: 0;
+    padding-right: var(--space-5);
     border-bottom: 0;
     border-right: 1px solid var(--border);
-    padding-right: var(--space-5);
   }
 }
 
@@ -211,7 +268,7 @@
 .prose li.task-list-item {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   list-style: none;
   column-gap: var(--space-1);
 }
@@ -219,7 +276,7 @@
 .prose li.task-list-item > p {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   flex: 1 1 auto;
   min-width: 0;
   margin: 0;
@@ -232,7 +289,6 @@
   align-items: center;
   justify-content: center;
   min-width: 2.75rem;
-  min-height: 2.75rem;
   margin-left: calc(-1 * var(--space-2));
   cursor: pointer;
 }
@@ -253,7 +309,6 @@
 .prose .task-list-item__body {
   flex: 1 1 0;
   min-width: 0;
-  padding-top: 0.45rem;
   cursor: pointer;
 }
 
@@ -420,10 +475,19 @@
 }
 
 .prose blockquote {
-  margin: 0 0 var(--space-4);
-  padding-left: var(--space-4);
+  margin: 0 0 var(--space-6);
+  padding: var(--space-3) 0 var(--space-3) var(--space-4);
   border-left: 2px solid var(--border);
   color: var(--muted);
+  line-height: var(--leading-body);
+}
+
+.prose blockquote p {
+  margin: 0 0 var(--space-3);
+}
+
+.prose blockquote p:last-child {
+  margin-bottom: 0;
 }
 
 /* A quoted image is the markdown-native “make this smaller” signal
@@ -453,9 +517,9 @@
 
 .prose :not(pre) > code {
   padding: var(--space-1) var(--space-2);
-  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .prose pre {

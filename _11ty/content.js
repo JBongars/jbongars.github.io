@@ -79,6 +79,22 @@ function stripNoteChrome(content) {
   return out;
 }
 
+/**
+ * Drop leftover write-up chrome the layout already prints: a demoted
+ * `# Box — Writeup` (h2) and the Platform/Target blockquote. New write-ups
+ * should not include either (see WRITEUP_SPEC.md).
+ */
+function stripWriteupChrome(content) {
+  if (!content) return content;
+  let out = String(content);
+  out = out.replace(/^\s*<h2\b[^>]*>[\s\S]*?<\/h2>\s*/i, "");
+  out = out.replace(
+    /^\s*<blockquote\b[^>]*>[\s\S]*?(?:Platform:|Target:)[\s\S]*?<\/blockquote>\s*/i,
+    ""
+  );
+  return out;
+}
+
 const BANNER_FILES = ["banner.jpg", "banner.jpeg", "banner.png", "banner.webp"];
 
 function findBannerFile(dir) {
@@ -273,6 +289,7 @@ module.exports = {
   hacklasPathParts,
   parseHacklasMeta,
   stripNoteChrome,
+  stripWriteupChrome,
   findBannerFile,
   cssDecls,
   frontMatterHasKey,

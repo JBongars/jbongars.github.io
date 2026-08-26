@@ -181,6 +181,11 @@ Methodology in this repo:
   - Motion: `motion.css`, gated per DESIGN.md
 - **CSS custom properties** for color, type, space, radius, and motion.
   New visual values go in `tokens.css` first; components consume `var(--…)`.
+  Spacing in components is those tokens only — no 1px/2px one-offs.
+- **Progressive layout.** Trust normal flow. Images keep their aspect
+  ratio (`height: auto`). Do not stretch or CSS-crop photos. If a layout
+  is wrong, remove CSS until it is a normal document, then add the
+  smallest tweak (DESIGN.md, Layout).
 - Keep specificity low (single class selectors). No IDs for styling. No
   `!important`.
 

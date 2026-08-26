@@ -1,10 +1,14 @@
 ---
 layout: base.njk
 ---
+{% set bodyHtml = content %}
+{% if "/write-ups/" in page.url %}
+  {% set bodyHtml = content | stripWriteupChrome %}
+{% endif %}
 {% if disable_tree %}
 {% set tocHtml = false %}
 {% else %}
-{% set tocHtml = content | toc %}
+{% set tocHtml = bodyHtml | toc %}
 {% endif %}
 {% set backHref = "/blog/" | url %}
 {% if "/write-ups/" in page.url %}
@@ -29,73 +33,73 @@ layout: base.njk
 </div>
 {% endif %}
 <article class="post{% if tocHtml %} post--with-toc{% endif %}{% if "/blog/" in page.url %} post--blog{% endif %}">
+  <header class="post__header">
+    <h1 class="post__title">{{ title }}</h1>
+    {% if author or date or path or link or tags %}
+    <dl class="post__facts">
+      {% if author %}
+      <div class="post__fact">
+        <dt>Author</dt>
+        <dd>{{ author }}</dd>
+      </div>
+      {% endif %}
+      {% if date %}
+      <div class="post__fact">
+        <dt>Date</dt>
+        <dd><time datetime="{{ date.toISOString().slice(0, 10) }}">{{ date.toISOString().slice(0, 10) }}</time></dd>
+      </div>
+      {% endif %}
+      {% if path %}
+      <div class="post__fact">
+        <dt>Path</dt>
+        <dd><code>{{ path }}</code></dd>
+      </div>
+      {% endif %}
+      {% if link %}
+      {% set linkInfo = link | parseLink %}
+      {% if linkInfo.href %}
+      <div class="post__fact">
+        <dt>Link</dt>
+        <dd>
+          <a
+            class="post__fact-link"
+            href="{{ linkInfo.href }}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <code>{{ linkInfo.label }}</code>
+            <svg class="icon-external" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M10.5 1H7v1h1.8L5.15 5.65l.7.7L9.5 2.7V4.5H10.5V1zM2 2v8h8V7H9v2H3V3h2V2H2z"/>
+            </svg>
+            <span class="visually-hidden">(opens in a new tab)</span>
+          </a>
+        </dd>
+      </div>
+      {% endif %}
+      {% endif %}
+      {% if tags and tags.length %}
+      <div class="post__fact post__fact--tags">
+        <dt>Tags</dt>
+        <dd>
+          <ul class="tag-list">
+            {% for tag in tags %}
+            <li><span class="tag">{{ tag }}</span></li>
+            {% endfor %}
+          </ul>
+        </dd>
+      </div>
+      {% endif %}
+    </dl>
+    {% endif %}
+  </header>
   {% if tocHtml %}
   <nav class="toc" aria-label="Table of contents">
     {{ tocHtml | safe }}
   </nav>
   {% endif %}
   <div class="post__body">
-    <header class="post__header">
-      <h1 class="post__title">{{ title }}</h1>
-      {% if author or date or path or link or tags %}
-      <dl class="post__facts">
-        {% if author %}
-        <div class="post__fact">
-          <dt>Author</dt>
-          <dd>{{ author }}</dd>
-        </div>
-        {% endif %}
-        {% if date %}
-        <div class="post__fact">
-          <dt>Date</dt>
-          <dd><time datetime="{{ date.toISOString().slice(0, 10) }}">{{ date.toISOString().slice(0, 10) }}</time></dd>
-        </div>
-        {% endif %}
-        {% if path %}
-        <div class="post__fact">
-          <dt>Path</dt>
-          <dd><code>{{ path }}</code></dd>
-        </div>
-        {% endif %}
-        {% if link %}
-        {% set linkInfo = link | parseLink %}
-        {% if linkInfo.href %}
-        <div class="post__fact">
-          <dt>Link</dt>
-          <dd>
-            <a
-              class="post__fact-link"
-              href="{{ linkInfo.href }}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <code>{{ linkInfo.label }}</code>
-              <svg class="icon-external" width="11" height="11" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-                <path fill="currentColor" d="M10.5 1H7v1h1.8L5.15 5.65l.7.7L9.5 2.7V4.5H10.5V1zM2 2v8h8V7H9v2H3V3h2V2H2z"/>
-              </svg>
-              <span class="visually-hidden">(opens in a new tab)</span>
-            </a>
-          </dd>
-        </div>
-        {% endif %}
-        {% endif %}
-        {% if tags and tags.length %}
-        <div class="post__fact post__fact--tags">
-          <dt>Tags</dt>
-          <dd>
-            <ul class="tag-list">
-              {% for tag in tags %}
-              <li><span class="tag">{{ tag }}</span></li>
-              {% endfor %}
-            </ul>
-          </dd>
-        </div>
-        {% endif %}
-      </dl>
-      {% endif %}
-    </header>
     <div class="prose">
-      {{ content | safe }}
+          {{ bodyHtml | safe }}
     </div>
   </div>
 </article>

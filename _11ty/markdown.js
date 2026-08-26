@@ -1,7 +1,7 @@
 const Prism = require("prismjs");
 const loadLanguages = require("prismjs/components/index.js");
 const { withPathPrefix } = require("./paths");
-const { escapeHtml } = require("./text");
+const { escapeHtml, unescapeHtml } = require("./text");
 const { isContentMarkdown } = require("./content");
 
 loadLanguages.silent = true;
@@ -108,7 +108,7 @@ function buildToc(content) {
   while ((match = headingPattern.exec(content)) !== null) {
     const level = match[1];
     const id = match[2];
-    const title = match[3].replace(/<[^>]+>/g, "").trim();
+    const title = unescapeHtml(match[3].replace(/<[^>]+>/g, "").trim());
     if (!title) continue;
     items.push({ level, id, title });
   }

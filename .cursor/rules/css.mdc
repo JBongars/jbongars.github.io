@@ -21,3 +21,13 @@ Looks and motion: [docs/DESIGN.md](docs/DESIGN.md).
 - Low specificity. No IDs for styling. No `!important`.
 - Motion only inside `@media (prefers-reduced-motion: no-preference)`.
 - Never Tailwind, Bootstrap, Sass/Less, CSS-in-JS, or a CSS framework.
+
+Progressive layout — trust the browser. Details: DESIGN.md (Layout).
+
+- Do not stretch images. `width: 100%; height: auto`. No `object-fit: cover`
+  / `fill` on content photos, no absolute-fill `<img>`.
+- Spacing is `--space-*` only. No 1px/2px/0.15em one-offs.
+- No `calc()` nudges, fake tap-target min-heights, or padding used to
+  optically align. Use `gap` and `align-items`.
+- When a layout looks wrong, remove rules until it is a normal document,
+  then add the smallest tweak. Do not compensate with more CSS.

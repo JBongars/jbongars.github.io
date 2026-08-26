@@ -119,24 +119,22 @@ meta tags, RSS, and `/llms.txt`; omit it and the site falls back to
 - `link:` is a markdown link, not a bare URL.
 - Pull platform / track / difficulty / OS from the draft. If any is
   genuinely absent, leave a `<!-- TODO -->` rather than guessing.
+- The page layout already prints **title, author, date, link, and tags**
+  from this YAML. Do **not** repeat them in the markdown body.
 
 ---
 
 ## Document structure
 
+The body starts at **Summary**. Do **not** add a `# <Box> — Writeup` heading
+or a platform / difficulty / OS / target / ref **blockquote** under it.
+Those duplicate the layout header. Put the target host or IP in **Recon**
+(it already shows up in scan output); do not promote it to chrome.
+
 Sections appear in this order. Omit a section only if the draft has
 nothing for it (except the ones marked **required**).
 
-1. **`# <Box> — Writeup`** — required. Title line.
-2. **Blockquote metadata** — required. Directly under the title, a `>` block
-   with platform · difficulty · OS on one line, target host/IP on the next,
-   and a `Ref:` link. Example:
-   ```
-   > Platform: OffSec Proving Grounds (TJNull track) · Difficulty: **Medium** · OS: **Linux**
-   > Target: `10.10.10.10` (`box.host`)
-   > Ref: [portal link](https://...)
-   ```
-3. **`## Summary`** — required. Prose (not bullets). One or two paragraphs
+1. **`## Summary`** — required. Prose (not bullets). One or two paragraphs
    that walk the entire chain start to finish: initial access → each pivot →
    final privesc, naming the key CVE/technique at each hop. A reader should
    understand the whole box from this section alone. If the box has a notable
@@ -149,18 +147,18 @@ nothing for it (except the ones marked **required**).
    account's password," "the leaked API key"), never by its value; the actual
    value lives in the _Credentials_ section. Flag values are redacted here as
    everywhere (see _Flags & secrets_).
-4. **`## Recon`** — required. Subsections as needed:
+2. **`## Recon`** — required. Subsections as needed:
    - `### Port scanning` — the scan commands and their **full** output.
    - `### Enumeration` — web/service enumeration, vhosts, content discovery.
    - Use `####` for a specific host/port/service that deserves its own note.
    - After a big log, add one or two sentences calling out the artifacts
      that actually matter (the redirect, the leaked path, the version).
-5. **`## Stage N: <short description>`** — one numbered stage per meaningful
+3. **`## Stage N: <short description>`** — one numbered stage per meaningful
    phase of the chain (foothold, shell stabilization, each pivot, escalation).
    Within a stage use `###` / `####` for sub-steps. Every stage ends with the
    concrete result it produced (a shell, a credential, a hash, a redacted
    flag value).
-6. **`## Credentials`** — every credential/secret recovered, with where it
+4. **`## Credentials`** — every credential/secret recovered, with where it
    came from. Include even guessed/default creds. Flag/proof strings are
    **not** credentials — they do not go in this section, and their values
    are redacted per _Flags & secrets_.
@@ -180,15 +178,15 @@ nothing for it (except the ones marked **required**).
    **`db.json` (via LFI)** — `testuser@imagery.htb` md5 `2c65c8d7…` → `iambatman`
    Cracked (rockyou).
    ```
-7. **`## Key lessons`** — bulleted. Fold the author's retro / "lessons" here.
+5. **`## Key lessons`** — bulleted. Fold the author's retro / "lessons" here.
    Each bullet is a durable, transferable takeaway, bolded lead-in then the
    detail. Keep the author's actual insights; don't replace them with
    generic advice.
-8. **`### What went right`** — optional subsection under Key lessons, if the
+6. **`### What went right`** — optional subsection under Key lessons, if the
    draft has a retro worth preserving. Do **not** mention consulting a
    walkthrough, IppSec, or a hint — publish the path as found. Keep
    technical dead ends; drop "I peeked" asides.
-9. **`## Tools & cheat sheet`** — required. A bullet list, one item per
+7. **`## Tools & cheat sheet`** — required. A bullet list, one item per
    tool actually used — **not a three-column table**, and **not a command
    dump**. Box-specific invocations already live in the stages. This section
    is a map: what was used here, linked to the reusable Hacklas note.
@@ -301,7 +299,9 @@ are permitted, even in a "light" form.
   something worked, don't assert a clean explanation they didn't make.
 - **Emoji as section markers or decoration.**
 - **Padding.** No restating the same fact in Summary, stage intro, and
-  lesson three times. Say it once, in the right place.
+  lesson three times. Say it once, in the right place. Do not add a
+  `# Box — Writeup` heading or a Platform / Difficulty / OS / Target
+  blockquote — the layout already shows title, tags, and link.
 - **Collapsing dead ends into "after some enumeration."** Show the actual
   failed attempt.
 - **Reformatting hashes** or redacting the wrong things — leave hashes and

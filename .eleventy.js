@@ -9,6 +9,7 @@ const { xmlEscape, plainSummary, formatResumeDate } = require("./_11ty/text");
 const {
   isReadableFile,
   stripNoteChrome,
+  stripWriteupChrome,
   cssDecls,
   passthroughMediaFolders,
   parseFrontMatterLink,
@@ -87,6 +88,7 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addFilter("toc", buildToc);
   eleventyConfig.addFilter("stripNoteChrome", stripNoteChrome);
+  eleventyConfig.addFilter("stripWriteupChrome", stripWriteupChrome);
   eleventyConfig.addFilter("urlencode", (value) =>
     encodeURIComponent(String(value == null ? "" : value))
   );

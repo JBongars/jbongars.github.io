@@ -15,6 +15,20 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;");
 }
 
+function unescapeHtml(str) {
+  return String(str)
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) =>
+      String.fromCharCode(parseInt(hex, 16))
+    )
+    .replace(/&amp;/g, "&");
+}
+
 function plainSummary(html, max = 280) {
   const text = String(html || "")
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
@@ -53,4 +67,4 @@ function formatResumeDate(value) {
   return raw.replace(/\s*[–-]\s*/g, " – ");
 }
 
-module.exports = { xmlEscape, escapeHtml, plainSummary, formatResumeDate };
+module.exports = { xmlEscape, escapeHtml, unescapeHtml, plainSummary, formatResumeDate };

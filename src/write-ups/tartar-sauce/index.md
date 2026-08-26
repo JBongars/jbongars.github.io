@@ -13,12 +13,6 @@ tags:
   - Hacking
 ---
 
-# TartarSauce — Writeup
-
-> Platform: HackTheBox · Difficulty: **Medium** · OS: **Linux**
-> Target: `10.129.1.185` (`tartarsauce.htb`)
-> Ref: [app.hackthebox.com/machines/TartarSauce](https://app.hackthebox.com/machines/TartarSauce)
-
 ## Summary
 
 TartarSauce is a Medium Linux box where the obvious Monstra CMS path is a time-sink and the real foothold sits one directory deeper. Port 80 only; `robots.txt` lists several `/webservices/` paths including Monstra 3.0.4 (`admin:admin`), but the chunk-upload RCE returns 500 and goes nowhere. Broader gobuster under `/webservices/` finds `/wp`. Broken absolute links reveal the vhost `tartarsauce.htb`; after adding it to `/etc/hosts`, aggressive `wpscan` surfaces the **Gwolle Guestbook** plugin, which is vulnerable to unauthenticated **RFI (CVE-2015-8351)**. Hosting a malicious `wp-load.php` and hitting `ajaxresponse.php?abspath=` yields a shell as `www-data`.

@@ -212,8 +212,8 @@ the dump they already have.** Add Resources and tidy presentation only.
 
 Keep the Hacklas chrome so the layout can parse title / author / date
 (`parseHacklasMeta` / `stripNoteChrome` in `_11ty/content.js`). Optional YAML
-front matter may precede the `#` title. Use `note_tags` (not Eleventy `tags:`)
-for extra booru-search terms — path segments are already tags.
+front matter may precede the `#` title — that is where extra search tags
+live (see _Tags_). Do not use Eleventy `tags:`.
 
 ```
 ---
@@ -229,10 +229,6 @@ note_tags:
 
 ---
 ```
-
-`note_tags` are lowercase, hyphenated aliases and extra terms a reader would
-type (`lfi`, `privesc`, `netexec`). Do not repeat a path segment. Four to
-eight extras is enough.
 
 The `#` title should name the topic **without the breadcrumbs**. Prefer
 `MSSQL / Linked servers` over `Enumeration`, `XSS enumeration` over
@@ -267,6 +263,68 @@ fence's contents is not.
 **Do not use markdown tables** for *new* cheat-sheet lookups (they squash
 on a phone). Stack entries or use headings. A table that already exists
 in the note stays; do not flatten it unless every cell's text is kept.
+
+---
+
+## Tags
+
+Tags exist so a reader on `/hacklas/` can chip-filter notes the same way
+the blog listing does: type a term, Space (or Tab) commits it, leftover
+text still fuzzy-searches. A chip on a note page is a link to
+`/hacklas/?t=<tag>`.
+
+Path segments (dirs + filename stem) are **always** tags. Extra tags are
+only the aliases and extra terms the path does not already give. Store
+those extras in YAML `note_tags` — **never** Eleventy `tags:`, which
+would create collections named after each tag.
+
+When you format a note, fill `note_tags` if it is missing or thinner
+than the categories below. Prefer a term that is already in use on
+another note (grep `note_tags`) over inventing a synonym.
+
+**Shape**
+
+```
+---
+note_tags:
+  - privesc
+  - gtfobins
+  - nopasswd
+---
+```
+
+Lowercase, hyphenated, ASCII. No spaces, slashes, dots, or `#`. One
+token per line. Do not quote unless YAML needs it. Do not repeat a path
+segment (`escalation/linux/sudo.md` already has `escalation`, `linux`,
+`sudo`). Six to ten extras is the usual range; fewer is fine if the note
+is a stub.
+
+**What to add** (skip a row that the path already covers):
+
+1. **Stage alias** — `recon` (enumeration / OSINT), `foothold`
+   (infiltration), `privesc` (escalation), `pivot` (lateral), `utility`
+   (general / convenience / links).
+2. **OS** — `linux`, `windows` when the note is OS-specific.
+3. **Language** — `php`, `python`, `java`, `powershell`, `bash`, `sql`,
+   `javascript`.
+4. **Technique** — the short name a reader would type, plus one long
+   form when it is common: `xss` / `cross-site-scripting`, `lfi` /
+   `local-file-inclusion`, `rfi` / `remote-file-inclusion`, `sqli` /
+   `sql-injection`, `ssti` / `template-injection`, `privesc` /
+   `privilege-escalation`, `deserialization` /
+   `insecure-deserialization`, `rce`, `file-upload`, `file-traversal`,
+   `password-spray`, `cracking`, `tunneling`, `jndi`, `oob`, `exfil`.
+5. **Tool / protocol aliases** — names not already in the path
+   (`netexec` on `nxc.md`, `ncat` on `nc.md`, `john` on hashcat, `smb`,
+   `rdp`, `ldap`, `ssh`). CVE id when the note is about that CVE.
+
+Do not tag every command in the body. Do not add box names, IPs, or
+author identity. Do not invent a tag that would match half the tree
+(`hacking`, `notes`, `cheatsheet` only when the page *is* a dump of
+links or keybindings).
+
+On the rendered page, breadcrumbs stay on the path. The Tags row is path
+plus extras; those chips are the booru index.
 
 ---
 
@@ -346,6 +404,8 @@ wrote that framing, keep it. That is not an editor's-note event.
 - **Second `#` heading** in the body (demote; keep the text).
 - **Silent identity redaction.** Leave the token.
 - **An editor's note on every file.** Occasional, or none.
+- **Eleventy `tags:` on a Hacklas note.** That creates collections. Extra
+  search terms go in `note_tags` (see _Tags_).
 
 ---
 
@@ -359,6 +419,8 @@ wrote that framing, keep it. That is not an editor's-note event.
 - When the author's command has a one-token typo or missed flag, fix it.
   When the href is not a URL, delete the link. When intent is ambiguous,
   write `> **EDITOR NOTE**` and leave their lines alone.
+- Fill `note_tags` so a reader can chip-filter this note by stage,
+  technique, or tool without guessing the folder name.
 - Check the note on the site: TOC should list `##` sections, commands
-  should be copyable fences, Resources last. A grep for `EDITOR NOTE`
-  should list only real fact-checks.
+  should be copyable fences, Resources last, Tags chips should include
+  the extras. A grep for `EDITOR NOTE` should list only real fact-checks.
