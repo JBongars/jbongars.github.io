@@ -4,6 +4,10 @@ note_tags:
   - database
   - union
   - error-based
+  - recon
+  - sql-injection
+  - mysql
+  - boolean
 ---
 # Manual SQLi Enumeration
 

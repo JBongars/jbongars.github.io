@@ -5,6 +5,9 @@ note_tags:
   - fuzzing
   - vhost
   - directory
+  - wordlist
+  - seclists
+  - http
 ---
 # ffuf
 

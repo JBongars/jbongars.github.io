@@ -4,6 +4,9 @@ note_tags:
   - deserialization
   - monolog
   - rce
+  - foothold
+  - insecure-deserialization
+  - file-upload
 ---
 # Monolog/RCE1 Gadget Chain — PHAR Deserialization
 

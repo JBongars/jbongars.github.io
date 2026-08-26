@@ -3,6 +3,11 @@ note_tags:
   - privesc
   - checklist
   - powershell
+  - privilege-escalation
+  - winpeas
+  - unquoted-path
+  - alwaysinstallelevated
+  - token-impersonation
 ---
 # Windows privilege escalation checklist
 

@@ -3,6 +3,7 @@ note_tags:
   - database
   - recon
   - file-read
+  - offline
 ---
 # sqlite
 

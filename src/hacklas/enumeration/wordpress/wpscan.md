@@ -3,6 +3,9 @@ note_tags:
   - cms
   - web
   - plugins
+  - recon
+  - users
+  - api
 ---
 # WordPress Plugin Enumeration (WPScan)
 

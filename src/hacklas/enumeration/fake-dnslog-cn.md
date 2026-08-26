@@ -5,6 +5,9 @@ note_tags:
   - dnslog
   - rce
   - ssti
+  - recon
+  - template-injection
+  - callback
 ---
 # fake-dnslog-cn
 

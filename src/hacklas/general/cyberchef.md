@@ -3,6 +3,8 @@ note_tags:
   - encoding
   - decoding
   - payload
+  - utility
+  - base64
 ---
 # CyberChef
 

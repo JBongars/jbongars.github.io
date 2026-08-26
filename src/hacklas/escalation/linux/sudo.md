@@ -3,6 +3,8 @@ note_tags:
   - privesc
   - gtfobins
   - nopasswd
+  - privilege-escalation
+  - sudoers
 ---
 # sudo / sudoers
 

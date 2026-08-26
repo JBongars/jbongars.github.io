@@ -2,6 +2,9 @@
 note_tags:
   - deserialization
   - rce
+  - foothold
+  - insecure-deserialization
+  - object-injection
 ---
 # php-deserialisation-injection
 

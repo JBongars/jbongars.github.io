@@ -4,6 +4,8 @@ note_tags:
   - linked-server
   - rce
   - windows
+  - recon
+  - xp_cmdshell
 ---
 # MSSQL / Linked servers
 

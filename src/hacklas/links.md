@@ -5,6 +5,8 @@ note_tags:
   - cheatsheet
   - reverse-shell
   - cracking
+  - utility
+  - payloads
 ---
 # Useful Links
 

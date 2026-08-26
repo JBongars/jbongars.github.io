@@ -4,6 +4,10 @@ note_tags:
   - ntfs
   - permissions
   - acl
+  - recon
+  - privesc
+  - privilege-escalation
+  - alwaysinstallelevated
 ---
 # icacls - Windows NTFS Permissions
 

@@ -4,6 +4,8 @@ note_tags:
   - python
   - bash
   - tty
+  - foothold
+  - stty
 ---
 # cant-make-shell-interactive
 

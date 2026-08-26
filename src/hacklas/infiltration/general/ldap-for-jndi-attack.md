@@ -5,6 +5,9 @@ note_tags:
   - java
   - log4shell
   - rce
+  - foothold
+  - insecure-deserialization
+  - oob
 ---
 # ldap for jndi attack
 

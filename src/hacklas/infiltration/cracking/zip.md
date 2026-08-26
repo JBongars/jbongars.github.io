@@ -3,6 +3,9 @@ note_tags:
   - password
   - fcrackzip
   - john
+  - foothold
+  - hashcat
+  - rockyou
 ---
 # zip
 

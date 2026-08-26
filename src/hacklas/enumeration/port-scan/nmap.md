@@ -4,6 +4,9 @@ note_tags:
   - nse
   - service-scan
   - ports
+  - tcp
+  - udp
+  - scripts
 ---
 # nmap
 

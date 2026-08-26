@@ -3,6 +3,7 @@ note_tags:
   - ssh
   - pivot
   - vpn
+  - cidr
 ---
 # sshuttle
 

@@ -3,6 +3,9 @@ note_tags:
   - recon
   - shares
   - enum4linux
+  - smbclient
+  - smbmap
+  - null-session
 ---
 # SMB enumeration
 

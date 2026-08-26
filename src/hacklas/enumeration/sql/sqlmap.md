@@ -3,6 +3,10 @@ note_tags:
   - sqli
   - database
   - dump
+  - recon
+  - sql-injection
+  - mysql
+  - tamper
 ---
 # sqlmap
 

@@ -3,6 +3,9 @@ note_tags:
   - hash
   - wordlist
   - john
+  - foothold
+  - rockyou
+  - ntlm
 ---
 # hashcat
 

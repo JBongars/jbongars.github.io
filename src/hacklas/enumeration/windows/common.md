@@ -3,6 +3,8 @@ note_tags:
   - recon
   - living-off-the-land
   - sysinternals
+  - whoami
+  - systeminfo
 ---
 # Windows common utils
 

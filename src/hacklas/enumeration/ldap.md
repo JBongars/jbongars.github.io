@@ -3,6 +3,8 @@ note_tags:
   - recon
   - active-directory
   - windows
+  - ldapsearch
+  - kerberos
 ---
 # LDAP Enumeration
 

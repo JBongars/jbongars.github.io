@@ -5,6 +5,9 @@ note_tags:
   - nmap
   - services
   - port-scan
+  - smb
+  - web
+  - database
 ---
 # Service Enumeration & Vulnerability Research Checklist
 

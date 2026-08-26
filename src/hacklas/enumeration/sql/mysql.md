@@ -2,6 +2,8 @@
 note_tags:
   - database
   - recon
+  - dump
+  - file-read
 ---
 # MySQL
 

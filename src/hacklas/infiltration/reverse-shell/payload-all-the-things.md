@@ -3,6 +3,9 @@ note_tags:
   - payload
   - cheatsheet
   - revshells
+  - foothold
+  - windows
+  - linux
 ---
 # payload-all-the-things
 

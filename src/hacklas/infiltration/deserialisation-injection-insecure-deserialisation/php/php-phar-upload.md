@@ -3,6 +3,10 @@ note_tags:
   - phar
   - file-upload
   - deserialization
+  - foothold
+  - insecure-deserialization
+  - lfi
+  - local-file-inclusion
 ---
 # php-phar
 

@@ -3,6 +3,9 @@ note_tags:
   - tshark
   - pcap
   - network
+  - recon
+  - http
+  - dns
 ---
 # tshark
 

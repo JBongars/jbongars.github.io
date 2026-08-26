@@ -6,6 +6,10 @@ note_tags:
   - xss
   - lfi
   - sqli
+  - sql-injection
+  - local-file-inclusion
+  - cross-site-scripting
+  - rce
 ---
 # Web Enumeration Checklist
 

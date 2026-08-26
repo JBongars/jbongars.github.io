@@ -4,6 +4,10 @@ note_tags:
   - nc
   - tar
   - reverse-shell
+  - foothold
+  - ncat
+  - listener
+  - linux
 ---
 # directory-with-nc
 

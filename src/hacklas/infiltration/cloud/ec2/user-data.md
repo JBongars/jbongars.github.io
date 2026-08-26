@@ -3,6 +3,8 @@ note_tags:
   - aws
   - metadata
   - ssrf
+  - foothold
+  - imds
 ---
 # user-data
 

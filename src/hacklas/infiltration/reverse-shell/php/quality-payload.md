@@ -3,6 +3,8 @@ note_tags:
   - webshell
   - rce
   - payload
+  - foothold
+  - disable-functions
 ---
 # quality-payload
 

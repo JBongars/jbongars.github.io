@@ -2,6 +2,8 @@
 note_tags:
   - deserialization
   - magic-methods
+  - foothold
+  - insecure-deserialization
 ---
 # php-magic-functions
 

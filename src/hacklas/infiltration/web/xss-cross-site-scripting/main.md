@@ -3,6 +3,9 @@ note_tags:
   - xss
   - javascript
   - cookie
+  - foothold
+  - cross-site-scripting
+  - stored
 ---
 # XSS (Cross-Site Scripting)
 

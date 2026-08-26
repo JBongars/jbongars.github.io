@@ -2,6 +2,9 @@
 note_tags:
   - windows
   - payload
+  - foothold
+  - iex
+  - encoded
 ---
 # powershell
 

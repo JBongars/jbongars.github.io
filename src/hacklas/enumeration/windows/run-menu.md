@@ -3,6 +3,7 @@ note_tags:
   - run
   - living-off-the-land
   - shortcuts
+  - recon
 ---
 # Windows Run menu
 

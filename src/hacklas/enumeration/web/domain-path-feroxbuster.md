@@ -3,6 +3,9 @@ note_tags:
   - feroxbuster
   - fuzzing
   - directory
+  - recon
+  - wordlist
+  - seclists
 ---
 # feroxbuster
 

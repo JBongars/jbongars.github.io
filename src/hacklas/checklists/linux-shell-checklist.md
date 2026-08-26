@@ -5,6 +5,9 @@ note_tags:
   - checklist
   - privesc
   - linpeas
+  - foothold
+  - privilege-escalation
+  - suid
 ---
 # Linux Shell Enumeration Checklist
 

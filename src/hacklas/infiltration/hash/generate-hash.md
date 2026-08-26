@@ -3,6 +3,10 @@ note_tags:
   - openssl
   - password
   - linux
+  - foothold
+  - md5
+  - sha256
+  - crypt
 ---
 # Hash Generation & Enumeration
 

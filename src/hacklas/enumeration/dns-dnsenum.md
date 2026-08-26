@@ -4,6 +4,8 @@ note_tags:
   - dns
   - dnsenum
   - osint
+  - subdomain
+  - zone-transfer
 ---
 # dns-dnsenum
 

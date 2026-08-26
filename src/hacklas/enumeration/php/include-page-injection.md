@@ -4,6 +4,9 @@ note_tags:
   - rfi
   - include
   - web
+  - recon
+  - local-file-inclusion
+  - remote-file-inclusion
 ---
 # php-page-injection
 

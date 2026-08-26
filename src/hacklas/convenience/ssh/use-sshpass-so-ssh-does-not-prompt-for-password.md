@@ -3,6 +3,9 @@ note_tags:
   - sshpass
   - automation
   - linux
+  - utility
+  - password
+  - brute-force
 ---
 # use-sshpass-so-ssh-does-not-prompt-for-password
 

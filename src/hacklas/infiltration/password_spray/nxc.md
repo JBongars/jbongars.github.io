@@ -4,6 +4,11 @@ note_tags:
   - password-spray
   - ssh
   - brute-force
+  - foothold
+  - smb
+  - winrm
+  - rdp
+  - crackmapexec
 ---
 # NXC SSH Password Spray
 

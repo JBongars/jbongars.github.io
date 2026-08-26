@@ -2,7 +2,10 @@
 note_tags:
   - payload
   - cheatsheet
-  - revshells
+  - foothold
+  - listener
+  - windows
+  - linux
 ---
 # revshells
 

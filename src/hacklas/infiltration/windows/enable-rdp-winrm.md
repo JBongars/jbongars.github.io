@@ -4,6 +4,9 @@ note_tags:
   - winrm
   - foothold
   - remote-desktop
+  - powershell
+  - evil-winrm
+  - xfreerdp
 ---
 # Enable RDP / WinRM
 

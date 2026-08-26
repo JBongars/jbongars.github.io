@@ -2,6 +2,9 @@
 note_tags:
   - deserialization
   - gadget
+  - foothold
+  - insecure-deserialization
+  - monolog
 ---
 # phpggc - PHP Generic Gadget Chains
 

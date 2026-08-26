@@ -5,6 +5,9 @@ note_tags:
   - checklist
   - linux
   - windows
+  - nmap
+  - smb
+  - web
 ---
 # OSCP Enumeration Cheat Sheet
 

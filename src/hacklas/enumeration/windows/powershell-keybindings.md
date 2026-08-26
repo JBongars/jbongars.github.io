@@ -3,6 +3,9 @@ note_tags:
   - powershell
   - cheatsheet
   - readline
+  - recon
+  - utility
+  - evil-winrm
 ---
 # PowerShell keybindings and help
 

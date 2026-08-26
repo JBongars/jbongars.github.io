@@ -3,6 +3,9 @@ note_tags:
   - windows
   - shares
   - smbclient
+  - foothold
+  - psexec
+  - impacket
 ---
 # SMB client
 

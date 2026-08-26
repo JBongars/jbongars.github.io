@@ -4,6 +4,7 @@ note_tags:
   - port-forward
   - socks
   - pivot
+  - socat
 ---
 # SSH Tunneling - Living Off The Land
 

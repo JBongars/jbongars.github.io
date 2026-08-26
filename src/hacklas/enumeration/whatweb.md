@@ -4,6 +4,8 @@ note_tags:
   - web
   - fingerprint
   - wappalyzer
+  - cms
+  - headers
 ---
 # whatweb
 
