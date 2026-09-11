@@ -87,7 +87,7 @@ describe("computedData", () => {
   });
 
   it("exposes lastmod, layout, and meta description helpers", () => {
-    expect(computed.dateModified({ page: { inputPath: "_11ty/text.js" } })).toMatch(
+    expect(computed.dateModified({ page: { inputPath: "_11ty/text.ts" } })).toMatch(
       /^\d{4}-\d{2}-\d{2}$/,
     );
     expect(computed.layout({ page: { inputPath: writeUpPath } })).toBe("post.njk");

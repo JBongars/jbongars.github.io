@@ -122,7 +122,7 @@ describe("safeLocalStorage", () => {
 
 describe("clipboardWrite", () => {
   it("writes through navigator.clipboard", async () => {
-    const writeText = jest.fn(() => Promise.resolve());
+    const writeText = jest.fn<(text: string) => Promise<void>>(() => Promise.resolve());
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
       value: { writeText },
@@ -143,7 +143,9 @@ describe("fetchSameOrigin", () => {
         return Promise.resolve("");
       },
     };
-    const fetchMock = jest.fn(() => Promise.resolve(response));
+    const fetchMock = jest.fn<(input: string, init?: RequestInit) => Promise<FetchResponse>>(() =>
+      Promise.resolve(response),
+    );
     Object.defineProperty(globalThis, "fetch", {
       configurable: true,
       writable: true,
@@ -157,7 +159,7 @@ describe("fetchSameOrigin", () => {
   });
 
   it("lets the caller override request init", async () => {
-    const fetchMock = jest.fn(() =>
+    const fetchMock = jest.fn<(input: string, init?: RequestInit) => Promise<FetchResponse>>(() =>
       Promise.resolve({
         ok: true,
         status: 200,

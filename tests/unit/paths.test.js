@@ -1,4 +1,5 @@
 import path from "node:path";
+import { existsSync } from "node:fs";
 import { describe, expect, it } from "@jest/globals";
 import {
   ROOT,
@@ -64,7 +65,7 @@ describe("withPathPrefix", () => {
 
 describe("ROOT and SRC_ROOT", () => {
   it("point at this repo", () => {
-    expect(path.basename(ROOT)).toBe("personal-website");
+    expect(existsSync(path.join(ROOT, "eleventy.config.ts"))).toBe(true);
     expect(SRC_ROOT).toBe(path.join(ROOT, "src"));
   });
 });

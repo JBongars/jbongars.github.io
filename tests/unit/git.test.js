@@ -17,7 +17,7 @@ describe("isoDay", () => {
 
 describe("gitLastmodDay", () => {
   it("returns a calendar day for a tracked source file", () => {
-    expect(gitLastmodDay("_11ty/text.js")).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(gitLastmodDay("_11ty/text.ts")).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
   it("returns a missing value when the path is empty", () => {

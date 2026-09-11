@@ -10,7 +10,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, jest } from "@jest/globals";
 import { bundleClient, inlineScriptCode, modulePreloadTags } from "../../_11ty/bundle.ts";
 
 const FIXTURE = path.join(import.meta.dirname, "../../_11ty/__fixtures__/bundle");
@@ -36,6 +36,9 @@ function preloadHrefs(tags) {
 }
 
 describe("bundleClient", () => {
+  // Rollup on GitHub Actions can exceed Jest's 5s default.
+  jest.setTimeout(20_000);
+
   it("writes module entries, hashed chunks, classic IIFE files, and inline scripts", async () => {
     const fixture = copyFixture();
     const result = await bundleClient({

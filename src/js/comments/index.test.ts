@@ -27,7 +27,7 @@ function scriptTheme(script: Element | null): string | undefined {
   if (!(script instanceof HTMLScriptElement)) {
     return;
   }
-  return script.dataset.theme;
+  return script.dataset["theme"];
 }
 
 function captureIframeMessages(iframe: HTMLIFrameElement, posted: unknown[]): void {
