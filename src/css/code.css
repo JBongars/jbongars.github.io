@@ -137,6 +137,7 @@
   border-radius: 0;
   background: transparent;
   overflow: auto;
+  font-size: var(--text-sm);
 }
 
 /* Collapsed preview: line numbers on, capped height */
@@ -265,6 +266,8 @@ html.code-fs-open {
   border-radius: 0;
   background: transparent;
   overflow: visible;
+  /* Fullscreen pre sits outside .prose, so it must set type itself. */
+  font-size: var(--text-sm);
 }
 
 .code-block__btn span {

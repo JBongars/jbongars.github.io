@@ -8,8 +8,8 @@ JavaScript.
 
 ```bash
 yarn install
-yarn serve   # http://localhost:8080
-yarn build   # output → _site/
+yarn serve   # local preview (unminified JS) → http://localhost:8080
+yarn build   # production build (minified JS) → _site/
 yarn run check   # format:check, lint, typecheck, test:ci (`yarn check` is Yarn's integrity command)
 yarn test        # Jest integration tests
 yarn audit   # yarn audit --level high (also runs in CI)

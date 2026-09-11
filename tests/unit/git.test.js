@@ -22,5 +22,10 @@ describe("gitLastmodDay", () => {
 
   it("returns a missing value when the path is empty", () => {
     expect(gitLastmodDay()).toBe();
+    expect(gitLastmodDay(1)).toBe();
+  });
+
+  it("returns a missing value when git cannot read the path", () => {
+    expect(gitLastmodDay("/this/path/is/not/in/git")).toBe();
   });
 });

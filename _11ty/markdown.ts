@@ -62,6 +62,8 @@ export interface MarkdownLibrary {
     rules: {
       link_open?: MarkdownRenderRule;
       heading_open?: MarkdownRenderRule;
+      image?: MarkdownRenderRule;
+      code_inline?: MarkdownRenderRule;
     };
   };
 }
@@ -110,23 +112,19 @@ function resolveLanguage(lang: unknown): string {
 }
 
 function hasPrismLanguage(lang: string): boolean {
-  if (!lang || lang === "text") {
+  if (lang === "text") {
     return false;
   }
   if (Object.hasOwn(Prism.languages, lang)) {
     return true;
   }
-  try {
-    loadLanguages([lang]);
-  } catch {
-    return false;
-  }
+  loadLanguages([lang]);
   return Object.hasOwn(Prism.languages, lang);
 }
 
 function wrapCodeBlock(lang: string, innerHtml: string): string {
   const safeLang = sanitizeLanguage(lang);
-  return `<pre class="language-${safeLang}"><code class="language-${safeLang}">${innerHtml}</code></pre>`;
+  return `<pre class="language-${safeLang}" data-code-block><code class="language-${safeLang}">${innerHtml}</code></pre>`;
 }
 
 function highlightCode(source: string, lang: string): string {
@@ -138,7 +136,6 @@ function highlightCode(source: string, lang: string): string {
   if (grammar === undefined) {
     return wrapCodeBlock(language, escapeHtml(source));
   }
-  // Prism.highlight escapes HTML in the source; safe for exploit/payload samples.
   return wrapCodeBlock(language, Prism.highlight(source, grammar, language));
 }
 
@@ -307,9 +304,6 @@ function listItemToken(tokens: MarkdownToken[], index: number): MarkdownToken | 
   if (previous?.type === "paragraph_open" && beforePrevious?.type === "list_item_open") {
     return beforePrevious;
   }
-  if (previous?.type === "list_item_open") {
-    return previous;
-  }
 }
 
 function markTaskList(tokens: MarkdownToken[], index: number): void {
@@ -327,6 +321,7 @@ function wrapTaskCheckbox(state: MarkdownState, inline: MarkdownToken, isChecked
   const checkbox = new state.Token("checkbox", "input", 0);
   checkbox.attrSet("type", "checkbox");
   checkbox.attrSet("class", "task-list-item__checkbox");
+  checkbox.attrSet("data-task-checkbox", "");
   checkbox.attrSet("id", id);
   if (isChecked) {
     checkbox.attrSet("checked", "");
@@ -362,6 +357,7 @@ function applyTaskItem(
   if (!/\btask-list-item\b/.test(item.listItem.attrGet("class") ?? "")) {
     item.listItem.attrJoin("class", "task-list-item");
   }
+  item.listItem.attrSet("data-task-item", "");
   markTaskList(tokens, item.index);
   wrapTaskCheckbox(state, item.inline, isChecked);
 }
@@ -394,6 +390,7 @@ function markBangImage(children: MarkdownToken[], index: number): void {
   }
   previous.content = previous.content.slice(0, -1);
   child.attrJoin("class", "prose-img--full");
+  child.attrSet("data-lightbox", "");
   if (previous.content === "") {
     children.splice(index - 1, 1);
   }
@@ -431,10 +428,7 @@ function rewriteRelativeMarkdownPath(pathPart: string, suffix: string): string {
  * Source files sit beside each other, but pages live in …/slug/ directories,
  * so `./note.md` must become `../note/` (not `./note.md` or `./note/`).
  */
-function rewriteMarkdownLinkHref(href: unknown): unknown {
-  if (!href || typeof href !== "string") {
-    return href;
-  }
+function rewriteMarkdownLinkHref(href: string): string {
   if (/^([a-z][a-z0-9+.-]*:|\/\/|#|\?)/i.test(href)) {
     return href;
   }
@@ -445,33 +439,28 @@ function rewriteMarkdownLinkHref(href: unknown): unknown {
   return rewriteRelativeMarkdownPath(match[1] ?? "", match[3] ?? "");
 }
 
-function isExternalHref(href: unknown): boolean {
-  return /^(https?:|mailto:|tel:)/i.test(asStringOrEmpty(href));
+function isExternalHref(href: string): boolean {
+  return /^(https?:|mailto:|tel:)/i.test(href);
 }
 
-function setLinkAttribute(token: MarkdownToken, name: string, value: string): void {
-  const attributeIndex = token.attrIndex(name);
-  const attributes = token.attrs;
-  const pair = attributes?.[attributeIndex];
-  if (pair === undefined || attributeIndex < 0) {
-    token.attrPush([name, value]);
-    return;
-  }
-  pair[1] = value;
-}
-
-function renderDefaultLinkOpen(...rendererArguments: MarkdownRenderArguments): string {
+function renderDefaultToken(...rendererArguments: MarkdownRenderArguments): string {
   const [tokens, index, options, , self] = rendererArguments;
   return self.renderToken(tokens, index, options);
 }
 
-function tokenHref(token: MarkdownToken): { index: number; value: string } | undefined {
-  const hrefIndex = token.attrIndex("href");
-  const pair = token.attrs?.[hrefIndex];
-  if (pair === undefined || hrefIndex < 0) {
-    return;
-  }
-  return { index: hrefIndex, value: pair[1] };
+function renderWithDataAttribute(name: string, render: MarkdownRenderRule): MarkdownRenderRule {
+  return (...rendererArguments) => {
+    rendererArguments[0][rendererArguments[1]]?.attrSet(name, "");
+    return render(...rendererArguments);
+  };
+}
+
+function renderDefaultLinkOpen(...rendererArguments: MarkdownRenderArguments): string {
+  return renderDefaultToken(...rendererArguments);
+}
+
+function tokenHref(token: MarkdownToken): string {
+  return token.attrGet("href") ?? "";
 }
 
 function renderLinkOpen(
@@ -484,27 +473,20 @@ function renderLinkOpen(
     return defaultLinkOpen(...rendererArguments);
   }
   const href = tokenHref(token);
-  if (href !== undefined) {
-    const rewritten = rewriteMarkdownLinkHref(href.value);
-    const pair = token.attrs?.[href.index];
-    if (pair !== undefined) {
-      pair[1] = asString(rewritten);
-    }
+  if (href) {
+    token.attrSet("href", rewriteMarkdownLinkHref(href));
   }
-  const currentHref = tokenHref(token)?.value ?? "";
+  const currentHref = tokenHref(token);
   if (isExternalHref(currentHref)) {
-    setLinkAttribute(token, "target", "_blank");
-    setLinkAttribute(token, "rel", "noopener noreferrer");
+    token.attrSet("target", "_blank");
+    token.attrSet("rel", "noopener noreferrer");
   }
   return defaultLinkOpen(tokens, index, options, environment, self);
 }
 
 function headingText(tokens: MarkdownToken[], index: number): string {
   const inline = tokens[index + 1];
-  if (inline?.children) {
-    return inline.children.map((child) => child.content).join("");
-  }
-  return inline?.content ?? "";
+  return (inline?.children ?? []).map((child) => child.content).join("");
 }
 
 function renderHeadingOpen(...rendererArguments: MarkdownRenderArguments): string {
@@ -539,6 +521,13 @@ function configureMarkdown(markdownLibrary: MarkdownLibrary): void {
   markdownLibrary.renderer.rules.link_open = (...rendererArguments) =>
     renderLinkOpen(defaultLinkOpen, ...rendererArguments);
   markdownLibrary.renderer.rules.heading_open = renderHeadingOpen;
+  const defaultImage = markdownLibrary.renderer.rules.image ?? renderDefaultToken;
+  markdownLibrary.renderer.rules.image = renderWithDataAttribute("data-lightbox", defaultImage);
+  const defaultCodeInline = markdownLibrary.renderer.rules.code_inline ?? renderDefaultToken;
+  markdownLibrary.renderer.rules.code_inline = renderWithDataAttribute(
+    "data-inline-code",
+    defaultCodeInline,
+  );
 }
 
 function warmPrismLanguages(): void {

@@ -1,13 +1,30 @@
-import "../site-url.js";
-import "../fuzzy-find.js";
-import "../booru-search.js";
-import "../hacklas-disclaimer.js";
-import "../hacklas-shortcuts.js";
-import "../hacklas-help.js";
-import "../hacklas-checklists.js";
-import "../comments.js";
-import "../code-blocks.js";
-import "../image-lightbox.js";
-import "../back-button.js";
-import "../skill-hints.js";
-import "../site.js";
+import { registerModules } from "../lifecycle";
+import * as backButton from "../back-button";
+import * as skillHints from "../skill-hints";
+import * as theme from "../theme";
+import * as comments from "../comments";
+import * as codeBlocks from "../code-blocks";
+import * as lightbox from "../image-lightbox";
+import * as fuzzyFind from "../fuzzy-find";
+import * as booruSearch from "../booru-search";
+import * as hacklasDisclaimer from "../hacklas/hacklas-disclaimer";
+import * as hacklasShortcuts from "../hacklas/hacklas-shortcuts";
+import * as hacklasHelp from "../hacklas/hacklas-help";
+import * as hacklasChecklists from "../hacklas/hacklas-checklists";
+import { init as initSoftNav } from "../soft-nav";
+
+registerModules([
+  backButton,
+  skillHints,
+  theme,
+  comments,
+  codeBlocks,
+  lightbox,
+  fuzzyFind,
+  booruSearch,
+  hacklasDisclaimer,
+  hacklasShortcuts,
+  hacklasHelp,
+  hacklasChecklists,
+]);
+initSoftNav();

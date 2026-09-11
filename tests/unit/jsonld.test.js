@@ -72,4 +72,25 @@ describe("buildJsonLd", () => {
     expect(writeUps.mainEntity.itemListElement[0].name).toBe("Box");
     expect(buildJsonLd({ page: { url: "/unknown/" } })["@type"]).toBe("Person");
   });
+
+  it("includes profile URLs when SITE_URL is set", () => {
+    const previous = process.env["SITE_URL"];
+    process.env["SITE_URL"] = "https://example.test";
+    try {
+      const person = buildJsonLd({ page: { url: "/unknown/" } });
+      expect(person.url).toBe("https://example.test/");
+      expect(person.image).toBe("https://example.test/img/profile.jpg");
+      const post = buildJsonLd({
+        page: { url: "/blog/hello/", inputPath: blogPost },
+        title: "Hello",
+      });
+      expect(post.image).toBe("https://example.test/img/profile.jpg");
+    } finally {
+      if (previous === undefined) {
+        delete process.env["SITE_URL"];
+      } else {
+        process.env["SITE_URL"] = previous;
+      }
+    }
+  });
 });

@@ -37,6 +37,8 @@ describe("isReadableFile", () => {
   it("is true for a file and false for a missing path", () => {
     expect(isReadableFile(path.join(SRC_ROOT, "_data", "resume.json"))).toBe(true);
     expect(isReadableFile(path.join(SRC_ROOT, "does-not-exist.json"))).toBe(false);
+    expect(isReadableFile(1)).toBe(false);
+    expect(isReadableFile(SRC_ROOT)).toBe(false);
   });
 });
 
@@ -73,6 +75,11 @@ describe("stripWriteupChrome", () => {
 <p>Body</p>`;
     expect(stripWriteupChrome(html).trim()).toBe("<p>Body</p>");
   });
+
+  it("returns empty input unchanged", () => {
+    expect(stripWriteupChrome("")).toBe("");
+    expect(stripWriteupChrome()).toBe();
+  });
 });
 
 describe("cssDecls", () => {
@@ -83,7 +90,13 @@ describe("cssDecls", () => {
       "background-color: navy; --x: 1;",
     );
     expect(cssDeclarations()).toBe("");
+    expect(cssDeclarations("")).toBe("");
     expect(cssDeclarations(JSON.parse("null"))).toBe("");
+    expect(cssDeclarations({ "": "x", "1bad": "x", color: "", "background-color": "navy" })).toBe(
+      "background-color: navy;",
+    );
+    expect(cssDeclarations(false)).toBe("");
+    expect(cssDeclarations(["color: red"])).toBe("");
   });
 
   it("strips HTML closers from values", () => {
@@ -106,6 +119,14 @@ describe("parseFrontMatterLink", () => {
       label: "github.com/a",
     });
     expect(parseFrontMatterLink("")).toEqual({ href: "", label: "" });
+    expect(parseFrontMatterLink({ href: "example.com/x", text: "Docs" })).toEqual({
+      href: "https://example.com/x",
+      label: "Docs",
+    });
+    expect(parseFrontMatterLink({ link: "//cdn.example/x" }).href).toBe("//cdn.example/x");
+    expect(parseFrontMatterLink("mailto:a@b.test").href).toBe("mailto:a@b.test");
+    expect(parseFrontMatterLink(["alpha", "beta"]).label).toContain("alpha");
+    expect(parseFrontMatterLink("http://[")).toMatchObject({ href: "http://[" });
   });
 });
 
@@ -131,6 +152,17 @@ describe("parseHacklasMeta", () => {
       rmSync(directory, { recursive: true, force: true });
     }
   });
+
+  it("ignores dates that are not calendar days", () => {
+    const directory = mkdtempSync(path.join(tmpdir(), "note-date-"));
+    try {
+      const notePath = path.join(directory, "note.md");
+      writeFileSync(notePath, "# Hello\n**Date:** sometime\n");
+      expect(parseHacklasMeta(notePath).date).toBe();
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("findBannerFile", () => {
@@ -151,6 +183,20 @@ describe("frontMatterHasKey", () => {
     expect(frontMatterHasKey(awsPost, "date")).toBe(true);
     expect(frontMatterHasKey(awsPost, "nope")).toBe(false);
     expect(frontMatterHasKey(path.join(SRC_ROOT, "missing.md"), "date")).toBe(false);
+  });
+
+  it("returns empty when YAML is missing or unclosed", () => {
+    const directory = mkdtempSync(path.join(tmpdir(), "fm-"));
+    try {
+      const missingFence = path.join(directory, "plain.md");
+      writeFileSync(missingFence, "# Hello\n");
+      expect(frontMatterHasKey(missingFence, "date")).toBe(false);
+      const unclosed = path.join(directory, "open.md");
+      writeFileSync(unclosed, "---\ndate: 2024-01-01\n");
+      expect(frontMatterHasKey(unclosed, "date")).toBe(false);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 });
 

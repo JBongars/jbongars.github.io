@@ -221,8 +221,8 @@ lightbox, code, resume, hacklas.
 
 ## Build & deploy
 
-- Local: `yarn serve` → http://localhost:8080
-- Build: `yarn build` → `_site/`
+- Local: `yarn serve` → http://localhost:8080 (unminified JS)
+- Production: `yarn build` → `_site/` (minified JS)
 - Audit: `yarn audit` (`--level high`), also run in CI before build
 - Deploy: Actions on `main` publishes `_site/` to Pages. No gh-pages branch.
 

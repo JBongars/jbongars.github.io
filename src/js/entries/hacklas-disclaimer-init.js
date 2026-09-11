@@ -1,1 +1,1 @@
-import "../hacklas-disclaimer-init.js";
+import "../hacklas/hacklas-disclaimer-init.js";

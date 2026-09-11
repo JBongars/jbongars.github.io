@@ -10,11 +10,12 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 const CLIENT_BOUNDARY_MESSAGE =
-  "Access browser capabilities through src/js/platform.ts and inject them via deps (SPEC_BUILD_TS.md §5.2).";
+  "Access browser capabilities through src/js/platform and inject them via deps (SPEC_BUILD_TS.md §5.2).";
 
 export default defineConfig([
   globalIgnores([
     "_site/**",
+    "_site.bak/**",
     "coverage/**",
     "node_modules/**",
     ".cache/**",
@@ -95,9 +96,9 @@ export default defineConfig([
   },
 
   {
-    files: ["**/*.d.ts"],
+    files: ["**/*.d.ts", "**/types.ts"],
     rules: {
-      // Ambient module declarations are type-only and never emitted.
+      // Type-only modules are never emitted.
       "no-restricted-syntax": "off",
     },
   },
@@ -190,9 +191,9 @@ export default defineConfig([
     },
   },
 
-  // platform.ts is the single place allowed to touch browser capability globals
+  // platform is the single place allowed to touch browser capability globals
   {
-    files: ["src/js/platform.ts"],
+    files: ["src/js/platform/index.ts"],
     rules: {
       "no-restricted-globals": "off",
       "no-restricted-properties": "off",
@@ -304,7 +305,7 @@ export default defineConfig([
       complexity: ["error", 10],
       "max-depth": ["error", 3],
       "max-params": ["error", 3],
-      // Classic deferred scripts until Phase 9 (module contract + platform.ts).
+      // Remaining classic deferred scripts until each Phase 9 module is converted.
       "unicorn/prefer-module": "off",
       "unicorn/no-global-object-property-assignment": "off",
       "no-restricted-syntax": [

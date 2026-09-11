@@ -20,6 +20,14 @@ describe("xmlEscape", () => {
   it("stringifies other values", () => {
     expect(xmlEscape(0)).toBe("0");
     expect(xmlEscape("&amp;")).toBe("&amp;amp;");
+    expect(xmlEscape(true)).toBe("true");
+    expect(xmlEscape(false)).toBe("false");
+    expect(xmlEscape(1n)).toBe("1");
+    expect(xmlEscape(Symbol.for("x"))).toBe("Symbol(x)");
+    expect(xmlEscape([1, "two"])).toBe("1,two");
+    expect(xmlEscape(() => "fn")).toContain("fn");
+    expect(xmlEscape(new Date("2024-01-01T00:00:00.000Z"))).toContain("2024");
+    expect(xmlEscape({})).toContain("Object");
   });
 });
 
@@ -41,6 +49,10 @@ describe("unescapeHtml", () => {
 
   it("decodes &amp; last so &amp;lt; stays a less-than entity", () => {
     expect(unescapeHtml("&amp;lt;")).toBe("&lt;");
+  });
+
+  it("drops numeric entities that are not safe code points", () => {
+    expect(unescapeHtml("&#1114112;")).toBe("");
   });
 });
 

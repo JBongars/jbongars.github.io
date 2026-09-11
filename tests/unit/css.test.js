@@ -1,4 +1,5 @@
-import { describe, expect, it } from "@jest/globals";
+import { afterEach, describe, expect, it, jest } from "@jest/globals";
+import fs from "node:fs";
 import { bundleCss, cssRev } from "../../_11ty/css.ts";
 import { data, render } from "../../src/css/bundle.11ty.ts";
 
@@ -7,6 +8,22 @@ describe("bundleCss", () => {
     const css = bundleCss();
     expect(css).not.toContain("@import");
     expect(css).toContain("--bg:");
+  });
+
+  it("treats a non-object features file as hacklas off", () => {
+    const original = fs.readFileSync.bind(fs);
+    const read = jest.spyOn(fs, "readFileSync");
+    read.mockImplementation((file, encoding) => {
+      if (String(file).endsWith("features.json")) {
+        return "[]";
+      }
+      return original(file, encoding);
+    });
+    try {
+      expect(bundleCss()).not.toContain("@import");
+    } finally {
+      read.mockRestore();
+    }
   });
 });
 

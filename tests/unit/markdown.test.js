@@ -39,6 +39,7 @@ describe("configureMarkdown", () => {
     expect(html).toContain('<h2 id="title">Title</h2>');
     expect(html).toContain('<h3 id="section">Section</h3>');
     expect(html).toContain('class="language-javascript"');
+    expect(html).toContain("data-code-block");
     expect(html).toContain("token");
   });
 
@@ -65,8 +66,11 @@ describe("configureMarkdown", () => {
     const html = renderMarkdown("- [x] Done\n\n!![Alt](/img/hero.jpg)");
     expect(html).toContain("task-list");
     expect(html).toContain("task-list-item__checkbox");
+    expect(html).toContain("data-task-checkbox");
+    expect(html).toContain("data-task-item");
     expect(html).toContain('checked=""');
     expect(html).toContain("prose-img--full");
+    expect(html).toContain("data-lightbox");
   });
 
   it("keeps hacklas heading levels and softens long callouts", () => {
@@ -78,5 +82,60 @@ describe("configureMarkdown", () => {
     expect(html).toContain('<h1 id="keep">Keep</h1>');
     expect(html).toContain("<strong>");
     expect(html).not.toContain("<h4");
+  });
+
+  it("aliases language tokens and highlights an empty fence as text", () => {
+    expect(renderMarkdown("```\nplain\n```")).toContain("language-text");
+    expect(renderMarkdown("```xml\n<root/>\n```")).toContain("language-markup");
+  });
+
+  it("escapes a language Prism cannot load", () => {
+    const html = renderMarkdown("```not-a-real-prism-lang\ncode\n```");
+    expect(html).toContain("language-not-a-real-prism-lang");
+    expect(html).toContain("code");
+  });
+
+  it("rewrites query suffixes, hash links, mailto, and non-markdown paths", () => {
+    const html = renderMarkdown(
+      "[note](./other.md?x=1) [here](#section) [mail](mailto:a@b.test) [img](./pic.png)",
+    );
+    expect(html).toContain("other/?x=1");
+    expect(html).toContain('href="#section"');
+    expect(html).toContain("mailto:a@b.test");
+    expect(html).toContain("./pic.png");
+  });
+
+  it("uniques duplicate heading slugs and leaves unchecked tasks unchecked", () => {
+    const html = renderMarkdown("## Same\n\n## Same\n\n- [ ] Todo");
+    expect(html).toContain('id="same"');
+    expect(html).toContain('id="same-1"');
+    expect(html).toContain("task-list-item");
+    expect(html).not.toContain('checked=""');
+  });
+
+  it("keeps leftover text before a full-width image marker", () => {
+    const html = renderMarkdown("See !![Alt](/img/hero.jpg)");
+    expect(html).toContain("See");
+    expect(html).toContain("prose-img--full");
+  });
+
+  it("rewrites an empty markdown href and a telephone link", () => {
+    const html = renderMarkdown("[empty]() [call](tel:+15551212) [ok](./note.md#frag)");
+    expect(html).toContain("href=\"\"");
+    expect(html).toContain("tel:+15551212");
+    expect(html).toContain("note/#frag");
+  });
+
+  it("leaves ordinary list items and h6 headings in the document", () => {
+    const html = renderMarkdown("- hello\n\n###### Deep");
+    expect(html).toContain("<li>");
+    expect(html).toContain("hello");
+    expect(html).toContain("<h6");
+  });
+
+  it("assigns an id to an empty heading and keeps a tight task list", () => {
+    const html = renderMarkdown("##\n\n- [ ] one\n- [x] two");
+    expect(html).toContain("<h3");
+    expect(html).toContain("task-list");
   });
 });

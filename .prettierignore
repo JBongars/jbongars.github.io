@@ -1,4 +1,5 @@
 _site/
+_site.bak/
 coverage/
 node_modules/
 .cache/

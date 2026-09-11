@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "@jest/globals";
@@ -62,6 +62,7 @@ describe("bundleClient", () => {
     expect(siteHrefs[0]).toMatch(/^\/js\/chunks\/.+\.js$/);
     expect(extraHrefs).toEqual(siteHrefs);
     expect(result.preloadTags("missing")).toBe("");
+    expect(inlineScriptCode(result, "nope")).toBe("");
   });
 
   it("minifies inline scripts and still hashes the built string", async () => {
@@ -118,5 +119,42 @@ describe("bundleClient", () => {
     expect(inlineScriptCode({ rev: "", inline: {}, preloadTags: () => "" }, 1)).toBe("");
     expect(modulePreloadTags(undefined, "site")).toBe("");
     expect(modulePreloadTags({ rev: "", inline: {}, preloadTags: () => "x" }, 1)).toBe("");
+  });
+
+  it("skips non-entry files and still builds when only inline scripts exist", async () => {
+    const fixture = copyFixture();
+    writeFileSync(path.join(fixture.entryDir, "README.md"), "# skip me\n");
+    writeFileSync(path.join(fixture.entryDir, "notes.test.js"), "export const x = 1;\n");
+    const result = await bundleClient({
+      entryDir: fixture.entryDir,
+      outDir: path.join(fixture.outDir, "notes"),
+      minify: false,
+    });
+    expect(result.inline["theme-init"]?.code).toContain("__themeInit");
+  });
+
+  it("builds TypeScript entries and reports preload tags by name", async () => {
+    const fixture = copyFixture();
+    writeFileSync(path.join(fixture.entryDir, "typed.ts"), "export const n = 1;\n");
+    const result = await bundleClient({
+      entryDir: fixture.entryDir,
+      outDir: path.join(fixture.outDir, "typed"),
+      minify: false,
+    });
+    expect(modulePreloadTags(result, "site")).toContain("/js/chunks/");
+    expect(existsSync(path.join(fixture.outDir, "typed/js/typed.js"))).toBe(true);
+  });
+
+  it("builds when there are no module entries", async () => {
+    const fixture = copyFixture();
+    unlinkSync(path.join(fixture.entryDir, "site.js"));
+    unlinkSync(path.join(fixture.entryDir, "extra.js"));
+    const result = await bundleClient({
+      entryDir: fixture.entryDir,
+      outDir: path.join(fixture.outDir, "inline-only"),
+      minify: false,
+    });
+    expect(result.inline["theme-init"]?.code).toContain("__themeInit");
+    expect(result.preloadTags("site")).toBe("");
   });
 });

@@ -25,6 +25,7 @@ describe("resolvePathPrefix", () => {
   it("uses the SITE_URL pathname when PATH_PREFIX is unset", () => {
     expect(resolvePathPrefix({ SITE_URL: "https://example.com/blog/" })).toBe("/blog/");
     expect(resolvePathPrefix({ SITE_URL: "https://example.com/" })).toBe("/");
+    expect(resolvePathPrefix({ SITE_URL: "not a url" })).toBe("/not a url/");
   });
 });
 

@@ -40,7 +40,7 @@
       <a class="site-brand" href="{{ '/' | url }}">{% if resume.name %}{{ resume.name }}{% else %}Home{% endif %}</a>
 
       <div class="site-header__actions">
-        <input type="checkbox" id="theme-toggle" class="theme-toggle visually-hidden">
+        <input type="checkbox" id="theme-toggle" class="theme-toggle visually-hidden" data-theme-toggle>
         <script>{{ security.themeInitScript | safe }}</script>
         <label for="theme-toggle" class="theme-toggle-btn">
           <svg class="theme-toggle-btn__icon theme-toggle-btn__icon--to-light" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
@@ -64,7 +64,7 @@
       </div>
 
       <nav class="site-nav" aria-label="Primary">
-        <ul class="nav-list">
+        <ul class="nav-list" data-nav-list>
           <li>
             <a href="{{ '/' | url }}" {% if page.url == "/" %}aria-current="page"{% endif %}>Home</a>
           </li>

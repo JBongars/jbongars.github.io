@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
-
-exports[`site-url.js prefixes paths from data-path-prefix 1`] = `
-{
-  "absolute": "/app/js/site.js",
-  "relative": "/app/js/site.js",
-  "root": "/app/",
-}
-`;

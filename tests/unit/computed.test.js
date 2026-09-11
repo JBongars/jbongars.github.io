@@ -14,6 +14,9 @@ describe("computedData", () => {
     expect(computed.layout({ page: { inputPath: blogPath } })).toBe("post.njk");
     expect(computed.layout({ page: { inputPath: blogPath }, layout: "" })).toBe("post.njk");
     expect(computed.layout({ page: { inputPath: notePath } })).toBe("note.njk");
+    expect(computed.layout({ page: { inputPath: blogPath }, layout: "custom.njk" })).toBe(
+      "custom.njk",
+    );
     expect(computed.layout({ page: { inputPath: "src/index.njk" }, layout: "base.njk" })).toBe(
       "base.njk",
     );
@@ -41,6 +44,21 @@ describe("computedData", () => {
     expect(
       computed.noteTags({ page: { inputPath: notePath }, note_tags: ["Windows", "windows"] }),
     ).toEqual(["enumeration", "smb", "windows"]);
+    expect(computed.noteTags({ page: { inputPath: notePath }, note_tags: ["", "Linux"] })).toEqual([
+      "enumeration",
+      "smb",
+      "linux",
+    ]);
+    expect(computed.noteTags({ page: { inputPath: notePath }, note_tags: "  ,  " })).toEqual([
+      "enumeration",
+      "smb",
+    ]);
+    expect(computed.noteTags({ page: { inputPath: blogPath } })).toBe();
+    expect(computed.title({ page: { inputPath: "src/index.njk" } })).toBe();
+    expect(computed.author({ page: { inputPath: notePath } })).toBe();
+    expect(computed.title({ page: { inputPath: notePath, fileSlug: "smb" } })).toBeDefined();
+    expect(computed.author({ page: { inputPath: notePath }, author: "Jules" })).toBe("Jules");
+    expect(computed.notePathParts({ page: { inputPath: blogPath } })).toBe();
   });
 
   it("leaves note fields empty off the hacklas tree", () => {

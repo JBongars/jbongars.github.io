@@ -127,6 +127,26 @@ function hasTypeScriptInput(entries: ListedEntries): boolean {
   return false;
 }
 
+function hasTypeScriptFile(directory: string): boolean {
+  const entries = readdirSync(directory, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.name.startsWith(".")) {
+      continue;
+    }
+    const fullPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      if (hasTypeScriptFile(fullPath)) {
+        return true;
+      }
+      continue;
+    }
+    if (entry.name.endsWith(".ts") && !entry.name.includes(".test.")) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function pluginsFor(
   shouldMinify: boolean,
   jsDirectory: string,
@@ -143,7 +163,7 @@ function pluginsFor(
           outDir: jsDirectory,
           sourceMap: false,
         },
-        include: ["**/*.ts"],
+        include: ["**/*.ts", "!**/*.test.ts"],
         outputToFilesystem: false,
       }),
     );
@@ -314,10 +334,13 @@ export async function bundleClient({
   outDir: outputDirectory,
   minify: shouldMinify,
 }: BundleOptions): Promise<BundleResult> {
-  const entries = listEntries(path.resolve(entryDirectory));
+  const resolvedEntryDirectory = path.resolve(entryDirectory);
+  const entries = listEntries(resolvedEntryDirectory);
   const jsDirectory = path.join(path.resolve(outputDirectory), "js");
   resetJsDirectory(jsDirectory);
-  const plugins = pluginsFor(shouldMinify, jsDirectory, hasTypeScriptInput(entries));
+  const shouldCompileTs =
+    hasTypeScriptInput(entries) || hasTypeScriptFile(path.dirname(resolvedEntryDirectory));
+  const plugins = pluginsFor(shouldMinify, jsDirectory, shouldCompileTs);
   rollupState.shouldWriteSourceMap = !shouldMinify;
   const chunks = await writeModuleEntries(entries.modules, jsDirectory, plugins);
   const inline = await buildInline(entries.inline, plugins);

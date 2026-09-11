@@ -25,6 +25,12 @@ describe("security data", () => {
     );
   });
 
+  it("throws when the bundle is missing theme-init", () => {
+    expect(() => {
+      applyThemeInitFromBundle({ rev: "", inline: {}, preloadTags: () => "" });
+    }).toThrow(/theme-init/);
+  });
+
   it("sets cache headers by URL kind", () => {
     const headers = {};
     const response = {
@@ -45,7 +51,10 @@ describe("security data", () => {
 
     security.cacheControlMiddleware({ url: "/resume/" }, response, next);
     expect(headers["Cache-Control"]).toBe("no-cache");
-    expect(nextCalls).toBe(3);
+
+    security.cacheControlMiddleware({}, response, next);
+    expect(headers["Cache-Control"]).toBe("no-cache");
+    expect(nextCalls).toBe(4);
   });
 
   it("development server middleware sends the live CSP after theme-init is applied", () => {

@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
-
-exports[`site.js applies a stored light theme, then persists a toggle to dark 1`] = `
-{
-  "checked": false,
-  "theme": "dark",
-}
-`;

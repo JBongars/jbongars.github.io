@@ -28,9 +28,6 @@ function uniqueTags(list: string[]): string[] {
   const tags: string[] = [];
   for (const item of list) {
     const tag = item.trim();
-    if (!tag) {
-      continue;
-    }
     const key = tag.toLowerCase();
     if (seen.has(key)) {
       continue;
@@ -54,12 +51,8 @@ function fallbackLayout(current: unknown, fallback: string): string {
 }
 
 function createdOrPageDate(data: PageData): Date | undefined {
-  const inputPath = data.page?.inputPath;
   try {
-    if (typeof inputPath !== "string") {
-      return data.page?.date;
-    }
-    return fileCreatedDate(inputPath);
+    return fileCreatedDate(asStringOrEmpty(data.page?.inputPath));
   } catch {
     return data.page?.date;
   }

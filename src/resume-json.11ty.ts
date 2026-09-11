@@ -12,7 +12,7 @@ interface YearRange {
   endDate?: string;
 }
 
-function parseYearRange(dates: unknown): YearRange {
+export function parseYearRange(dates: unknown): YearRange {
   const match = /(\d{4})\s*[–-]\s*(\d{4}|present)?/i.exec(asStringOrEmpty(dates));
   const startDate = match?.[1];
   if (startDate === undefined) {
@@ -85,22 +85,23 @@ interface Basics {
 }
 
 function addProfiles(basics: Basics, source: Resume): void {
+  const profiles: Profile[] = [];
   if (source.linkedin) {
-    basics.profiles?.push({
+    profiles.push({
       network: "LinkedIn",
       username: "julienbongars",
       url: source.linkedin,
     });
   }
   if (source.github) {
-    basics.profiles?.push({
+    profiles.push({
       network: "GitHub",
       username: "jbongars",
       url: source.github,
     });
   }
-  if (basics.profiles?.length === 0) {
-    delete basics.profiles;
+  if (profiles.length > 0) {
+    basics.profiles = profiles;
   }
 }
 
@@ -110,7 +111,6 @@ function toBasics(source: Resume): Basics {
     name: source.name,
     label: source.title,
     location: source.location ? { city: source.location, countryCode: "SG" } : undefined,
-    profiles: [],
   };
   if (origin) {
     basics.url = `${origin}/`;
