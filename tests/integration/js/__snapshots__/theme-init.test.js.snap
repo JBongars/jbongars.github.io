@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`theme-init.js checks the toggle when localStorage theme is light 1`] = `
+{
+  "checked": true,
+}
+`;
+
+exports[`theme-init.js leaves the toggle off when localStorage has no theme 1`] = `
+{
+  "checked": false,
+}
+`;

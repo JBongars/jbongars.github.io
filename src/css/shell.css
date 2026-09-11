@@ -137,7 +137,9 @@ html:has(#theme-toggle:checked) .theme-toggle-btn__icon--to-dark {
 
 @media (prefers-reduced-motion: no-preference) {
   .nav-toggle-btn__bar {
-    transition: transform 120ms ease, opacity 120ms ease;
+    transition:
+      transform 120ms ease,
+      opacity 120ms ease;
   }
 }
 

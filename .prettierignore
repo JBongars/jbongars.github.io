@@ -1,0 +1,18 @@
+_site/
+coverage/
+node_modules/
+.cache/
+playwright-report/
+test-results/
+package-lock.json
+yarn.lock
+
+# Authored content: formatting changes create noise in content diffs
+src/**/*.md
+
+# Nunjucks is not supported by Prettier; see .editorconfig
+src/**/*.njk
+
+# Generated or binary artifacts
+tests/visual/__snapshots__/
+src/_data/resume.pdf

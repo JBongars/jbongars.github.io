@@ -1,33 +1,36 @@
-const { execFileSync } = require("node:child_process");
-const path = require("node:path");
-const { ROOT } = require("./paths");
+import { execFileSync } from "node:child_process";
+import path from "node:path";
+import { ROOT } from "./paths.js";
 
 function isoDay(value) {
-  if (!value) return undefined;
+  if (!value) {
+    return;
+  }
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
     return value.toISOString().slice(0, 10);
   }
-  const s = String(value);
-  const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
-  return m ? m[1] : undefined;
+  const match = String(value).match(/^(\d{4}-\d{2}-\d{2})/);
+  return match?.[1];
 }
 
-/** Last commit date (YYYY-MM-DD) for a source file, if git knows it. */
+/**
+ * Last commit date (YYYY-MM-DD) for a source file, if git knows it.
+ */
 function gitLastmodDay(inputPath) {
-  if (!inputPath) return undefined;
-  const abs = path.isAbsolute(inputPath)
-    ? inputPath
-    : path.join(ROOT, inputPath);
+  if (!inputPath) {
+    return;
+  }
+  const absolutePath = path.isAbsolute(inputPath) ? inputPath : path.join(ROOT, inputPath);
   try {
-    const out = execFileSync("git", ["log", "-1", "--format=%cI", "--", abs], {
+    const output = execFileSync("git", ["log", "-1", "--format=%cI", "--", absolutePath], {
       cwd: ROOT,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
     }).trim();
-    return isoDay(out);
+    return isoDay(output);
   } catch {
-    return undefined;
+    return;
   }
 }
 
-module.exports = { isoDay, gitLastmodDay };
+export { isoDay, gitLastmodDay };

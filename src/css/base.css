@@ -50,32 +50,46 @@ body::after {
 }
 
 html:has(#theme-toggle:checked) body::before {
-  -webkit-mask-image: url("../img/topography.svg"),
-    linear-gradient(to left, transparent, #000 18%, #000);
-  -webkit-mask-size: 100% auto, 100% 100%;
+  -webkit-mask-image:
+    url("../img/topography.svg"), linear-gradient(to left, transparent, #000 18%, #000);
+  -webkit-mask-size:
+    100% auto,
+    100% 100%;
   -webkit-mask-repeat: repeat-y, no-repeat;
-  -webkit-mask-position: center, 0 0;
+  -webkit-mask-position:
+    center,
+    0 0;
   -webkit-mask-composite: source-in;
-  mask-image: url("../img/topography.svg"),
-    linear-gradient(to left, transparent, #000 18%, #000);
-  mask-size: 100% auto, 100% 100%;
+  mask-image: url("../img/topography.svg"), linear-gradient(to left, transparent, #000 18%, #000);
+  mask-size:
+    100% auto,
+    100% 100%;
   mask-repeat: repeat-y, no-repeat;
-  mask-position: center, 0 0;
+  mask-position:
+    center,
+    0 0;
   mask-composite: intersect;
 }
 
 html:has(#theme-toggle:checked) body::after {
-  -webkit-mask-image: url("../img/topography.svg"),
-    linear-gradient(to right, transparent, #000 18%, #000);
-  -webkit-mask-size: 100% auto, 100% 100%;
+  -webkit-mask-image:
+    url("../img/topography.svg"), linear-gradient(to right, transparent, #000 18%, #000);
+  -webkit-mask-size:
+    100% auto,
+    100% 100%;
   -webkit-mask-repeat: repeat-y, no-repeat;
-  -webkit-mask-position: center, 0 0;
+  -webkit-mask-position:
+    center,
+    0 0;
   -webkit-mask-composite: source-in;
-  mask-image: url("../img/topography.svg"),
-    linear-gradient(to right, transparent, #000 18%, #000);
-  mask-size: 100% auto, 100% 100%;
+  mask-image: url("../img/topography.svg"), linear-gradient(to right, transparent, #000 18%, #000);
+  mask-size:
+    100% auto,
+    100% 100%;
   mask-repeat: repeat-y, no-repeat;
-  mask-position: center, 0 0;
+  mask-position:
+    center,
+    0 0;
   mask-composite: intersect;
 }
 

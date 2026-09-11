@@ -1,57 +1,69 @@
 /* Progressive enhancement: toolbar, line numbers, collapse, fullscreen.
    Hydrated only when .prose pre is present. Safe without this file. */
-(function () {
+(function enhanceCodeBlocks() {
   "use strict";
 
-  var MAX_VH = 20;
-  var COPY_RESET_MS = 1600;
-  var activeFs = null;
+  const MAX_VH = 20;
+  const COPY_RESET_MS = 1600;
+  let activeFs;
 
-  function icon(paths) {
-    return (
-      '<svg class="code-block__icon" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false">' +
-      paths +
-      "</svg>"
-    );
+  function svgIcon(paths) {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "code-block__icon");
+    svg.setAttribute("width", "14");
+    svg.setAttribute("height", "14");
+    svg.setAttribute("viewBox", "0 0 16 16");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    for (const d of paths) {
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("fill", "currentColor");
+      path.setAttribute("d", d);
+      svg.append(path);
+    }
+    return svg;
   }
 
-  var ICONS = {
-    copy: icon(
-      '<path fill="currentColor" d="M5.5 2A1.5 1.5 0 0 0 4 3.5v8A1.5 1.5 0 0 0 5.5 13h6a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 11.5 2h-6zm0 1h6a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5z"/>' +
-        '<path fill="currentColor" d="M2.5 4A1.5 1.5 0 0 0 1 5.5v8A1.5 1.5 0 0 0 2.5 15h6a1.5 1.5 0 0 0 1.5-1.5V13H9v.5a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5H3V4h-.5z"/>'
-    ),
-    check: icon(
-      '<path fill="currentColor" d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/>'
-    ),
-    expand: icon(
-      '<path fill="currentColor" d="M1.5 5.5V2.75A1.25 1.25 0 0 1 2.75 1.5H5.5v1H2.75a.25.25 0 0 0-.25.25V5.5h-1zm13 0V2.75a.25.25 0 0 0-.25-.25H10.5v-1h2.75A1.25 1.25 0 0 1 14.5 2.75V5.5h-1zM1.5 10.5h1v2.75c0 .138.112.25.25.25H5.5v1H2.75A1.25 1.25 0 0 1 1.5 13.25V10.5zm13 0h-1v2.75a.25.25 0 0 1-.25.25H10.5v1h2.75a1.25 1.25 0 0 0 1.25-1.25V10.5z"/>'
-    ),
-    close: icon(
-      '<path fill="currentColor" d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06z"/>'
-    ),
+  const ICONS = {
+    copy: svgIcon([
+      "M5.5 2A1.5 1.5 0 0 0 4 3.5v8A1.5 1.5 0 0 0 5.5 13h6a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 11.5 2h-6zm0 1h6a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5z",
+      "M2.5 4A1.5 1.5 0 0 0 1 5.5v8A1.5 1.5 0 0 0 2.5 15h6a1.5 1.5 0 0 0 1.5-1.5V13H9v.5a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5v-8a.5.5 0 0 1 .5-.5H3V4h-.5z",
+    ]),
+    check: svgIcon([
+      "M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z",
+    ]),
+    expand: svgIcon([
+      "M1.5 5.5V2.75A1.25 1.25 0 0 1 2.75 1.5H5.5v1H2.75a.25.25 0 0 0-.25.25V5.5h-1zm13 0V2.75a.25.25 0 0 0-.25-.25H10.5v-1h2.75A1.25 1.25 0 0 1 14.5 2.75V5.5h-1zM1.5 10.5h1v2.75c0 .138.112.25.25.25H5.5v1H2.75A1.25 1.25 0 0 1 1.5 13.25V10.5zm13 0h-1v2.75a.25.25 0 0 1-.25.25H10.5v1h2.75a1.25 1.25 0 0 0 1.25-1.25V10.5z",
+    ]),
+    close: svgIcon([
+      "M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06z",
+    ]),
   };
 
+  function fillButton(button, icon, label) {
+    const text = document.createElement("span");
+    text.textContent = label;
+    button.replaceChildren(icon.cloneNode(true), text);
+  }
+
   function copyText(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    if (navigator.clipboard?.writeText) {
       return navigator.clipboard.writeText(text);
     }
-    return new Promise(function (resolve, reject) {
-      var ta = document.createElement("textarea");
-      ta.value = text;
-      ta.setAttribute("readonly", "");
-      ta.style.position = "fixed";
-      ta.style.top = "-9999px";
-      document.body.appendChild(ta);
-      ta.select();
-      try {
-        if (!document.execCommand("copy")) throw new Error("copy failed");
-        resolve();
-      } catch (err) {
-        reject(err);
-      } finally {
-        document.body.removeChild(ta);
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.top = "-9999px";
+    document.body.append(area);
+    area.select();
+    try {
+      if (!document.execCommand("copy")) {
+        throw new Error("copy failed");
       }
-    });
+    } finally {
+      area.remove();
+    }
   }
 
   function maxHeightPx() {
@@ -59,286 +71,319 @@
   }
 
   function detectLang(pre) {
-    var match = String(pre.className || "").match(/(?:^|\s)language-([a-z0-9_+-]+)/i);
-    if (!match) return "";
-    var lang = match[1].toLowerCase();
-    return lang === "text" || lang === "plain" || lang === "plaintext" ? "" : lang;
+    const match = String(pre.className || "").match(/(?:^|\s)language-([a-z0-9_+-]+)/i);
+    if (!match) {
+      return "";
+    }
+    const lang = match[1].toLowerCase();
+    return ["text", "plain", "plaintext"].includes(lang) ? "" : lang;
   }
 
   function lineCount(text) {
-    if (!text) return 1;
-    var normalized = text.replace(/\n$/, "");
-    if (!normalized) return 1;
+    if (!text) {
+      return 1;
+    }
+    const normalized = text.replace(/\n$/, "");
+    if (!normalized) {
+      return 1;
+    }
     return normalized.split("\n").length;
   }
 
   function buildGutter(count) {
-    var gutter = document.createElement("div");
+    const gutter = document.createElement("div");
     gutter.className = "code-block__gutter";
     gutter.setAttribute("aria-hidden", "true");
-    var html = "";
-    for (var i = 1; i <= count; i++) {
-      html += '<span class="code-block__line-no">' + i + "</span>";
+    for (let index = 1; index <= count; index++) {
+      const line = document.createElement("span");
+      line.className = "code-block__line-no";
+      line.textContent = String(index);
+      gutter.append(line);
     }
-    gutter.innerHTML = html;
     return gutter;
   }
 
-  function wireCopy(btn, getText) {
-    var resetTimer;
-    btn.addEventListener("click", function () {
-      copyText(getText() || "")
-        .then(function () {
-          btn.classList.add("is-copied");
-          btn.setAttribute("aria-label", "Copied");
-          btn.innerHTML = ICONS.check + '<span>Copied</span>';
-          clearTimeout(resetTimer);
-          resetTimer = setTimeout(function () {
-            btn.classList.remove("is-copied");
-            btn.setAttribute("aria-label", "Copy code");
-            btn.innerHTML = ICONS.copy + "<span>Copy</span>";
-          }, COPY_RESET_MS);
-        })
-        .catch(function () {});
+  function wireCopy(button, getText) {
+    let resetTimer;
+    button.addEventListener("click", async () => {
+      try {
+        copyText(getText() || "");
+        // One microtask, same as the old `.then()` on a resolved copy promise.
+        await Promise.resolve();
+        button.classList.add("is-copied");
+        button.setAttribute("aria-label", "Copied");
+        fillButton(button, ICONS.check, "Copied");
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+          button.classList.remove("is-copied");
+          button.setAttribute("aria-label", "Copy code");
+          fillButton(button, ICONS.copy, "Copy");
+        }, COPY_RESET_MS);
+      } catch {
+        // Clipboard may be blocked.
+      }
     });
   }
 
   function closeFullscreen() {
-    if (!activeFs) return;
-    var fs = activeFs;
-    activeFs = null;
+    if (!activeFs) {
+      return;
+    }
+    const fs = activeFs;
+    activeFs = undefined;
     document.removeEventListener("keydown", fs.onKey);
     document.documentElement.classList.remove("code-fs-open");
-    if (fs.root.parentNode) fs.root.parentNode.removeChild(fs.root);
+    if (fs.root.parentNode) {
+      fs.root.remove();
+    }
     if (fs.trigger && typeof fs.trigger.focus === "function") {
       fs.trigger.focus();
     }
   }
 
-  function openFullscreen(opts) {
+  function copyCodeButton(getText) {
+    const copyButton = document.createElement("button");
+    copyButton.type = "button";
+    copyButton.className = "code-block__btn";
+    copyButton.setAttribute("aria-label", "Copy code");
+    fillButton(copyButton, ICONS.copy, "Copy");
+    wireCopy(copyButton, getText);
+    return copyButton;
+  }
+
+  function cloneCode(options) {
+    const code = document.createElement("code");
+    code.className = options.codeClass || "";
+    for (const child of options.sourceCode.childNodes) {
+      code.append(child.cloneNode(true));
+    }
+    return code;
+  }
+
+  function openFullscreen(options) {
     closeFullscreen();
 
-    var root = document.createElement("div");
+    const root = document.createElement("div");
     root.className = "code-fs";
     root.setAttribute("role", "dialog");
     root.setAttribute("aria-modal", "true");
     root.setAttribute("aria-label", "Code fullscreen");
 
-    var backdrop = document.createElement("div");
+    const backdrop = document.createElement("div");
     backdrop.className = "code-fs__backdrop";
-    root.appendChild(backdrop);
 
-    var panel = document.createElement("div");
+    const panel = document.createElement("div");
     panel.className = "code-fs__panel";
 
-    var bar = document.createElement("div");
+    const bar = document.createElement("div");
     bar.className = "code-fs__toolbar";
 
-    var label = document.createElement("span");
+    const label = document.createElement("span");
     label.className = "code-fs__label";
-    label.textContent = opts.lang ? opts.lang : "code";
-    bar.appendChild(label);
+    label.textContent = options.lang || "code";
 
-    var actions = document.createElement("div");
+    const actions = document.createElement("div");
     actions.className = "code-fs__actions";
 
-    var copyBtn = document.createElement("button");
-    copyBtn.type = "button";
-    copyBtn.className = "code-block__btn";
-    copyBtn.setAttribute("aria-label", "Copy code");
-    copyBtn.innerHTML = ICONS.copy + "<span>Copy</span>";
-    wireCopy(copyBtn, function () {
-      return opts.text;
-    });
+    const copyButton = copyCodeButton(() => options.text);
 
-    var closeBtn = document.createElement("button");
-    closeBtn.type = "button";
-    closeBtn.className = "code-block__btn";
-    closeBtn.setAttribute("aria-label", "Close fullscreen");
-    closeBtn.innerHTML = ICONS.close + "<span>Close</span>";
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "code-block__btn";
+    closeButton.setAttribute("aria-label", "Close fullscreen");
+    fillButton(closeButton, ICONS.close, "Close");
 
-    actions.appendChild(copyBtn);
-    actions.appendChild(closeBtn);
-    bar.appendChild(actions);
-    panel.appendChild(bar);
+    actions.append(copyButton, closeButton);
+    bar.append(label, actions);
 
-    var body = document.createElement("div");
+    const body = document.createElement("div");
     body.className = "code-fs__body";
-    body.appendChild(buildGutter(opts.lines));
+    const pre = document.createElement("pre");
+    pre.className = options.preClass || "";
+    pre.append(cloneCode(options));
+    body.append(buildGutter(options.lines), pre);
+    panel.append(bar, body);
+    root.append(backdrop, panel);
 
-    var pre = document.createElement("pre");
-    pre.className = opts.preClass || "";
-    var code = document.createElement("code");
-    code.className = opts.codeClass || "";
-    code.innerHTML = opts.html;
-    pre.appendChild(code);
-    body.appendChild(pre);
-    panel.appendChild(body);
-    root.appendChild(panel);
-
-    function onKey(e) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        closeFullscreen();
+    function onKey(event) {
+      if (event.key !== "Escape") {
+        return;
       }
+      event.preventDefault();
+      closeFullscreen();
     }
 
     backdrop.addEventListener("click", closeFullscreen);
-    closeBtn.addEventListener("click", closeFullscreen);
+    closeButton.addEventListener("click", closeFullscreen);
     document.addEventListener("keydown", onKey);
     document.documentElement.classList.add("code-fs-open");
-    document.body.appendChild(root);
-    closeBtn.focus();
+    document.body.append(root);
+    closeButton.focus();
 
-    activeFs = { root: root, onKey: onKey, trigger: opts.trigger };
+    activeFs = { root, onKey, trigger: options.trigger };
   }
 
-  function enhance(pre) {
-    if (pre.closest(".code-block")) return;
+  function collapseBlock(wrap, expandButton) {
+    const beforeTop = expandButton.getBoundingClientRect().top;
+    wrap.classList.remove("is-expanded");
+    expandButton.setAttribute("aria-expanded", "false");
+    expandButton.textContent = "Show more";
+    const delta = expandButton.getBoundingClientRect().top - beforeTop;
+    if (delta) {
+      window.scrollBy(0, delta);
+    }
 
-    var codeEl = pre.querySelector("code") || pre;
-    var text = pre.textContent || "";
-    var lines = lineCount(text);
-    var lang = detectLang(pre);
-    var tall = pre.scrollHeight > maxHeightPx() + 4;
-
-    var wrap = document.createElement("div");
-    wrap.className = "code-block";
-    if (tall) wrap.classList.add("is-collapsible");
-    pre.parentNode.insertBefore(wrap, pre);
-
-    var toolbar = document.createElement("div");
-    toolbar.className = "code-block__toolbar";
-
-    var meta = document.createElement("span");
-    meta.className = "code-block__meta";
-    meta.textContent = lang || (tall ? lines + " lines" : "code");
-    toolbar.appendChild(meta);
-
-    var actions = document.createElement("div");
-    actions.className = "code-block__actions";
-
-    var copyBtn = document.createElement("button");
-    copyBtn.type = "button";
-    copyBtn.className = "code-block__btn";
-    copyBtn.setAttribute("aria-label", "Copy code");
-    copyBtn.innerHTML = ICONS.copy + "<span>Copy</span>";
-    wireCopy(copyBtn, function () {
-      return pre.textContent || "";
-    });
-    actions.appendChild(copyBtn);
-
-    var fsBtn = document.createElement("button");
-    fsBtn.type = "button";
-    fsBtn.className = "code-block__btn";
-    fsBtn.setAttribute("aria-label", "Open code fullscreen");
-    fsBtn.innerHTML = ICONS.expand + "<span>Full screen</span>";
-    fsBtn.addEventListener("click", function () {
-      openFullscreen({
-        lang: lang,
-        text: pre.textContent || "",
-        html: codeEl.innerHTML,
-        preClass: pre.className,
-        codeClass: codeEl.className,
-        lines: lines,
-        trigger: fsBtn,
-      });
-    });
-    actions.appendChild(fsBtn);
-
-    toolbar.appendChild(actions);
-    wrap.appendChild(toolbar);
-
-    var body = document.createElement("div");
-    body.className = "code-block__body";
-    body.appendChild(buildGutter(lines));
-    body.appendChild(pre);
-    wrap.appendChild(body);
-
-    if (tall) {
-      var expandBtn = document.createElement("button");
-      expandBtn.type = "button";
-      expandBtn.className = "code-block__expand";
-      expandBtn.setAttribute("aria-expanded", "false");
-      expandBtn.textContent = "Show more";
-      wrap.appendChild(expandBtn);
-
-      expandBtn.addEventListener("click", function () {
-        var willExpand = !wrap.classList.contains("is-expanded");
-
-        if (willExpand) {
-          wrap.classList.add("is-expanded");
-          expandBtn.setAttribute("aria-expanded", "true");
-          expandBtn.textContent = "Show less";
-          return;
-        }
-
-        // Keep the control under the cursor so shrinking the block
-        // doesn't fling the viewport down into later content.
-        var beforeTop = expandBtn.getBoundingClientRect().top;
-        wrap.classList.remove("is-expanded");
-        expandBtn.setAttribute("aria-expanded", "false");
-        expandBtn.textContent = "Show more";
-        var delta = expandBtn.getBoundingClientRect().top - beforeTop;
-        if (delta) window.scrollBy(0, delta);
-
-        var header = document.querySelector(".site-header");
-        var headerH = header ? header.getBoundingClientRect().height : 0;
-        var wrapTop = wrap.getBoundingClientRect().top;
-        if (wrapTop < headerH + 8) {
-          window.scrollBy(0, wrapTop - headerH - 8);
-        }
-      });
+    const header = document.querySelector(".site-header");
+    const headerH = header ? header.getBoundingClientRect().height : 0;
+    const wrapTop = wrap.getBoundingClientRect().top;
+    if (wrapTop < headerH + 8) {
+      window.scrollBy(0, wrapTop - headerH - 8);
     }
   }
 
-  function hydrateInlineCode() {
-    document.querySelectorAll(".prose :not(pre) > code").forEach(function (code) {
-      var text;
-      var resetTimer;
-      function copied() {
-        copyText(text)
-          .then(function () {
-            code.classList.add("is-copied");
-            code.setAttribute("aria-label", "Copied");
-            clearTimeout(resetTimer);
-            resetTimer = setTimeout(function () {
-              code.classList.remove("is-copied");
-              code.setAttribute("aria-label", "Copy " + text);
-            }, COPY_RESET_MS);
-          })
-          .catch(function () {});
+  function wireExpand(wrap) {
+    const expandButton = document.createElement("button");
+    expandButton.type = "button";
+    expandButton.className = "code-block__expand";
+    expandButton.setAttribute("aria-expanded", "false");
+    expandButton.textContent = "Show more";
+    wrap.append(expandButton);
+
+    expandButton.addEventListener("click", () => {
+      const willExpand = !wrap.classList.contains("is-expanded");
+      if (willExpand) {
+        wrap.classList.add("is-expanded");
+        expandButton.setAttribute("aria-expanded", "true");
+        expandButton.textContent = "Show less";
+        return;
       }
+      // Keep the control under the cursor so shrinking the block
+      // doesn't fling the viewport down into later content.
+      collapseBlock(wrap, expandButton);
+    });
+  }
 
-      if (code.getAttribute("data-copy-ready") === "1") return;
-      if (code.closest("a, button, .code-block")) return;
-      text = (code.textContent || "").trim();
-      if (!text) return;
+  function enhance(pre) {
+    if (pre.closest(".code-block")) {
+      return;
+    }
 
-      code.setAttribute("data-copy-ready", "1");
-      code.setAttribute("tabindex", "0");
-      code.setAttribute("role", "button");
-      code.setAttribute("aria-label", "Copy " + text);
-      code.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        copied();
-      });
-      code.addEventListener("keydown", function (e) {
-        if (e.key !== "Enter" && e.key !== " ") return;
-        e.preventDefault();
-        e.stopPropagation();
-        copied();
+    const codeElement = pre.querySelector("code") || pre;
+    const text = pre.textContent || "";
+    const lines = lineCount(text);
+    const lang = detectLang(pre);
+    const isTall = pre.scrollHeight > maxHeightPx() + 4;
+
+    const wrap = document.createElement("div");
+    wrap.className = "code-block";
+    if (isTall) {
+      wrap.classList.add("is-collapsible");
+    }
+    pre.parentNode.insertBefore(wrap, pre);
+
+    const toolbar = document.createElement("div");
+    toolbar.className = "code-block__toolbar";
+
+    const meta = document.createElement("span");
+    meta.className = "code-block__meta";
+    meta.textContent = lang || (isTall ? lines + " lines" : "code");
+
+    const actions = document.createElement("div");
+    actions.className = "code-block__actions";
+
+    const copyButton = copyCodeButton(() => pre.textContent || "");
+
+    const fsButton = document.createElement("button");
+    fsButton.type = "button";
+    fsButton.className = "code-block__btn";
+    fsButton.setAttribute("aria-label", "Open code fullscreen");
+    fillButton(fsButton, ICONS.expand, "Full screen");
+    fsButton.addEventListener("click", () => {
+      openFullscreen({
+        lang,
+        text: pre.textContent || "",
+        sourceCode: codeElement,
+        preClass: pre.className,
+        codeClass: codeElement.className,
+        lines,
+        trigger: fsButton,
       });
     });
+    actions.append(copyButton, fsButton);
+    toolbar.append(meta, actions);
+
+    const body = document.createElement("div");
+    body.className = "code-block__body";
+    body.append(buildGutter(lines), pre);
+    wrap.append(toolbar, body);
+
+    if (isTall) {
+      wireExpand(wrap);
+    }
+  }
+
+  function markInlineCopyable(code) {
+    if (code.dataset.copyReady === "1") {
+      return;
+    }
+    if (code.closest("a, button, .code-block")) {
+      return;
+    }
+    const text = (code.textContent || "").trim();
+    if (!text) {
+      return;
+    }
+
+    let resetTimer;
+    async function copied() {
+      try {
+        copyText(text);
+        await Promise.resolve();
+        code.classList.add("is-copied");
+        code.setAttribute("aria-label", "Copied");
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+          code.classList.remove("is-copied");
+          code.setAttribute("aria-label", "Copy " + text);
+        }, COPY_RESET_MS);
+      } catch {
+        // Clipboard may be blocked.
+      }
+    }
+
+    code.dataset.copyReady = "1";
+    code.setAttribute("tabindex", "0");
+    code.setAttribute("role", "button");
+    code.setAttribute("aria-label", "Copy " + text);
+    code.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      void copied();
+    });
+    code.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      void copied();
+    });
+  }
+
+  function hydrateInlineCode() {
+    for (const code of document.querySelectorAll(".prose :not(pre) > code")) {
+      markInlineCopyable(code);
+    }
   }
 
   function hydrateCodeBlocks() {
     closeFullscreen();
-    document.querySelectorAll(".prose pre").forEach(enhance);
+    for (const pre of document.querySelectorAll(".prose pre")) {
+      enhance(pre);
+    }
     hydrateInlineCode();
   }
 
-  window.hydrateCodeBlocks = hydrateCodeBlocks;
+  globalThis.hydrateCodeBlocks = hydrateCodeBlocks;
   hydrateCodeBlocks();
 })();

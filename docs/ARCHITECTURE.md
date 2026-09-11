@@ -9,17 +9,22 @@
   (BEM + SMACSS + custom properties only — not CSS-in-JS or Tailwind).
 - Client JS is progressive enhancement (site works without it). `theme-init.js`
   is inlined after the theme checkbox (CSP sha256). Other scripts are deferred
-  and only included on pages that need them. See the README.
+  and only included on pages that need them. See the README. Rollup is the
+  only allowed bundler; it touches client JS only, per
+  [BUILD_TEST_REFACTOR.md](BUILD_TEST_REFACTOR.md).
 - Hosting: user GitHub Pages at `https://jbongars.github.io/`, deployed via
-  GitHub Actions on push to `main` (Node 20 to build; checkout/setup-node/
-  Pages actions on the Node 24 runner runtime).
+  GitHub Actions on push to `main` (Node 24 to build, from `.nvmrc`;
+  checkout/setup-node/Pages actions on the runner runtime).
 - Security: CSP + Referrer-Policy as `<meta>` (Pages cannot set custom HTTP
   headers, including Cache-Control). The Eleventy dev server sends the full
   header set from `src/_data/security.js`, and caches CSS/JS/images for 24h.
   Giscus is allowed at `https://giscus.app` / `https://giscus.app/en/widget`.
   `style-src` includes `'unsafe-inline'` because post banners emit a small
   `<style>` block.
-- CI: `npm ci`, `npm audit --audit-level=high`, then `npm run build`.
+- CI: a `check` job on pull requests and `main` runs `yarn install
+--frozen-lockfile`, `yarn audit --level high`, `yarn format:check`,
+  `yarn lint`, `yarn typecheck`, and `yarn test:ci`. `build` needs `check`. Deploy to Pages
+  runs only on push to `main`.
 
 ## File structure
 
@@ -66,9 +71,21 @@
     └── .github/workflows/
         └── deploy.yml
 
-`_11ty/` is the only extra top-level folder besides docs and GitHub config.
-Do not add a `components/` directory or other app-style trees — keep `src/`
-flat.
+`_11ty/` is the Eleventy helper folder. `tests/` is allowed for Jest (see
+[BUILD_TEST_REFACTOR.md](BUILD_TEST_REFACTOR.md)). Do not add a `components/`
+directory or other app-style trees — keep `src/` flat. A `scripts/` directory
+is reserved for Playwright later and is not part of this program.
+
+## Build, test, and TypeScript refactor
+
+A behavior-preserving conversion to TypeScript, Rollup (client JS only),
+ESLint/Prettier, and Jest is in progress. Order and stop-and-check cadence:
+[BUILD_TEST_REFACTOR.md](BUILD_TEST_REFACTOR.md). How: [SPEC_BUILD_TS.md](SPEC_BUILD_TS.md),
+[SPEC_LINTING.md](SPEC_LINTING.md), [SPEC_TEST_TS.md](SPEC_TEST_TS.md).
+
+Until that playbook is finished, the tree above is the live layout
+(`.eleventy.js`, passthrough `src/js`, CommonJS). Do not introduce another
+bundler, a JS/CSS framework, or Playwright from this work.
 
 ## Content model
 
@@ -132,7 +149,7 @@ each `.media/` folder and optional `banner.*` / `banner_path` targets
 Implemented in `_11ty/markdown.js` (wired from `.eleventy.js`):
 
 - Prism highlighting at **build** time (`@11ty/eleventy-plugin-syntaxhighlight`
-  + a custom fence highlighter with language aliases)
+  - a custom fence highlighter with language aliases)
 - Heading IDs + TOC (`toc` filter); posts demote `#` so the layout title is
   the only h1
 - GitHub-style task lists
@@ -204,9 +221,9 @@ lightbox, code, resume, hacklas.
 
 ## Build & deploy
 
-- Local: `npm run serve` → http://localhost:8080
-- Build: `npm run build` → `_site/`
-- Audit: `npm run audit` (`--audit-level=high`), also run in CI before build
+- Local: `yarn serve` → http://localhost:8080
+- Build: `yarn build` → `_site/`
+- Audit: `yarn audit` (`--level high`), also run in CI before build
 - Deploy: Actions on `main` publishes `_site/` to Pages. No gh-pages branch.
 
 ## Comments

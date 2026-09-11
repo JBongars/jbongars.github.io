@@ -12,18 +12,15 @@
  * theme-init.js is inlined after the checkbox; its sha256 must stay in
  * script-src (CSP3 ignores 'unsafe-inline' once a hash is present).
  */
-const crypto = require("node:crypto");
-const fs = require("node:fs");
-const path = require("node:path");
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 
 const themeInitScript = fs.readFileSync(
-  path.join(__dirname, "../js/theme-init.js"),
-  "utf8"
+  path.join(import.meta.dirname, "../js/theme-init.js"),
+  "utf8",
 );
-const themeInitHash = crypto
-  .createHash("sha256")
-  .update(themeInitScript)
-  .digest("base64");
+const themeInitHash = crypto.createHash("sha256").update(themeInitScript).digest("base64");
 
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -41,24 +38,23 @@ const contentSecurityPolicy = [
 
 const referrerPolicy = "strict-origin-when-cross-origin";
 
-const ASSET_RE =
-  /\.(?:css|js|mjs|avif|webp|png|jpe?g|gif|svg|ico|woff2?|pdf|webmanifest)$/i;
+const ASSET_RE = /\.(?:css|js|mjs|avif|webp|png|jpe?g|gif|svg|ico|woff2?|pdf|webmanifest)$/i;
 const CACHE_ASSETS = "public, max-age=86400";
 const CACHE_HTML = "no-cache";
 
-function cacheControlMiddleware(req, res, next) {
-  const url = String(req.url || "").split("?")[0];
+function cacheControlMiddleware(request, response, next) {
+  const url = String(request.url || "").split("?", 1)[0];
   if (url.startsWith("/.11ty/")) {
-    res.setHeader("Cache-Control", "no-store");
+    response.setHeader("Cache-Control", "no-store");
   } else if (ASSET_RE.test(url)) {
-    res.setHeader("Cache-Control", CACHE_ASSETS);
+    response.setHeader("Cache-Control", CACHE_ASSETS);
   } else {
-    res.setHeader("Cache-Control", CACHE_HTML);
+    response.setHeader("Cache-Control", CACHE_HTML);
   }
   next();
 }
 
-module.exports = {
+export default {
   contentSecurityPolicy,
   referrerPolicy,
   themeInitScript,
@@ -67,8 +63,7 @@ module.exports = {
     "Referrer-Policy": referrerPolicy,
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
-    "Permissions-Policy":
-      "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
     "Cross-Origin-Opener-Policy": "same-origin",
     "Cross-Origin-Resource-Policy": "same-origin",
   },

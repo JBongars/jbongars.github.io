@@ -8,7 +8,10 @@ to land on the homepage (or `/llms.txt`) and find resume, blog, and write-ups
 without JavaScript.
 
 Live origin: `https://jbongars.github.io/` (user GitHub Pages). Static site,
-markdown content, Eleventy 3, deployed on push to `main`.
+markdown content, Eleventy 3, deployed on push to `main`. A TypeScript,
+Rollup, lint, and Jest refactor is in progress
+([BUILD_TEST_REFACTOR.md](BUILD_TEST_REFACTOR.md)); it must not change how
+pages look or work without JavaScript.
 
 ## Goals
 
@@ -35,7 +38,9 @@ markdown content, Eleventy 3, deployed on push to `main`.
   CSS is hand-written. The writing standard is
   [CSS_ARCHITECTURE.md](CSS_ARCHITECTURE.md) (BEM class names, SMACSS sheet
   roles, CSS custom properties). That document's CSS-in-JS, Tailwind /
-  utility-first, and preprocessor examples are out of scope here.
+  utility-first, and preprocessor examples are out of scope here. Rollup is
+  the only bundler, and only for client JS
+  ([BUILD_TEST_REFACTOR.md](BUILD_TEST_REFACTOR.md)).
 - No animation library (GSAP, anime.js) unless I explicitly ask for one later.
 - No contact form requiring JS to submit (native `<form>` only, if added at all).
 - No interactive experiences embedded in the main site — those live as their

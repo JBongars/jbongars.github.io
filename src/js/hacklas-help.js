@@ -1,14 +1,14 @@
 /* Progressive enhancement: desktop Hacklas shortcuts help.
    Button and dialog are created in JS and hidden below the desktop nav breakpoint.
    Site works without this file. */
-(function () {
+(function enhanceHacklasHelp() {
   "use strict";
 
-  var DESKTOP = "(min-width: 48rem)";
-  var TITLE_ID = "shortcuts-modal-title";
-  var lastFocus = null;
+  const DESKTOP = "(min-width: 48rem)";
+  const TITLE_ID = "shortcuts-modal-title";
+  let lastFocus;
 
-  var ROWS = [
+  const ROWS = [
     { keys: ["h"], desc: "Go to Hacklas" },
     { keys: ["Type"], desc: "Search notes on the Hacklas index" },
     { keys: ["Space"], desc: "Add the matching tag as a filter" },
@@ -16,46 +16,57 @@
     { keys: ["Left", "Right"], desc: "Highlight a matching tag" },
     { keys: ["Up", "Down"], desc: "Highlight a note" },
     { keys: ["Enter"], desc: "Open the highlighted note" },
-    { keys: ["Backspace"], desc: "Go back from a note" }
+    { keys: ["Backspace"], desc: "Go back from a note" },
   ];
 
   function isDesktop() {
-    return window.matchMedia(DESKTOP).matches;
+    return matchMedia(DESKTOP).matches;
   }
 
-  function el(tag, className) {
-    var node = document.createElement(tag);
-    if (className) node.className = className;
+  function element(tag, className) {
+    const node = document.createElement(tag);
+    if (className) {
+      node.className = className;
+    }
     return node;
   }
 
   function onHacklas() {
-    var p = location.pathname.replace(/\/$/, "");
-    return p.slice(-8) === "/hacklas" || p.indexOf("/hacklas/") !== -1;
+    const path = location.pathname.replace(/\/$/, "");
+    return path.slice(-8) === "/hacklas" || path.includes("/hacklas/");
   }
 
   function unmount() {
-    var btn = document.querySelector(".shortcuts-help");
-    var modal = getModal();
-    if (btn) btn.remove();
-    if (modal) modal.remove();
+    const button = document.querySelector(".shortcuts-help");
+    const modal = getModal();
+    if (button) {
+      button.remove();
+    }
+    if (modal) {
+      modal.remove();
+    }
     document.documentElement.classList.remove("shortcuts-open");
   }
 
   function hacklasNavItem() {
-    var links = document.querySelectorAll(".nav-list a[href]");
-    for (var i = 0; i < links.length; i++) {
+    const links = document.querySelectorAll(".nav-list a[href]");
+    for (const link of links) {
       try {
-        var u = new URL(links[i].href, location.href);
-        var p = u.pathname.replace(/\/$/, "");
-        if (p.slice(-8) === "/hacklas") return links[i].closest("li");
-      } catch (_) {}
+        const url = new URL(link.href, location.href);
+        const path = url.pathname.replace(/\/$/, "");
+        if (path.slice(-8) === "/hacklas") {
+          return link.closest("li");
+        }
+      } catch {
+        // Ignore malformed hrefs.
+      }
     }
-    return null;
   }
 
   function disclaimerOpen() {
-    if (document.documentElement.classList.contains("disclaimer-open")) return true;
+    if (document.documentElement.classList.contains("disclaimer-open")) {
+      return true;
+    }
     return !!document.querySelector("[data-hacklas-disclaimer]:not([hidden])");
   }
 
@@ -64,28 +75,31 @@
   }
 
   function isOpen() {
-    var modal = getModal();
+    const modal = getModal();
     return !!(modal && !modal.hidden);
   }
 
+  function focusSafely(node) {
+    if (node && typeof node.focus === "function") {
+      try {
+        node.focus();
+      } catch {
+        // focus() can throw if the node is not focusable.
+      }
+    }
+  }
+
   function setOpen(open) {
-    var modal = ensureModal();
+    const modal = ensureModal();
     modal.hidden = !open;
     document.documentElement.classList.toggle("shortcuts-open", !!open);
     if (open) {
       lastFocus = document.activeElement;
-      var closeBtn = modal.querySelector("button[data-shortcuts-close]");
-      if (closeBtn && typeof closeBtn.focus === "function") {
-        try {
-          closeBtn.focus();
-        } catch (_) {}
-      }
-    } else if (lastFocus && typeof lastFocus.focus === "function") {
-      try {
-        lastFocus.focus();
-      } catch (_) {}
-      lastFocus = null;
+      focusSafely(modal.querySelector("button[data-shortcuts-close]"));
+      return;
     }
+    focusSafely(lastFocus);
+    lastFocus = undefined;
   }
 
   function close() {
@@ -93,81 +107,92 @@
   }
 
   function open() {
-    if (!isDesktop() || disclaimerOpen()) return;
+    if (!isDesktop() || disclaimerOpen()) {
+      return;
+    }
     setOpen(true);
   }
 
   function toggle() {
-    if (isOpen()) close();
-    else open();
+    if (isOpen()) {
+      close();
+    } else {
+      open();
+    }
+  }
+
+  function appendShortcutRows(list) {
+    for (const shortcut of ROWS) {
+      const row = element("li", "shortcuts-modal__row");
+      const keys = element("span", "shortcuts-modal__keys");
+      for (const key of shortcut.keys) {
+        const kbd = document.createElement("kbd");
+        kbd.textContent = key;
+        keys.append(kbd);
+      }
+      const desc = element("p", "shortcuts-modal__desc");
+      desc.textContent = shortcut.desc;
+      row.append(keys, desc);
+      list.append(row);
+    }
   }
 
   function ensureModal() {
-    var existing = getModal();
-    if (existing) return existing;
+    const existing = getModal();
+    if (existing) {
+      return existing;
+    }
 
-    var modal = el("div", "shortcuts-modal");
-    modal.setAttribute("data-shortcuts-modal", "");
+    const modal = element("div", "shortcuts-modal");
+    modal.dataset.shortcutsModal = "";
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
     modal.setAttribute("aria-labelledby", TITLE_ID);
     modal.hidden = true;
 
-    var backdrop = el("div", "shortcuts-modal__backdrop");
+    const backdrop = element("div", "shortcuts-modal__backdrop");
     backdrop.setAttribute("aria-hidden", "true");
-    backdrop.setAttribute("data-shortcuts-close", "");
+    backdrop.dataset.shortcutsClose = "";
 
-    var panel = el("div", "shortcuts-modal__panel");
+    const panel = element("div", "shortcuts-modal__panel");
 
-    var title = el("h2", "shortcuts-modal__title");
+    const title = element("h2", "shortcuts-modal__title");
     title.id = TITLE_ID;
     title.textContent = "Keyboard shortcuts";
 
-    var list = el("ul", "shortcuts-modal__list");
-    for (var i = 0; i < ROWS.length; i++) {
-      var row = el("li", "shortcuts-modal__row");
-      var keys = el("span", "shortcuts-modal__keys");
-      for (var k = 0; k < ROWS[i].keys.length; k++) {
-        var kbd = document.createElement("kbd");
-        kbd.textContent = ROWS[i].keys[k];
-        keys.appendChild(kbd);
-      }
-      var desc = el("p", "shortcuts-modal__desc");
-      desc.textContent = ROWS[i].desc;
-      row.appendChild(keys);
-      row.appendChild(desc);
-      list.appendChild(row);
-    }
+    const list = element("ul", "shortcuts-modal__list");
+    appendShortcutRows(list);
 
-    var closeBtn = el("button", "shortcuts-modal__close");
-    closeBtn.type = "button";
-    closeBtn.setAttribute("data-shortcuts-close", "");
-    closeBtn.textContent = "Close";
+    const closeButton = element("button", "shortcuts-modal__close");
+    closeButton.type = "button";
+    closeButton.dataset.shortcutsClose = "";
+    closeButton.textContent = "Close";
 
-    panel.appendChild(title);
-    panel.appendChild(list);
-    panel.appendChild(closeBtn);
-    modal.appendChild(backdrop);
-    modal.appendChild(panel);
-    document.body.appendChild(modal);
+    panel.append(title, list, closeButton);
+    modal.append(backdrop, panel);
+    document.body.append(modal);
     return modal;
   }
 
   function mountButton() {
-    var navItem = hacklasNavItem();
-    if (!navItem || !navItem.parentNode) return;
+    const navItem = hacklasNavItem();
+    if (!navItem?.parentNode) {
+      return;
+    }
 
-    var existing = navItem.parentNode.querySelector(".shortcuts-help");
-    if (existing) existing.remove();
+    const existing = navItem.parentNode.querySelector(".shortcuts-help");
+    if (existing) {
+      existing.remove();
+    }
 
-    var li = el("li", "shortcuts-help");
-    var btn = el("button", "shortcuts-help__btn");
-    btn.type = "button";
-    btn.setAttribute("aria-label", "Hacklas keyboard shortcuts");
-    btn.setAttribute("data-shortcuts-help", "");
-    btn.textContent = "?";
-    li.appendChild(btn);
-    navItem.parentNode.insertBefore(li, navItem.nextSibling);
+    const item = element("li", "shortcuts-help");
+    const button = element("button", "shortcuts-help__btn");
+    button.type = "button";
+    button.setAttribute("aria-label", "Hacklas keyboard shortcuts");
+    button.dataset.shortcutsHelp = "";
+    button.textContent = "?";
+    item.append(button);
+    navItem.parentNode.insertBefore(item, navItem.nextSibling);
   }
 
   function hydrate() {
@@ -179,41 +204,45 @@
     mountButton();
   }
 
-  document.addEventListener("click", function (e) {
-    var help = e.target.closest && e.target.closest("[data-shortcuts-help]");
+  document.addEventListener("click", (event) => {
+    const help = event.target.closest?.("[data-shortcuts-help]");
     if (help) {
-      e.preventDefault();
+      event.preventDefault();
       toggle();
       return;
     }
-    var closer = e.target.closest && e.target.closest("[data-shortcuts-close]");
-    if (closer && getModal() && getModal().contains(closer)) {
-      e.preventDefault();
+    const closer = event.target.closest?.("[data-shortcuts-close]");
+    if (closer && getModal()?.contains(closer)) {
+      event.preventDefault();
       close();
     }
   });
 
   document.addEventListener(
     "keydown",
-    function (e) {
-      if (e.key !== "Escape" || !isOpen()) return;
-      e.preventDefault();
+    (event) => {
+      if (event.key !== "Escape" || !isOpen()) {
+        return;
+      }
+      event.preventDefault();
       close();
     },
-    true
+    { capture: true },
   );
 
-  var mq = window.matchMedia(DESKTOP);
-  function onBreakpoint(e) {
-    if (!e.matches) close();
+  const media = matchMedia(DESKTOP);
+  function onBreakpoint(event) {
+    if (!event.matches) {
+      close();
+    }
   }
-  if (typeof mq.addEventListener === "function") {
-    mq.addEventListener("change", onBreakpoint);
-  } else if (typeof mq.addListener === "function") {
-    mq.addListener(onBreakpoint);
+  if (typeof media.addEventListener === "function") {
+    media.addEventListener("change", onBreakpoint);
+  } else if (typeof media.addListener === "function") {
+    media.addListener(onBreakpoint);
   }
 
-  window.hydrateHacklasHelp = hydrate;
+  globalThis.hydrateHacklasHelp = hydrate;
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", hydrate);

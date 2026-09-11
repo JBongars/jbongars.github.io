@@ -1,13 +1,13 @@
-const Prism = require("prismjs");
-const loadLanguages = require("prismjs/components/index.js");
-const { withPathPrefix } = require("./paths");
-const { escapeHtml, unescapeHtml } = require("./text");
-const { isContentMarkdown } = require("./content");
+import Prism from "prismjs";
+import loadLanguages from "prismjs/components/index.js";
+import { withPathPrefix } from "./paths.js";
+import { escapeHtml, unescapeHtml } from "./text.js";
+import { isContentMarkdown } from "./content.js";
 
 loadLanguages.silent = true;
 
 function sanitizeLanguage(lang) {
-  const cleaned = String(lang || "text").replace(/[^a-zA-Z0-9_+-]/g, "");
+  const cleaned = String(lang || "text").replaceAll(/[^a-zA-Z0-9_+-]/g, "");
   return cleaned || "text";
 }
 
@@ -40,21 +40,29 @@ function resolveLanguage(lang) {
   const raw = String(lang || "")
     .trim()
     .toLowerCase();
-  if (!raw) return "text";
-  if (LANGUAGE_ALIASES[raw]) return LANGUAGE_ALIASES[raw];
+  if (!raw) {
+    return "text";
+  }
+  if (Object.hasOwn(LANGUAGE_ALIASES, raw)) {
+    return LANGUAGE_ALIASES[raw];
+  }
   const cleaned = sanitizeLanguage(raw).toLowerCase();
   return LANGUAGE_ALIASES[cleaned] || cleaned || "text";
 }
 
 function hasPrismLanguage(lang) {
-  if (!lang || lang === "text") return false;
-  if (Prism.languages[lang]) return true;
-  try {
-    loadLanguages([lang]);
-  } catch (_) {
+  if (!lang || lang === "text") {
     return false;
   }
-  return Boolean(Prism.languages[lang]);
+  if (Object.hasOwn(Prism.languages, lang)) {
+    return true;
+  }
+  try {
+    loadLanguages([lang]);
+  } catch {
+    return false;
+  }
+  return Object.hasOwn(Prism.languages, lang);
 }
 
 function wrapCodeBlock(lang, innerHtml) {
@@ -62,34 +70,32 @@ function wrapCodeBlock(lang, innerHtml) {
   return `<pre class="language-${safeLang}"><code class="language-${safeLang}">${innerHtml}</code></pre>`;
 }
 
-function highlightCode(str, lang) {
+function highlightCode(source, lang) {
   const language = resolveLanguage(lang);
-
   if (language === "text" || !hasPrismLanguage(language)) {
-    return wrapCodeBlock(language === "text" ? "text" : language, escapeHtml(str));
+    return wrapCodeBlock(language === "text" ? "text" : language, escapeHtml(source));
   }
-
   // Prism.highlight escapes HTML in the source; safe for exploit/payload samples.
-  const highlighted = Prism.highlight(str, Prism.languages[language], language);
+  const highlighted = Prism.highlight(source, Prism.languages[language], language);
   return wrapCodeBlock(language, highlighted);
 }
 
 function slugifyHeading(text) {
   return String(text)
-    .replace(/<[^>]*>/g, "")
+    .replaceAll(/<[^>]*>/g, "")
     .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replaceAll(/[\u{0300}-\u{036F}]/gu, "")
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replaceAll(/[^a-z0-9\s-]/g, "")
+    .replaceAll(/\s+/g, "-")
+    .replaceAll(/-+/g, "-")
+    .replaceAll(/^-|-$/g, "");
 }
 
 function uniqueSlug(base, seen) {
   const fallback = base || "section";
-  if (seen[fallback] == null) {
+  if (!Object.hasOwn(seen, fallback)) {
     seen[fallback] = 0;
     return fallback;
   }
@@ -98,33 +104,39 @@ function uniqueSlug(base, seen) {
 }
 
 function buildToc(content) {
-  if (!content) return "";
-
+  if (!content) {
+    return "";
+  }
   // Skip the title h1; include shifted section headings (h2–h4).
   const headingPattern = /<h([2-4])\b[^>]*\bid="([^"]+)"[^>]*>([\s\S]*?)<\/h\1>/gi;
   const items = [];
-  let match;
-
-  while ((match = headingPattern.exec(content)) !== null) {
+  let match = headingPattern.exec(content);
+  while (match) {
     const level = match[1];
     const id = match[2];
-    const title = unescapeHtml(match[3].replace(/<[^>]+>/g, "").trim());
-    if (!title) continue;
-    items.push({ level, id, title });
+    const title = unescapeHtml(match[3].replaceAll(/<[^>]+>/g, "").trim());
+    if (title) {
+      items.push({ level, id, title });
+    }
+    match = headingPattern.exec(content);
   }
-
-  if (items.length < 2) return "";
-
+  if (items.length < 2) {
+    return "";
+  }
   const lines = ['<ul class="toc__list">'];
   for (const item of items) {
     lines.push(
       `<li class="toc__item toc__item--h${item.level}">` +
         `<a href="#${escapeHtml(item.id)}">${escapeHtml(item.title)}</a>` +
-        `</li>`
+        `</li>`,
     );
   }
   lines.push("</ul>");
   return lines.join("");
+}
+
+function headingCloseToken(tokens, start) {
+  return tokens.slice(start + 1).find((token) => token.type === "heading_close");
 }
 
 /**
@@ -134,30 +146,61 @@ function buildToc(content) {
  */
 function demoteBodyHeadings(state) {
   const inputPath = state.env?.page?.inputPath;
-  if (isContentMarkdown(inputPath, "hacklas")) return;
-
-  for (let i = 0; i < state.tokens.length; i++) {
-    const open = state.tokens[i];
-    if (open.type !== "heading_open") continue;
-
-    let close = null;
-    for (let j = i + 1; j < state.tokens.length; j++) {
-      if (state.tokens[j].type === "heading_close") {
-        close = state.tokens[j];
-        break;
-      }
+  if (isContentMarkdown(inputPath, "hacklas")) {
+    return;
+  }
+  for (const [index, open] of state.tokens.entries()) {
+    if (open.type !== "heading_open") {
+      continue;
     }
-
-    const level = Number.parseInt(open.tag.slice(1), 10);
+    const close = headingCloseToken(state.tokens, index);
+    const level = Math.trunc(Number(open.tag.slice(1)));
     const nextLevel = Number.isFinite(level) ? Math.min(level + 1, 6) : 2;
     const tag = `h${nextLevel}`;
     open.tag = tag;
-    if (close) close.tag = tag;
+    if (close) {
+      close.tag = tag;
+    }
   }
 }
 
-/** Headings longer than this are treated as bold callouts, not section titles. */
+/**
+ * Headings longer than this are treated as bold callouts, not section titles.
+ */
 const LONG_HEADING_CHARS = 80;
+
+function headingParts(tokens, index) {
+  const open = tokens[index];
+  if (open.type !== "heading_open") {
+    return;
+  }
+  const inline = tokens[index + 1];
+  const close = tokens[index + 2];
+  if (inline?.type !== "inline" || close?.type !== "heading_close") {
+    return;
+  }
+  return { open, inline, close };
+}
+
+function convertLongHeading(state, parts) {
+  const text = String(parts.inline.content || "").trim();
+  if (text.length < LONG_HEADING_CHARS) {
+    return;
+  }
+  parts.open.type = "paragraph_open";
+  parts.open.tag = "p";
+  parts.open.markup = "";
+  parts.open.attrs = undefined;
+  parts.close.type = "paragraph_close";
+  parts.close.tag = "p";
+  parts.close.markup = "";
+  const strongOpen = new state.Token("strong_open", "strong", 1);
+  const strongClose = new state.Token("strong_close", "strong", -1);
+  const fallbackText = Object.assign(new state.Token("text", "", 0), { content: text });
+  parts.inline.children = parts.inline.children
+    ? [strongOpen, ...parts.inline.children, strongClose]
+    : [strongOpen, fallbackText, strongClose];
+}
 
 /**
  * Hacklas notes sometimes use #### for long bold notes. Turn those into
@@ -165,44 +208,79 @@ const LONG_HEADING_CHARS = 80;
  */
 function softenLongHeadings(state) {
   const inputPath = state.env?.page?.inputPath;
-  if (!isContentMarkdown(inputPath, "hacklas")) return;
-
-  const tokens = state.tokens;
-  for (let i = 0; i < tokens.length; i++) {
-    const open = tokens[i];
-    if (open.type !== "heading_open") continue;
-
-    const inline = tokens[i + 1];
-    const close = tokens[i + 2];
-    if (!inline || inline.type !== "inline" || !close || close.type !== "heading_close") {
-      continue;
+  if (!isContentMarkdown(inputPath, "hacklas")) {
+    return;
+  }
+  for (const [index] of state.tokens.entries()) {
+    const parts = headingParts(state.tokens, index);
+    if (parts) {
+      convertLongHeading(state, parts);
     }
-
-    const text = String(inline.content || "").trim();
-    if (text.length < LONG_HEADING_CHARS) continue;
-
-    open.type = "paragraph_open";
-    open.tag = "p";
-    open.markup = "";
-    if (open.attrs) open.attrs = null;
-
-    close.type = "paragraph_close";
-    close.tag = "p";
-    close.markup = "";
-
-    const strongOpen = new state.Token("strong_open", "strong", 1);
-    const strongClose = new state.Token("strong_close", "strong", -1);
-    inline.children = inline.children
-      ? [strongOpen, ...inline.children, strongClose]
-      : [
-          strongOpen,
-          Object.assign(new state.Token("text", "", 0), { content: text }),
-          strongClose,
-        ];
   }
 }
 
 const TASK_ITEM_RE = /^\[([ xX])\]\s+/;
+
+function listItemToken(tokens, index) {
+  if (
+    tokens[index - 1]?.type === "paragraph_open" &&
+    tokens[index - 2]?.type === "list_item_open"
+  ) {
+    return tokens[index - 2];
+  }
+  if (tokens[index - 1]?.type === "list_item_open") {
+    return tokens[index - 1];
+  }
+}
+
+function markTaskList(tokens, index) {
+  const open = tokens
+    .slice(0, index)
+    .findLast((token) => token.type === "bullet_list_open" || token.type === "bullet_list_close");
+  if (open?.type === "bullet_list_open" && !/\btask-list\b/.test(open.attrGet("class") || "")) {
+    open.attrJoin("class", "task-list");
+  }
+}
+
+function wrapTaskCheckbox(state, inline, isChecked) {
+  const environment = (state.env ||= {});
+  const id = `task-${(environment._taskListId = (environment._taskListId || 0) + 1)}`;
+  const checkbox = new state.Token("checkbox", "input", 0);
+  checkbox.attrSet("type", "checkbox");
+  checkbox.attrSet("class", "task-list-item__checkbox");
+  checkbox.attrSet("id", id);
+  if (isChecked) {
+    checkbox.attrSet("checked", "");
+  }
+  const controlOpen = new state.Token("label_open", "label", 1);
+  controlOpen.attrSet("class", "task-list-item__control");
+  controlOpen.attrSet("for", id);
+  const controlClose = new state.Token("label_close", "label", -1);
+  const bodyOpen = new state.Token("label_open", "label", 1);
+  bodyOpen.attrSet("class", "task-list-item__body");
+  bodyOpen.attrSet("for", id);
+  const bodyClose = new state.Token("label_close", "label", -1);
+  const rest = inline.children || [];
+  inline.children = [controlOpen, checkbox, controlClose, bodyOpen, ...rest, bodyClose];
+}
+
+function applyTaskItem(state, tokens, { index, inline, listItem }) {
+  const match = inline.content.match(TASK_ITEM_RE);
+  if (!match) {
+    return;
+  }
+  const isChecked = match[1].toLowerCase() === "x";
+  inline.content = inline.content.slice(match[0].length);
+  const first = inline.children?.at(0);
+  if (first?.type === "text") {
+    first.content = first.content.replace(TASK_ITEM_RE, "");
+  }
+  if (!/\btask-list-item\b/.test(listItem.attrGet("class") || "")) {
+    listItem.attrJoin("class", "task-list-item");
+  }
+  markTaskList(tokens, index);
+  wrapTaskCheckbox(state, inline, isChecked);
+}
 
 /**
  * Turn GitHub-style `- [ ]` / `- [x]` list items into real checkboxes.
@@ -210,77 +288,30 @@ const TASK_ITEM_RE = /^\[([ xX])\]\s+/;
  */
 function renderTaskLists(state) {
   const tokens = state.tokens;
-
-  for (let i = 0; i < tokens.length; i++) {
-    const inline = tokens[i];
-    if (inline.type !== "inline" || !inline.content) continue;
-
-    let listItem = null;
-    if (
-      tokens[i - 1]?.type === "paragraph_open" &&
-      tokens[i - 2]?.type === "list_item_open"
-    ) {
-      listItem = tokens[i - 2];
-    } else if (tokens[i - 1]?.type === "list_item_open") {
-      listItem = tokens[i - 1];
+  for (const [index, inline] of tokens.entries()) {
+    if (inline.type !== "inline" || !inline.content) {
+      continue;
     }
-    if (!listItem) continue;
-
-    const match = inline.content.match(TASK_ITEM_RE);
-    if (!match) continue;
-
-    const checked = match[1].toLowerCase() === "x";
-    inline.content = inline.content.slice(match[0].length);
-
-    if (inline.children && inline.children.length) {
-      const first = inline.children[0];
-      if (first.type === "text") {
-        first.content = first.content.replace(TASK_ITEM_RE, "");
-      }
+    const listItem = listItemToken(tokens, index);
+    if (listItem) {
+      applyTaskItem(state, tokens, { index, inline, listItem });
     }
+  }
+}
 
-    if (!/\btask-list-item\b/.test(listItem.attrGet("class") || "")) {
-      listItem.attrJoin("class", "task-list-item");
-    }
-
-    for (let j = i - 1; j >= 0; j--) {
-      if (tokens[j].type === "bullet_list_open") {
-        if (!/\btask-list\b/.test(tokens[j].attrGet("class") || "")) {
-          tokens[j].attrJoin("class", "task-list");
-        }
-        break;
-      }
-      if (tokens[j].type === "bullet_list_close") break;
-    }
-
-    const env = state.env || (state.env = {});
-    const id = `task-${(env._taskListId = (env._taskListId || 0) + 1)}`;
-
-    const checkbox = new state.Token("checkbox", "input", 0);
-    checkbox.attrSet("type", "checkbox");
-    checkbox.attrSet("class", "task-list-item__checkbox");
-    checkbox.attrSet("id", id);
-    if (checked) checkbox.attrSet("checked", "");
-
-    const controlOpen = new state.Token("label_open", "label", 1);
-    controlOpen.attrSet("class", "task-list-item__control");
-    controlOpen.attrSet("for", id);
-    const controlClose = new state.Token("label_close", "label", -1);
-
-    const bodyOpen = new state.Token("label_open", "label", 1);
-    bodyOpen.attrSet("class", "task-list-item__body");
-    bodyOpen.attrSet("for", id);
-    const bodyClose = new state.Token("label_close", "label", -1);
-
-    const rest = inline.children || [];
-    inline.children = [
-      controlOpen,
-      checkbox,
-      controlClose,
-      bodyOpen,
-      ...rest,
-      bodyClose,
-    ];
+function markBangImage(children, index) {
+  const child = children[index];
+  if (child.type !== "image") {
+    return;
+  }
+  const previous = children[index - 1];
+  if (!previous || previous.type !== "text" || !previous.content.endsWith("!")) {
+    return;
+  }
+  previous.content = previous.content.slice(0, -1);
+  child.attrJoin("class", "prose-img--full");
+  if (previous.content === "") {
+    children.splice(index - 1, 1);
   }
 }
 
@@ -290,21 +321,12 @@ function renderTaskLists(state) {
  */
 function markFullWidthImages(state) {
   for (const token of state.tokens) {
-    if (token.type !== "inline" || !token.children) continue;
-
+    if (token.type !== "inline" || !token.children) {
+      continue;
+    }
     const children = token.children;
-    for (let i = children.length - 1; i >= 0; i--) {
-      const child = children[i];
-      if (child.type !== "image") continue;
-
-      const prev = children[i - 1];
-      if (!prev || prev.type !== "text" || !prev.content.endsWith("!")) {
-        continue;
-      }
-
-      prev.content = prev.content.slice(0, -1);
-      child.attrJoin("class", "prose-img--full");
-      if (prev.content === "") children.splice(i - 1, 1);
+    for (let index = children.length - 1; index >= 0; index -= 1) {
+      markBangImage(children, index);
     }
   }
 }
@@ -315,29 +337,30 @@ function markFullWidthImages(state) {
  * so `./note.md` must become `../note/` (not `./note.md` or `./note/`).
  */
 function rewriteMarkdownLinkHref(href) {
-  if (!href || typeof href !== "string") return href;
-  if (/^([a-z][a-z0-9+.-]*:|\/\/|#|\?)/i.test(href)) return href;
-
+  if (!href || typeof href !== "string") {
+    return href;
+  }
+  if (/^([a-z][a-z0-9+.-]*:|\/\/|#|\?)/i.test(href)) {
+    return href;
+  }
   const match = href.match(/^(.*?)(\.md)([?#][\s\S]*)?$/i);
-  if (!match) return href;
-
+  if (!match) {
+    return href;
+  }
   let pathPart = match[1];
   const suffix = match[3] || "";
-
   if (pathPart.startsWith("/")) {
     // Site-root path: /hacklas/foo.md → /hacklas/foo/ (honours PATH_PREFIX)
-    if (!pathPart.endsWith("/")) pathPart += "/";
+    if (!pathPart.endsWith("/")) {
+      pathPart += "/";
+    }
     return withPathPrefix(pathPart) + suffix;
   }
-
   // Pretty-URL pages are one directory deeper than the source .md file.
-  if (pathPart.startsWith("./")) {
-    pathPart = `../${pathPart.slice(2)}`;
-  } else {
-    pathPart = `../${pathPart}`;
+  pathPart = pathPart.startsWith("./") ? `../${pathPart.slice(2)}` : `../${pathPart}`;
+  if (!pathPart.endsWith("/")) {
+    pathPart += "/";
   }
-
-  if (!pathPart.endsWith("/")) pathPart += "/";
   return pathPart + suffix;
 }
 
@@ -345,71 +368,76 @@ function isExternalHref(href) {
   return /^(https?:|mailto:|tel:)/i.test(String(href || ""));
 }
 
-function configureMarkdown(mdLib) {
-  mdLib.set({
+function setLinkAttribute(token, name, value) {
+  const attributeIndex = token.attrIndex(name);
+  if (attributeIndex < 0) {
+    token.attrPush([name, value]);
+    return;
+  }
+  token.attrs[attributeIndex][1] = value;
+}
+
+function renderDefaultLinkOpen(...rendererArguments) {
+  const [tokens, index, options, , self] = rendererArguments;
+  return self.renderToken(tokens, index, options);
+}
+
+function renderLinkOpen(defaultLinkOpen, ...rendererArguments) {
+  const [tokens, index] = rendererArguments;
+  const token = tokens[index];
+  const hrefIndex = token.attrIndex("href");
+  if (hrefIndex >= 0) {
+    token.attrs[hrefIndex][1] = rewriteMarkdownLinkHref(token.attrs[hrefIndex][1]);
+  }
+  const href = hrefIndex >= 0 ? token.attrs[hrefIndex][1] : "";
+  if (isExternalHref(href)) {
+    setLinkAttribute(token, "target", "_blank");
+    setLinkAttribute(token, "rel", "noopener noreferrer");
+  }
+  return defaultLinkOpen(...rendererArguments);
+}
+
+function headingText(tokens, index) {
+  const inline = tokens[index + 1];
+  if (inline?.children) {
+    return inline.children.map((child) => child.content || "").join("");
+  }
+  return inline?.content || "";
+}
+
+function renderHeadingOpen(...rendererArguments) {
+  const [tokens, index, options, environment, self] = rendererArguments;
+  const token = tokens[index];
+  environment._headingSlugs ||= Object.create(null);
+  const slug = uniqueSlug(slugifyHeading(headingText(tokens, index)), environment._headingSlugs);
+  token.attrSet("id", slug);
+  return self.renderToken(tokens, index, options);
+}
+
+function configureMarkdown(markdownLibrary) {
+  markdownLibrary.set({
     html: false,
     linkify: true,
     highlight: highlightCode,
   });
+  const corePlugins = [
+    ["demote_body_headings", demoteBodyHeadings],
+    ["soften_long_headings", softenLongHeadings],
+  ];
+  for (const [name, plugin] of corePlugins) {
+    markdownLibrary.core.ruler.push(name, plugin);
+  }
+  markdownLibrary.core.ruler.after("inline", "task_lists", renderTaskLists);
+  markdownLibrary.core.ruler.after("inline", "full_width_images", markFullWidthImages);
 
-  mdLib.core.ruler.push("demote_body_headings", demoteBodyHeadings);
-  mdLib.core.ruler.push("soften_long_headings", softenLongHeadings);
-  mdLib.core.ruler.after("inline", "task_lists", renderTaskLists);
-  mdLib.core.ruler.after("inline", "full_width_images", markFullWidthImages);
-
-  const defaultLinkOpen =
-    mdLib.renderer.rules.link_open ||
-    function (tokens, idx, options, env, self) {
-      return self.renderToken(tokens, idx, options);
-    };
-
-  mdLib.renderer.rules.link_open = function (tokens, idx, options, env, self) {
-    const token = tokens[idx];
-    const hrefIndex = token.attrIndex("href");
-    if (hrefIndex >= 0) {
-      token.attrs[hrefIndex][1] = rewriteMarkdownLinkHref(
-        token.attrs[hrefIndex][1]
-      );
-    }
-
-    const href = hrefIndex >= 0 ? token.attrs[hrefIndex][1] : "";
-    if (isExternalHref(href)) {
-      const targetIndex = token.attrIndex("target");
-      if (targetIndex < 0) {
-        token.attrPush(["target", "_blank"]);
-      } else {
-        token.attrs[targetIndex][1] = "_blank";
-      }
-
-      const relIndex = token.attrIndex("rel");
-      if (relIndex < 0) {
-        token.attrPush(["rel", "noopener noreferrer"]);
-      } else {
-        token.attrs[relIndex][1] = "noopener noreferrer";
-      }
-    }
-
-    return defaultLinkOpen(tokens, idx, options, env, self);
-  };
-
-  mdLib.renderer.rules.heading_open = function (tokens, idx, options, env, self) {
-    const token = tokens[idx];
-    const inline = tokens[idx + 1];
-    const text =
-      inline && inline.children
-        ? inline.children.map((child) => child.content || "").join("")
-        : inline?.content || "";
-
-    env._headingSlugs = env._headingSlugs || Object.create(null);
-    const slug = uniqueSlug(slugifyHeading(text), env._headingSlugs);
-    token.attrSet("id", slug);
-
-    return self.renderToken(tokens, idx, options);
-  };
+  const defaultLinkOpen = markdownLibrary.renderer.rules.link_open || renderDefaultLinkOpen;
+  markdownLibrary.renderer.rules.link_open = (...rendererArguments) =>
+    renderLinkOpen(defaultLinkOpen, ...rendererArguments);
+  markdownLibrary.renderer.rules.heading_open = renderHeadingOpen;
 }
 
 function warmPrismLanguages() {
   loadLanguages(["bash", "python", "json", "php", "markup", "c", "javascript"]);
 }
 
-module.exports = { buildToc, configureMarkdown, warmPrismLanguages };
+export { buildToc, configureMarkdown, warmPrismLanguages };

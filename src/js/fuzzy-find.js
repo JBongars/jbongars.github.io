@@ -1,13 +1,13 @@
 /* Progressive enhancement: rank and filter Hacklas notes.
    Hydrated only when [data-fuzzy-find] is present. Safe without this file.
    Breadcrumb links use ?q=path/prefix. Tag chips come from booru-search.js. */
-(function () {
+(function enhanceFuzzyFind() {
   "use strict";
 
-  var sessions = [];
+  let sessions = [];
 
-  function normalize(s) {
-    return String(s || "")
+  function normalize(value) {
+    return String(value || "")
       .toLowerCase()
       .trim();
   }
@@ -15,128 +15,171 @@
   function queryFromUrl() {
     try {
       return new URL(location.href).searchParams.get("q") || "";
-    } catch (_) {
+    } catch {
       return "";
     }
   }
 
   function tagsFromUrl() {
     try {
-      var raw = new URL(location.href).searchParams.get("t") || "";
-      return raw
-        .split(",")
-        .map(function (t) {
-          return t.trim();
-        })
-        .filter(Boolean);
-    } catch (_) {
+      const raw = new URL(location.href).searchParams.get("t") || "";
+      const tags = [];
+      for (const part of raw.split(",")) {
+        const tag = part.trim();
+        if (tag) {
+          tags.push(tag);
+        }
+      }
+      return tags;
+    } catch {
       return [];
     }
   }
 
   function syncSoftPath() {
-    if (typeof window.syncSoftNavPath === "function") {
-      window.syncSoftNavPath();
+    if (typeof globalThis.syncSoftNavPath === "function") {
+      globalThis.syncSoftNavPath();
     }
   }
 
   function onHacklasIndex() {
     return (
-      location.pathname.replace(/\/$/, "").endsWith("/hacklas") ||
-      location.pathname === "/hacklas/"
+      location.pathname.replace(/\/$/, "").endsWith("/hacklas") || location.pathname === "/hacklas/"
     );
   }
 
-  function syncQueryUrl(q, tagNames) {
-    if (!onHacklasIndex()) return;
-    var withPrefix =
-      typeof window.siteUrl === "function"
-        ? window.siteUrl
-        : function (p) {
-            return p;
-          };
-    var parts = [];
-    if (tagNames && tagNames.length) {
-      parts.push(
-        "t=" +
-          tagNames
-            .map(function (name) {
-              return encodeURIComponent(name);
-            })
-            .join(",")
-      );
+  function tagQueryPart(tagNames) {
+    if (!tagNames || tagNames.length === 0) {
+      return "";
     }
-    if (q && String(q).length) {
-      parts.push("q=" + encodeURIComponent(q));
+    return "t=" + Array.from(tagNames, (name) => encodeURIComponent(name)).join(",");
+  }
+
+  function syncQueryUrl(query, tagNames) {
+    if (!onHacklasIndex()) {
+      return;
     }
-    var next =
-      withPrefix("/hacklas/") + (parts.length ? "?" + parts.join("&") : "");
-    var cur = location.pathname + location.search;
-    if (cur === next) return;
-    history.replaceState(null, "", next);
+    const withPrefix =
+      typeof globalThis.siteUrl === "function" ? globalThis.siteUrl : (path) => path;
+    const parts = [];
+    const tagsPart = tagQueryPart(tagNames);
+    if (tagsPart) {
+      parts.push(tagsPart);
+    }
+    if (query && String(query).length > 0) {
+      parts.push("q=" + encodeURIComponent(query));
+    }
+    const next = withPrefix("/hacklas/") + (parts.length > 0 ? "?" + parts.join("&") : "");
+    const current = location.pathname + location.search;
+    if (current === next) {
+      return;
+    }
+    history.replaceState(undefined, "", next);
     syncSoftPath();
   }
 
-  function origIndex(li) {
-    var n = parseInt(li.getAttribute("data-orig"), 10);
-    return isNaN(n) ? 0 : n;
+  function origIndex(item) {
+    const n = Math.trunc(Number(item.dataset.orig));
+    return Number.isNaN(n) ? 0 : n;
   }
 
-  function liTags(li) {
-    return (li.getAttribute("data-tags") || "")
-      .split(",")
-      .map(function (t) {
-        return t.trim().toLowerCase();
-      })
-      .filter(Boolean);
+  function liTags(item) {
+    const tags = [];
+    const rawTags = (item.dataset.tags || "").split(",");
+    for (const part of rawTags) {
+      const tag = part.trim().toLowerCase();
+      if (tag) {
+        tags.push(tag);
+      }
+    }
+    return tags;
   }
 
-  function matchesTags(li, tagNames) {
-    if (!tagNames || !tagNames.length) return true;
-    var tags = liTags(li);
-    return tagNames.every(function (name) {
-      return tags.indexOf(String(name).toLowerCase()) !== -1;
-    });
+  function matchesTags(item, tagNames) {
+    if (!tagNames || tagNames.length === 0) {
+      return true;
+    }
+    const tags = liTags(item);
+    return tagNames.every((name) => tags.includes(String(name).toLowerCase()));
   }
 
-  /** Shortest subsequence window; higher when the query is compact and early. */
+  /**
+  Shortest subsequence window; higher when the query is compact and early.
+  */
   function fuzzyScore(haystack, query) {
-    var h = normalize(haystack);
-    var q = normalize(query).replace(/\s+/g, "");
-    if (!q) return 0;
-    var hi = 0;
-    var first = -1;
-    var last = -1;
-    var run = 0;
-    var bestRun = 0;
-    var prev = -2;
-    var qi;
-    for (qi = 0; qi < q.length; qi++) {
-      hi = h.indexOf(q.charAt(qi), hi);
-      if (hi < 0) return -1;
-      if (first < 0) first = hi;
+    const h = normalize(haystack);
+    const q = normalize(query).replaceAll(/\s+/g, "");
+    if (!q) {
+      return 0;
+    }
+    let hi = 0;
+    let first = -1;
+    let last = -1;
+    let run = 0;
+    let bestRun = 0;
+    let previous = -2;
+    for (const character of q) {
+      hi = h.indexOf(character, hi);
+      if (hi < 0) {
+        return -1;
+      }
+      if (first < 0) {
+        first = hi;
+      }
       last = hi;
-      if (hi === prev + 1) {
+      if (hi === previous + 1) {
         run += 1;
-        if (run > bestRun) bestRun = run;
+        if (run > bestRun) {
+          bestRun = run;
+        }
       } else {
         run = 1;
       }
-      prev = hi;
+      previous = hi;
       hi += 1;
     }
-    var compactness = q.length / (last - first + 1);
-    var earliness = 1 / (1 + first);
-    return Math.round(
-      40 * compactness + 15 * earliness + 15 * (bestRun / q.length)
-    );
+    const compactness = q.length / (last - first + 1);
+    const earliness = 1 / (1 + first);
+    return Math.round(40 * compactness + 15 * earliness + 15 * (bestRun / q.length));
   }
 
-  function containsScore(field, q, exact, prefix, contains) {
-    if (field === q) return exact;
-    if (field.indexOf(q) === 0) return prefix;
-    var at = field.indexOf(q);
-    if (at >= 0) return contains - Math.min(at, 40);
+  function containsScore(field, query, scores) {
+    if (field === query) {
+      return scores.exact;
+    }
+    if (field.indexOf(query) === 0) {
+      return scores.prefix;
+    }
+    const at = field.indexOf(query);
+    if (at !== -1) {
+      return scores.contains - Math.min(at, 40);
+    }
+    return -1;
+  }
+
+  function scorePath(path, asPath) {
+    if (path === asPath) {
+      return 1000;
+    }
+    if (path.indexOf(asPath + "/") === 0) {
+      return 900;
+    }
+    return -1;
+  }
+
+  function scoreFields(query, fields) {
+    const checks = [
+      { field: fields.title, scores: { exact: 800, prefix: 700, contains: 600 } },
+      { field: fields.slug, scores: { exact: 550, prefix: 500, contains: 450 } },
+      { field: fields.path, scores: { exact: 400, prefix: 380, contains: 350 } },
+      { field: fields.tags, scores: { exact: 320, prefix: 300, contains: 280 } },
+    ];
+    for (const check of checks) {
+      const hit = containsScore(check.field, query, check.scores);
+      if (hit >= 0) {
+        return hit;
+      }
+    }
     return -1;
   }
 
@@ -144,194 +187,237 @@
    * Rank a note for the query. Higher is better; -1 is no match.
    * Contiguous title/path hits beat loose subsequence matches.
    */
-  function scoreItem(li, query) {
-    var q = normalize(query);
-    if (!q) return 0;
+  function scoreItem(item, query) {
+    const q = normalize(query);
+    if (!q) {
+      return 0;
+    }
 
-    var title = normalize(li.getAttribute("data-title") || "");
-    var path = normalize(li.getAttribute("data-path") || "");
-    var tags = normalize((li.getAttribute("data-tags") || "").replace(/,/g, " "));
-    var slug = path.split("/").pop() || "";
-    var asPath = q.replace(/\s+/g, "/");
+    const title = normalize(item.dataset.title || "");
+    const path = normalize(item.dataset.path || "");
+    const tags = normalize((item.dataset.tags || "").replaceAll(",", " "));
+    const slug = path.split("/").pop() || "";
+    const asPath = q.replaceAll(/\s+/g, "/");
 
-    if (path === asPath) return 1000;
-    if (path.indexOf(asPath + "/") === 0) return 900;
+    const pathHit = scorePath(path, asPath);
+    if (pathHit >= 0) {
+      return pathHit;
+    }
 
-    var titleHit = containsScore(title, q, 800, 700, 600);
-    if (titleHit >= 0) return titleHit;
-
-    var slugHit = containsScore(slug, q, 550, 500, 450);
-    if (slugHit >= 0) return slugHit;
-
-    var pathHit = containsScore(path, q, 400, 380, 350);
-    if (pathHit >= 0) return pathHit;
-
-    var tagHit = containsScore(tags, q, 320, 300, 280);
-    if (tagHit >= 0) return tagHit;
+    const fieldHit = scoreFields(q, { title, slug, path, tags });
+    if (fieldHit >= 0) {
+      return fieldHit;
+    }
 
     return fuzzyScore([title, path, tags].join(" "), query);
   }
 
   function visibleItems(list) {
-    return Array.prototype.filter.call(list.children, function (li) {
-      return li.style.display !== "none";
-    });
+    const items = [];
+    for (const item of list.children) {
+      if (item.style.display !== "none") {
+        items.push(item);
+      }
+    }
+    return items;
   }
 
   function setActive(items, index) {
-    items.forEach(function (li) {
-      li.classList.remove("is-active");
-      li.removeAttribute("aria-selected");
-    });
-    if (!items.length) return -1;
-    var i = ((index % items.length) + items.length) % items.length;
-    items[i].classList.add("is-active");
-    items[i].setAttribute("aria-selected", "true");
-    if (typeof items[i].scrollIntoView === "function") {
-      items[i].scrollIntoView({ block: "nearest" });
+    for (const item of items) {
+      item.classList.remove("is-active");
+      item.removeAttribute("aria-selected");
     }
-    return i;
+    if (items.length === 0) {
+      return -1;
+    }
+    const wrapped = ((index % items.length) + items.length) % items.length;
+    items[wrapped].classList.add("is-active");
+    items[wrapped].setAttribute("aria-selected", "true");
+    if (typeof items[wrapped].scrollIntoView === "function") {
+      items[wrapped].scrollIntoView({ block: "nearest" });
+    }
+    return wrapped;
   }
 
-  /** Drop the last path segment: infiltration/windows → infiltration */
-  function parentQuery(q) {
-    var trimmed = String(q || "").replace(/\/+$/, "");
-    if (!trimmed) return "";
-    var idx = trimmed.lastIndexOf("/");
-    if (idx < 0) return "";
-    return trimmed.slice(0, idx);
+  /**
+  Drop the last path segment: infiltration/windows → infiltration
+  */
+  function parentQuery(query) {
+    const trimmed = String(query || "").replace(/\/+$/, "");
+    if (!trimmed) {
+      return "";
+    }
+    const index = trimmed.lastIndexOf("/");
+    if (index === -1) {
+      return "";
+    }
+    return trimmed.slice(0, index);
   }
 
   function applySession(session, query, tagNames) {
-    var q = query == null ? session.input.value : query;
-    var tags = tagNames || [];
-    var ranked = Array.prototype.map.call(session.list.children, function (li) {
-      var score = matchesTags(li, tags) ? scoreItem(li, q) : -1;
-      return { li: li, score: score };
+    const q = query ?? session.input.value;
+    const tags = tagNames || [];
+    const ranked = [];
+    for (const item of session.list.children) {
+      const score = matchesTags(item, tags) ? scoreItem(item, q) : -1;
+      ranked.push({ item, score });
+    }
+    ranked.sort((a, b) => {
+      if (b.score !== a.score) {
+        return b.score - a.score;
+      }
+      return origIndex(a.item) - origIndex(b.item);
     });
-    ranked.sort(function (a, b) {
-      if (b.score !== a.score) return b.score - a.score;
-      return origIndex(a.li) - origIndex(b.li);
-    });
-    ranked.forEach(function (row) {
-      row.li.style.display = row.score < 0 ? "none" : "";
-      session.list.appendChild(row.li);
-    });
-    var items = visibleItems(session.list);
-    session.listActive = items.length ? setActive(items, 0) : -1;
+    for (const row of ranked) {
+      row.item.style.display = row.score < 0 ? "none" : "";
+      session.list.append(row.item);
+    }
+    const items = visibleItems(session.list);
+    session.listActive = items.length > 0 ? setActive(items, 0) : -1;
     syncQueryUrl(q, tags);
   }
 
-  function hydrate(root) {
-    if (!root || root.getAttribute("data-fuzzy-ready") === "1") return;
-    var input = root.querySelector(".fuzzy-find__input");
-    var list = root.querySelector("[data-fuzzy-list]");
-    if (!input || !list) return;
-    root.setAttribute("data-fuzzy-ready", "1");
-    Array.prototype.forEach.call(list.children, function (li, i) {
-      if (!li.hasAttribute("data-orig")) li.setAttribute("data-orig", String(i));
-    });
+  function markOrigIndexes(list) {
+    let index = 0;
+    for (const item of list.children) {
+      if (!Object.hasOwn(item.dataset, "orig")) {
+        item.dataset.orig = String(index);
+      }
+      index += 1;
+    }
+  }
 
-    var session = { root: root, input: input, list: list, listActive: -1 };
+  function handleBackspace(event, session) {
+    const { input } = session;
+    if (event.key !== "Backspace" || input.selectionStart !== 0 || input.selectionEnd !== 0) {
+      return false;
+    }
+    event.preventDefault();
+    if (input.value) {
+      input.value = parentQuery(input.value);
+      applySession(session, input.value, tagsFromUrl());
+    } else {
+      history.back();
+    }
+    return true;
+  }
+
+  function handleArrow(event, session, items) {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      session.listActive = setActive(items, session.listActive + 1);
+      return true;
+    }
+    if (event.key !== "ArrowUp") {
+      return false;
+    }
+    event.preventDefault();
+    const previous = session.listActive <= 0 ? items.length : session.listActive;
+    session.listActive = setActive(items, previous - 1);
+    return true;
+  }
+
+  function handleEnter(event, session, items) {
+    if (event.key !== "Enter") {
+      return false;
+    }
+    const current = items[session.listActive] || items[0];
+    const link = current?.querySelector("a[href]");
+    if (link) {
+      event.preventDefault();
+      syncQueryUrl(session.input.value, tagsFromUrl());
+      link.click();
+    }
+    return true;
+  }
+
+  function handleEscape(event, session) {
+    if (event.key !== "Escape" || !session.input.value) {
+      return false;
+    }
+    event.preventDefault();
+    session.input.value = "";
+    applySession(session, session.input.value, tagsFromUrl());
+    return true;
+  }
+
+  function onInputKeydown(event, session) {
+    if (handleBackspace(event, session)) {
+      return;
+    }
+    const items = visibleItems(session.list);
+    if (items.length === 0 && event.key !== "Escape" && event.key !== "Enter") {
+      return;
+    }
+    if (handleArrow(event, session, items) || handleEnter(event, session, items)) {
+      return;
+    }
+    handleEscape(event, session);
+  }
+
+  function onListMove(event, session) {
+    const item = event.target.closest?.("li");
+    if (!item || !session.list.contains(item) || item.style.display === "none") {
+      return;
+    }
+    const items = visibleItems(session.list);
+    session.listActive = setActive(items, items.indexOf(item));
+  }
+
+  function hydrate(root) {
+    if (!root || root.dataset.fuzzyReady === "1") {
+      return;
+    }
+    const input = root.querySelector(".fuzzy-find__input");
+    const list = root.querySelector("[data-fuzzy-list]");
+    if (!input || !list) {
+      return;
+    }
+    root.dataset.fuzzyReady = "1";
+    markOrigIndexes(list);
+
+    const session = { root, input, list, listActive: -1 };
     sessions.push(session);
 
-    function currentTags() {
-      try {
-        return tagsFromUrl();
-      } catch (_) {
-        return [];
-      }
-    }
-
-    function filter() {
-      applySession(session, input.value, currentTags());
-    }
-
-    var preset = queryFromUrl();
+    const preset = queryFromUrl();
     if (preset) {
       input.value = preset;
-      if (typeof input.focus === "function") input.focus();
+      if (typeof input.focus === "function") {
+        input.focus();
+      }
     }
-    applySession(session, input.value, currentTags());
+    applySession(session, input.value, tagsFromUrl());
 
-    input.addEventListener("input", filter);
-
-    input.addEventListener("keydown", function (e) {
-      var items;
-      var cur;
-      var link;
-
-      if (e.key === "Backspace" && input.selectionStart === 0 && input.selectionEnd === 0) {
-        e.preventDefault();
-        if (input.value) {
-          input.value = parentQuery(input.value);
-          filter();
-        } else {
-          history.back();
-        }
-        return;
-      }
-
-      items = visibleItems(list);
-      if (!items.length && e.key !== "Escape" && e.key !== "Enter") return;
-
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        session.listActive = setActive(items, session.listActive + 1);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        session.listActive = setActive(
-          items,
-          session.listActive <= 0 ? items.length - 1 : session.listActive - 1
-        );
-      } else if (e.key === "Enter") {
-        cur = items[session.listActive] || items[0];
-        link = cur && cur.querySelector("a[href]");
-        if (link) {
-          e.preventDefault();
-          syncQueryUrl(input.value, currentTags());
-          link.click();
-        }
-      } else if (e.key === "Escape") {
-        if (input.value) {
-          e.preventDefault();
-          input.value = "";
-          filter();
-        }
-      }
+    input.addEventListener("input", () => {
+      applySession(session, input.value, tagsFromUrl());
     });
-
-    list.addEventListener("mousemove", function (e) {
-      var li = e.target.closest && e.target.closest("li");
-      if (!li || !list.contains(li) || li.style.display === "none") return;
-      var items = visibleItems(list);
-      session.listActive = setActive(items, items.indexOf(li));
+    input.addEventListener("keydown", (event) => {
+      onInputKeydown(event, session);
     });
-
-    list.addEventListener("click", function () {
-      syncQueryUrl(input.value, currentTags());
+    list.addEventListener("mousemove", (event) => {
+      onListMove(event, session);
+    });
+    list.addEventListener("click", () => {
+      syncQueryUrl(input.value, tagsFromUrl());
     });
   }
 
   function hydrateAll() {
-    sessions = sessions.filter(function (session) {
-      return session.root && document.contains(session.root);
-    });
-    Array.prototype.forEach.call(
-      document.querySelectorAll("[data-fuzzy-find]"),
-      hydrate
-    );
+    sessions = sessions.filter((session) => session.root && document.contains(session.root));
+    for (const root of document.querySelectorAll("[data-fuzzy-find]")) {
+      hydrate(root);
+    }
   }
 
   function apply(query, tagNames) {
-    sessions.forEach(function (session) {
+    for (const session of sessions) {
       applySession(session, query, tagNames);
-    });
+    }
   }
 
-  window.fuzzyFind = { hydrate: hydrateAll, apply: apply };
-  window.applyFuzzyFind = apply;
-  window.hydrateFuzzyFind = hydrateAll;
+  globalThis.fuzzyFind = { hydrate: hydrateAll, apply };
+  globalThis.applyFuzzyFind = apply;
+  globalThis.hydrateFuzzyFind = hydrateAll;
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", hydrateAll);

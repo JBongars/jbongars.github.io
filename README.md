@@ -7,11 +7,13 @@ JavaScript.
 ## Quick start
 
 ```bash
-npm install
-npm run serve   # http://localhost:8080
-npm run build   # output → _site/
-npm run audit   # npm audit --audit-level=high (also runs in CI)
-npm run lighthouse  # headless report → lighthouse.html (needs serve running)
+yarn install
+yarn serve   # http://localhost:8080
+yarn build   # output → _site/
+yarn run check   # format:check, lint, typecheck, test:ci (`yarn check` is Yarn's integrity command)
+yarn test        # Jest integration tests
+yarn audit   # yarn audit --level high (also runs in CI)
+yarn lighthouse  # headless report → lighthouse.html (needs serve running)
 ```
 
 Push to `main` deploys `_site/` to user GitHub Pages
@@ -21,10 +23,10 @@ Push to `main` deploys `_site/` to user GitHub Pages
 
 Asset and nav URLs use Eleventy’s `pathPrefix`, from:
 
-| Env var | Example | Use |
-|---|---|---|
-| `SITE_URL` | `https://jbongars.github.io/` | Canonical origin (pathname becomes the prefix) |
-| `PATH_PREFIX` | `/` | Path only (overrides `SITE_URL` if both set) |
+| Env var       | Example                       | Use                                            |
+| ------------- | ----------------------------- | ---------------------------------------------- |
+| `SITE_URL`    | `https://jbongars.github.io/` | Canonical origin (pathname becomes the prefix) |
+| `PATH_PREFIX` | `/`                           | Path only (overrides `SITE_URL` if both set)   |
 
 Local `serve` / `build` default to `/`. Deploy sets `SITE_URL` so canonical
 tags, Open Graph, `robots.txt`, `sitemap.xml`, `llms.txt`, `feed.xml`, and
@@ -32,7 +34,7 @@ tags, Open Graph, `robots.txt`, `sitemap.xml`, `llms.txt`, `feed.xml`, and
 `window.siteUrl()` from `site-url.js`.
 
 ```bash
-SITE_URL=https://jbongars.github.io/ npm run build
+SITE_URL=https://jbongars.github.io/ yarn build
 ```
 
 ## Layout
@@ -54,27 +56,30 @@ src/
 
 **Content**
 
-| Section | Input | Layout | Notes |
-|---|---|---|---|
-| Home / Resume | `index.njk`, `resume.njk` + `_data/resume.json` | `base.njk` | Data-driven; PDF at `/resume.pdf` |
-| Blog / Write-ups | `src/{blog,write-ups}/**/*.md` | `post.njk` | Front matter, banners, TOC, listing search |
-| Hacklas | `src/hacklas/**/*.md` | `note.njk` | On (`features.json`) |
+| Section          | Input                                           | Layout     | Notes                                      |
+| ---------------- | ----------------------------------------------- | ---------- | ------------------------------------------ |
+| Home / Resume    | `index.njk`, `resume.njk` + `_data/resume.json` | `base.njk` | Data-driven; PDF at `/resume.pdf`          |
+| Blog / Write-ups | `src/{blog,write-ups}/**/*.md`                  | `post.njk` | Front matter, banners, TOC, listing search |
+| Hacklas          | `src/hacklas/**/*.md`                           | `note.njk` | On (`features.json`)                       |
 
 **Machine-readable**
 
-| URL | What |
-|---|---|
-| `/llms.txt` | Agent map (resume vs blog vs write-ups) |
-| `/feed.xml` | RSS of blog + write-ups |
+| URL            | What                                         |
+| -------------- | -------------------------------------------- |
+| `/llms.txt`    | Agent map (resume vs blog vs write-ups)      |
+| `/feed.xml`    | RSS of blog + write-ups                      |
 | `/resume.json` | JSON Resume (generated; do not edit by hand) |
-| `/sitemap.xml` | HTML + PDF + catalogs |
-| `/robots.txt` | Allow all, Sitemap, llms.txt note |
+| `/sitemap.xml` | HTML + PDF + catalogs                        |
+| `/robots.txt`  | Allow all, Sitemap, llms.txt note            |
 
 **Markdown pipeline** (`_11ty/markdown.js`): Prism at build time, heading IDs +
 TOC, task lists, demote headings on posts, rewrite relative `*.md` links,
 Hacklas chrome stripping.
 
 **Client JS** (deferred except inlined `theme-init.js`; site works without it)
+
+Listed as they are today. Conversion to TypeScript modules and Rollup follows
+`docs/BUILD_TEST_REFACTOR.md` (one stop at a time).
 
 - `theme-init.js` — inlined after the theme checkbox so the first paint matches
 - `site-url.js` — `window.siteUrl()` (Hacklas only)
@@ -112,4 +117,6 @@ on Hacklas pages.
 - Write-up body format: `docs/WRITEUP_SPEC.md`.
 - Hacklas note format: `docs/HACKLAS_SPEC.md`.
 - Product constraints: `docs/SPEC.md`, `docs/ARCHITECTURE.md`, `docs/DESIGN.md`.
+- TypeScript / Rollup / lint / Jest refactor (in progress, one stop at a
+  time): `docs/BUILD_TEST_REFACTOR.md`.
 - Historical scaffold notes (complete): `docs/BUILD_ORDER.md`.

@@ -1,43 +1,51 @@
 function xmlEscape(value) {
-  return String(value == null ? "" : value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
 }
 
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
-function unescapeHtml(str) {
-  return String(str)
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, hex) =>
-      String.fromCharCode(parseInt(hex, 16))
-    )
-    .replace(/&amp;/g, "&");
+function decodeNumericEntity(digits, radix) {
+  const codePoint = Number.parseInt(digits, radix);
+  if (!Number.isSafeInteger(codePoint) || codePoint < 0 || codePoint > 0x10_ff_ff) {
+    return "";
+  }
+  return String.fromCodePoint(codePoint);
 }
 
-function plainSummary(html, max = 280) {
+function unescapeHtml(value) {
+  return String(value)
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#39;", "'")
+    .replaceAll("&apos;", "'")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll(/&#(\d+);/g, (_, digits) => decodeNumericEntity(digits, 10))
+    .replaceAll(/&#x([0-9a-f]+);/gi, (_, hex) => decodeNumericEntity(hex, 16))
+    .replaceAll("&amp;", "&");
+}
+
+function plainSummary(html, maxLength = 280) {
   const text = String(html || "")
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
+    .replaceAll(/<script[\s\S]*?<\/script>/gi, " ")
+    .replaceAll(/<style[\s\S]*?<\/style>/gi, " ")
+    .replaceAll(/<[^>]+>/g, " ")
+    .replaceAll(/\s+/g, " ")
     .trim();
-  if (text.length <= max) return text;
-  return `${text.slice(0, max).replace(/\s+\S*$/, "")}…`;
+  if (text.length <= maxLength) {
+    return text;
+  }
+  return `${text.slice(0, maxLength).replace(/\s+\S*$/, "")}…`;
 }
 
 const MONTHS_SHORT = [
@@ -56,15 +64,21 @@ const MONTHS_SHORT = [
 ];
 
 function formatResumeDate(value) {
-  const raw = String(value == null ? "" : value).trim();
-  if (!raw) return "";
-  if (/^present$/i.test(raw)) return "Present";
+  const raw = String(value ?? "").trim();
+  if (!raw) {
+    return "";
+  }
+  if (/^present$/i.test(raw)) {
+    return "Present";
+  }
   const yearMonth = raw.match(/^(\d{4})-(\d{2})$/);
   if (yearMonth) {
     const month = MONTHS_SHORT[Number(yearMonth[2]) - 1];
-    if (month) return `${month} ${yearMonth[1]}`;
+    if (month) {
+      return `${month} ${yearMonth[1]}`;
+    }
   }
-  return raw.replace(/\s*[–-]\s*/g, " – ");
+  return raw.replaceAll(/\s*[–-]\s*/g, " – ");
 }
 
-module.exports = { xmlEscape, escapeHtml, unescapeHtml, plainSummary, formatResumeDate };
+export { xmlEscape, escapeHtml, unescapeHtml, plainSummary, formatResumeDate };

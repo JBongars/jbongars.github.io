@@ -64,10 +64,7 @@ export default {
       ...shared,
       displayName: "build",
       testEnvironment: "node",
-      testMatch: [
-        "<rootDir>/_11ty/**/*.test.ts",
-        "<rootDir>/src/**/*.11ty.test.ts",
-      ],
+      testMatch: ["<rootDir>/_11ty/**/*.test.ts", "<rootDir>/src/**/*.11ty.test.ts"],
     },
     {
       ...shared,
@@ -130,19 +127,18 @@ export default function buildSite(): void {
   const variants = { default: {}, "flags-off": { hacklas: false } } as const;
   for (const [name, features] of Object.entries(variants)) {
     const out = mkdtempSync(path.join(tmpdir(), `site-${name}-`));
-    execFileSync("npx", [
-      "@11ty/eleventy",
-      "--config=eleventy.config.ts",
-      `--output=${out}`,
-      "--quiet",
-    ], {
-      env: {
-        ...process.env,
-        SITE_URL,
-        SITE_FEATURES: JSON.stringify(features),
+    execFileSync(
+      "npx",
+      ["@11ty/eleventy", "--config=eleventy.config.ts", `--output=${out}`, "--quiet"],
+      {
+        env: {
+          ...process.env,
+          SITE_URL,
+          SITE_FEATURES: JSON.stringify(features),
+        },
+        stdio: "inherit",
       },
-      stdio: "inherit",
-    });
+    );
     process.env[`TEST_SITE_${name.toUpperCase().replace("-", "_")}`] = out;
   }
 }
@@ -305,8 +301,7 @@ describe("code-blocks", () => {
   it("removes its controls on teardown", () => {
     const teardown = init(mount(FENCE));
     teardown();
-    expect(screen.queryByRole("button", { name: /copy/i })).not
-      .toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /copy/i })).not.toBeInTheDocument();
   });
 
   it("does nothing when there are no code blocks", () => {
@@ -385,15 +380,14 @@ describe.each(pages)("$file", ({ doc }) => {
   it("has a non-empty title, description, and lang", () => {
     expect(doc.title.trim()).not.toBe("");
     expect(
-      doc.querySelector("meta[name=\"description\"]")?.getAttribute("content")
-        ?.trim(),
+      doc.querySelector('meta[name="description"]')?.getAttribute("content")?.trim(),
     ).toBeTruthy();
     expect(doc.documentElement.lang).toBeTruthy();
   });
 
   it("has exactly one h1 and a main landmark reachable by the skip link", () => {
     expect(doc.querySelectorAll("h1")).toHaveLength(1);
-    const target = doc.querySelector("a[href^=\"#\"]")?.getAttribute("href");
+    const target = doc.querySelector('a[href^="#"]')?.getAttribute("href");
     expect(target && doc.querySelector(target)?.tagName).toBe("MAIN");
   });
 });
@@ -433,9 +427,7 @@ describe("theme toggle on built pages", () => {
       },
     });
 
-    await userEvent.setup().click(
-      screen.getByRole("checkbox", { name: /light and dark/i }),
-    );
+    await userEvent.setup().click(screen.getByRole("checkbox", { name: /light and dark/i }));
 
     expect(storage.get("theme")).toBe("light");
   });
@@ -464,7 +456,7 @@ After the refactor, the full suite passes, thresholds hold, the site integration
 
 A flaky test is a failing test. Fix it or quarantine it with a linked issue the same day; never retry it into passing. Common causes are real timers or dates (use fake timers or an injected clock), unawaited promises (lint-enforced by `@typescript-eslint/no-floating-promises`), DOM or storage state leaking between tests (reset `document.body` and fakes in `beforeEach`), and order dependence (run `jest --randomize` periodically).
 
-`it.only`, `describe.only`, and unexplained `it.skip` are lint errors (see `SPEC_LINT.md`).
+`it.only`, `describe.only`, and unexplained `it.skip` are lint errors (see `SPEC_LINTING.md`).
 
 ---
 

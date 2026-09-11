@@ -37,7 +37,17 @@
         "Hardened access via IAM token audits and AD-authenticated VPN.",
         "Secured infrastructure-as-code on Terraform/Scalr/Packer across Linux, ECS, and Airflow, plus PostgreSQL 12 to 17 migrations and cross-region DMS replication."
       ],
-      "tools": ["Burp Suite CE", "AWS", "Terraform", "Scalr", "Packer", "Docker", "Windows AD", "OpenVPN", "Java"]
+      "tools": [
+        "Burp Suite CE",
+        "AWS",
+        "Terraform",
+        "Scalr",
+        "Packer",
+        "Docker",
+        "Windows AD",
+        "OpenVPN",
+        "Java"
+      ]
     },
     {
       "company": "Thales Group",
@@ -54,7 +64,21 @@
         "Automated secure provisioning via Ansible and scripting (Bash, Python, PowerShell), enforcing consistent baselines.",
         "Monitored security posture and reliability with Grafana, Prometheus, and OpenSearch."
       ],
-      "tools": ["SELinux", "Windows", "HyperV", "RKE2 (Kubernetes)", "RHEL", "VMware (ESXi/vSphere)", "Ansible", "Bash", "Python", "PowerShell", "Grafana", "Prometheus", "OpenSearch"]
+      "tools": [
+        "SELinux",
+        "Windows",
+        "HyperV",
+        "RKE2 (Kubernetes)",
+        "RHEL",
+        "VMware (ESXi/vSphere)",
+        "Ansible",
+        "Bash",
+        "Python",
+        "PowerShell",
+        "Grafana",
+        "Prometheus",
+        "OpenSearch"
+      ]
     },
     {
       "company": "AIRR LABS",
@@ -69,7 +93,18 @@
         "TikTok & Shopify Integration Project: developed a serverless application to manage a back-office fulfillment system integrating with Shopify and TikTok Shop.",
         "Brand.com – Shopify Storefront integration with an Order Management System using AWS Serverless architecture."
       ],
-      "tools": ["Golang", "Bash", "Python", "Terraform", "AWS", "Serverless", "Docker", "PostgreSQL (SQL)", "Vault", "Linux"]
+      "tools": [
+        "Golang",
+        "Bash",
+        "Python",
+        "Terraform",
+        "AWS",
+        "Serverless",
+        "Docker",
+        "PostgreSQL (SQL)",
+        "Vault",
+        "Linux"
+      ]
     },
     {
       "company": "Undercurrent Technologies Pte Ltd",
@@ -84,9 +119,22 @@
       ],
       "links": [
         { "label": "Messina Multi Chain Bridge", "url": "https://messina.one/" },
-        { "label": "Web3 Wallet Component", "url": "https://github.com/JBongars/web3-wallet-component" }
+        {
+          "label": "Web3 Wallet Component",
+          "url": "https://github.com/JBongars/web3-wallet-component"
+        }
       ],
-      "tools": ["Ethereum", "Algorand", "Teal", "Solana", "TypeScript", "NextJS", "Python", "Bash", "AWS (CDK)"]
+      "tools": [
+        "Ethereum",
+        "Algorand",
+        "Teal",
+        "Solana",
+        "TypeScript",
+        "NextJS",
+        "Python",
+        "Bash",
+        "AWS (CDK)"
+      ]
     },
     {
       "company": "Prudential Assurance",
@@ -99,7 +147,18 @@
         "Self-service provisioning and deployment services – managed a platform enabling internal customers to automatically provision their own infrastructure via GitOps.",
         "Custody Secret Engine for HashiCorp Vault – developed a system where multiple users add input to a JWE in sequence, securely storing the combined secret in Vault, requiring a subset of users to collaboratively unlock it in a trustless environment."
       ],
-      "tools": ["Azure", "GCP", "Terraform", "Ansible", "Linux", "Jenkins", "Kubernetes", "Docker", "Python", "Django"]
+      "tools": [
+        "Azure",
+        "GCP",
+        "Terraform",
+        "Ansible",
+        "Linux",
+        "Jenkins",
+        "Kubernetes",
+        "Docker",
+        "Python",
+        "Django"
+      ]
     },
     {
       "company": "Meta Inc",
@@ -112,7 +171,17 @@
         "Automated resolution for FTL upstream errors – designed and implemented automated solutions including automatic restarting of failed jobs, backfilling data, and escalating to relevant teams.",
         "Meta DataOps Command Dashboard (WWW) – developed a dashboard for reporting and troubleshooting data pipelines with failed upstream dependencies."
       ],
-      "tools": ["PHP (Hack)", "MySQL", "Spark", "Java", "React", "GraphQL", "Relay", "Python 3", "Neo4J"]
+      "tools": [
+        "PHP (Hack)",
+        "MySQL",
+        "Spark",
+        "Java",
+        "React",
+        "GraphQL",
+        "Relay",
+        "Python 3",
+        "Neo4J"
+      ]
     },
     {
       "company": "BookMyShow",
@@ -122,7 +191,16 @@
       "end": "2020-06",
       "duration": "3 months",
       "bullets": [],
-      "tools": ["TypeScript", "NestJS", "MongoDB", "Jest", "Kubernetes", "Docker", "Skaffold", "Google Cloud"]
+      "tools": [
+        "TypeScript",
+        "NestJS",
+        "MongoDB",
+        "Jest",
+        "Kubernetes",
+        "Docker",
+        "Skaffold",
+        "Google Cloud"
+      ]
     },
     {
       "company": "AXA Insurance",
@@ -135,10 +213,20 @@
         "Wanderlust Travel Insurance, Singapore – developed an online travel insurance portal and an internal components library for other e-commerce sites.",
         "Scoot Travel Insurance widget, SE Asia – built a travel insurance widget and an adapter for compatibility with various airline booking systems."
       ],
-      "links": [
-        { "label": "Scoot Travel Insurance", "url": "https://www.flyscoot.com/en" }
-      ],
-      "tools": ["Node", "TypeScript", "React", "NextJS", "MongoDB", "RabbitMQ", "OpenShift", "Jest", "Cypress", "Pact", "Salesforce"]
+      "links": [{ "label": "Scoot Travel Insurance", "url": "https://www.flyscoot.com/en" }],
+      "tools": [
+        "Node",
+        "TypeScript",
+        "React",
+        "NextJS",
+        "MongoDB",
+        "RabbitMQ",
+        "OpenShift",
+        "Jest",
+        "Cypress",
+        "Pact",
+        "Salesforce"
+      ]
     },
     {
       "company": "Singapore Data Science Academy",

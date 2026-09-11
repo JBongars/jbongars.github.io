@@ -1,9 +1,15 @@
-/* Hide the Hacklas disclaimer immediately if already acknowledged. */
-(function () {
+/*
+ * Hide the Hacklas disclaimer immediately if already acknowledged.
+ */
+(function hideAcknowledgedDisclaimer() {
   try {
     if (localStorage.getItem("hacklas-disclaimer-ack") === "1") {
-      var root = document.currentScript && document.currentScript.parentElement;
-      if (root) root.hidden = true;
+      const root = document.currentScript?.parentElement;
+      if (root) {
+        root.hidden = true;
+      }
     }
-  } catch (e) {}
+  } catch {
+    // localStorage may be blocked.
+  }
 })();

@@ -10,6 +10,8 @@ even if a prompt doesn't repeat them.
 
 - Never add a JS framework, CSS framework, or bundler (React, Vue, Tailwind,
   Bootstrap, webpack, esbuild) without being explicitly asked in the prompt.
+  Rollup is the one allowed bundler: client JS only, introduced via
+  docs/BUILD_TEST_REFACTOR.md. Do not add a second bundler.
 - Never add a client-side JS dependency without checking ARCHITECTURE.md
   and SPEC.md first. Pages must work without JavaScript; existing scripts
   are progressive enhancement only.
@@ -20,10 +22,13 @@ even if a prompt doesn't repeat them.
 - Any animation must follow DESIGN.md's motion rules exactly, including the
   prefers-reduced-motion gating.
 - Follow the file structure in ARCHITECTURE.md. `_11ty/` is the Eleventy
-  helper folder. Don't create other top-level folders or a `components/`
-  directory without asking.
+  helper folder. `tests/` is allowed for Jest. Don't create a `components/`
+  directory or other top-level folders without asking. TypeScript / Rollup /
+  lint / Jest work follows docs/BUILD_TEST_REFACTOR.md: one stop per session,
+  then pause for review.
 - Before making changes across more than one file, propose a short plan and
-  wait for approval (use Plan mode).
+  wait for approval (use Plan mode). Stops listed in BUILD_TEST_REFACTOR.md
+  are already planned; still do only one stop unless asked to continue.
 - After any change, confirm the page still renders correctly and is fully
   navigable with JavaScript disabled.
 - Prefer the simplest implementation. If you're about to add a dependency

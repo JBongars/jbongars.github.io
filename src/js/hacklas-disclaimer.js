@@ -1,16 +1,16 @@
 /* Progressive enhancement: Hacklas disclaimer gate.
    Acknowledged state is stored in localStorage.
    Listeners are delegated on document so they survive site.js main swaps. */
-(function () {
+(function enhanceHacklasDisclaimer() {
   "use strict";
 
-  var KEY = "hacklas-disclaimer-ack";
-  var SELECTOR = "[data-hacklas-disclaimer]";
+  const KEY = "hacklas-disclaimer-ack";
+  const SELECTOR = "[data-hacklas-disclaimer]";
 
   function isAcked() {
     try {
       return localStorage.getItem(KEY) === "1";
-    } catch (_) {
+    } catch {
       return false;
     }
   }
@@ -18,7 +18,9 @@
   function setAcked() {
     try {
       localStorage.setItem(KEY, "1");
-    } catch (_) {}
+    } catch {
+      // localStorage may be blocked.
+    }
   }
 
   function setBodyLocked(locked) {
@@ -26,34 +28,41 @@
   }
 
   function pathPrefix() {
-    var raw = document.documentElement.getAttribute("data-path-prefix") || "/";
-    return raw.charAt(raw.length - 1) === "/" ? raw : raw + "/";
+    const raw = document.documentElement.dataset.pathPrefix || "/";
+    return raw.at(-1) === "/" ? raw : raw + "/";
   }
 
   function isHacklasHref(href) {
     try {
-      var url = new URL(href, location.href);
-      if (url.origin !== location.origin) return false;
-      var prefix = pathPrefix().replace(/\/$/, "");
-      var rest = url.pathname;
-      if (prefix && rest.indexOf(prefix) === 0) rest = rest.slice(prefix.length);
-      if (rest.charAt(0) !== "/") rest = "/" + rest;
+      const url = new URL(href, location.href);
+      if (url.origin !== location.origin) {
+        return false;
+      }
+      const prefix = pathPrefix().replace(/\/$/, "");
+      let rest = url.pathname;
+      if (prefix && rest.indexOf(prefix) === 0) {
+        rest = rest.slice(prefix.length);
+      }
+      if (rest.charAt(0) !== "/") {
+        rest = "/" + rest;
+      }
       return rest === "/hacklas" || rest.indexOf("/hacklas/") === 0;
-    } catch (_) {
+    } catch {
       return false;
     }
   }
 
   function leaveHacklas(homeHref) {
-    var home =
-      homeHref ||
-      (typeof window.siteUrl === "function" ? window.siteUrl("/") : "/");
-    var ref = document.referrer;
-    if (ref && !isHacklasHref(ref)) {
-      var here = location.href;
+    const home =
+      homeHref || (typeof globalThis.siteUrl === "function" ? globalThis.siteUrl("/") : "/");
+    const reference = document.referrer;
+    if (reference && !isHacklasHref(reference)) {
+      const here = location.href;
       history.back();
-      setTimeout(function () {
-        if (location.href === here) location.assign(home);
+      setTimeout(() => {
+        if (location.href === here) {
+          location.assign(home);
+        }
       }, 250);
       return;
     }
@@ -61,14 +70,16 @@
   }
 
   function hideAll() {
-    Array.prototype.forEach.call(document.querySelectorAll(SELECTOR), function (modal) {
+    for (const modal of document.querySelectorAll(SELECTOR)) {
       modal.hidden = true;
-    });
+    }
     setBodyLocked(false);
   }
 
   function hydrate(modal) {
-    if (!modal || modal.nodeType !== 1) return;
+    if (!modal || modal.nodeType !== 1) {
+      return;
+    }
 
     if (isAcked()) {
       modal.hidden = true;
@@ -78,21 +89,25 @@
     modal.hidden = false;
     setBodyLocked(true);
 
-    var btn = modal.querySelector("[data-hacklas-disclaimer-ack]");
-    if (btn && typeof btn.focus === "function") {
+    const button = modal.querySelector("[data-hacklas-disclaimer-ack]");
+    if (button && typeof button.focus === "function") {
       try {
-        btn.focus();
-      } catch (_) {}
+        button.focus();
+      } catch {
+        // focus() can throw if the node is not focusable yet.
+      }
     }
   }
 
   function hydrateAll() {
-    var modals = document.querySelectorAll(SELECTOR);
-    if (!modals.length) {
+    const modals = document.querySelectorAll(SELECTOR);
+    if (modals.length === 0) {
       setBodyLocked(false);
       return;
     }
-    Array.prototype.forEach.call(modals, hydrate);
+    for (const modal of modals) {
+      hydrate(modal);
+    }
     if (isAcked() || !document.querySelector(SELECTOR + ":not([hidden])")) {
       setBodyLocked(false);
     }
@@ -100,25 +115,23 @@
 
   document.addEventListener(
     "click",
-    function (e) {
-      var ack =
-        e.target.closest && e.target.closest("[data-hacklas-disclaimer-ack]");
+    (event) => {
+      const ack = event.target.closest?.("[data-hacklas-disclaimer-ack]");
       if (ack) {
         setAcked();
         hideAll();
         return;
       }
-      var refuse =
-        e.target.closest && e.target.closest("[data-hacklas-disclaimer-refuse]");
+      const refuse = event.target.closest?.("[data-hacklas-disclaimer-refuse]");
       if (refuse) {
-        e.preventDefault();
+        event.preventDefault();
         leaveHacklas(refuse.getAttribute("href"));
       }
     },
-    true
+    { capture: true },
   );
 
-  window.hydrateHacklasDisclaimer = hydrateAll;
+  globalThis.hydrateHacklasDisclaimer = hydrateAll;
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", hydrateAll);

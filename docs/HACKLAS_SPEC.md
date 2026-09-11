@@ -177,9 +177,9 @@ yours):
 Not identity (keep):
 
 - The name Julien and the Author chrome
-- HTB *target* IPs (`10.129.x`), box names, fictional box credentials
+- HTB _target_ IPs (`10.129.x`), box names, fictional box credentials
 - Generic RFC1918 examples (`192.168.1.x`), `8.8.8.8`, `10.10.10.10`
-- Box SSH *host* keys from nmap output (those are the target, not the
+- Box SSH _host_ keys from nmap output (those are the target, not the
   author)
 
 ---
@@ -260,7 +260,7 @@ block is output or another language. Do not leave a bare ` ``` ` if you
 know the language. Changing the language tag is allowed; changing the
 fence's contents is not.
 
-**Do not use markdown tables** for *new* cheat-sheet lookups (they squash
+**Do not use markdown tables** for _new_ cheat-sheet lookups (they squash
 on a phone). Stack entries or use headings. A table that already exists
 in the note stays; do not flatten it unless every cell's text is kept.
 
@@ -320,7 +320,7 @@ is a stub.
 
 Do not tag every command in the body. Do not add box names, IPs, or
 author identity. Do not invent a tag that would match half the tree
-(`hacking`, `notes`, `cheatsheet` only when the page *is* a dump of
+(`hacking`, `notes`, `cheatsheet` only when the page _is_ a dump of
 links or keybindings).
 
 On the rendered page, breadcrumbs stay on the path. The Tags row is path
@@ -342,7 +342,7 @@ Do **not** annotate Resources with "already in this note". Describe the
 link (`man page`, `NSE script docs`, `GitHub source`).
 
 **Tools:** if Hacklas already has a note for that tool, Resources on
-*other* pages should point at that note. The tool's own page is where
+_other_ pages should point at that note. The tool's own page is where
 GitHub / the man page live. Do not add a Resources row for a source
 tarball or `…-1.1.tar.gz` just because an install command uses it.
 
@@ -389,7 +389,7 @@ wrote that framing, keep it. That is not an editor's-note event.
 - **Adding Wikipedia entries.** Protocol histories and feature lists that
   are not in the source note. Existing ones stay.
 - **Adding full `--help` / man dumps.** If the author already pasted one,
-  keep it. Prefer three example lines only when *you* are filling a bare
+  keep it. Prefer three example lines only when _you_ are filling a bare
   note.
 - **Pasting cheat.sh ALL-CAPS blocks** when filling a bare note. Author
   dumps stay.
@@ -399,7 +399,7 @@ wrote that framing, keep it. That is not an editor's-note event.
 - **Removing or swapping links**, except placeholder hrefs that are
   not real URLs.
 - **Emoji.**
-- **Three-column markdown tables** for *new* tools / links / flags.
+- **Three-column markdown tables** for _new_ tools / links / flags.
 - **Changing Author or Date.**
 - **Second `#` heading** in the body (demote; keep the text).
 - **Silent identity redaction.** Leave the token.

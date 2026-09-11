@@ -1,7 +1,7 @@
 /* Progressive enhancement: tag chips, autocomplete, and listing sort.
    Public methods: booruSearch.mountList(list), booruSearch.mountField(opts).
    The page controller decides when to call them. Safe without this file. */
-(function () {
+(function enhanceBooruSearch() {
   "use strict";
 
   // ---------------------------------------------------------------------
@@ -12,12 +12,12 @@
   // an artist/character/copyright tag, so this is NOT a taxonomy — it's a
   // deterministic hash of the tag's characters into one of a few arbitrary
   // colors. Same tag always gets the same color; that's the only promise.
-  var TAG_SWATCH_COLORS = ["blue", "green", "purple", "orange", "pink"];
+  const TAG_SWATCH_COLORS = ["blue", "green", "purple", "orange", "pink"];
 
   function swatchColorForTag(tag) {
-    var hash = 0;
-    for (var i = 0; i < tag.length; i++) {
-      hash = (hash + tag.charCodeAt(i) * (i + 1)) % 997;
+    let hash = 0;
+    for (let index = 0; index < tag.length; index++) {
+      hash = (hash + tag.codePointAt(index) * (index + 1)) % 997;
     }
     return TAG_SWATCH_COLORS[hash % TAG_SWATCH_COLORS.length];
   }
@@ -25,267 +25,347 @@
   // ---------------------------------------------------------------------
   // Data helpers — reading tag data off the DOM
   // ---------------------------------------------------------------------
-  var TagData = {
-    tagsFor: function (el) {
-      var raw = el.getAttribute("data-tags") || "";
-      if (!raw) return [];
-      return raw
-        .split(",")
-        .map(function (t) { return t.trim(); })
-        .filter(Boolean);
+  const TagData = {
+    tagsFor(element) {
+      const raw = element.dataset.tags || "";
+      if (!raw) {
+        return [];
+      }
+      const tags = [];
+      for (const part of raw.split(",")) {
+        const tag = part.trim();
+        if (tag) {
+          tags.push(tag);
+        }
+      }
+      return tags;
     },
 
-    formatCount: function (n) {
-      if (n < 1000) return String(n);
-      var k = n / 1000;
+    formatCount(n) {
+      if (n < 1000) {
+        return String(n);
+      }
+      const k = n / 1000;
       return (Math.round(k * 10) / 10).toString().replace(/\.0$/, "") + "k";
     },
 
-    buildIndex: function (list) {
-      var counts = {};
-      Array.prototype.forEach.call(list.children, function (li) {
-        TagData.tagsFor(li).forEach(function (tag) {
+    buildIndex(list) {
+      const counts = {};
+      for (const item of list.children) {
+        for (const tag of TagData.tagsFor(item)) {
           counts[tag] = (counts[tag] || 0) + 1;
+        }
+      }
+      const index = [];
+      for (const [name, count] of Object.entries(counts)) {
+        index.push({
+          name,
+          count,
+          color: swatchColorForTag(name),
         });
-      });
-      return Object.keys(counts).map(function (name) {
-        return {
-          name: name,
-          count: counts[name],
-          color: swatchColorForTag(name)
-        };
-      });
-    }
+      }
+      return index;
+    },
   };
 
-  function normalize(s) {
-    return String(s || "").toLowerCase().trim();
+  function normalize(value) {
+    return String(value || "")
+      .toLowerCase()
+      .trim();
   }
 
   // Same subsequence window idea as fuzzy-find.js (that file is not on
   // listing-only pages, so this copy lives here).
   function fuzzyScore(haystack, query) {
-    var h = normalize(haystack);
-    var q = normalize(query).replace(/\s+/g, "");
-    var hi = 0;
-    var first = -1;
-    var last = -1;
-    var run = 0;
-    var bestRun = 0;
-    var prev = -2;
-    var qi;
-    if (!q) return 0;
-    for (qi = 0; qi < q.length; qi++) {
-      hi = h.indexOf(q.charAt(qi), hi);
-      if (hi < 0) return -1;
-      if (first < 0) first = hi;
+    const h = normalize(haystack);
+    const q = normalize(query).replaceAll(/\s+/g, "");
+    if (!q) {
+      return 0;
+    }
+    let hi = 0;
+    let first = -1;
+    let last = -1;
+    let run = 0;
+    let bestRun = 0;
+    let previous = -2;
+    for (const character of q) {
+      hi = h.indexOf(character, hi);
+      if (hi < 0) {
+        return -1;
+      }
+      if (first < 0) {
+        first = hi;
+      }
       last = hi;
-      if (hi === prev + 1) {
+      if (hi === previous + 1) {
         run += 1;
-        if (run > bestRun) bestRun = run;
+        if (run > bestRun) {
+          bestRun = run;
+        }
       } else {
         run = 1;
       }
-      prev = hi;
+      previous = hi;
       hi += 1;
     }
     return Math.round(
-      40 * (q.length / (last - first + 1)) +
-        15 * (1 / (1 + first)) +
-        15 * (bestRun / q.length)
+      40 * (q.length / (last - first + 1)) + 15 * (1 / (1 + first)) + 15 * (bestRun / q.length),
     );
   }
 
   function rankTags(tagIndex, filter, query) {
-    var q = normalize(query);
-    var scored = [];
-    if (!q) return scored;
-    tagIndex.forEach(function (tag) {
-      var score;
-      if (filter.has(tag.name)) return;
-      score = fuzzyScore(tag.name, q);
-      if (score < 0) return;
-      scored.push({ tag: tag, score: score });
-    });
-    scored.sort(function (a, b) {
-      if (b.score !== a.score) return b.score - a.score;
+    const q = normalize(query);
+    const scored = [];
+    if (!q) {
+      return scored;
+    }
+    for (const tag of tagIndex) {
+      if (filter.has(tag.name)) {
+        continue;
+      }
+      const score = fuzzyScore(tag.name, q);
+      if (score < 0) {
+        continue;
+      }
+      scored.push({ tag, score });
+    }
+    scored.sort((a, b) => {
+      if (b.score !== a.score) {
+        return b.score - a.score;
+      }
       return b.tag.count - a.tag.count;
     });
-    return scored.slice(0, 10).map(function (row) { return row.tag; });
+    return Array.from(scored.slice(0, 10), (row) => row.tag);
   }
 
   function isDesktopSearch() {
-    return window.matchMedia("(min-width: 48rem)").matches;
+    return matchMedia("(min-width: 48rem)").matches;
   }
 
   // iOS retargets the click that follows pointerdown onto whatever is
   // under the finger after the suggestion row closes (usually a note).
   function swallowNextClick() {
-    var timeout;
-    function swallow(e) {
-      e.preventDefault();
-      e.stopPropagation();
+    function swallow(event) {
+      event.preventDefault();
+      event.stopPropagation();
       cleanup();
     }
     function cleanup() {
       document.removeEventListener("click", swallow, true);
       clearTimeout(timeout);
     }
-    document.addEventListener("click", swallow, true);
-    timeout = setTimeout(cleanup, 500);
+    document.addEventListener("click", swallow, { capture: true });
+    const timeout = setTimeout(cleanup, 500);
   }
 
   // ---------------------------------------------------------------------
   // Sorting
   // ---------------------------------------------------------------------
-  var Sort = {
-    apply: function (list, mode, dir) {
-      var items = Array.prototype.slice.call(list.children);
-      items.sort(Sort._comparator(mode, dir));
-      items.forEach(function (item) { list.appendChild(item); });
+  const Sort = {
+    apply(list, mode, direction) {
+      const items = [...list.children];
+      items.sort(Sort.comparator(mode, direction));
+      for (const item of items) {
+        list.append(item);
+      }
     },
 
-    _comparator: function (mode, dir) {
-      var attr = mode === "name" ? "data-title" : "data-date";
-      return function (a, b) {
-        var av = (a.getAttribute(attr) || "").toLowerCase();
-        var bv = (b.getAttribute(attr) || "").toLowerCase();
-        if (av < bv) return -dir;
-        if (av > bv) return dir;
+    comparator(mode, direction) {
+      const attribute = mode === "name" ? "data-title" : "data-date";
+      return (a, b) => {
+        const av = (a.getAttribute(attribute) || "").toLowerCase();
+        const bv = (b.getAttribute(attribute) || "").toLowerCase();
+        if (av < bv) {
+          return -direction;
+        }
+        if (av > bv) {
+          return direction;
+        }
         return 0;
       };
-    }
+    },
   };
 
   // ---------------------------------------------------------------------
   // Filtering — tracks selected tag/title chips and shows/hides items
   // ---------------------------------------------------------------------
-  function Filter(list) {
-    this.list = list;
-    this.selected = []; // { name, kind: "tag" | "title", excluded: bool }
+  function createFilter(list) {
+    const selected = [];
+
+    function has(name) {
+      const lower = name.toLowerCase();
+      return selected.some((entry) => entry.name.toLowerCase() === lower);
+    }
+
+    function add(name, kind, excluded) {
+      if (!name || has(name)) {
+        return false;
+      }
+      selected.push({
+        name,
+        kind,
+        excluded: !!excluded,
+        color: swatchColorForTag(name),
+      });
+      return true;
+    }
+
+    function removeAt(index) {
+      selected.splice(index, 1);
+    }
+
+    function removeLast() {
+      if (selected.length === 0) {
+        return false;
+      }
+      selected.pop();
+      return true;
+    }
+
+    function names(kind, excluded) {
+      const result = [];
+      for (const entry of selected) {
+        if (entry.kind === kind && !!entry.excluded === !!excluded) {
+          result.push(entry.name.toLowerCase());
+        }
+      }
+      return result;
+    }
+
+    function apply() {
+      const tagInclude = names("tag", false);
+      const tagExclude = names("tag", true);
+      const titleInclude = names("title", false);
+      const titleExclude = names("title", true);
+
+      for (const item of list.children) {
+        const tags = new Set();
+        for (const tag of TagData.tagsFor(item)) {
+          tags.add(tag.toLowerCase());
+        }
+        const title = (item.dataset.title || "").toLowerCase();
+        const visible =
+          tagInclude.every((tag) => tags.has(tag)) &&
+          tagExclude.every((tag) => !tags.has(tag)) &&
+          titleInclude.every((tag) => title.includes(tag)) &&
+          titleExclude.every((tag) => !title.includes(tag));
+        item.hidden = !visible;
+      }
+    }
+
+    return { selected, has, add, removeAt, removeLast, names, apply };
   }
-
-  Filter.prototype.has = function (name) {
-    var lower = name.toLowerCase();
-    return this.selected.some(function (t) {
-      return t.name.toLowerCase() === lower;
-    });
-  };
-
-  // Returns false (and does nothing) if the name is already selected.
-  Filter.prototype.add = function (name, kind, excluded) {
-    if (!name || this.has(name)) return false;
-    this.selected.push({
-      name: name,
-      kind: kind,
-      excluded: !!excluded,
-      color: swatchColorForTag(name)
-    });
-    return true;
-  };
-
-  Filter.prototype.removeAt = function (index) {
-    this.selected.splice(index, 1);
-  };
-
-  Filter.prototype.removeLast = function () {
-    if (!this.selected.length) return false;
-    this.selected.pop();
-    return true;
-  };
-
-  Filter.prototype._names = function (kind, excluded) {
-    return this.selected
-      .filter(function (t) { return t.kind === kind && !!t.excluded === !!excluded; })
-      .map(function (t) { return t.name.toLowerCase(); });
-  };
-
-  Filter.prototype.apply = function () {
-    var tagInclude = this._names("tag", false);
-    var tagExclude = this._names("tag", true);
-    var titleInclude = this._names("title", false);
-    var titleExclude = this._names("title", true);
-
-    Array.prototype.forEach.call(this.list.children, function (li) {
-      var tags = TagData.tagsFor(li).map(function (t) { return t.toLowerCase(); });
-      var title = (li.getAttribute("data-title") || "").toLowerCase();
-
-      var visible =
-        tagInclude.every(function (t) { return tags.indexOf(t) !== -1; }) &&
-        tagExclude.every(function (t) { return tags.indexOf(t) === -1; }) &&
-        titleInclude.every(function (t) { return title.indexOf(t) !== -1; }) &&
-        titleExclude.every(function (t) { return title.indexOf(t) === -1; });
-
-      li.hidden = !visible;
-    });
-  };
 
   // ---------------------------------------------------------------------
   // DOM builder — tiny helper so components below aren't full of
   // createElement/setAttribute boilerplate
   // ---------------------------------------------------------------------
-  var Dom = {
-    el: function (tag, className, attrs) {
-      var node = document.createElement(tag);
-      if (className) node.className = className;
-      if (attrs) {
-        Object.keys(attrs).forEach(function (key) {
-          node.setAttribute(key, attrs[key]);
-        });
+  const Dom = {
+    element(tag, className, attributes) {
+      const node = document.createElement(tag);
+      if (className) {
+        node.className = className;
+      }
+      if (attributes) {
+        for (const [key, value] of Object.entries(attributes)) {
+          node.setAttribute(key, value);
+        }
       }
       return node;
-    }
+    },
   };
 
   // ---------------------------------------------------------------------
   // Sort controls component — the "Date / Name" button pair
   // ---------------------------------------------------------------------
   function createSortControls(list, filter) {
-    var state = { mode: "date", dir: -1 };
+    const state = { mode: "date", direction: -1 };
 
-    var bar = Dom.el("div", "list-sort", {
+    const bar = Dom.element("div", "list-sort", {
       role: "group",
-      "aria-label": "Sort posts"
+      "aria-label": "Sort posts",
     });
 
     function makeButton(mode, text) {
-      var btn = Dom.el("button", "list-sort__btn", { type: "button" });
-      btn.textContent = text;
-      btn.addEventListener("click", function () {
+      const button = Dom.element("button", "list-sort__btn", { type: "button" });
+      button.textContent = text;
+      button.addEventListener("click", () => {
         if (state.mode === mode) {
-          state.dir *= -1;
+          state.direction *= -1;
         } else {
           state.mode = mode;
-          state.dir = mode === "date" ? -1 : 1;
+          state.direction = mode === "date" ? -1 : 1;
         }
         sync();
       });
-      return btn;
+      return button;
     }
 
-    var dateBtn = makeButton("date", "Date");
-    var nameBtn = makeButton("name", "Name");
-    bar.appendChild(dateBtn);
-    bar.appendChild(nameBtn);
+    const dateButton = makeButton("date", "Date");
+    const nameButton = makeButton("name", "Name");
+    bar.append(dateButton, nameButton);
 
     function sync() {
-      dateBtn.setAttribute("aria-pressed", state.mode === "date" ? "true" : "false");
-      nameBtn.setAttribute("aria-pressed", state.mode === "name" ? "true" : "false");
+      dateButton.setAttribute("aria-pressed", state.mode === "date" ? "true" : "false");
+      nameButton.setAttribute("aria-pressed", state.mode === "name" ? "true" : "false");
 
-      dateBtn.textContent = state.mode === "date"
-        ? "Date " + (state.dir < 0 ? "↓" : "↑")
-        : "Date";
-      nameBtn.textContent = state.mode === "name"
-        ? "Name " + (state.dir > 0 ? "↑" : "↓")
-        : "Name";
+      dateButton.textContent =
+        state.mode === "date" ? "Date " + (state.direction < 0 ? "↓" : "↑") : "Date";
+      nameButton.textContent =
+        state.mode === "name" ? "Name " + (state.direction > 0 ? "↑" : "↓") : "Name";
 
-      Sort.apply(list, state.mode, state.dir);
+      Sort.apply(list, state.mode, state.direction);
       filter.apply();
     }
 
     sync();
 
     return { element: bar };
+  }
+
+  function chipClasses(entry) {
+    return (
+      "tag-chip tag-chip--" +
+      (entry.color || swatchColorForTag(entry.name)) +
+      (entry.excluded ? " tag-chip--exclude" : "") +
+      (entry.kind === "title" ? " tag-chip--title" : "")
+    );
+  }
+
+  function buildChip(entry, onRemove) {
+    const chip = Dom.element("button", chipClasses(entry), { type: "button" });
+
+    const kindLabel = entry.kind === "title" ? "title filter" : "tag";
+    chip.setAttribute(
+      "aria-label",
+      (entry.excluded ? "Remove excluded " : "Remove ") + kindLabel + " " + entry.name,
+    );
+
+    const label = Dom.element("span", "tag-chip__label");
+    label.textContent = (entry.excluded ? "-" : "") + entry.name;
+
+    const x = Dom.element("span", "tag-chip__x", { "aria-hidden": "true" });
+    x.textContent = "×";
+
+    chip.append(label, x);
+    let isRemoved = false;
+    function removeChip(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (isRemoved) {
+        return;
+      }
+      isRemoved = true;
+      onRemove();
+    }
+    chip.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "mouse" && event.button !== 0) {
+        return;
+      }
+      removeChip(event);
+    });
+    chip.addEventListener("click", removeChip);
+    return chip;
   }
 
   // ---------------------------------------------------------------------
@@ -299,114 +379,80 @@
   // opts.commitTitleOnEnter Enter turns leftover text into a title chip
   // opts.onInput            live callback after each keystroke
   // opts.placeholder, opts.listboxId, opts.fieldClass
-  function createTagSearch(tagIndex, filter, opts) {
-    opts = opts || {};
-    var debounceTimer = null;
-    var activeIndex = -1;
-    var suggestions = [];
-    var listboxId = opts.listboxId || "tag-search-listbox";
-    var wrap = opts.mount || Dom.el("div", "tag-search");
+  function createTagSearch(tagIndex, filter, rawOptions) {
+    const options = rawOptions ?? {};
+    let debounceTimer;
+    let activeIndex = -1;
+    let suggestions = [];
+    const listboxId = options.listboxId || "tag-search-listbox";
+    const wrap = options.mount || Dom.element("div", "tag-search");
 
-    var field = Dom.el("div", opts.fieldClass || "tag-search__field");
-    var input = opts.input;
+    const field = Dom.element("div", options.fieldClass || "tag-search__field");
+    let input = options.input;
     if (input) {
       input.classList.add("tag-search__input");
-      if (opts.placeholder) input.setAttribute("placeholder", opts.placeholder);
+      if (options.placeholder) {
+        input.setAttribute("placeholder", options.placeholder);
+      }
     } else {
-      input = Dom.el("input", "tag-search__input", {
+      input = Dom.element("input", "tag-search__input", {
         type: "text",
-        placeholder: opts.placeholder || "Filter by tag…",
+        placeholder: options.placeholder || "Filter by tag…",
         autocomplete: "off",
-        spellcheck: "false"
+        spellcheck: "false",
       });
     }
     input.setAttribute("aria-autocomplete", "list");
     input.setAttribute("aria-expanded", "false");
     input.setAttribute("aria-controls", listboxId);
 
-    var suggest = Dom.el("div", "tag-search__suggest");
+    const suggest = Dom.element("div", "tag-search__suggest");
     suggest.hidden = true;
 
-    var closeBtn = Dom.el("button", "tag-search__close", { type: "button" });
-    closeBtn.setAttribute("aria-label", "Close tag suggestions");
-    closeBtn.textContent = "×";
+    const closeButton = Dom.element("button", "tag-search__close", { type: "button" });
+    closeButton.setAttribute("aria-label", "Close tag suggestions");
+    closeButton.textContent = "×";
 
-    var dropdown = Dom.el("ul", "tag-search__dropdown", {
+    const dropdown = Dom.element("ul", "tag-search__dropdown", {
       id: listboxId,
-      role: "listbox"
+      role: "listbox",
     });
 
-    suggest.appendChild(closeBtn);
-    suggest.appendChild(dropdown);
-    wrap.appendChild(field);
-    wrap.appendChild(suggest);
-    field.appendChild(input);
+    suggest.append(closeButton, dropdown);
+    wrap.append(field, suggest);
+    field.append(input);
 
-    field.addEventListener("click", function (e) {
-      if (e.target === field) input.focus();
+    field.addEventListener("click", (event) => {
+      if (event.target === field) {
+        input.focus();
+      }
     });
 
-    closeBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      wrap.setAttribute("data-suggest-dismissed", "1");
+    closeButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      wrap.dataset.suggestDismissed = "1";
       closeSuggest();
       input.focus();
     });
 
-    function buildChip(entry, onRemove) {
-      var color = entry.color || swatchColorForTag(entry.name);
-      var classes =
-        "tag-chip tag-chip--" +
-        color +
-        (entry.excluded ? " tag-chip--exclude" : "") +
-        (entry.kind === "title" ? " tag-chip--title" : "");
-      var chip = Dom.el("button", classes, { type: "button" });
-
-      var kindLabel = entry.kind === "title" ? "title filter" : "tag";
-      chip.setAttribute(
-        "aria-label",
-        (entry.excluded ? "Remove excluded " : "Remove ") + kindLabel + " " + entry.name
-      );
-
-      var label = Dom.el("span", "tag-chip__label");
-      label.textContent = (entry.excluded ? "-" : "") + entry.name;
-
-      var x = Dom.el("span", "tag-chip__x", { "aria-hidden": "true" });
-      x.textContent = "×";
-
-      chip.appendChild(label);
-      chip.appendChild(x);
-      var removed = false;
-      function removeChip(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (removed) return;
-        removed = true;
-        onRemove();
-      }
-      chip.addEventListener("pointerdown", function (e) {
-        if (e.pointerType === "mouse" && e.button !== 0) return;
-        removeChip(e);
-      });
-      chip.addEventListener("click", removeChip);
-      return chip;
-    }
-
     function renderChips() {
-      Array.prototype.slice.call(field.querySelectorAll(".tag-chip")).forEach(function (node) {
+      for (const node of field.querySelectorAll(".tag-chip")) {
         node.remove();
-      });
+      }
 
-      filter.selected.forEach(function (entry, index) {
-        var chip = buildChip(entry, function () {
-          filter.removeAt(index);
+      let index = 0;
+      for (const entry of filter.selected) {
+        const chipIndex = index;
+        const chip = buildChip(entry, () => {
+          filter.removeAt(chipIndex);
           renderChips();
           filter.apply();
           input.focus();
         });
-        field.insertBefore(chip, input);
-      });
+        input.before(chip);
+        index += 1;
+      }
     }
 
     function closeSuggest() {
@@ -417,17 +463,18 @@
       input.setAttribute("aria-expanded", "false");
     }
 
-    function suggestOpen() {
+    function isSuggestOpen() {
       return !suggest.hidden && suggestions.length > 0;
     }
 
     function highlightActive() {
-      var rows = dropdown.querySelectorAll(".tag-search__option");
-      Array.prototype.forEach.call(rows, function (row, i) {
-        var on = i === activeIndex;
-        row.classList.toggle("is-active", on);
-        row.setAttribute("aria-selected", on ? "true" : "false");
-      });
+      let index = 0;
+      for (const row of dropdown.querySelectorAll(".tag-search__option")) {
+        const isOn = index === activeIndex;
+        row.classList.toggle("is-active", isOn);
+        row.setAttribute("aria-selected", isOn ? "true" : "false");
+        index += 1;
+      }
     }
 
     function commitTagSuggestion(tag, excluded) {
@@ -437,24 +484,27 @@
       }
       input.value = "";
       closeSuggest();
-      if (opts.onInput) opts.onInput();
+      if (options.onInput) {
+        options.onInput();
+      }
     }
 
     function resolveTag(name) {
-      var lower = String(name || "").toLowerCase();
-      var i;
-      for (i = 0; i < tagIndex.length; i++) {
-        if (tagIndex[i].name.toLowerCase() === lower) return tagIndex[i];
+      const lower = String(name || "").toLowerCase();
+      for (const tag of tagIndex) {
+        if (tag.name.toLowerCase() === lower) {
+          return tag;
+        }
       }
-      return null;
     }
 
     function tryCommitTag() {
-      if (suggestOpen() && activeIndex >= 0 && suggestions[activeIndex]) {
-        commitTagSuggestion(suggestions[activeIndex], parseQuery().excluded);
+      const highlighted = suggestions.at(activeIndex);
+      if (highlighted && activeIndex >= 0 && isSuggestOpen()) {
+        commitTagSuggestion(highlighted, parseQuery().excluded);
         return true;
       }
-      var exact = resolveTag(input.value.trim());
+      const exact = resolveTag(input.value.trim());
       if (exact) {
         commitTagSuggestion(exact, false);
         return true;
@@ -463,64 +513,66 @@
     }
 
     function buildOption(tag, index, excluded) {
-      var li = Dom.el("li", "tag-search__option", {
+      const item = Dom.element("li", "tag-search__option", {
         role: "option",
-        "aria-selected": "false"
+        "aria-selected": "false",
       });
 
-      var swatch = Dom.el("span", "tag-search__cat tag-search__cat--" + tag.color, {
-        "aria-hidden": "true"
+      const swatch = Dom.element("span", "tag-search__cat tag-search__cat--" + tag.color, {
+        "aria-hidden": "true",
       });
 
-      var name = Dom.el("span", "tag-search__name");
+      const name = Dom.element("span", "tag-search__name");
       name.textContent = (excluded ? "-" : "") + tag.name;
 
-      var count = Dom.el("span", "tag-search__count");
+      const count = Dom.element("span", "tag-search__count");
       count.textContent = TagData.formatCount(tag.count);
 
-      li.appendChild(swatch);
-      li.appendChild(name);
-      li.appendChild(count);
+      item.append(swatch, name, count);
 
-      li.addEventListener("mouseenter", function () {
+      item.addEventListener("mouseenter", () => {
         activeIndex = index;
         highlightActive();
       });
       // pointerdown (not mousedown): iOS blurs the field — and dismisses
       // this list — before mouse events fire on a tap. Swallow the click
       // that would otherwise land on the note under the overlay.
-      li.addEventListener("pointerdown", function (e) {
-        if (e.pointerType === "mouse" && e.button !== 0) return;
-        e.preventDefault();
-        e.stopPropagation();
+      item.addEventListener("pointerdown", (event) => {
+        if (event.pointerType === "mouse" && event.button !== 0) {
+          return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
         swallowNextClick();
         commitTagSuggestion(tag, excluded);
       });
-      li.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
+      item.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         commitTagSuggestion(tag, excluded);
       });
 
-      return li;
+      return item;
     }
 
     function renderSuggestions(query, excluded) {
-      if (wrap.getAttribute("data-suggest-dismissed") === "1") {
+      if (wrap.dataset.suggestDismissed === "1") {
         closeSuggest();
         return;
       }
 
       suggestions = rankTags(tagIndex, filter, query);
       dropdown.textContent = "";
-      if (!query || !suggestions.length) {
+      if (!query || suggestions.length === 0) {
         closeSuggest();
         return;
       }
 
-      suggestions.forEach(function (tag, i) {
-        dropdown.appendChild(buildOption(tag, i, excluded));
-      });
+      let index = 0;
+      for (const tag of suggestions) {
+        dropdown.append(buildOption(tag, index, excluded));
+        index += 1;
+      }
 
       activeIndex = 0;
       highlightActive();
@@ -529,205 +581,260 @@
     }
 
     function commitTitleQuery() {
-      var raw = input.value.trim();
-      if (!raw) return;
-      var excluded = raw.charAt(0) === "-";
-      var name = excluded ? raw.slice(1).trim() : raw;
+      const raw = input.value.trim();
+      if (!raw) {
+        return;
+      }
+      const isExcluded = raw.charAt(0) === "-";
+      const name = isExcluded ? raw.slice(1).trim() : raw;
 
       input.value = "";
       closeSuggest();
 
-      if (filter.add(name, "title", excluded)) {
+      if (filter.add(name, "title", isExcluded)) {
         renderChips();
         filter.apply();
       }
     }
 
     function parseQuery() {
-      var raw = input.value.trim();
-      var excluded = raw.charAt(0) === "-";
-      return { text: excluded ? raw.slice(1).trim() : raw, excluded: excluded };
+      const raw = input.value.trim();
+      const isExcluded = raw.charAt(0) === "-";
+      return { text: isExcluded ? raw.slice(1).trim() : raw, excluded: isExcluded };
     }
 
     function isInputEmpty() {
       return input.value === "" && input.selectionStart === 0 && input.selectionEnd === 0;
     }
 
-    input.addEventListener("input", function () {
-      wrap.removeAttribute("data-suggest-dismissed");
-      if (opts.onInput) opts.onInput();
+    function handleSpaceCommit(event) {
+      if (event.key !== " " && event.key !== "Spacebar") {
+        return false;
+      }
+      if (options.commitTagOnSpace === false) {
+        return false;
+      }
+      if (!input.value.trim()) {
+        return true;
+      }
+      if (!isSuggestOpen()) {
+        delete wrap.dataset.suggestDismissed;
+        const spaceQuery = parseQuery();
+        renderSuggestions(spaceQuery.text, spaceQuery.excluded);
+      }
+      if (tryCommitTag()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      return true;
+    }
+
+    function handleTabCommit(event) {
+      if (event.key !== "Tab" || !options.commitTagOnTab || event.shiftKey) {
+        return false;
+      }
+      if (tryCommitTag()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      return true;
+    }
+
+    function handleArrowHighlight(event) {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+        return false;
+      }
+      if (!isSuggestOpen()) {
+        return true;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      const step = event.key === "ArrowRight" ? 1 : -1;
+      activeIndex = (activeIndex + step + suggestions.length) % suggestions.length;
+      highlightActive();
+      return true;
+    }
+
+    function handleEnterCommit(event) {
+      if (event.key !== "Enter") {
+        return false;
+      }
+      // Desktop Hacklas: Enter opens a note. Mobile keyboards only
+      // expose Enter/Go, so commit a tag instead of following a result.
+      const isMobileCommit = options.commitTagOnEnter !== false || !isDesktopSearch();
+      if (isMobileCommit && tryCommitTag()) {
+        event.preventDefault();
+        event.stopPropagation();
+        return true;
+      }
+      if (isMobileCommit && input.value.trim()) {
+        event.preventDefault();
+        event.stopPropagation();
+        return true;
+      }
+      if (options.commitTitleOnEnter !== false) {
+        event.preventDefault();
+        commitTitleQuery();
+      }
+      return true;
+    }
+
+    function handleEscapeSuggest(event) {
+      if (event.key !== "Escape") {
+        return false;
+      }
+      if (isSuggestOpen()) {
+        event.preventDefault();
+        event.stopPropagation();
+        wrap.dataset.suggestDismissed = "1";
+        closeSuggest();
+      }
+      return true;
+    }
+
+    function handleBackspaceChip(event) {
+      if (event.key !== "Backspace" || !isInputEmpty() || !filter.removeLast()) {
+        return false;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      renderChips();
+      filter.apply();
+      return true;
+    }
+
+    input.addEventListener("input", () => {
+      delete wrap.dataset.suggestDismissed;
+      if (options.onInput) {
+        options.onInput();
+      }
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(function () {
-        var q = parseQuery();
+      debounceTimer = setTimeout(() => {
+        const q = parseQuery();
         renderSuggestions(q.text, q.excluded);
       }, 200);
     });
 
-    input.addEventListener("keydown", function (e) {
-      if ((e.key === " " || e.key === "Spacebar") && opts.commitTagOnSpace !== false) {
-        if (input.value.trim()) {
-          var spaceQuery;
-          if (!suggestOpen()) {
-            wrap.removeAttribute("data-suggest-dismissed");
-            spaceQuery = parseQuery();
-            renderSuggestions(spaceQuery.text, spaceQuery.excluded);
-          }
-          if (tryCommitTag()) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        }
-        return;
-      }
-
-      if (e.key === "Tab" && opts.commitTagOnTab && !e.shiftKey) {
-        if (tryCommitTag()) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-        return;
-      }
-
-      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        if (!suggestOpen()) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.key === "ArrowRight") {
-          activeIndex = (activeIndex + 1) % suggestions.length;
-        } else {
-          activeIndex = (activeIndex - 1 + suggestions.length) % suggestions.length;
-        }
-        highlightActive();
-        return;
-      }
-
-      if (e.key === "Enter") {
-        // Desktop Hacklas: Enter opens a note. Mobile keyboards only
-        // expose Enter/Go, so commit a tag instead of following a result.
-        var mobileCommit = opts.commitTagOnEnter !== false || !isDesktopSearch();
-        if (mobileCommit && tryCommitTag()) {
-          e.preventDefault();
-          e.stopPropagation();
+    input.addEventListener(
+      "keydown",
+      (event) => {
+        if (handleSpaceCommit(event) || handleTabCommit(event)) {
           return;
         }
-        if (mobileCommit && input.value.trim()) {
-          e.preventDefault();
-          e.stopPropagation();
+        if (handleArrowHighlight(event) || handleEnterCommit(event)) {
           return;
         }
-        if (opts.commitTitleOnEnter !== false) {
-          e.preventDefault();
-          commitTitleQuery();
+        if (handleEscapeSuggest(event)) {
+          return;
         }
-        return;
-      }
+        handleBackspaceChip(event);
+      },
+      { capture: true },
+    );
 
-      if (e.key === "Escape") {
-        if (suggestOpen()) {
-          e.preventDefault();
-          e.stopPropagation();
-          wrap.setAttribute("data-suggest-dismissed", "1");
-          closeSuggest();
-        }
-        return;
-      }
+    if (filter.selected.length > 0) {
+      renderChips();
+    }
 
-      if (e.key === "Backspace" && isInputEmpty()) {
-        if (filter.removeLast()) {
-          e.preventDefault();
-          e.stopPropagation();
-          renderChips();
-          filter.apply();
-        }
-      }
-    }, true);
-
-    if (filter.selected.length) renderChips();
-
-    return { element: wrap, closeSuggest: closeSuggest };
+    return { element: wrap, closeSuggest };
   }
 
   function tagNames(filter) {
-    return filter._names("tag", false);
+    return filter.names("tag", false);
   }
 
   // Create search + sort above a [data-sortable-list].
   function mountList(list) {
-    if (!list || list.dataset.listingReady === "1") return;
+    if (!list || list.dataset.listingReady === "1") {
+      return;
+    }
     list.dataset.listingReady = "1";
 
-    var filter = new Filter(list);
+    const filter = createFilter(list);
 
-    var tools = Dom.el("div", "list-tools");
-    tools.appendChild(createTagSearch(TagData.buildIndex(list), filter, {
-      commitTagOnSpace: true
-    }).element);
-    tools.appendChild(createSortControls(list, filter).element);
+    const tools = Dom.element("div", "list-tools");
+    tools.append(
+      createTagSearch(TagData.buildIndex(list), filter, {
+        commitTagOnSpace: true,
+      }).element,
+    );
+    tools.append(createSortControls(list, filter).element);
     list.parentNode.insertBefore(tools, list);
   }
 
   // Attach chips + autocomplete to an existing input. opts.onApply(query, tags)
   // is called whenever the filter changes; the caller decides what that means.
-  function mountField(opts) {
-    opts = opts || {};
-    var list = opts.list;
-    var input = opts.input;
-    if (!list || !input) return;
-    if (input.getAttribute("data-tag-search-mounted") === "1") return;
-    input.setAttribute("data-tag-search-mounted", "1");
+  function mountField(rawOptions) {
+    const options = rawOptions ?? {};
+    const list = options.list;
+    const input = options.input;
+    if (!list || !input) {
+      return;
+    }
+    if (input.dataset.tagSearchMounted === "1") {
+      return;
+    }
+    input.dataset.tagSearchMounted = "1";
 
-    var filter = new Filter(list);
-    if (typeof opts.onApply === "function") {
-      filter.apply = function () {
-        opts.onApply(input.value, tagNames(this));
+    const filter = createFilter(list);
+    const onApply = options.onApply;
+    if (typeof onApply === "function") {
+      filter.apply = function applyMounted() {
+        onApply(input.value, tagNames(filter));
       };
     }
 
-    (opts.initialTags || []).forEach(function (name) {
+    const initialTags = options.initialTags || [];
+    for (const name of initialTags) {
       filter.add(name, "tag", false);
-    });
+    }
 
-    var wrap = Dom.el("div", "tag-search");
+    const wrap = Dom.element("div", "tag-search");
     input.parentNode.insertBefore(wrap, input);
     createTagSearch(TagData.buildIndex(list), filter, {
-      input: input,
+      input,
       mount: wrap,
-      listboxId: opts.listboxId,
-      placeholder: opts.placeholder,
-      fieldClass: opts.fieldClass,
-      commitTagOnSpace: opts.commitTagOnSpace,
-      commitTagOnTab: opts.commitTagOnTab,
-      commitTagOnEnter: opts.commitTagOnEnter,
-      commitTitleOnEnter: opts.commitTitleOnEnter,
-      onInput: function () {
+      listboxId: options.listboxId,
+      placeholder: options.placeholder,
+      fieldClass: options.fieldClass,
+      commitTagOnSpace: options.commitTagOnSpace,
+      commitTagOnTab: options.commitTagOnTab,
+      commitTagOnEnter: options.commitTagOnEnter,
+      commitTitleOnEnter: options.commitTitleOnEnter,
+      onInput() {
         filter.apply();
-      }
+      },
     });
     filter.apply();
   }
 
   function hydrate() {
-    Array.prototype.forEach.call(
-      document.querySelectorAll("[data-sortable-list]"),
-      mountList
-    );
+    for (const list of document.querySelectorAll("[data-sortable-list]")) {
+      mountList(list);
+    }
   }
 
-  document.addEventListener("click", function (e) {
-    if (isDesktopSearch()) return;
-    Array.prototype.forEach.call(document.querySelectorAll(".tag-search"), function (search) {
-      var suggest;
-      var input;
-      if (search.contains(e.target)) return;
-      search.setAttribute("data-suggest-dismissed", "1");
-      suggest = search.querySelector(".tag-search__suggest");
-      input = search.querySelector(".tag-search__input");
-      if (suggest) suggest.hidden = true;
-      if (input) input.setAttribute("aria-expanded", "false");
-    });
+  document.addEventListener("click", (event) => {
+    if (isDesktopSearch()) {
+      return;
+    }
+    for (const search of document.querySelectorAll(".tag-search")) {
+      if (search.contains(event.target)) {
+        continue;
+      }
+      search.dataset.suggestDismissed = "1";
+      const suggest = search.querySelector(".tag-search__suggest");
+      const input = search.querySelector(".tag-search__input");
+      if (suggest) {
+        suggest.hidden = true;
+      }
+      if (input) {
+        input.setAttribute("aria-expanded", "false");
+      }
+    }
   });
 
-  window.booruSearch = { hydrate: hydrate, mountList: mountList, mountField: mountField };
-  window.hydrateListing = hydrate;
+  globalThis.booruSearch = { hydrate, mountList, mountField };
+  globalThis.hydrateListing = hydrate;
   hydrate();
 })();

@@ -1,6 +1,6 @@
 # SPEC: TypeScript & Client Bundling (Rollup)
 
-This spec defines how the site's JavaScript is written in TypeScript and how client code is bundled. It is the foundation for `SPEC_TEST_TS.md` (tests), `SPEC_LINT.md` (lint and formatting), and `SPEC_TEST_SNAPSHOT.md` (visual regression).
+This spec defines how the site's JavaScript is written in TypeScript and how client code is bundled. It is the foundation for `SPEC_TEST_TS.md` (tests), `SPEC_LINTING.md` (lint and formatting), and `SPEC_TEST_SNAPSHOT.md` (visual regression). The ordered migration is `BUILD_TEST_REFACTOR.md`.
 
 Everything marked **MUST** is enforced in review and CI. **SHOULD** means deviations need a stated reason in the PR.
 
@@ -10,10 +10,10 @@ Everything marked **MUST** is enforced in review and CI. **SHOULD** means deviat
 
 Two kinds of code exist in this repo, and they are built differently.
 
-| Kind | Location | Runs in | Built by |
-|---|---|---|---|
-| Build code | `eleventy.config.ts`, `_11ty/**/*.ts`, `src/**/*.11ty.ts` | Node at build time | Nothing. Node strips types natively. |
-| Client code | `src/js/**/*.ts` | Browser | Rollup, into `/js/` in the output directory |
+| Kind        | Location                                                  | Runs in            | Built by                                    |
+| ----------- | --------------------------------------------------------- | ------------------ | ------------------------------------------- |
+| Build code  | `eleventy.config.ts`, `_11ty/**/*.ts`, `src/**/*.11ty.ts` | Node at build time | Nothing. Node strips types natively.        |
+| Client code | `src/js/**/*.ts`                                          | Browser            | Rollup, into `/js/` in the output directory |
 
 The existing project constraints still apply. Pages **MUST** remain fully readable and navigable with JavaScript disabled; client code is progressive enhancement only. No UI framework, CSS framework, or additional bundler is introduced. Rollup is the only bundler, and it touches client code only. Any new client-side runtime dependency still requires approval under `ARCHITECTURE.md`.
 
@@ -60,7 +60,13 @@ Three tsconfig files give each environment the correct globals. Build code canno
     "resolveJsonModule": true,
     "skipLibCheck": true
   },
-  "include": ["eleventy.config.ts", "playwright.config.ts", "_11ty/**/*.ts", "src/**/*.11ty.ts", "src/_data/**/*"],
+  "include": [
+    "eleventy.config.ts",
+    "playwright.config.ts",
+    "_11ty/**/*.ts",
+    "src/**/*.11ty.ts",
+    "src/_data/**/*"
+  ],
   "exclude": ["src/js/**", "tests/**", "_site/**", "node_modules/**"]
 }
 ```
@@ -100,7 +106,7 @@ Three tsconfig files give each environment the correct globals. Build code canno
 }
 ```
 
-The client config intentionally omits `noEmit` because the Rollup TypeScript plugin emits through it. Type checking for all three runs via `npm run typecheck` (see `SPEC_LINT.md`), passing `--noEmit` on the command line.
+The client config intentionally omits `noEmit` because the Rollup TypeScript plugin emits through it. Type checking for all three runs via `npm run typecheck` (see `SPEC_LINTING.md`), passing `--noEmit` on the command line.
 
 `any` is not permitted in source (lint-enforced). Untyped external data (JSON files, front matter, `fetch` responses, `postMessage` payloads) enters as `unknown` and is narrowed by a type guard or parser function, which is unit-tested.
 
@@ -130,7 +136,10 @@ export default function (eleventyConfig: UserConfig) {
 
   eleventyConfig.addShortcode("jsRev", () => bundle?.rev ?? "");
   eleventyConfig.addShortcode("inlineScript", (name: string) => bundle?.inline[name]?.code ?? "");
-  eleventyConfig.addShortcode("modulePreloads", (entry: string) => bundle?.preloadTags(entry) ?? "");
+  eleventyConfig.addShortcode(
+    "modulePreloads",
+    (entry: string) => bundle?.preloadTags(entry) ?? "",
+  );
   eleventyConfig.addWatchTarget("src/js");
   eleventyConfig.ignores.add("src/**/*.test.ts");
 
@@ -172,9 +181,7 @@ Build helpers export functions and perform no I/O at import time. The build date
 src/js/
   tsconfig.json
   entries/                 # Rollup inputs; one per script tag
-    site.ts
-    hacklas.ts
-    post.ts
+    site.ts                # every module that can appear after a <main> swap
     theme-init.ts          # built as a classic IIFE and inlined
   platform.ts              # the only file touching storage, fetch, clipboard, matchMedia, observers
   lifecycle.ts             # registerModules(): init on load, teardown/re-init on soft navigation
@@ -188,7 +195,7 @@ src/js/
   ...
 ```
 
-`src/js/` stays flat apart from `entries/`. Entry files are named for the page group that loads them, not for individual features.
+`src/js/` stays flat apart from `entries/`. There are two entries so soft navigation keeps working without changing which code ships on which page: `theme-init` (inline IIFE) and `site` (all feature modules that today load on every page). `hacklas-disclaimer-init` is a classic IIFE **file** (blocking, `'self'`), not a third module entry and not a second CSP-hashed inline. Page-group entries (`hacklas.ts`, `post.ts`) are out of this program; adding them would change what home vs posts download.
 
 ### 5.2 Module contract
 
@@ -198,7 +205,7 @@ A feature module **MUST NOT** have side effects at import time: no DOM queries, 
 
 `init(root, deps?)` enhances every matching hook inside `root` and returns a teardown function that removes everything it added. It **MUST** be idempotent: calling it twice on the same root does not double-bind. Hooks are located by `data-*` attributes (the markup contract with the templates), never by BEM class names, so CSS refactors cannot break behavior.
 
-Dependencies on browser capabilities that may be missing, blocked, or nondeterministic (storage, `fetch`, clipboard, `matchMedia`, `IntersectionObserver`, timers, the current URL) are passed in through `deps` with production defaults. Storage access is always wrapped, because `localStorage` throws when blocked. Production defaults for these dependencies live in `src/js/platform.ts` (for example `safeLocalStorage()`), which is the only client file permitted to touch those globals directly. This is lint-enforced (`SPEC_LINT.md` §3).
+Dependencies on browser capabilities that may be missing, blocked, or nondeterministic (storage, `fetch`, clipboard, `matchMedia`, `IntersectionObserver`, timers, the current URL) are passed in through `deps` with production defaults. Storage access is always wrapped, because `localStorage` throws when blocked. Production defaults for these dependencies live in `src/js/platform.ts` (for example `safeLocalStorage()`), which is the only client file permitted to touch those globals directly. This is lint-enforced (`SPEC_LINTING.md` §3).
 
 ```ts
 import { safeLocalStorage } from "./platform";
@@ -253,13 +260,16 @@ Modules communicate only through imports and DOM events. Assigning to `window` o
 Entry files contain only imports and `init` calls. They are the only client files allowed to have top-level side effects, and they are excluded from unit-test coverage because they have no logic.
 
 ```ts
-// src/js/entries/post.ts
+// src/js/entries/site.ts
 import { registerModules } from "../lifecycle";
+import * as theme from "../theme";
 import * as codeBlocks from "../code-blocks";
 import * as lightbox from "../image-lightbox";
 import * as comments from "../comments";
+import * as search from "../booru-search";
+// ...every other module that currently loads on every page for soft-nav
 
-registerModules([codeBlocks, lightbox, comments]);
+registerModules([theme, codeBlocks, lightbox, comments, search /* ... */]);
 ```
 
 ---
@@ -269,7 +279,7 @@ registerModules([codeBlocks, lightbox, comments]);
 ### 6.1 Dependencies
 
 ```bash
-npm i -D rollup @rollup/plugin-typescript @rollup/plugin-terser typescript tslib
+npm i -D rollup @rollup/plugin-typescript @rollup/plugin-terser typescript tslib @types/node
 ```
 
 `@rollup/plugin-node-resolve` is added only if an approved client-side npm dependency is introduced.
@@ -287,6 +297,7 @@ import typescript from "@rollup/plugin-typescript";
 import terser from "@rollup/plugin-terser";
 
 const INLINE_ENTRIES = new Set(["theme-init"]);
+const CLASSIC_FILE_ENTRIES = new Set(["hacklas-disclaimer-init"]);
 let cache: RollupCache | undefined;
 
 export interface BundleOptions {
@@ -295,7 +306,11 @@ export interface BundleOptions {
   minify: boolean;
 }
 
-export async function bundleClient({ entryDir, outDir, minify }: BundleOptions): Promise<BundleResult> {
+export async function bundleClient({
+  entryDir,
+  outDir,
+  minify,
+}: BundleOptions): Promise<BundleResult> {
   const entries = listEntries(entryDir);
   const plugins = [typescript({ tsconfig: "src/js/tsconfig.json" }), minify && terser()];
 
@@ -319,11 +334,14 @@ export async function bundleClient({ entryDir, outDir, minify }: BundleOptions):
   // Inline entries: classic IIFE, returned as a string for the template to inline
   const inline = await buildInline(entries.inline, plugins);
 
-  return createResult(output.filter((o): o is OutputChunk => o.type === "chunk"), inline);
+  return createResult(
+    output.filter((o): o is OutputChunk => o.type === "chunk"),
+    inline,
+  );
 }
 ```
 
-`listEntries`, `buildInline`, and `createResult` live in the same module and are unit-tested against a fixture entry directory (see `SPEC_TEST_TS.md`).
+`listEntries`, `buildInline`, and `createResult` live in the same module and are unit-tested against a fixture entry directory (see `SPEC_TEST_TS.md`). `CLASSIC_FILE_ENTRIES` are built as IIFE files to `/js/` (blocking `'self'` scripts). `hacklas-disclaimer-init` is in that set so it can hide the disclaimer before first paint without a second CSP hash.
 
 ### 6.3 Output contract
 
@@ -332,8 +350,8 @@ Module entries are emitted as ES modules at stable paths (`/js/<entry>.js`) and 
 `BundleResult.preloadTags(entry)` returns `<link rel="modulepreload">` tags for an entry's static chunk imports, taken from Rollup's chunk metadata. Templates **SHOULD** emit them in `<head>` alongside the entry so chunks download in parallel with the entry instead of after it.
 
 ```njk
-{% modulePreloads "post" | safe %}
-<script type="module" src="{{ '/js/post.js' | url }}?v={% jsRev %}"></script>
+{% modulePreloads "site" | safe %}
+<script type="module" src="{{ '/js/site.js' | url }}?v={% jsRev %}"></script>
 ```
 
 Source maps are published next to each chunk. The site is open source, so there is nothing to hide, and they make production errors debuggable.
@@ -358,9 +376,9 @@ The Lighthouse script remains the check for real-world impact. Run it before and
 
 ## 8. Migration order
 
-Migrate in small, independently shippable steps, each keeping the site deployable. Tests are written against the current behavior before each file is converted, so every conversion is a behavior-preserving refactor under `SPEC_TEST_TS.md` §8.
+The destination is this spec. The path, stop-and-check cadence, and allowed deviations are [BUILD_TEST_REFACTOR.md](BUILD_TEST_REFACTOR.md). Follow that playbook for order; do not invent a parallel sequence.
 
-The sequence is as follows. Start with the tooling baseline: Node 24, `"type": "module"`, Prettier, ESLint, and the three tsconfigs with `allowJs` and `checkJs` enabled so existing JavaScript is type-checked before it is renamed. Then set up Jest and the integration build harness, and write site-wide integration tests against the current build. Next, convert the build helpers in `_11ty/` one file at a time to TypeScript with unit tests, followed by `.eleventy.js` itself. Then introduce Rollup with the existing client scripts as entries, unchanged, and switch templates to module script tags, confirming zero visual snapshot diffs. After that, convert client scripts one at a time to TypeScript modules following the §5.2 contract, removing `window` globals as their consumers are converted. Finally, remove `allowJs` and `checkJs`, and delete the passthrough copy of `src/js`.
+Migrate in small, independently shippable stops, each keeping the site deployable. Tests are written against the current behavior before each file is converted, so every conversion is a behavior-preserving refactor under `SPEC_TEST_TS.md` §8.
 
 `ARCHITECTURE.md`, the README's client JS section, and `.cursor/rules/project.mdc` **MUST** be updated in the first step to permit Rollup and the `tests/` directory, since both are currently disallowed there.
 

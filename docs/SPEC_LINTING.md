@@ -16,6 +16,7 @@ Everything marked **MUST** is enforced in CI and pre-commit. **SHOULD** means de
 
 ```bash
 npm i -D eslint @eslint/js typescript-eslint globals eslint-config-prettier \
+  eslint-plugin-unicorn \
   eslint-plugin-jest eslint-plugin-testing-library eslint-plugin-playwright \
   @eslint-community/eslint-plugin-eslint-comments \
   prettier lint-staged simple-git-hooks
@@ -38,9 +39,7 @@ npm i -D eslint @eslint/js typescript-eslint globals eslint-config-prettier \
   "bracketSpacing": true,
   "arrowParens": "always",
   "endOfLine": "lf",
-  "overrides": [
-    { "files": "*.md", "options": { "proseWrap": "preserve" } }
-  ]
+  "overrides": [{ "files": "*.md", "options": { "proseWrap": "preserve" } }]
 }
 ```
 
@@ -56,6 +55,7 @@ node_modules/
 playwright-report/
 test-results/
 package-lock.json
+yarn.lock
 
 # Authored content: formatting changes create noise in content diffs
 src/**/*.md
@@ -104,6 +104,7 @@ import prettier from "eslint-config-prettier/flat";
 import jest from "eslint-plugin-jest";
 import playwright from "eslint-plugin-playwright";
 import testingLibrary from "eslint-plugin-testing-library";
+import unicorn from "eslint-plugin-unicorn";
 import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -130,6 +131,7 @@ export default defineConfig([
       tseslint.configs.strictTypeChecked,
       tseslint.configs.stylisticTypeChecked,
       comments.recommended,
+      unicorn.configs.recommended,
     ],
     languageOptions: {
       parserOptions: {
@@ -146,9 +148,12 @@ export default defineConfig([
       "prefer-const": "error",
       "@typescript-eslint/switch-exhaustiveness-check": "error",
       "@typescript-eslint/explicit-module-boundary-types": "error",
-      "@typescript-eslint/consistent-type-imports": ["error", {
-        fixStyle: "separate-type-imports",
-      }],
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          fixStyle: "separate-type-imports",
+        },
+      ],
       "@typescript-eslint/no-import-type-side-effects": "error",
 
       // Security
@@ -174,27 +179,24 @@ export default defineConfig([
         },
         {
           selector: "TSParameterProperty",
-          message:
-            "Parameter properties are not erasable; declare fields explicitly.",
+          message: "Parameter properties are not erasable; declare fields explicitly.",
         },
       ],
 
       // Every disable comment must say why
-      "@eslint-community/eslint-comments/require-description": ["error", {
-        ignore: [],
-      }],
+      "@eslint-community/eslint-comments/require-description": [
+        "error",
+        {
+          ignore: [],
+        },
+      ],
       "@eslint-community/eslint-comments/no-unlimited-disable": "error",
     },
   },
 
   // ---------- Build code (Node) ----------
   {
-    files: [
-      "eleventy.config.ts",
-      "_11ty/**/*.ts",
-      "src/**/*.11ty.ts",
-      "playwright.config.ts",
-    ],
+    files: ["eleventy.config.ts", "_11ty/**/*.ts", "src/**/*.11ty.ts", "playwright.config.ts"],
     languageOptions: { globals: globals.node },
   },
 
@@ -207,10 +209,12 @@ export default defineConfig([
       "no-restricted-imports": [
         "error",
         {
-          patterns: [{
-            group: ["node:*"],
-            message: "Client code cannot import Node built-ins.",
-          }],
+          patterns: [
+            {
+              group: ["node:*"],
+              message: "Client code cannot import Node built-ins.",
+            },
+          ],
         },
       ],
       "no-restricted-properties": [
@@ -257,8 +261,7 @@ export default defineConfig([
         },
         {
           selector: "TSParameterProperty",
-          message:
-            "Parameter properties are not erasable; declare fields explicitly.",
+          message: "Parameter properties are not erasable; declare fields explicitly.",
         },
         {
           selector:
@@ -268,14 +271,12 @@ export default defineConfig([
         },
         {
           selector: "CallExpression[callee.property.name='insertAdjacentHTML']",
-          message:
-            "No HTML string sinks. Use insertAdjacentElement or the DOM API.",
+          message: "No HTML string sinks. Use insertAdjacentElement or the DOM API.",
         },
         {
           selector:
             "AssignmentExpression > MemberExpression.left[object.name=/^(window|globalThis|self)$/]",
-          message:
-            "No globals. Export functions and import them (SPEC_BUILD_TS.md §5.3).",
+          message: "No globals. Export functions and import them (SPEC_BUILD_TS.md §5.3).",
         },
       ],
     },
@@ -306,8 +307,7 @@ export default defineConfig([
       "jest/no-restricted-jest-methods": [
         "error",
         {
-          mock:
-            "Do not mock in-repo modules. Inject boundaries instead (SPEC_TEST_TS.md §6.3).",
+          mock: "Do not mock in-repo modules. Inject boundaries instead (SPEC_TEST_TS.md §6.3).",
         },
       ],
       "@typescript-eslint/unbound-method": "off",
@@ -322,9 +322,12 @@ export default defineConfig([
     rules: {
       "testing-library/prefer-screen-queries": "error",
       "testing-library/prefer-user-event": "error",
-      "testing-library/no-node-access": ["error", {
-        allowContainerFirstChild: false,
-      }],
+      "testing-library/no-node-access": [
+        "error",
+        {
+          allowContainerFirstChild: false,
+        },
+      ],
     },
   },
 
@@ -345,7 +348,11 @@ export default defineConfig([
   // ---------- Plain JS config files ----------
   {
     files: ["**/*.js"],
-    extends: [js.configs.recommended, tseslint.configs.disableTypeChecked],
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.disableTypeChecked,
+      unicorn.configs.recommended,
+    ],
     languageOptions: { globals: globals.node },
   },
 
@@ -361,6 +368,8 @@ Flat config applies the last matching `rules` entry for a given rule, so the cli
 The rule set exists to protect the guarantees in the other specs, and every rule traces back to one of them.
 
 The **type-aware strict presets** catch unhandled promises (`no-floating-promises`, `no-misused-promises`), unsafe `any` flow, unnecessary conditions that hide dead branches, and non-exhaustive `switch` statements. Dead branches matter here specifically because they are uncoverable and drag branch coverage below 90%.
+
+**eslint-plugin-unicorn `recommended`** is the extra baseline for modern JavaScript and TypeScript idioms (ESM, current APIs, no leftover CommonJS patterns). It is a first-class ESLint 10 flat-config preset. Official `eslint-config-airbnb` / `airbnb-base` are not used: they do not support ESLint 10, and community shims are out of scope. Extra Unicorn rules can be turned on individually when a concrete antipattern shows up.
 
 The **complexity limits** (cyclomatic complexity 10, nesting depth 3, three parameters) keep functions small enough that every branch can be tested directly. A function that exceeds them is split, or its options are grouped into an object parameter.
 
@@ -410,7 +419,7 @@ Block-level `/* eslint-disable */` without a rule name is an error. Unused disab
     "lint": "eslint . --max-warnings=0 --cache --cache-location .cache/eslint/",
     "lint:fix": "eslint . --fix --cache --cache-location .cache/eslint/",
     "typecheck": "tsc -p tsconfig.json && tsc -p src/js/tsconfig.json --noEmit && tsc -p tests/tsconfig.json",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test:ci",
+    "check": "yarn format:check && yarn lint && yarn typecheck && yarn test:ci",
     "prepare": "simple-git-hooks"
   }
 }
@@ -432,14 +441,8 @@ Staged files are formatted and linted before every commit. Type checking and tes
     "pre-commit": "npx lint-staged"
   },
   "lint-staged": {
-    "*.ts": [
-      "prettier --write",
-      "eslint --fix --max-warnings=0 --no-warn-ignored"
-    ],
-    "*.js": [
-      "prettier --write",
-      "eslint --fix --max-warnings=0 --no-warn-ignored"
-    ],
+    "*.ts": ["prettier --write", "eslint --fix --max-warnings=0 --no-warn-ignored"],
+    "*.js": ["prettier --write", "eslint --fix --max-warnings=0 --no-warn-ignored"],
     "*.{json,css,yml,yaml}": "prettier --write",
     "docs/**/*.md": "prettier --write"
   }
@@ -464,13 +467,13 @@ check:
     - uses: actions/setup-node@v5
       with:
         node-version-file: .nvmrc
-        cache: npm
-    - run: npm ci
-    - run: npm audit --audit-level=high
-    - run: npm run format:check
-    - run: npm run lint
-    - run: npm run typecheck
-    - run: npm run test:ci
+        cache: yarn
+    - run: yarn install --frozen-lockfile
+    - run: yarn audit --level high
+    - run: yarn format:check
+    - run: yarn lint
+    - run: yarn typecheck
+    - run: yarn test:ci
     - if: always()
       uses: actions/upload-artifact@v4
       with:
@@ -485,7 +488,7 @@ The existing `build` job gains `needs: [check, visual]`, where `visual` is the j
 
 ## 8. Adopting on the existing codebase
 
-Introduce the tooling in this order so the first PRs are reviewable. First, add Prettier and run `npm run format` in a single commit containing only formatting changes. Add that commit's hash to `.git-blame-ignore-revs` so `git blame` skips it. Next, add ESLint with the full config. During the JavaScript-to-TypeScript migration (`SPEC_BUILD_TS.md` §8), not-yet-converted `.js` files in `_11ty/` and `src/js/` are listed in a temporary `globalIgnores` block labelled `// TODO(ts-migration)`, and each file is removed from that list in the same PR that converts it. The migration is finished when that block is empty and deleted.
+Introduce the tooling in this order so the first PRs are reviewable. First, add Prettier and run `yarn format` in a single commit containing only formatting changes. Add that commit's hash to `.git-blame-ignore-revs` so `git blame` skips it. Next, add ESLint with the full config. During the JavaScript-to-TypeScript migration (`SPEC_BUILD_TS.md` §8), not-yet-converted `.js` files in `_11ty/` and `src/js/` are listed in a temporary `globalIgnores` block labelled `// TODO(ts-migration)`, and each file is removed from that list in the same PR that converts it. The migration is finished when that block is empty and deleted.
 
 Do not bulk-disable rules to get a green run. If a rule produces many violations in legacy code, the violations are fixed as each file is converted.
 
@@ -493,4 +496,4 @@ Do not bulk-disable rules to get a green run. If a rule produces many violations
 
 ## 9. Definition of done
 
-A change is complete when `npm run format:check`, `npm run lint`, and `npm run typecheck` pass with zero warnings. No new disable comments exist without a rule name and description, no `@ts-ignore` is present, and no entries were added to `globalIgnores` or `.prettierignore` without reviewer approval. Client code reaches browser capabilities only through `platform.ts` and uses no HTML string sinks or `window` globals.
+A change is complete when `yarn format:check`, `yarn lint`, and `yarn typecheck` pass with zero warnings. No new disable comments exist without a rule name and description, no `@ts-ignore` is present, and no entries were added to `globalIgnores` or `.prettierignore` without reviewer approval. Client code reaches browser capabilities only through `platform.ts` and uses no HTML string sinks or `window` globals.

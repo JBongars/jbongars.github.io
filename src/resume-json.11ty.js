@@ -1,5 +1,5 @@
-const resume = require("./_data/resume.json");
-const { siteOrigin } = require("../_11ty/paths");
+import resume from "./_data/resume.json" with { type: "json" };
+import { siteOrigin } from "../_11ty/paths.js";
 
 function parseYearRange(dates) {
   const m = String(dates || "").match(/(\d{4})\s*[–-]\s*(\d{4}|present)?/i);
@@ -9,59 +9,72 @@ function parseYearRange(dates) {
   return out;
 }
 
-function toJsonResume(src) {
+function toWorkItem(role) {
+  const item = {
+    name: role.company,
+    position: role.title,
+    startDate: role.start,
+    highlights: Array.isArray(role.bullets) ? role.bullets.filter(Boolean) : [],
+  };
+  if (role.end && !/^present$/i.test(String(role.end))) {
+    item.endDate = role.end;
+  }
+  if (role.location) {
+    item.location = role.location;
+  }
+  if (role.agency) {
+    item.description = `via ${role.agency}`;
+  }
+  if (Array.isArray(role.links) && role.links[0]?.url) {
+    item.url = role.links[0].url;
+  }
+  if (item.highlights.length === 0) {
+    delete item.highlights;
+  }
+  return item;
+}
+
+function toBasics(source) {
   const origin = siteOrigin();
   const basics = {
-    name: src.name,
-    label: src.title,
-    location: src.location
-      ? { city: src.location, countryCode: "SG" }
-      : undefined,
+    name: source.name,
+    label: source.title,
+    location: source.location ? { city: source.location, countryCode: "SG" } : undefined,
     profiles: [],
   };
   if (origin) {
     basics.url = `${origin}/`;
     basics.image = `${origin}/img/profile.jpg`;
   }
-  if (src.linkedin) {
+  if (source.linkedin) {
     basics.profiles.push({
       network: "LinkedIn",
       username: "julienbongars",
-      url: src.linkedin,
+      url: source.linkedin,
     });
   }
-  if (src.github) {
+  if (source.github) {
     basics.profiles.push({
       network: "GitHub",
       username: "jbongars",
-      url: src.github,
+      url: source.github,
     });
   }
-  if (!basics.profiles.length) delete basics.profiles;
-  if (src.biography) basics.summary = src.biography;
+  if (basics.profiles.length === 0) {
+    delete basics.profiles;
+  }
+  if (source.biography) {
+    basics.summary = source.biography;
+  }
+  return basics;
+}
 
-  const work = (src.experience || []).map((role) => {
-    const item = {
-      name: role.company,
-      position: role.title,
-      startDate: role.start,
-      highlights: Array.isArray(role.bullets) ? role.bullets.filter(Boolean) : [],
-    };
-    if (role.end && !/^present$/i.test(String(role.end))) {
-      item.endDate = role.end;
-    }
-    if (role.location) item.location = role.location;
-    if (role.agency) {
-      item.description = `via ${role.agency}`;
-    }
-    if (Array.isArray(role.links) && role.links[0]?.url) {
-      item.url = role.links[0].url;
-    }
-    if (!item.highlights.length) delete item.highlights;
-    return item;
-  });
+function toJsonResume(source) {
+  const basics = toBasics(source);
 
-  const education = (src.education || []).map((item) => {
+  const work = (source.experience || []).map((role) => toWorkItem(role));
+
+  const education = (source.education || []).map((item) => {
     const row = {
       institution: item.institution,
       area: item.program,
@@ -70,16 +83,16 @@ function toJsonResume(src) {
     return row;
   });
 
-  const certificates = (src.certificates || []).map((cert) => {
+  const certificates = (source.certificates || []).map((cert) => {
     const row = { name: cert.name };
     if (cert.issuer) row.issuer = cert.issuer;
     if (cert.year) row.date = String(cert.year);
     return row;
   });
 
-  const skills = (src.skills || []).map((name) => ({ name }));
+  const skills = (source.skills || []).map((name) => ({ name }));
 
-  const doc = {
+  const document = {
     $schema: "https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json",
     basics,
     work,
@@ -88,12 +101,16 @@ function toJsonResume(src) {
     skills,
   };
 
-  return doc;
+  return document;
 }
 
-module.exports.data = () => ({
-  permalink: "/resume.json",
-  eleventyExcludeFromCollections: true,
-});
+export function data() {
+  return {
+    permalink: "/resume.json",
+    eleventyExcludeFromCollections: true,
+  };
+}
 
-module.exports.render = () => `${JSON.stringify(toJsonResume(resume), null, 2)}\n`;
+export function render() {
+  return `${JSON.stringify(toJsonResume(resume), undefined, 2)}\n`;
+}

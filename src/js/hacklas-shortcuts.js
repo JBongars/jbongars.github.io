@@ -1,16 +1,31 @@
 /* Progressive enhancement: Hacklas keyboard shortcuts.
    Site works without this file. */
-(function () {
+(function enhanceHacklasShortcuts() {
   "use strict";
 
+  const NON_TEXT_INPUT_TYPES = new Set([
+    "checkbox",
+    "radio",
+    "button",
+    "submit",
+    "reset",
+    "file",
+    "hidden",
+    "range",
+    "color",
+    "image",
+  ]);
+
   function sitePath() {
-    var prefix = document.documentElement.getAttribute("data-path-prefix") || "/";
-    var prefixTrim = prefix.replace(/\/$/, "");
-    var rest = location.pathname || "/";
+    const prefix = document.documentElement.dataset.pathPrefix || "/";
+    const prefixTrim = prefix.replace(/\/$/, "");
+    let rest = location.pathname || "/";
     if (prefixTrim && rest.indexOf(prefixTrim) === 0) {
       rest = rest.slice(prefixTrim.length) || "/";
     }
-    if (rest.charAt(0) !== "/") rest = "/" + rest;
+    if (rest.charAt(0) !== "/") {
+      rest = "/" + rest;
+    }
     return rest.replace(/\/+$/, "") || "/";
   }
 
@@ -19,92 +34,107 @@
   }
 
   function isHacklasNote() {
-    var p = sitePath();
-    return p.indexOf("/hacklas/") === 0;
+    return sitePath().indexOf("/hacklas/") === 0;
   }
 
-  function isTextField(el) {
-    if (!el || el === document.body || el === document.documentElement) return false;
-    if (el.isContentEditable) return true;
-    var tag = (el.tagName || "").toLowerCase();
-    if (tag === "textarea" || tag === "select") return true;
-    if (tag !== "input") return false;
-    var type = (el.getAttribute("type") || "text").toLowerCase();
-    if (type === "checkbox" || type === "radio" || type === "button" || type === "submit" || type === "reset" || type === "file" || type === "hidden" || type === "range" || type === "color" || type === "image") {
+  function isTextField(element) {
+    if (!element || element === document.body || element === document.documentElement) {
       return false;
     }
-    return true;
+    if (element.isContentEditable) {
+      return true;
+    }
+    const tag = (element.tagName || "").toLowerCase();
+    if (tag === "textarea" || tag === "select") {
+      return true;
+    }
+    if (tag !== "input") {
+      return false;
+    }
+    const type = (element.getAttribute("type") || "text").toLowerCase();
+    return !NON_TEXT_INPUT_TYPES.has(type);
   }
 
-  function isSearchUi(el) {
-    if (!el || !el.closest) return false;
-    return !!(el.closest(".tag-search") || el.closest("[data-fuzzy-find]"));
+  function isSearchUi(element) {
+    if (!element?.closest) {
+      return false;
+    }
+    return !!(element.closest(".tag-search") || element.closest("[data-fuzzy-find]"));
   }
 
   function overlayOpen() {
-    var help = document.querySelector("[data-shortcuts-modal]");
-    if (help && !help.hidden) return true;
-    var disc = document.querySelector("[data-hacklas-disclaimer]");
-    if (disc && !disc.hidden) return true;
-    return false;
+    const help = document.querySelector("[data-shortcuts-modal]");
+    if (help && !help.hidden) {
+      return true;
+    }
+    const disclaimer = document.querySelector("[data-hacklas-disclaimer]");
+    return Boolean(disclaimer && !disclaimer.hidden);
   }
 
   function hacklasHref() {
-    return typeof window.siteUrl === "function"
-      ? window.siteUrl("/hacklas/")
-      : "/hacklas/";
+    return typeof globalThis.siteUrl === "function" ? globalThis.siteUrl("/hacklas/") : "/hacklas/";
   }
 
   function goToHacklas() {
-    var href = hacklasHref();
-    var links = document.querySelectorAll(".nav-list a[href]");
-    for (var i = 0; i < links.length; i++) {
+    const href = hacklasHref();
+    const links = document.querySelectorAll(".nav-list a[href]");
+    for (const link of links) {
       try {
-        var u = new URL(links[i].href, location.href);
-        var target = new URL(href, location.href);
-        if (u.pathname.replace(/\/$/, "") === target.pathname.replace(/\/$/, "")) {
-          links[i].click();
+        const url = new URL(link.href, location.href);
+        const target = new URL(href, location.href);
+        if (url.pathname.replace(/\/$/, "") === target.pathname.replace(/\/$/, "")) {
+          link.click();
           return;
         }
-      } catch (_) {}
+      } catch {
+        // Ignore malformed hrefs.
+      }
     }
     location.assign(href);
   }
 
-  function typeIntoSearch(ch) {
-    var input = document.querySelector("[data-fuzzy-find] .fuzzy-find__input");
-    if (!input) return false;
+  function typeIntoSearch(character) {
+    const input = document.querySelector("[data-fuzzy-find] .fuzzy-find__input");
+    if (!input) {
+      return false;
+    }
     input.focus();
-    input.value = String(input.value || "") + ch;
+    input.value = String(input.value || "") + character;
     if (typeof input.setSelectionRange === "function") {
-      var len = input.value.length;
-      input.setSelectionRange(len, len);
+      const length_ = input.value.length;
+      input.setSelectionRange(length_, length_);
     }
     input.dispatchEvent(new Event("input", { bubbles: true }));
     return true;
   }
 
-  function openFirstResult() {
-    var list = document.querySelector("[data-fuzzy-list]");
-    if (!list) return false;
-    var active = list.querySelector("li.is-active");
-    var item = active && active.style.display !== "none" ? active : null;
-    if (!item) {
-      var items = list.children;
-      for (var i = 0; i < items.length; i++) {
-        if (items[i].style.display === "none") continue;
-        item = items[i];
-        break;
+  function firstVisibleItem(list) {
+    const active = list.querySelector("li.is-active");
+    if (active && active.style.display !== "none") {
+      return active;
+    }
+    for (const item of list.children) {
+      if (item.style.display !== "none") {
+        return item;
       }
     }
-    var link = item && item.querySelector("a[href]");
-    if (!link) return false;
+  }
+
+  function openFirstResult() {
+    const list = document.querySelector("[data-fuzzy-list]");
+    if (!list) {
+      return false;
+    }
+    const link = firstVisibleItem(list)?.querySelector("a[href]");
+    if (!link) {
+      return false;
+    }
     link.click();
     return true;
   }
 
   function goBackFromNote() {
-    var link = document.querySelector("a[data-back]");
+    const link = document.querySelector("a[data-back]");
     if (link) {
       link.click();
       return;
@@ -112,48 +142,81 @@
     history.back();
   }
 
-  function isActivateKey(el) {
-    var tag = (el && el.tagName ? el.tagName : "").toLowerCase();
-    return tag === "a" || tag === "button" || tag === "summary";
+  function isActivateKey(element) {
+    const tag = (element?.tagName || "").toLowerCase();
+    return ["a", "button", "summary"].includes(tag);
+  }
+
+  function shouldIgnoreShortcut(event) {
+    if (event.defaultPrevented || event.isComposing) {
+      return true;
+    }
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+      return true;
+    }
+    if (overlayOpen()) {
+      return true;
+    }
+    return isTextField(document.activeElement) || isSearchUi(document.activeElement);
+  }
+
+  function handleEnter(event) {
+    if (event.key !== "Enter") {
+      return false;
+    }
+    if (isActivateKey(document.activeElement) || !isHacklasIndex()) {
+      return true;
+    }
+    if (openFirstResult()) {
+      event.preventDefault();
+    }
+    return true;
+  }
+
+  function handleBackspace(event) {
+    if (event.key !== "Backspace") {
+      return false;
+    }
+    if (event.repeat || !isHacklasNote()) {
+      return true;
+    }
+    event.preventDefault();
+    goBackFromNote();
+    return true;
+  }
+
+  function handleHacklasKey(event) {
+    if (isHacklasIndex() || (event.key !== "h" && event.key !== "H")) {
+      return false;
+    }
+    if (event.repeat) {
+      return true;
+    }
+    event.preventDefault();
+    goToHacklas();
+    return true;
   }
 
   document.addEventListener(
     "keydown",
-    function (e) {
-      if (e.defaultPrevented || e.isComposing) return;
-      if (e.ctrlKey || e.metaKey || e.altKey) return;
-      if (overlayOpen()) return;
-      if (isTextField(document.activeElement) || isSearchUi(document.activeElement)) return;
-
-      if (e.key === "Enter") {
-        if (isActivateKey(document.activeElement)) return;
-        if (!isHacklasIndex()) return;
-        if (openFirstResult()) e.preventDefault();
+    (event) => {
+      if (shouldIgnoreShortcut(event)) {
         return;
       }
-
-      if (e.key === "Backspace") {
-        if (e.repeat) return;
-        if (!isHacklasNote()) return;
-        e.preventDefault();
-        goBackFromNote();
+      if (handleEnter(event) || handleBackspace(event)) {
         return;
       }
-
-      if (!e.key || e.key.length !== 1) return;
-
-      if (!isHacklasIndex() && (e.key === "h" || e.key === "H")) {
-        if (e.repeat) return;
-        e.preventDefault();
-        goToHacklas();
+      if (!event.key || event.key.length !== 1) {
         return;
       }
-
+      if (handleHacklasKey(event)) {
+        return;
+      }
       if (isHacklasIndex()) {
-        e.preventDefault();
-        typeIntoSearch(e.key);
+        event.preventDefault();
+        typeIntoSearch(event.key);
       }
     },
-    true
+    { capture: true },
   );
 })();

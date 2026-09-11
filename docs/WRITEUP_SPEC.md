@@ -71,7 +71,7 @@ never reproduced.**
 
 Passwords, hashes, tokens, and other recovered secrets are **not** globally
 redacted — they are real technical content. They stay in the body (in the
-  relevant stage and in the _Credentials_ section). A hash the author captured
+relevant stage and in the _Credentials_ section). A hash the author captured
 and cracked is evidence, not a flag; keep it as-is. The **only** place a
 literal password or secret is withheld is the _Summary_ — see the Summary
 entry under _Document structure_.
@@ -178,6 +178,7 @@ nothing for it (except the ones marked **required**).
    **`db.json` (via LFI)** — `testuser@imagery.htb` md5 `2c65c8d7…` → `iambatman`
    Cracked (rockyou).
    ```
+
 5. **`## Key lessons`** — bulleted. Fold the author's retro / "lessons" here.
    Each bullet is a durable, transferable takeaway, bolded lead-in then the
    detail. Keep the author's actual insights; don't replace them with
@@ -191,9 +192,9 @@ nothing for it (except the ones marked **required**).
    dump**. Box-specific invocations already live in the stages. This section
    is a map: what was used here, linked to the reusable Hacklas note.
 
-   ~~~~
+   ```
    - [`tcpdump`](/hacklas/enumeration/tcp/tcpdump.md) — Confirm Log4Shell LDAP callback
-   ~~~~
+   ```
 
    Link the tool name to the matching `src/hacklas/**/*.md` note with a
    site-root `.md` href (the markdown pipeline rewrites it to a pretty URL).

@@ -1,8 +1,12 @@
-const { bundleCss } = require("../../_11ty/css");
+import { bundleCss } from "../../_11ty/css.js";
 
-module.exports.data = () => ({
-  permalink: "/css/style.css",
-  eleventyExcludeFromCollections: true,
-});
+export function data() {
+  return {
+    permalink: "/css/style.css",
+    eleventyExcludeFromCollections: true,
+  };
+}
 
-module.exports.render = () => bundleCss();
+export function render() {
+  return bundleCss();
+}

@@ -1,7 +1,6 @@
-
 # SPEC: Snapshot Testing (Visual & Structural)
 
-This spec defines how rendered output is protected against regressions. Unit and integration tests (`SPEC_TEST_TS.md`) prove the build and the client modules behave correctly; snapshot tests prove pages still *contain* the right things and still *look* right in a real browser. A behavior-preserving refactor must produce zero test failures and zero snapshot diffs.
+This spec defines how rendered output is protected against regressions. Unit and integration tests (`SPEC_TEST_TS.md`) prove the build and the client modules behave correctly; snapshot tests prove pages still _contain_ the right things and still _look_ right in a real browser. A behavior-preserving refactor must produce zero test failures and zero snapshot diffs.
 
 Everything marked **MUST** is enforced in review and CI. **SHOULD** means deviations need a stated reason in the PR.
 
@@ -9,10 +8,10 @@ Everything marked **MUST** is enforced in review and CI. **SHOULD** means deviat
 
 ## 1. What gets snapshotted, and against what
 
-| Suite | Runs against | Method | Catches |
-|---|---|---|---|
-| Visual | A **fixture site**: the real templates, CSS, and JS, built with fixed fixture content | ARIA snapshots + screenshots, compared to committed baselines | Any structural or visual change caused by templates, CSS, build helpers, or client code |
-| Smoke | The **real site**: the real templates built with the real content | Assertions only, no baselines | Breakage on real content: console and CSP errors, broken images, horizontal overflow, non-functional no-JS pages |
+| Suite  | Runs against                                                                          | Method                                                        | Catches                                                                                                          |
+| ------ | ------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Visual | A **fixture site**: the real templates, CSS, and JS, built with fixed fixture content | ARIA snapshots + screenshots, compared to committed baselines | Any structural or visual change caused by templates, CSS, build helpers, or client code                          |
+| Smoke  | The **real site**: the real templates built with the real content                     | Assertions only, no baselines                                 | Breakage on real content: console and CSP errors, broken images, horizontal overflow, non-functional no-JS pages |
 
 Snapshots are never taken of real content. If they were, writing or editing a blog post, write-up, or Hacklas note would fail the suite and force a baseline update, and reviewers would learn to approve baseline changes without looking. Pinning the content isolates the one thing snapshots are for: changes in how the site renders. Real content is still checked, but only with assertions that hold regardless of what the content says.
 
@@ -49,7 +48,8 @@ const CONTENT_DIRS = ["blog", "write-ups", "hacklas"];
 rmSync(SRC, { recursive: true, force: true });
 cpSync("src", SRC, {
   recursive: true,
-  filter: (from) => !CONTENT_DIRS.some((dir) => from.startsWith(`src/${dir}/`) || from === `src/${dir}`),
+  filter: (from) =>
+    !CONTENT_DIRS.some((dir) => from.startsWith(`src/${dir}/`) || from === `src/${dir}`),
 });
 cpSync("tests/fixtures/visual-content", SRC, { recursive: true });
 
@@ -122,17 +122,55 @@ export default defineConfig({
   },
 
   projects: [
-    { name: "desktop", ...visual, use: { ...devices["Desktop Chrome"], baseURL: VISUAL_URL, viewport: { width: 1280, height: 800 } } },
-    { name: "tablet", ...visual, use: { ...devices["Desktop Chrome"], baseURL: VISUAL_URL, viewport: { width: 768, height: 1024 } } },
+    {
+      name: "desktop",
+      ...visual,
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: VISUAL_URL,
+        viewport: { width: 1280, height: 800 },
+      },
+    },
+    {
+      name: "tablet",
+      ...visual,
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: VISUAL_URL,
+        viewport: { width: 768, height: 1024 },
+      },
+    },
     { name: "mobile", ...visual, use: { ...devices["Pixel 7"], baseURL: VISUAL_URL } },
-    { name: "no-js", ...visual, use: { ...devices["Desktop Chrome"], baseURL: VISUAL_URL, javaScriptEnabled: false } },
-    { name: "smoke", testDir: "./tests/visual", testMatch: /smoke\.spec\.ts/, use: { ...devices["Pixel 7"], baseURL: SMOKE_URL } },
-    { name: "smoke-no-js", testDir: "./tests/visual", testMatch: /smoke\.spec\.ts/, use: { ...devices["Pixel 7"], baseURL: SMOKE_URL, javaScriptEnabled: false } },
+    {
+      name: "no-js",
+      ...visual,
+      use: { ...devices["Desktop Chrome"], baseURL: VISUAL_URL, javaScriptEnabled: false },
+    },
+    {
+      name: "smoke",
+      testDir: "./tests/visual",
+      testMatch: /smoke\.spec\.ts/,
+      use: { ...devices["Pixel 7"], baseURL: SMOKE_URL },
+    },
+    {
+      name: "smoke-no-js",
+      testDir: "./tests/visual",
+      testMatch: /smoke\.spec\.ts/,
+      use: { ...devices["Pixel 7"], baseURL: SMOKE_URL, javaScriptEnabled: false },
+    },
   ],
 
   webServer: [
-    { command: "npx sirv .cache/visual-site --port 8080 --quiet", url: VISUAL_URL, reuseExistingServer: !process.env["CI"] },
-    { command: "npx sirv .cache/smoke-site --port 8081 --quiet", url: SMOKE_URL, reuseExistingServer: !process.env["CI"] },
+    {
+      command: "npx sirv .cache/visual-site --port 8080 --quiet",
+      url: VISUAL_URL,
+      reuseExistingServer: !process.env["CI"],
+    },
+    {
+      command: "npx sirv .cache/smoke-site --port 8081 --quiet",
+      url: SMOKE_URL,
+      reuseExistingServer: !process.env["CI"],
+    },
   ],
 });
 ```
@@ -195,7 +233,11 @@ export const test = base.extend<{ theme: Theme }>({
   page: async ({ page, theme }, use) => {
     await page.clock.setFixedTime(new Date("2026-01-15T10:00:00Z"));
     await page.addInitScript((t) => {
-      try { localStorage.setItem("theme", t); } catch { /* storage blocked: default theme */ }
+      try {
+        localStorage.setItem("theme", t);
+      } catch {
+        /* storage blocked: default theme */
+      }
     }, theme);
     await page.route("https://giscus.app/**", (route) => route.abort());
     await use(page);
@@ -208,7 +250,9 @@ export async function settle(page: Page): Promise<void> {
     await document.fonts.ready;
     const images = Array.from(document.images);
     for (const img of images) img.loading = "eager";
-    await Promise.all(images.map((img) => (img.complete ? Promise.resolve() : img.decode().catch(() => undefined))));
+    await Promise.all(
+      images.map((img) => (img.complete ? Promise.resolve() : img.decode().catch(() => undefined))),
+    );
   });
 }
 
@@ -236,7 +280,10 @@ import path from "node:path";
 
 const FIXTURE_SITE = ".cache/visual-site";
 
-export interface FixturePage { name: string; path: string }
+export interface FixturePage {
+  name: string;
+  path: string;
+}
 
 /** HTML page paths listed in a built site's sitemap. */
 export function sitemapPaths(sitemapFile: string): string[] {
@@ -259,7 +306,10 @@ export function firstPageWith(hookAttribute: string): string {
     .filter((f) => f.endsWith(".html"))
     .sort()
     .find((f) => readFileSync(path.join(FIXTURE_SITE, f), "utf8").includes(hookAttribute));
-  if (!file) throw new Error(`No fixture page contains ${hookAttribute}; extend tests/fixtures/visual-content`);
+  if (!file)
+    throw new Error(
+      `No fixture page contains ${hookAttribute}; extend tests/fixtures/visual-content`,
+    );
   return `/${file.replace(/index\.html$/, "")}`;
 }
 ```
@@ -298,7 +348,9 @@ for (const { name, path } of fixturePages()) {
 test("site chrome structure", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("banner")).toMatchAriaSnapshot({ name: "chrome-banner.aria.yml" });
-  await expect(page.getByRole("contentinfo")).toMatchAriaSnapshot({ name: "chrome-footer.aria.yml" });
+  await expect(page.getByRole("contentinfo")).toMatchAriaSnapshot({
+    name: "chrome-footer.aria.yml",
+  });
 });
 ```
 
@@ -350,14 +402,18 @@ import { sitemapPaths } from "./pages";
 for (const path of sitemapPaths(".cache/smoke-site/sitemap.xml")) {
   test(`smoke ${path}`, async ({ page }) => {
     const errors: string[] = [];
-    page.on("console", (msg) => { if (msg.type() === "error") errors.push(msg.text()); });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") errors.push(msg.text());
+    });
     page.on("pageerror", (err) => errors.push(err.message));
     await page.route("https://giscus.app/**", (route) => route.abort());
 
     await page.goto(path);
     await expect(page.getByRole("main")).not.toBeEmpty();
 
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    );
     expect(overflow, "horizontal overflow in px").toBeLessThanOrEqual(0);
 
     const broken = await page.evaluate(async () => {
@@ -426,14 +482,14 @@ ARIA passing while screenshots fail indicates a styling regression. Screenshots 
 
 ## 12. CI
 
-Visual and smoke tests run in their own job, in the pinned Playwright container, after the `check` job from `SPEC_LINT.md`. Deployment depends on it.
+Visual and smoke tests run in their own job, in the pinned Playwright container, after the `check` job from `SPEC_LINTING.md`. Deployment depends on it.
 
 ```yaml
 visual:
   needs: check
   runs-on: ubuntu-latest
   container:
-    image: mcr.microsoft.com/playwright:v1.XX.X-noble   # must match @playwright/test in package.json
+    image: mcr.microsoft.com/playwright:v1.XX.X-noble # must match @playwright/test in package.json
     options: --ipc=host
   steps:
     - uses: actions/checkout@v5

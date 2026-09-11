@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`image-lightbox.js marks standalone prose images zoomable and leaves linked images alone 1`] = `
+{
+  "body": "<body xmlns="http://www.w3.org/1999/xhtml">
+<div class="prose">
+  <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Hero" data-zoomable="1" tabindex="0" role="button" aria-label="View image fullscreen: Hero" />
+  <a href="#resume"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Linked" /></a>
+</div>
+</body>",
+  "head": "<head xmlns="http://www.w3.org/1999/xhtml"></head>",
+  "htmlClass": "",
+}
+`;
+
+exports[`image-lightbox.js opens the lightbox on click and closes from the control and Escape 1`] = `
+{
+  "body": "<body xmlns="http://www.w3.org/1999/xhtml">
+<div class="prose">
+  <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Hero" data-zoomable="1" tabindex="0" role="button" aria-label="View image fullscreen: Hero" />
+  <a href="#resume"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Linked" /></a>
+</div>
+<div class="img-lightbox" role="dialog" aria-modal="true" aria-label="Hero"><div class="img-lightbox__stage" style="cursor: zoom-in;"><img class="img-lightbox__img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Hero" draggable="false" style="transform: translate(0px, 0px) scale(1);" /></div><div class="img-lightbox__ui"><p class="img-lightbox__hint">Scroll to zoom · Drag to pan · Double-click to toggle</p><span class="img-lightbox__zoom">100%</span><button type="button" class="img-lightbox__close" aria-label="Close image"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06z"/></svg><span class="visually-hidden">Close</span></button></div></div></body>",
+  "head": "<head xmlns="http://www.w3.org/1999/xhtml"></head>",
+  "htmlClass": "img-lightbox-open",
+}
+`;
+
+exports[`image-lightbox.js opens the lightbox on click and closes from the control and Escape 2`] = `
+{
+  "body": "<body xmlns="http://www.w3.org/1999/xhtml">
+<div class="prose">
+  <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Hero" data-zoomable="1" tabindex="0" role="button" aria-label="View image fullscreen: Hero" />
+  <a href="#resume"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Linked" /></a>
+</div>
+</body>",
+  "head": "<head xmlns="http://www.w3.org/1999/xhtml"></head>",
+  "htmlClass": "",
+}
+`;

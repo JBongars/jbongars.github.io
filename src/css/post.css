@@ -313,14 +313,9 @@
 }
 
 .prose
-  li.task-list-item:has(
-    > .task-list-item__control .task-list-item__checkbox:checked
-  )
+  li.task-list-item:has(> .task-list-item__control .task-list-item__checkbox:checked)
   > .task-list-item__body,
-.prose
-  li.task-list-item:has(> p .task-list-item__checkbox:checked)
-  > p
-  > .task-list-item__body {
+.prose li.task-list-item:has(> p .task-list-item__checkbox:checked) > p > .task-list-item__body {
   color: var(--muted);
   text-decoration: line-through;
 }
