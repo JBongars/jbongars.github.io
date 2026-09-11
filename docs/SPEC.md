@@ -8,9 +8,9 @@ to land on the homepage (or `/llms.txt`) and find resume, blog, and write-ups
 without JavaScript.
 
 Live origin: `https://jbongars.github.io/` (user GitHub Pages). Static site,
-markdown content, Eleventy 3, deployed on push to `main`. A TypeScript,
-Rollup, lint, and Jest refactor is in progress
-([BUILD_TEST_REFACTOR.md](BUILD_TEST_REFACTOR.md)); it must not change how
+markdown content, Eleventy 3, deployed on push to `main`. TypeScript,
+Rollup, lint, and Jest are in place
+([BUILD_TEST_REFACTOR.md](BUILD_TEST_REFACTOR.md)); they must not change how
 pages look or work without JavaScript.
 
 ## Goals

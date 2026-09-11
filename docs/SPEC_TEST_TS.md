@@ -18,15 +18,15 @@ The litmus test for every test: _if this module's internals were rewritten from 
 
 ## 2. Test layers
 
-| Layer                     | Subject                                                                                         | Environment | Location                                      |
-| ------------------------- | ----------------------------------------------------------------------------------------------- | ----------- | --------------------------------------------- |
-| Unit (build)              | `_11ty/**` helpers, filters, shortcodes, `.11ty.ts` render functions, the Rollup wrapper        | Node        | Colocated `*.test.ts`                         |
-| Unit (client)             | `src/js/**` feature modules and helpers                                                         | jsdom       | Colocated `*.test.ts`                         |
-| Integration (site)        | The full Eleventy build output: every HTML page, feed, sitemap, JSON, CSP, links, script budget | Node        | `tests/integration/site/`                     |
-| Integration (enhancement) | Built HTML + real client modules together                                                       | jsdom       | `tests/integration/enhance/`                  |
-| Visual / structural       | Rendered pages in a real browser                                                                | Playwright  | `tests/visual/` (see `SPEC_TEST_SNAPSHOT.md`) |
+| Layer                     | Subject                                                                                  | Environment | Location                                      | Jest project |
+| ------------------------- | ---------------------------------------------------------------------------------------- | ----------- | --------------------------------------------- | ------------ |
+| Unit (build)              | `_11ty/**` helpers, filters, shortcodes, `.11ty.ts` render functions, the Rollup wrapper | Node        | `tests/unit/*.test.js`                        | `node`       |
+| Unit (client)             | `src/js/**` feature modules and helpers                                                  | jsdom       | Colocated `index.test.ts`                     | `client`     |
+| Integration (IIFE)        | Leftover classic IIFE files (`theme-init`, `hacklas-disclaimer-init`) executed in JSDOM  | Node        | `tests/integration/js/`                       | `node`       |
+| Integration (enhancement) | Built HTML + real client `init` together                                                 | jsdom       | `tests/integration/enhance/`                  | `enhance`    |
+| Visual / structural       | Rendered pages in a real browser                                                         | Playwright  | `tests/visual/` (see `SPEC_TEST_SNAPSHOT.md`) | (deferred)   |
 
-Unit tests give fast, precise feedback on logic and every branch. Site integration tests assert invariants that must hold for _every_ page, so they never name specific pages and never break when content is added or edited. Enhancement integration tests prove the contract between template markup and client code: the `data-*` hooks the templates emit are the ones the modules expect, and the enhancement works on real built HTML.
+Unit tests give fast, precise feedback on logic and every branch. Enhancement integration tests prove the contract between template markup and client code: the `data-*` hooks the templates emit are the ones the modules expect, and the enhancement works on real built HTML. Site-wide HTML invariant tests (§7.1) are specified but not a current Jest project — do not add `tests/integration/site/` unless asked.
 
 ---
 
@@ -35,11 +35,11 @@ Unit tests give fast, precise feedback on logic and every branch. Site integrati
 ### 3.1 Dependencies
 
 ```bash
-npm i -D jest @jest/globals @swc/core @swc/jest jest-environment-jsdom jsdom @types/jsdom \
+yarn add -D jest @jest/globals @swc/core @swc/jest jest-environment-jsdom jsdom @types/jsdom \
   @testing-library/dom @testing-library/user-event @testing-library/jest-dom
 ```
 
-Tests are TypeScript. `@swc/jest` strips types and compiles to CommonJS for Jest; it does not type-check. Type checking of test files happens in `npm run typecheck`, which runs in CI alongside tests.
+Client and enhancement tests are TypeScript. Build-helper tests in `tests/unit/` are still JavaScript. `@swc/jest` strips types and emits native ESM for Jest (`module.type: "es6"` plus `extensionsToTreatAsEsm: [".ts"]`); it does not type-check. Scripts pass `--experimental-vm-modules` because the package is `"type": "module"`. Type checking of `*.ts` tests happens in `yarn typecheck`, which runs in CI alongside tests.
 
 Test files import Jest APIs explicitly instead of relying on ambient globals:
 
@@ -49,22 +49,57 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 
 ### 3.2 `jest.config.js`
 
+Match `jest.config.js` in the repo. Jest runs as native ESM: `@swc/jest` emits `es6` modules, `extensionsToTreatAsEsm` includes `.ts`, and every test script prefixes `node --experimental-vm-modules`.
+
 ```js
-/** @type {import('jest').Config} */
 const shared = {
-  transform: { "^.+\\.(t|j)s$": ["@swc/jest"] },
+  extensionsToTreatAsEsm: [".ts"],
+  transform: {
+    "^.+\\.ts$": [
+      "@swc/jest",
+      {
+        jsc: {
+          parser: { syntax: "typescript", tsx: false },
+          target: "es2022",
+          experimental: { keepImportAttributes: true },
+        },
+        module: { type: "es6" },
+      },
+    ],
+  },
   moduleFileExtensions: ["ts", "js", "json"],
   clearMocks: true,
   restoreMocks: true,
 };
 
-export default {
+const config = {
+  watchman: false,
+  collectCoverageFrom: [
+    "_11ty/**/*.ts",
+    "src/**/*.11ty.ts",
+    "src/js/**/*.ts",
+    "!src/js/entries/**",
+    "!**/*.test.ts",
+    "!**/*.d.ts",
+    "!**/types.ts",
+  ],
+  coverageReporters: ["text", "text-summary", "lcov", "html"],
+  coverageThreshold: {
+    global: { branches: 90, functions: 90, lines: 90, statements: 90 },
+    "./src/js/**/*.ts": { branches: 80, functions: 80, lines: 80, statements: 80 },
+    "./_11ty/*.ts": { branches: 80, functions: 80, lines: 80, statements: 80 },
+    "./src/*.11ty.ts": { branches: 80, functions: 80, lines: 80, statements: 80 },
+    "./src/css/*.11ty.ts": { branches: 80, functions: 80, lines: 80, statements: 80 },
+  },
   projects: [
     {
       ...shared,
-      displayName: "build",
+      displayName: "node",
       testEnvironment: "node",
-      testMatch: ["<rootDir>/_11ty/**/*.test.ts", "<rootDir>/src/**/*.11ty.test.ts"],
+      testMatch: [
+        "<rootDir>/tests/unit/**/*.test.js",
+        "<rootDir>/tests/integration/js/**/*.test.js",
+      ],
     },
     {
       ...shared,
@@ -76,34 +111,22 @@ export default {
     },
     {
       ...shared,
-      displayName: "integration",
-      testEnvironment: "node",
-      testMatch: ["<rootDir>/tests/integration/**/*.test.ts"],
+      displayName: "enhance",
+      testEnvironment: "jsdom",
+      testEnvironmentOptions: { url: "http://localhost:8080/" },
+      testMatch: ["<rootDir>/tests/integration/enhance/**/*.test.ts"],
       globalSetup: "<rootDir>/tests/setup/build-site.ts",
       setupFilesAfterEnv: ["<rootDir>/tests/setup/dom.ts"],
     },
   ],
-
-  collectCoverageFrom: [
-    "_11ty/**/*.ts",
-    "src/**/*.11ty.ts",
-    "src/js/**/*.ts",
-    "!src/js/entries/**",
-    "!**/*.test.ts",
-    "!**/*.d.ts",
-  ],
-  coverageReporters: ["text-summary", "lcov", "html"],
-  coverageThreshold: {
-    global: { branches: 90, functions: 90, lines: 90, statements: 90 },
-  },
 };
+
+export default config;
 ```
 
-`collectCoverageFrom` and `coverageThreshold` are global options and stay at the top level; `testEnvironment`, `restoreMocks`, and `transform` are per-project.
+`collectCoverageFrom` and `coverageThreshold` are global options and stay at the top level; `testEnvironment`, `restoreMocks`, and `transform` are per-project. `eleventy.config.ts` is excluded by omission: it **MUST** stay wiring only (see `SPEC_BUILD_TS.md` §4.1). `**/types.ts` holds interfaces only and is excluded the same way.
 
-Enhancement integration test files opt into jsdom per file with a docblock (`/** @jest-environment jsdom */`), because they also read the build output from disk.
-
-If a build helper imports an ESM-only npm package, Jest's CommonJS runtime cannot load it untransformed. Allow it through `transformIgnorePatterns` (e.g. `"node_modules/(?!(some-esm-pkg)/)"`) rather than mocking the package away.
+If a build helper imports an ESM-only npm package that Jest cannot load, allow it through `transformIgnorePatterns` rather than mocking the package away.
 
 ### 3.3 Setup files
 
@@ -113,7 +136,7 @@ If a build helper imports an ESM-only npm package, Jest's CommonJS runtime canno
 import "@testing-library/jest-dom/jest-globals";
 ```
 
-`tests/setup/build-site.ts` runs one full Eleventy build per test run into a temporary directory, for each feature-flag state that changes the set of pages:
+`tests/setup/build-site.ts` runs one full Eleventy build per enhance run into a temporary directory. A build failure fails the whole enhance project, which is itself a test: the site must always build.
 
 ```ts
 import { execFileSync } from "node:child_process";
@@ -121,57 +144,53 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-export const SITE_URL = "http://localhost:8080/";
+const ROOT = path.join(import.meta.dirname, "../..");
+const SITE_URL = "http://localhost:8080/";
 
 export default function buildSite(): void {
-  const variants = { default: {}, "flags-off": { hacklas: false } } as const;
-  for (const [name, features] of Object.entries(variants)) {
-    const out = mkdtempSync(path.join(tmpdir(), `site-${name}-`));
-    execFileSync(
-      "npx",
-      ["@11ty/eleventy", "--config=eleventy.config.ts", `--output=${out}`, "--quiet"],
-      {
-        env: {
-          ...process.env,
-          SITE_URL,
-          SITE_FEATURES: JSON.stringify(features),
-        },
-        stdio: "inherit",
-      },
-    );
-    process.env[`TEST_SITE_${name.toUpperCase().replace("-", "_")}`] = out;
-  }
+  const out = mkdtempSync(path.join(tmpdir(), "site-default-"));
+  execFileSync(
+    path.join(ROOT, "node_modules/.bin/eleventy"),
+    ["--config=eleventy.config.ts", `--output=${out}`, "--quiet"],
+    {
+      cwd: ROOT,
+      env: { ...process.env, SITE_URL },
+      stdio: "inherit",
+    },
+  );
+  process.env["TEST_SITE_DEFAULT"] = out;
 }
 ```
 
-Environment variables set in `globalSetup` are visible to test files, which read the output path from `process.env`. A build failure fails the whole integration run, which is itself a test: the site must always build.
+Environment variables set in `globalSetup` are visible to test files, which read the output path from `process.env`.
 
 ### 3.4 Scripts
 
 ```json
 {
   "scripts": {
-    "test": "jest",
-    "test:unit": "jest --selectProjects build client",
-    "test:int": "jest --selectProjects integration",
-    "test:watch": "jest --selectProjects build client --watch",
-    "test:coverage": "jest --coverage",
-    "test:ci": "jest --coverage --ci"
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "test:coverage": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage",
+    "test:ci": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage --ci"
   }
 }
 ```
+
+Select a project with `yarn test --selectProjects client node`. `yarn test:ci` is what CI and `yarn run check` run; it enforces the coverage floors in §4.
 
 ---
 
 ## 4. Coverage requirements
 
-The combined `jest --coverage` run **MUST** meet **at least 90% for branches, functions, lines, and statements**. Jest fails the run below threshold, and CI treats that as a failed build. Thresholds are never lowered to make a PR pass.
+The combined `yarn test --coverage` run **MUST** meet **at least 90% globally** for branches, functions, lines, and statements, **and at least 80% of each of those metrics on every collected file**. Jest fails the run below either floor, and CI treats that as a failed build. Thresholds are never lowered to make a PR pass. Do not add `eleventy.config.ts` or `src/js/entries/` to `collectCoverageFrom`.
 
-Coverage comes from unit tests and enhancement integration tests. The site integration build runs in a child process, so it contributes no coverage; this is why `eleventy.config.ts` is excluded from coverage and **MUST** contain wiring only (see `SPEC_BUILD_TS.md` §4.1). Any logic found in the config file is moved to `_11ty/` and tested. Entry files in `src/js/entries/` are excluded for the same reason and **MUST** contain only imports and `init` registration.
+Coverage comes from the `node`, `client`, and `enhance` projects. The enhance project's Eleventy build runs in a child process, so it contributes no coverage of `_11ty/`; those files are covered by `tests/unit`. This is why `eleventy.config.ts` is excluded and **MUST** contain wiring only (see `SPEC_BUILD_TS.md` §4.1). Any logic found in the config file is moved to `_11ty/` and tested. Entry files in `src/js/entries/` are excluded for the same reason and **MUST** contain only imports and `init` registration. `**/types.ts` is types-only and is excluded.
 
-Branch coverage matters most. Every `if`/`else`, ternary, `&&`/`||`/`??`, optional chain, default parameter, `switch` case, and `try`/`catch` counts. Client code in this repo is dense with defensive branches (missing elements, blocked storage, failed fetches, aborted navigation), and each one is a behavior that needs a test.
+Branch coverage matters most. Every `if`/`else`, ternary, `&&`/`||`/`??`, optional chain, default parameter, `switch` case, and `try`/`catch` counts.
 
-New or changed files **SHOULD** individually meet 90%, so an untested new module cannot hide behind well-tested old ones. `/* istanbul ignore next */` is permitted only for genuinely unreachable code, and **MUST** carry a reason:
+When a branch is hard to hit, **delete it if it is unused** rather than writing a hacky test. Characterization tests pin current observable behavior through the public `init` / exported-helper surface; they do not freeze internals. Production code **SHOULD** be refactored to drop dead paths and to take injected `deps` so remaining branches are reachable without `jest.mock`. A test that would need a hack to pass is the wrong test — stop and ask, or simplify the code.
+
+New or changed files **MUST** individually meet the 80% per-file floor. They **SHOULD** meet 90% so an untested new module cannot hide behind well-tested old ones. `/* istanbul ignore next */` is permitted only for genuinely unreachable code, and **MUST** carry a reason:
 
 ```ts
 default: {
@@ -267,11 +286,11 @@ Every client module that follows the `init`/teardown contract in `SPEC_BUILD_TS.
 The module does nothing when its hook is absent. Calling `init` twice does not double-bind, which is verified by performing an interaction and asserting the effect happens once. After teardown, interactions have no effect and any added DOM (buttons, dialogs, wrappers) is removed. Finally, `init` scoped to a subtree only enhances hooks inside that subtree.
 
 ```ts
-/** src/js/code-blocks.test.ts */
+/** src/js/code-blocks/index.test.ts */
 import { describe, expect, it, jest } from "@jest/globals";
 import { screen } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
-import { init } from "./code-blocks";
+import { init } from "./index";
 
 function mount(html: string): HTMLElement {
   document.body.innerHTML = html;
@@ -314,7 +333,9 @@ describe("code-blocks", () => {
 
 ### 6.2 Querying and interacting
 
-Tests query the DOM the way a user perceives it, using Testing Library in this priority: `getByRole` with `name`, `getByLabelText`, `getByText`. Hooks may be selected by their `data-*` attribute when setting up fixtures, because that attribute is the documented contract with templates. Tests **MUST NOT** select by BEM class names or DOM position, since CSS refactors change those. Interactions use `userEvent`, not `dispatchEvent` or `fireEvent`, except for events `userEvent` cannot produce (`popstate`, `message`, `storage`).
+Tests query the DOM the way a user perceives it, using Testing Library in this priority: `getByRole` with `name`, `getByLabelText`, `getByText`. Hooks may be selected by their `data-*` attribute when setting up fixtures, because that attribute is the documented contract with templates. Tests **MUST NOT** select by BEM class names or DOM position, since CSS refactors change those.
+
+Interactions use `userEvent`, not `dispatchEvent` or `fireEvent`, except for events `userEvent` cannot produce: `popstate`, `message`, `storage`, `wheel`, and pointer events (pinch / `setPointerCapture`). For pointer sequences, subclass `MouseEvent` as `TestPointerEvent` — jsdom has no native `PointerEvent`.
 
 Keyboard behavior (shortcuts, dialog focus trapping, `Escape` to close, focus restoration) is tested with `user.keyboard()` and `expect(element).toHaveFocus()`. Accessibility state is asserted directly: `aria-expanded`, `aria-hidden`, `aria-pressed`, `hidden`, focus location after open and close.
 
@@ -322,16 +343,18 @@ Keyboard behavior (shortcuts, dialog focus trapping, `Escape` to close, focus re
 
 Only browser boundaries are replaced, and only through `deps` injection. In-repo modules are always real. `jest.mock()` of in-repo modules is prohibited because it breaks when files are renamed or split, which is exactly what refactors do.
 
-| Boundary                                        | How to control it                                                                                                                                                                  |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `localStorage`                                  | Inject a `Map`-backed fake; inject one whose methods throw to test blocked storage                                                                                                 |
-| `fetch` (soft navigation)                       | Inject a fake returning `Response` objects built from HTML strings, or from built pages in integration tests; cover non-OK status, non-HTML content type, network error, and abort |
-| Clipboard                                       | Inject `{ writeText }`; cover rejection                                                                                                                                            |
-| `matchMedia` (reduced motion, hover capability) | Inject a function returning `{ matches }`; test both states for every animated behavior                                                                                            |
-| `IntersectionObserver`, `ResizeObserver`        | Inject a fake that exposes a method to trigger entries                                                                                                                             |
-| Timers and delays                               | `jest.useFakeTimers()` and `jest.advanceTimersByTime()`; never real waits                                                                                                          |
-| URL and history                                 | `history.replaceState(null, "", "/path?q=x")` before `init`; assert `location` and dispatch `popstate`                                                                             |
-| Third-party embeds (Giscus)                     | Assert the injected `<script>` element's `src` and attributes and the `postMessage` payload and target origin; nothing is loaded                                                   |
+| Boundary                                        | How to control it                                                                                                                                                                                                                                                     |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `localStorage`                                  | Inject a `Map`-backed fake; inject one whose methods throw to test blocked storage                                                                                                                                                                                    |
+| `fetch` (soft navigation)                       | Inject a fake returning `FetchResponse` (`{ ok, status, text() }` from `src/js/platform`). jsdom has no `Response`. Cover non-OK status, network error, and abort. `@ts-expect-error` with a description is allowed in tests if a double is intentionally incomplete. |
+| Clipboard                                       | Inject `{ writeText }`; cover rejection                                                                                                                                                                                                                               |
+| `matchMedia` (reduced motion, hover capability) | Inject a function returning `{ matches }`; test both states for every animated behavior                                                                                                                                                                               |
+| `IntersectionObserver`, `ResizeObserver`        | Inject a fake that exposes a method to trigger entries                                                                                                                                                                                                                |
+| Timers and delays                               | `jest.useFakeTimers()` and `jest.advanceTimersByTime()`. Pair with `userEvent.setup({ advanceTimers: jest.advanceTimersByTime })`. Restore `jest.useRealTimers()` in `afterEach`. Never real waits.                                                                   |
+| URL and history                                 | Pass a `location`-like object through `deps`. Do **not** stub `location.assign` — it is read-only in jsdom. Assert injected `assign` / `href` and dispatch `popstate`.                                                                                                |
+| `Image` / `HTMLImageElement.complete`           | Stub on `globalThis` / the prototype only when prefetch tests need it, and restore both in `afterEach`.                                                                                                                                                               |
+| Pointer events                                  | `class TestPointerEvent extends MouseEvent` plus a `setPointerCapture` stub. Do not assume `PointerEvent` exists.                                                                                                                                                     |
+| Third-party embeds (Giscus)                     | Assert the injected `<script>` element's `src` and attributes and the `postMessage` payload and target origin; nothing is loaded                                                                                                                                      |
 
 Asserting that a fake was called is correct only when the call is the observable behavior at a boundary: "stores the theme," "posts the new theme to the Giscus origin," "pushes a history entry." Never assert that an internal helper was called.
 
@@ -343,9 +366,11 @@ Parsing and ranking logic (URL state such as `?q=` and `?t=`, fuzzy matching and
 
 ## 7. Integration tests
 
+Enhancement tests (§7.2) are the integration layer that exists today. They load built HTML from `TEST_SITE_DEFAULT` and call real `init`.
+
 ### 7.1 Site-wide invariants
 
-Site integration tests load every file in the build output and assert properties that must hold for all of them. They discover pages from the output directory, never from a hard-coded list, so new content is covered automatically and content edits never require test changes.
+These invariants are the contract for a future `tests/integration/site/` project. They are **not implemented**. Do not add that folder unless asked. When they exist, they load every file in the build output and assert properties that must hold for all of them, discovering pages from the output directory so new content is covered automatically.
 
 ```ts
 // tests/integration/site/helpers.ts
@@ -444,11 +469,11 @@ Soft navigation gets an end-to-end integration test on built pages: load one bui
 
 ## 8. Refactoring workflow
 
-Before refactoring, confirm the affected modules meet the coverage threshold (`npx jest --coverage --collectCoverageFrom='_11ty/markdown.ts'`) and run Stryker on them. For code without tests, first write characterization tests that pin current behavior through the public interface, including behavior that looks wrong; fix bugs in separate commits so the refactor stays behavior-preserving. JavaScript-to-TypeScript conversion is a refactor and follows this workflow for each file.
+Before refactoring, confirm the affected modules meet the coverage floors (`yarn test --coverage --selectProjects client node --collectCoverageFrom='src/js/fuzzy-find/index.ts'`). For code without tests, first write characterization tests that pin current behavior through the public interface, including behavior that looks wrong; fix bugs in separate commits so the refactor stays behavior-preserving.
 
-During the refactor, run `npm run test:watch`. Refactor commits **SHOULD NOT** modify existing assertions. When a test fails, decide which case applies. Either the refactor changed behavior, in which case fix the code, or the test was coupled to implementation, in which case rewrite it to assert behavior in a separate commit and confirm it passes against the pre-refactor code first. Never edit an assertion only to match new output.
+During the refactor, run `yarn test --selectProjects client node --watch`. Prefer deleting unreachable branches and injecting `deps` over adding tests that only exist to tick a branch. Refactor commits **SHOULD NOT** modify existing assertions. When a test fails, decide which case applies. Either the refactor changed behavior, in which case fix the code, or the test was coupled to implementation, in which case rewrite it to assert behavior in a separate commit and confirm it passes against the pre-refactor code first. Never edit an assertion only to match new output.
 
-After the refactor, the full suite passes, thresholds hold, the site integration suite is green for all build variants, and visual snapshots show no diffs.
+After the refactor, `yarn test --coverage` holds both floors, enhancement tests still pass, and pages remain usable with JavaScript disabled. Visual snapshots are out of this program (`SPEC_TEST_SNAPSHOT.md`).
 
 ---
 
@@ -471,10 +496,10 @@ A flaky test is a failing test. Fix it or quarantine it with a linked issue the 
 | Whole-document string equality on generated HTML | Any unrelated change fails it                        | Parse and assert the relevant structure             |
 | Logic in `eleventy.config.ts` or entry files     | Uncovered and untestable                             | Move it to `_11ty/` or a feature module             |
 | Real waits (`setTimeout` in tests)               | Slow and flaky                                       | Fake timers, `findBy*`, `waitFor`                   |
-| Tests without assertions for a branch            | Inflates coverage                                    | Assert an outcome for every exercised branch        |
+| Covering a dead branch with a hacky test         | Locks unused code and fights jsdom                   | Delete the branch, or add a `deps` seam             |
 
 ---
 
 ## 11. Definition of done
 
-A change is complete when new and changed behavior has unit tests covering every branch, including failure paths at browser and I/O boundaries. Every client module has the standard idempotency, teardown, absent-hook, and scoping tests. Site integration invariants pass for all build variants, and new templates or hooks are covered by the hook contract test. `npm run test:ci` passes with coverage at or above 90% for branches, functions, lines, and statements. No new coverage exclusions, ignore comments, or in-repo mocks exist without justification, and no existing assertions were changed in refactor-only commits.
+A change is complete when new and changed behavior has unit tests covering every reachable branch, including failure paths at browser and I/O boundaries, or the unreachable branch was deleted. Every client module has the standard idempotency, teardown, absent-hook, and scoping tests. Enhancement tests still find their hooks on built pages. `yarn test:ci` passes with coverage at or above **90% global** and **80% per collected file** for branches, functions, lines, and statements. No new coverage exclusions, ignore comments, or in-repo mocks exist without justification, and no existing assertions were changed in refactor-only commits.

@@ -110,7 +110,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 const CLIENT_BOUNDARY_MESSAGE =
-  "Access browser capabilities through src/js/platform.ts and inject them via deps (SPEC_BUILD_TS.md §5.2).";
+  "Access browser capabilities through src/js/platform and inject them via deps (SPEC_BUILD_TS.md §5.2).";
 
 export default defineConfig([
   globalIgnores([
@@ -282,9 +282,9 @@ export default defineConfig([
     },
   },
 
-  // platform.ts is the single place allowed to touch browser capability globals
+  // platform is the single place allowed to touch browser capability globals
   {
-    files: ["src/js/platform.ts"],
+    files: ["src/js/platform/index.ts"],
     rules: {
       "no-restricted-globals": "off",
       "no-restricted-properties": "off",
@@ -375,7 +375,7 @@ The **complexity limits** (cyclomatic complexity 10, nesting depth 3, three para
 
 The **security rules** match the site's CSP and threat model. The CSP forbids inline scripts other than the hashed theme script, so `eval`, `new Function`, `javascript:` URLs, and HTML string sinks (`innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`) are banned in client code. Soft navigation parses fetched HTML with `DOMParser` and adopts the resulting nodes, which does not execute scripts and does not need a string sink.
 
-The **boundary rules** enforce the dependency injection pattern from `SPEC_BUILD_TS.md` §5.2: storage, `fetch`, clipboard, `matchMedia`, and observers are reached only through `src/js/platform.ts` and passed in via `deps`. This is what allows unit tests to control every nondeterministic input without `jest.mock`.
+The **boundary rules** enforce the dependency injection pattern from `SPEC_BUILD_TS.md` §5.2: storage, `fetch`, clipboard, `matchMedia`, and observers are reached only through `src/js/platform` and passed in via `deps`. This is what allows unit tests to control every nondeterministic input without `jest.mock`.
 
 The **architectural rules** block `window` globals and Node built-ins in client code, and block non-erasable TypeScript syntax everywhere, because Node's type stripping cannot run it.
 
@@ -488,7 +488,7 @@ The existing `build` job gains `needs: [check, visual]`, where `visual` is the j
 
 ## 8. Adopting on the existing codebase
 
-Introduce the tooling in this order so the first PRs are reviewable. First, add Prettier and run `yarn format` in a single commit containing only formatting changes. Add that commit's hash to `.git-blame-ignore-revs` so `git blame` skips it. Next, add ESLint with the full config. During the JavaScript-to-TypeScript migration (`SPEC_BUILD_TS.md` §8), not-yet-converted `.js` files in `_11ty/` and `src/js/` are listed in a temporary `globalIgnores` block labelled `// TODO(ts-migration)`, and each file is removed from that list in the same PR that converts it. The migration is finished when that block is empty and deleted.
+Introduce the tooling in this order so the first PRs are reviewable. First, add Prettier and run `yarn format` in a single commit containing only formatting changes. Add that commit's hash to `.git-blame-ignore-revs` so `git blame` skips it. Next, add ESLint with the full config. The JavaScript-to-TypeScript migration (`SPEC_BUILD_TS.md` §8) is finished: there is no `TODO(ts-migration)` ignore list. Leftover classic IIFEs (`theme-init`, `hacklas-disclaimer-init`) stay `.js` on purpose.
 
 Do not bulk-disable rules to get a green run. If a rule produces many violations in legacy code, the violations are fixed as each file is converted.
 
@@ -496,4 +496,4 @@ Do not bulk-disable rules to get a green run. If a rule produces many violations
 
 ## 9. Definition of done
 
-A change is complete when `yarn format:check`, `yarn lint`, and `yarn typecheck` pass with zero warnings. No new disable comments exist without a rule name and description, no `@ts-ignore` is present, and no entries were added to `globalIgnores` or `.prettierignore` without reviewer approval. Client code reaches browser capabilities only through `platform.ts` and uses no HTML string sinks or `window` globals.
+A change is complete when `yarn format:check`, `yarn lint`, and `yarn typecheck` pass with zero warnings. No new disable comments exist without a rule name and description, no `@ts-ignore` is present, and no entries were added to `globalIgnores` or `.prettierignore` without reviewer approval. Client code reaches browser capabilities only through `src/js/platform` and uses no HTML string sinks or `window` globals.

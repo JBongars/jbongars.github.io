@@ -11,7 +11,8 @@ yarn install
 yarn serve   # local preview (unminified JS) → http://localhost:8080
 yarn build   # production build (minified JS) → _site/
 yarn run check   # format:check, lint, typecheck, test:ci (`yarn check` is Yarn's integrity command)
-yarn test        # Jest integration tests
+yarn test        # Jest (`node`, `client`, `enhance`)
+yarn test:coverage  # same plus coverage floors (90% global, 80% per file)
 yarn audit   # yarn audit --level high (also runs in CI)
 yarn lighthouse  # headless report → lighthouse.html (needs serve running)
 ```
@@ -31,7 +32,7 @@ Asset and nav URLs use Eleventy’s `pathPrefix`, from:
 Local `serve` / `build` default to `/`. Deploy sets `SITE_URL` so canonical
 tags, Open Graph, `robots.txt`, `sitemap.xml`, `llms.txt`, `feed.xml`, and
 `/resume.json` are absolute. Templates use the `| url` filter; client JS uses
-`window.siteUrl()` from `site-url.js`.
+`window.siteUrl()` from `site-url`.
 
 ```bash
 SITE_URL=https://jbongars.github.io/ yarn build
@@ -40,18 +41,19 @@ SITE_URL=https://jbongars.github.io/ yarn build
 ## Layout
 
 ```
-.eleventy.js      # plugins, copies, collections
-_11ty/            # markdown, JSON-LD, banners, computed data
+eleventy.config.ts  # plugins, copies, collections
+_11ty/              # markdown, JSON-LD, banners, computed data, Rollup
 src/
-  _data/          # resume.json + resume.pdf, features, comments, security, skills
-  _includes/      # base, post, note, comments, hacklas-disclaimer, skill-tag
-  blog/           # listing + one folder per post
-  write-ups/      # listing + one folder per write-up
-  hacklas.njk     # notes index (built only if the flag is on)
+  _data/            # resume.json + resume.pdf, features, comments, security, skills
+  _includes/        # base, post, note, comments, hacklas-disclaimer, skill-tag
+  blog/             # listing + one folder per post
+  write-ups/        # listing + one folder per write-up
+  hacklas.njk       # notes index (built only if the flag is on)
   404.njk
-  js/             # deferred progressive enhancement
-  css/            # modules bundled to /css/style.css
-  llms.njk, feed.njk, sitemap.njk, robots.njk, resume-json.11ty.js
+  js/               # feature folders + entries/ (Rollup inputs)
+  css/              # modules bundled to /css/style.css
+  llms.njk, feed.njk, sitemap.njk, robots.njk, resume-json.11ty.ts
+tests/              # unit, enhance integration, setup
 ```
 
 **Content**
@@ -72,7 +74,7 @@ src/
 | `/sitemap.xml` | HTML + PDF + catalogs                        |
 | `/robots.txt`  | Allow all, Sitemap, llms.txt note            |
 
-**Markdown pipeline** (`_11ty/markdown.js`): Prism at build time, heading IDs +
+**Markdown pipeline** (`_11ty/markdown.ts`): Prism at build time, heading IDs +
 TOC, task lists, demote headings on posts, rewrite relative `*.md` links,
 Hacklas chrome stripping.
 
@@ -87,8 +89,10 @@ output, not a copy of `src/js`.
   still has handlers
 - `/js/hacklas-disclaimer-init.js` — classic blocking IIFE file (`'self'`)
 
-Source files remain classic IIFEs under `src/js/` until the module-contract
-stop. Conversion order: `docs/BUILD_TEST_REFACTOR.md`.
+Feature modules live in `src/js/<name>/` (`index.ts`, `types.ts`, colocated
+tests). Hacklas modules are under `src/js/hacklas/`. `theme-init` and
+`hacklas-disclaimer-init` stay classic IIFEs. Conversion notes:
+`docs/BUILD_TEST_REFACTOR.md`. Coverage: `docs/SPEC_TEST_TS.md`.
 
 ## Feature flags
 
@@ -112,6 +116,6 @@ on Hacklas pages.
 - Write-up body format: `docs/WRITEUP_SPEC.md`.
 - Hacklas note format: `docs/HACKLAS_SPEC.md`.
 - Product constraints: `docs/SPEC.md`, `docs/ARCHITECTURE.md`, `docs/DESIGN.md`.
-- TypeScript / Rollup / lint / Jest refactor (in progress, one stop at a
-  time): `docs/BUILD_TEST_REFACTOR.md`.
-- Historical scaffold notes (complete): `docs/BUILD_ORDER.md`.
+- TypeScript / Rollup / lint / Jest: `docs/SPEC_BUILD_TS.md`,
+  `docs/SPEC_LINTING.md`, `docs/SPEC_TEST_TS.md`. Historical playbook (complete):
+  `docs/BUILD_TEST_REFACTOR.md`.

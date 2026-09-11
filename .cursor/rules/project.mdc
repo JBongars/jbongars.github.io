@@ -23,12 +23,15 @@ even if a prompt doesn't repeat them.
   prefers-reduced-motion gating.
 - Follow the file structure in ARCHITECTURE.md. `_11ty/` is the Eleventy
   helper folder. `tests/` is allowed for Jest. Don't create a `components/`
-  directory or other top-level folders without asking. TypeScript / Rollup /
-  lint / Jest work follows docs/BUILD_TEST_REFACTOR.md: one stop per session,
-  then pause for review.
+  directory or other top-level folders without asking. Client feature
+  modules live in `src/js/<name>/` (Hacklas under `src/js/hacklas/`).
+- The TypeScript / Rollup / Jest program in docs/BUILD_TEST_REFACTOR.md is
+  complete. Do not reopen it or start Playwright unless asked. Coverage
+  floors are in docs/SPEC_TEST_TS.md: 90% global, 80% per collected file.
+  Do not `jest.mock` in-repo modules; delete unreachable branches instead
+  of covering them with hacks.
 - Before making changes across more than one file, propose a short plan and
-  wait for approval (use Plan mode). Stops listed in BUILD_TEST_REFACTOR.md
-  are already planned; still do only one stop unless asked to continue.
+  wait for approval (use Plan mode).
 - After any change, confirm the page still renders correctly and is fully
   navigable with JavaScript disabled.
 - Prefer the simplest implementation. If you're about to add a dependency

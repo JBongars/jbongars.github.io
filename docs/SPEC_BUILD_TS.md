@@ -106,7 +106,7 @@ Three tsconfig files give each environment the correct globals. Build code canno
 }
 ```
 
-The client config intentionally omits `noEmit` because the Rollup TypeScript plugin emits through it. Type checking for all three runs via `npm run typecheck` (see `SPEC_LINTING.md`), passing `--noEmit` on the command line.
+Type checking for all three runs via `yarn typecheck` (see `SPEC_LINTING.md`), passing `--noEmit` on the command line.
 
 `any` is not permitted in source (lint-enforced). Untyped external data (JSON files, front matter, `fetch` responses, `postMessage` payloads) enters as `unknown` and is narrowed by a type guard or parser function, which is unit-tested.
 
@@ -116,7 +116,7 @@ The client config intentionally omits `noEmit` because the Rollup TypeScript plu
 
 ### 4.1 Eleventy configuration
 
-`.eleventy.js` becomes `eleventy.config.ts`. Scripts pass it explicitly: `eleventy --config=eleventy.config.ts`. The config file **MUST** stay a thin orchestrator: it registers plugins, filters, shortcodes, collections, passthrough copies, and event hooks, but contains no logic beyond wiring. Anything with a branch or a transformation lives in `_11ty/` where it is unit-tested. This is required because the config file is excluded from coverage (see `SPEC_TEST_TS.md`).
+`.eleventy.js` is `eleventy.config.ts`. Scripts pass it explicitly: `eleventy --config=eleventy.config.ts`. The config file **MUST** stay a thin orchestrator: it registers plugins, filters, shortcodes, collections, passthrough copies, and event hooks, but contains no logic beyond wiring. Anything with a branch or a transformation lives in `_11ty/` where it is unit-tested. This is required because the config file is excluded from coverage (see `SPEC_TEST_TS.md`).
 
 ```ts
 import type { UserConfig } from "@11ty/eleventy";
@@ -180,22 +180,30 @@ Build helpers export functions and perform no I/O at import time. The build date
 ```
 src/js/
   tsconfig.json
-  entries/                 # Rollup inputs; one per script tag
-    site.ts                # every module that can appear after a <main> swap
-    theme-init.ts          # built as a classic IIFE and inlined
-  platform.ts              # the only file touching storage, fetch, clipboard, matchMedia, observers
-  lifecycle.ts             # registerModules(): init on load, teardown/re-init on soft navigation
-  theme.ts                 # feature modules: exports only, no side effects
-  theme.test.ts
-  soft-nav.ts
-  soft-nav.test.ts
-  url-state.ts             # shared helpers
-  url-state.test.ts
-  dom.ts
-  ...
+  entries/                          # Rollup inputs; wiring only
+    site.js                         # every module that can appear after a <main> swap
+    theme-init.js                   # re-exports the classic IIFE
+    hacklas-disclaimer-init.js
+  platform/                         # the only module touching storage, fetch, clipboard, matchMedia, observers
+    index.ts
+    types.ts
+  lifecycle/
+  theme/
+    index.ts                        # feature modules: exports only, no side effects
+    types.ts
+    index.test.ts
+  soft-nav/
+  booru-search/
+  hacklas/                          # Hacklas-only modules
+    hacklas-disclaimer/
+    hacklas-shortcuts/
+    hacklas-help/
+    hacklas-checklists/
+    hacklas-disclaimer-init.js      # classic IIFE source
+  theme-init.js                     # classic IIFE source (inlined)
 ```
 
-`src/js/` stays flat apart from `entries/`. There are two entries so soft navigation keeps working without changing which code ships on which page: `theme-init` (inline IIFE) and `site` (all feature modules that today load on every page). `hacklas-disclaimer-init` is a classic IIFE **file** (blocking, `'self'`), not a third module entry and not a second CSP-hashed inline. Page-group entries (`hacklas.ts`, `post.ts`) are out of this program; adding them would change what home vs posts download.
+Each feature is a folder with `index.ts`, optional `types.ts`, and a colocated `index.test.ts`. `src/js/entries/` stays wiring only (excluded from coverage). There are two module entries so soft navigation keeps working without changing which code ships on which page: `theme-init` (inline IIFE) and `site` (all feature modules that today load on every page). `hacklas-disclaimer-init` is a classic IIFE **file** (blocking, `'self'`), not a third module entry and not a second CSP-hashed inline. Page-group entries (`hacklas.ts`, `post.ts`) are out of this program; adding them would change what home vs posts download.
 
 ### 5.2 Module contract
 
@@ -260,7 +268,7 @@ Modules communicate only through imports and DOM events. Assigning to `window` o
 Entry files contain only imports and `init` calls. They are the only client files allowed to have top-level side effects, and they are excluded from unit-test coverage because they have no logic.
 
 ```ts
-// src/js/entries/site.ts
+// src/js/entries/site.js
 import { registerModules } from "../lifecycle";
 import * as theme from "../theme";
 import * as codeBlocks from "../code-blocks";
@@ -286,7 +294,7 @@ npm i -D rollup @rollup/plugin-typescript @rollup/plugin-terser typescript tslib
 
 ### 6.2 Bundler module
 
-Rollup runs from `_11ty/bundle.ts` via its JavaScript API, called from `eleventy.before`. There is no separate `rollup.config.*` file and no second watch process: `npm run build` and `npm run serve` stay single commands. The Rollup cache is kept between rebuilds in serve mode.
+Rollup runs from `_11ty/bundle.ts` via its JavaScript API, called from `eleventy.before`. There is no separate `rollup.config.*` file and no second watch process: `yarn build` and `yarn serve` stay single commands. The Rollup cache is kept between rebuilds in serve mode.
 
 ```ts
 import { createHash } from "node:crypto";
@@ -376,14 +384,10 @@ The Lighthouse script remains the check for real-world impact. Run it before and
 
 ## 8. Migration order
 
-The destination is this spec. The path, stop-and-check cadence, and allowed deviations are [BUILD_TEST_REFACTOR.md](BUILD_TEST_REFACTOR.md). Follow that playbook for order; do not invent a parallel sequence.
-
-Migrate in small, independently shippable stops, each keeping the site deployable. Tests are written against the current behavior before each file is converted, so every conversion is a behavior-preserving refactor under `SPEC_TEST_TS.md` §8.
-
-`ARCHITECTURE.md`, the README's client JS section, and `.cursor/rules/project.mdc` **MUST** be updated in the first step to permit Rollup and the `tests/` directory, since both are currently disallowed there.
+The destination is this spec. The TypeScript / Rollup / Jest program is complete ([BUILD_TEST_REFACTOR.md](BUILD_TEST_REFACTOR.md)). Remaining classic IIFEs are `theme-init` and `hacklas-disclaimer-init`. Playwright is a separate program.
 
 ---
 
 ## 9. Definition of done
 
-A change touching build or client code is complete when `npm run typecheck` passes for all three tsconfigs, and no `enum`, `namespace`, `any`, or `window` assignment has been introduced. Every client module follows the import-free-of-side-effects and idempotent `init`/teardown contract, with hooks located by `data-*` attributes. `eleventy.config.ts` contains wiring only. The CSP hash is derived from built output. The per-page JavaScript budget test passes, and the site remains fully usable with JavaScript disabled.
+A change touching build or client code is complete when `yarn typecheck` passes for all three tsconfigs, and no `enum`, `namespace`, `any`, or `window` assignment has been introduced. Every client module follows the import-free-of-side-effects and idempotent `init`/teardown contract, with hooks located by `data-*` attributes. `eleventy.config.ts` contains wiring only. The CSP hash is derived from built output. The site remains fully usable with JavaScript disabled.
