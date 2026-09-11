@@ -19,7 +19,11 @@ afterEach(() => {
   document.body.replaceChildren();
   history.replaceState(undefined, "", "http://localhost:8080/");
   delete document.documentElement.dataset["pathPrefix"];
-  globalThis.Image = originalImage;
+  Object.defineProperty(globalThis, "Image", {
+    configurable: true,
+    writable: true,
+    value: originalImage,
+  });
   if (originalComplete) {
     Object.defineProperty(HTMLImageElement.prototype, "complete", originalComplete);
   }
@@ -29,6 +33,101 @@ afterEach(() => {
 const NEXT_PAGE = `<html><head><title>Next</title></head><body><nav class="site-nav"><a href="/">Home</a></nav><main><p>Next page</p></main></body></html>`;
 const BLOG_PAGE = `<html><head><title>Blog</title></head><body><main><p>Blog index</p></main></body></html>`;
 const NO_MAIN = `<html><head><title>Empty</title></head><body><p>no main</p></body></html>`;
+
+class ImmediateDecodeImage {
+  src = "";
+  srcset = "";
+  sizes = "";
+  complete = true;
+  decode(): Promise<void> {
+    return Promise.resolve();
+  }
+  addEventListener(): void {
+    /*
+     * unused
+     */
+  }
+}
+
+class LoadEventImage {
+  src = "";
+  srcset = "";
+  sizes = "";
+  complete = false;
+  addEventListener(type: string, listener: () => void): void {
+    if (type === "load") {
+      queueMicrotask(listener);
+    }
+  }
+}
+
+class ErrorEventImage {
+  src = "";
+  srcset = "";
+  sizes = "";
+  complete = false;
+  addEventListener(type: string, listener: () => void): void {
+    if (type === "error") {
+      queueMicrotask(listener);
+    }
+  }
+}
+
+class RejectDecodeImage {
+  src = "";
+  srcset = "";
+  sizes = "";
+  complete = false;
+  decode(): Promise<void> {
+    return Promise.reject(new Error("broken"));
+  }
+  addEventListener(): void {
+    /*
+     * unused
+     */
+  }
+}
+
+function installImageDouble(imageDouble: unknown): void {
+  Object.defineProperty(globalThis, "Image", {
+    configurable: true,
+    writable: true,
+    value: imageDouble,
+  });
+}
+
+function htmlMatching(pages: Map<string, string>, input: string): string {
+  const entries = [...pages];
+  const found = entries.find(([key]) => input.includes(key) || input.endsWith(key));
+  return found?.[1] ?? NEXT_PAGE;
+}
+
+function missingDeferredResolve(): never {
+  throw new TypeError("deferred fetch resolved before the executor ran");
+}
+
+function deferredFetch(): {
+  promise: Promise<FetchResponse>;
+  resolve: (value: FetchResponse) => void;
+} {
+  let resolve: (value: FetchResponse) => void = missingDeferredResolve;
+  // eslint-disable-next-line unicorn/prefer-promise-with-resolvers -- client tsconfig lib is ES2022
+  const promise = new Promise<FetchResponse>((resolveDeferred) => {
+    resolve = resolveDeferred;
+  });
+  return { promise, resolve };
+}
+
+function fetchResumeThenBlog(
+  resume: Promise<FetchResponse>,
+): (input: string) => Promise<FetchResponse> {
+  return (input) => {
+    if (input.includes("/resume/")) {
+      return resume;
+    }
+    return Promise.resolve(pageResponse(BLOG_PAGE));
+  };
+}
 
 function pageResponse(html: string, status = 200): FetchResponse {
   return {
@@ -129,9 +228,9 @@ describe("soft-nav", () => {
 
   it("falls back to a full navigation when fetch fails", async () => {
     const user = userEvent.setup();
-    startNav(`<main><a href="/resume/">Resume</a></main>`, async () => {
-      throw new Error("offline");
-    });
+    startNav(`<main><a href="/resume/">Resume</a></main>`, () =>
+      Promise.reject(new Error("offline")),
+    );
 
     await user.click(screen.getByRole("link", { name: "Resume" }));
     await Promise.resolve();
@@ -210,8 +309,6 @@ describe("soft-nav", () => {
            */
         },
       }),
-    );
-    teardowns.push(
       init(document, {
         fetch: fetchPage,
         scrollTo() {
@@ -241,10 +338,7 @@ describe("soft-nav", () => {
     teardowns.push(
       init(document, {
         fetch(input) {
-          const html =
-            [...pages].find(([key]) => input.includes(key) || input.endsWith(key))?.[1] ??
-            NEXT_PAGE;
-          return Promise.resolve(pageResponse(html));
+          return Promise.resolve(pageResponse(htmlMatching(pages, input)));
         },
         scrollTo() {
           /*
@@ -257,7 +351,7 @@ describe("soft-nav", () => {
     await user.click(screen.getByRole("link", { name: "Resume" }));
     await screen.findByText("Next page");
     history.replaceState(undefined, "", "http://localhost:8080/");
-    globalThis.dispatchEvent(new PopStateEvent("popstate"));
+    dispatchEvent(new PopStateEvent("popstate"));
     expect(await screen.findByText("Home again")).toBeInTheDocument();
   });
 
@@ -295,22 +389,7 @@ describe("soft-nav", () => {
   });
 
   it("decodes banner images on a post page", async () => {
-    class FakeImage {
-      src = "";
-      srcset = "";
-      sizes = "";
-      complete = true;
-      decode(): Promise<void> {
-        return Promise.resolve();
-      }
-      addEventListener(): void {
-        /*
-         * unused
-         */
-      }
-    }
-    // @ts-expect-error -- test Image double for decodeImg
-    globalThis.Image = FakeImage;
+    installImageDouble(ImmediateDecodeImage);
     const user = userEvent.setup();
     const post = `<html><head><title>Post</title></head><body><main><p>A post</p><img class="post-banner__img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" srcset="a.gif 1x" sizes="100vw" width="800" height="400" alt=""></main></body></html>`;
     document.body.innerHTML = `<main><a href="/blog/hello/">Hello</a><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="16" height="16" alt=""></main>`;
@@ -474,24 +553,17 @@ describe("soft-nav", () => {
 
   it("ignores popstate when the path did not change", () => {
     startNav(`<main><p>here</p></main>`);
-    globalThis.dispatchEvent(new PopStateEvent("popstate"));
+    dispatchEvent(new PopStateEvent("popstate"));
     expect(screen.getByText("here")).toBeInTheDocument();
   });
 
   it("drops an in-flight navigation when a newer one wins", async () => {
     const user = userEvent.setup();
-    let finishFirst: ((value: FetchResponse) => void) | undefined;
+    const first = deferredFetch();
     document.body.innerHTML = `<main><a href="/resume/">Resume</a><a href="/blog/">Blog</a></main>`;
     teardowns.push(
       init(document, {
-        fetch(input) {
-          if (input.includes("/resume/")) {
-            return new Promise<FetchResponse>((resolve) => {
-              finishFirst = resolve;
-            });
-          }
-          return Promise.resolve(pageResponse(BLOG_PAGE));
-        },
+        fetch: fetchResumeThenBlog(first.promise),
         scrollTo() {
           /*
            * unused
@@ -503,7 +575,7 @@ describe("soft-nav", () => {
     await user.click(screen.getByRole("link", { name: "Resume" }));
     await user.click(screen.getByRole("link", { name: "Blog" }));
     expect(await screen.findByText("Blog index")).toBeInTheDocument();
-    finishFirst?.(pageResponse(NEXT_PAGE));
+    first.resolve(pageResponse(NEXT_PAGE));
     await Promise.resolve();
     expect(screen.getByText("Blog index")).toBeInTheDocument();
   });
@@ -515,9 +587,7 @@ describe("soft-nav", () => {
       fetch(_input, init) {
         return new Promise((_resolve, reject) => {
           init?.signal?.addEventListener("abort", () => {
-            const error = new Error("aborted");
-            error.name = "AbortError";
-            reject(error);
+            reject(new DOMException("aborted", "AbortError"));
           });
         });
       },
@@ -571,19 +641,7 @@ describe("soft-nav", () => {
   });
 
   it("decodes images without Image.decode via load", async () => {
-    class FakeImage {
-      src = "";
-      srcset = "";
-      sizes = "";
-      complete = false;
-      addEventListener(type: string, listener: () => void): void {
-        if (type === "load") {
-          queueMicrotask(listener);
-        }
-      }
-    }
-    // @ts-expect-error -- test Image double for decodeImg
-    globalThis.Image = FakeImage;
+    installImageDouble(LoadEventImage);
     const user = userEvent.setup();
     const post = `<html><head><title>Post</title></head><body><main><p>Decoded</p><img class="post-banner__img" src="banner.gif" alt=""></main></body></html>`;
     document.body.innerHTML = `<main><a href="/blog/decoded/">Decoded</a></main>`;
@@ -605,19 +663,7 @@ describe("soft-nav", () => {
   });
 
   it("decodes images without Image.decode via error", async () => {
-    class FakeImage {
-      src = "";
-      srcset = "";
-      sizes = "";
-      complete = false;
-      addEventListener(type: string, listener: () => void): void {
-        if (type === "error") {
-          queueMicrotask(listener);
-        }
-      }
-    }
-    // @ts-expect-error -- test Image double for decodeImg
-    globalThis.Image = FakeImage;
+    installImageDouble(ErrorEventImage);
     const user = userEvent.setup();
     const post = `<html><head><title>Post</title></head><body><main><p>Broken</p><img class="post-banner__img" src="missing.gif" alt=""></main></body></html>`;
     document.body.innerHTML = `<main><a href="/blog/broken/">Broken</a></main>`;
@@ -639,22 +685,7 @@ describe("soft-nav", () => {
   });
 
   it("settles when Image.decode rejects", async () => {
-    class FakeImage {
-      src = "";
-      srcset = "";
-      sizes = "";
-      complete = false;
-      decode(): Promise<void> {
-        return Promise.reject(new Error("broken"));
-      }
-      addEventListener(): void {
-        /*
-         * unused
-         */
-      }
-    }
-    // @ts-expect-error -- test Image double for decodeImg
-    globalThis.Image = FakeImage;
+    installImageDouble(RejectDecodeImage);
     const user = userEvent.setup();
     const post = `<html><head><title>Post</title></head><body><main><p>Reject</p><img class="post-banner__img" src="banner.gif" alt=""></main></body></html>`;
     document.body.innerHTML = `<main><a href="/blog/reject/">Reject</a></main>`;
@@ -718,7 +749,8 @@ describe("soft-nav", () => {
       }),
     );
 
-    for (const index of Array.from({ length: 9 }, (_, n) => n)) {
+    const pageIndexes = Array.from({ length: 9 }, (_, n) => n);
+    for (const index of pageIndexes) {
       await user.hover(screen.getByRole("link", { name: `Page ${String(index)}` }));
     }
     expect(calls.length).toBeGreaterThanOrEqual(9);
@@ -756,5 +788,71 @@ describe("soft-nav", () => {
     expect(screen.getByText("Loading")).toBeInTheDocument();
     await jest.advanceTimersByTimeAsync(400);
     expect(await screen.findByText("Blog index")).toBeInTheDocument();
+  });
+
+  it("uses the document when init is called without extra dependencies", () => {
+    document.body.innerHTML = `<main><p>here</p></main>`;
+    const stop = init();
+    teardowns.push(stop);
+    expect(screen.getByText("here")).toBeInTheDocument();
+  });
+
+  it("assigns a stuck listing navigation and cancels a superseded skeleton", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    document.body.innerHTML = `
+      <main>
+        <a href="/blog/">Blog</a>
+        <a href="/write-ups/">Write-ups</a>
+      </main>
+    `;
+    teardowns.push(
+      init(document, {
+        fetch() {
+          return new Promise<FetchResponse>(() => {
+            /*
+             * hang until the stuck timer assigns
+             */
+          });
+        },
+        scrollTo() {
+          /*
+           * unused
+           */
+        },
+      }),
+    );
+
+    await user.click(screen.getByRole("link", { name: "Blog" }));
+    await user.click(screen.getByRole("link", { name: "Write-ups" }));
+    await jest.advanceTimersByTimeAsync(160);
+    expect(screen.getByText("Loading")).toBeInTheDocument();
+    await jest.advanceTimersByTimeAsync(1100);
+    expect(screen.getByText("Loading")).toBeInTheDocument();
+  });
+
+  it("treats a path that equals the site prefix as home", async () => {
+    const user = userEvent.setup();
+    document.documentElement.dataset["pathPrefix"] = "/app";
+    history.replaceState(undefined, "", "http://localhost:8080/");
+    document.body.innerHTML = `<main><a href="/app">App home</a></main>`;
+    teardowns.push(
+      init(document, {
+        fetch() {
+          return Promise.resolve(pageResponse(NEXT_PAGE));
+        },
+        scrollTo() {
+          /*
+           * unused
+           */
+        },
+      }),
+    );
+    await user.click(screen.getByRole("link", { name: "App home" }));
+    expect(await screen.findByText("Next page")).toBeInTheDocument();
   });
 });

@@ -234,4 +234,77 @@ describe("hacklas-help", () => {
       init(document.createDocumentFragment())();
     }).not.toThrow();
   });
+
+  it("toggles the dialog closed from a second help click", async () => {
+    const user = userEvent.setup();
+    enhance(mount(NAV));
+    const help = screen.getByRole("button", { name: "Hacklas keyboard shortcuts" });
+    await user.click(help);
+    await user.click(help);
+    expect(screen.queryByRole("dialog", { name: "Keyboard shortcuts" })).not.toBeInTheDocument();
+  });
+
+  it("falls back to matchMediaQuery when no media list is provided", async () => {
+    const user = userEvent.setup();
+    history.replaceState({}, "", "/hacklas/");
+    teardowns.push(init(mount(NAV), { matchMediaList: undefined }));
+    await user.click(screen.getByRole("button", { name: "Hacklas keyboard shortcuts" }));
+    expect(screen.queryByRole("dialog", { name: "Keyboard shortcuts" })).not.toBeInTheDocument();
+  });
+
+  it("leaves the dialog open when the viewport stays desktop", async () => {
+    const user = userEvent.setup();
+    const listeners: EventListener[] = [];
+    const media = {
+      matches: true,
+      addEventListener(_type: string, listener: EventListener) {
+        listeners.push(listener);
+      },
+    };
+    enhance(mount(NAV), { matchMediaList: () => media });
+    await user.click(screen.getByRole("button", { name: "Hacklas keyboard shortcuts" }));
+    listeners[0]!(new Event("change"));
+    expect(screen.getByRole("dialog", { name: "Keyboard shortcuts" })).toBeVisible();
+  });
+
+  it("closes a never-opened overlay when leaving desktop", () => {
+    const listeners: EventListener[] = [];
+    const media = {
+      matches: true,
+      addEventListener(_type: string, listener: EventListener) {
+        listeners.push(listener);
+      },
+    };
+    enhance(mount(NAV), { matchMediaList: () => media });
+    media.matches = false;
+    listeners[0]!(new Event("change"));
+    expect(document.documentElement).not.toHaveClass("shortcuts-open");
+  });
+
+  it("skips a Hacklas link that is not inside a list item", () => {
+    enhance(
+      mount(`
+        <nav>
+          <a href="/hacklas/">Hacklas</a>
+        </nav>
+      `),
+    );
+    expect(
+      screen.queryByRole("button", { name: "Hacklas keyboard shortcuts" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("ignores clicks that are not on an element", () => {
+    enhance(mount(NAV));
+    document.body.dispatchEvent(new Event("click", { bubbles: true, cancelable: true }));
+    expect(screen.queryByRole("dialog", { name: "Keyboard shortcuts" })).not.toBeInTheDocument();
+  });
+
+  it("uses the document when init is called without a root", () => {
+    history.replaceState({}, "", "/hacklas/");
+    document.body.innerHTML = NAV;
+    const stop = init();
+    teardowns.push(stop);
+    expect(screen.getByRole("link", { name: "Hacklas" })).toBeInTheDocument();
+  });
 });

@@ -141,6 +141,21 @@ describe("skill-hints", () => {
     }).not.toThrow();
   });
 
+  it("uses the document when init is called without a root", () => {
+    document.body.innerHTML = TAG;
+    const stop = init();
+    teardowns.push(stop);
+    expect(screen.getByRole("link", { name: "Linux" })).toBeInTheDocument();
+  });
+
+  it("ignores a click that is not on an element", async () => {
+    const user = userEvent.setup();
+    enhance(mount(TAG), { matchMedia: hoverNoneMedia });
+    await user.click(screen.getByRole("link", { name: "Linux" }));
+    document.body.dispatchEvent(new Event("click", { bubbles: true, cancelable: true }));
+    expect(screen.getByRole("status")).toBeVisible();
+  });
+
   it("ignores modified clicks and clicks on the open panel", async () => {
     const user = userEvent.setup();
     enhance(mount(TAG), { matchMedia: hoverNoneMedia });
@@ -161,6 +176,16 @@ describe("skill-hints", () => {
     enhance(mount(TAG), { matchMedia: hoverNoneMedia });
     await user.click(screen.getByRole("link", { name: "Linux" }));
     document.body.dispatchEvent(new Event("keydown", { bubbles: true }));
+    expect(screen.getByRole("status")).toBeVisible();
+  });
+
+  it("ignores a click whose target is not an element", async () => {
+    const user = userEvent.setup();
+    enhance(mount(TAG), { matchMedia: hoverNoneMedia });
+    await user.click(screen.getByRole("link", { name: "Linux" }));
+    const text = document.createTextNode("outside");
+    document.body.append(text);
+    text.dispatchEvent(new Event("click", { bubbles: true, cancelable: true }));
     expect(screen.getByRole("status")).toBeVisible();
   });
 });

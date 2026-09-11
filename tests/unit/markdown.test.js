@@ -121,7 +121,7 @@ describe("configureMarkdown", () => {
 
   it("rewrites an empty markdown href and a telephone link", () => {
     const html = renderMarkdown("[empty]() [call](tel:+15551212) [ok](./note.md#frag)");
-    expect(html).toContain("href=\"\"");
+    expect(html).toContain('href=""');
     expect(html).toContain("tel:+15551212");
     expect(html).toContain("note/#frag");
   });
@@ -137,5 +137,29 @@ describe("configureMarkdown", () => {
     const html = renderMarkdown("##\n\n- [ ] one\n- [x] two");
     expect(html).toContain("<h3");
     expect(html).toContain("task-list");
+  });
+
+  it("treats punctuation-only fences as text and rewrites unsuffixed markdown paths", () => {
+    expect(renderMarkdown("```!!!\nplain\n```")).toContain("language-text");
+    expect(renderMarkdown("[n](note.md)")).toContain("../note/");
+    expect(renderMarkdown("[n](/root.md)")).toContain("/root/");
+    expect(renderMarkdown("[n](./dir/.md)")).toContain("../dir/");
+    expect(renderMarkdown("[n](/rooted/.md)")).toContain("/rooted/");
+  });
+
+  it("skips empty TOC titles and still lists the rest", () => {
+    const toc = buildToc(`
+      <h2 id="empty"></h2>
+      <h2 id="alpha">Alpha</h2>
+      <h3 id="beta">Beta</h3>
+    `);
+    expect(toc).toContain("Alpha");
+    expect(toc).toContain("Beta");
+    expect(toc).not.toContain('href="#empty"');
+  });
+
+  it("does not demote headings already at h6", () => {
+    const html = renderMarkdown("###### Deepest");
+    expect(html).toContain("<h6");
   });
 });

@@ -45,6 +45,40 @@ function fakeClipboard(): { writeText: (text: string) => Promise<void>; texts: s
   };
 }
 
+function nextRectTop(tops: number[]): number {
+  const top = tops.shift();
+  if (top === undefined) {
+    return 0;
+  }
+  return top;
+}
+
+function clipboardFailOnce(): { writeText: (text: string) => Promise<void>; texts: string[] } {
+  const texts: string[] = [];
+  return {
+    texts,
+    writeText(text: string): Promise<void> {
+      if (texts.length === 0) {
+        texts.push("fail");
+        return Promise.reject(new Error("blocked"));
+      }
+      texts.push(text);
+      return Promise.resolve();
+    },
+  };
+}
+
+function fencePre(): HTMLPreElement {
+  const block = document.createElement("pre");
+  block.dataset["codeBlock"] = "";
+  block.className = "language-js";
+  const code = document.createElement("code");
+  code.textContent = "echo hi";
+  block.append(code);
+  document.body.append(block);
+  return block;
+}
+
 const FENCE = `<pre data-code-block class="language-js"><code>echo hi</code></pre>`;
 
 describe("code-blocks", () => {
@@ -133,38 +167,68 @@ describe("code-blocks", () => {
 
   it("collapses tall blocks and copies after a clipboard failure", async () => {
     const user = userEvent.setup();
-    const clipboard = {
-      texts: [] as string[],
-      writeText(text: string): Promise<void> {
-        if (this.texts.length === 0) {
-          this.texts.push("fail");
-          return Promise.reject(new Error("blocked"));
-        }
-        this.texts.push(text);
-        return Promise.resolve();
-      },
-    };
+    const clipboard = clipboardFailOnce();
+    const scrolled: number[] = [];
     Object.defineProperty(HTMLElement.prototype, "scrollHeight", {
       configurable: true,
       get() {
         return 800;
       },
     });
-    enhance(mount(FENCE), {
+    enhance(mount(`<header class="site-header">Site</header>${FENCE}`), {
       clipboard,
       viewportHeight: () => 100,
-      scrollBy() {
-        /*
-         * unused
-         */
+      scrollBy(_x, y) {
+        scrolled.push(y);
       },
     });
 
     const more = screen.getByRole("button", { name: /show more/i });
+    // eslint-disable-next-line testing-library/no-node-access -- collapse measures the wrap, which has no role
+    const wrap = more.parentElement!;
+    const buttonTops = [200, 40];
+    Object.defineProperty(more, "getBoundingClientRect", {
+      configurable: true,
+      value() {
+        const top = nextRectTop(buttonTops);
+        return {
+          x: 0,
+          y: top,
+          top,
+          bottom: top + 20,
+          left: 0,
+          right: 80,
+          width: 80,
+          height: 20,
+          toJSON() {
+            return {};
+          },
+        };
+      },
+    });
+    Object.defineProperty(wrap, "getBoundingClientRect", {
+      configurable: true,
+      value() {
+        return {
+          x: 0,
+          y: 400,
+          top: 400,
+          bottom: 800,
+          left: 0,
+          right: 400,
+          width: 400,
+          height: 400,
+          toJSON() {
+            return {};
+          },
+        };
+      },
+    });
     await user.click(more);
     expect(more).toHaveAttribute("aria-expanded", "true");
     await user.click(more);
     expect(more).toHaveAttribute("aria-expanded", "false");
+    expect(scrolled).toEqual([-160]);
 
     await user.click(screen.getByRole("button", { name: /copy/i }));
     await user.click(screen.getByRole("button", { name: /copy/i }));
@@ -228,12 +292,10 @@ describe("code-blocks", () => {
   it("skips a code block that is already wrapped", () => {
     const root = mount(FENCE);
     enhance(root, { clipboard: fakeClipboard() });
-    const copy = screen.getByRole("button", { name: /copy/i });
-    const wrap = copy.parentElement?.parentElement?.parentElement;
-    if (!wrap) {
-      throw new Error("missing wrapper");
-    }
-    enhance(wrap, { clipboard: fakeClipboard() });
+    // eslint-disable-next-line testing-library/no-node-access -- .code-block wrap is presentational and has no role
+    const wrap = document.querySelector(".code-block");
+    expect(wrap).toBeTruthy();
+    enhance(wrap!, { clipboard: fakeClipboard() });
     expect(screen.getAllByRole("button", { name: /copy/i })).toHaveLength(1);
   });
 
@@ -280,12 +342,7 @@ describe("code-blocks", () => {
   });
 
   it("enhances a root that is itself a code block", () => {
-    document.body.innerHTML = FENCE;
-    const block = screen.getByText("echo hi").closest("pre");
-    if (!block) {
-      throw new Error("missing pre");
-    }
-    enhance(block, { clipboard: fakeClipboard() });
+    enhance(fencePre(), { clipboard: fakeClipboard() });
     expect(screen.getByRole("button", { name: /copy/i })).toBeInTheDocument();
   });
 
@@ -319,5 +376,31 @@ describe("code-blocks", () => {
     await jest.advanceTimersByTimeAsync(1600);
     expect(screen.getByRole("button", { name: /copy/i })).toBeInTheDocument();
     jest.useRealTimers();
+  });
+
+  it("uses the document when init is called without a root", () => {
+    document.body.innerHTML = FENCE;
+    const stop = init();
+    teardowns.push(stop);
+    expect(screen.getByRole("button", { name: /copy/i })).toBeInTheDocument();
+  });
+
+  it("copies inline code from Space and ignores other keys", async () => {
+    const user = userEvent.setup();
+    const clipboard = fakeClipboard();
+    enhance(mount(`<p>Use <code data-inline-code>ready</code> in the shell.</p>`), { clipboard });
+    screen.getByRole("button", { name: "Copy ready" }).focus();
+    await user.keyboard("x");
+    expect(clipboard.texts).toEqual([]);
+    await user.keyboard(" ");
+    expect(clipboard.texts).toEqual(["ready"]);
+  });
+
+  it("ignores a non-Escape key while fullscreen is open", async () => {
+    const user = userEvent.setup();
+    enhance(mount(FENCE), { clipboard: fakeClipboard() });
+    await user.click(screen.getByRole("button", { name: /open code fullscreen/i }));
+    await user.keyboard("a");
+    expect(screen.getByRole("dialog", { name: /code fullscreen/i })).toBeInTheDocument();
   });
 });

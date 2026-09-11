@@ -23,6 +23,23 @@ function mount(html: string): HTMLElement {
   return document.body;
 }
 
+function scriptTheme(script: Element | null): string | undefined {
+  if (!(script instanceof HTMLScriptElement)) {
+    return;
+  }
+  return script.dataset.theme;
+}
+
+function captureIframeMessages(iframe: HTMLIFrameElement, posted: unknown[]): void {
+  const contentWindow = iframe.contentWindow;
+  if (!contentWindow) {
+    throw new Error("missing iframe contentWindow");
+  }
+  contentWindow.postMessage = (data: unknown) => {
+    posted.push(data);
+  };
+}
+
 function enhance(
   root: ParentNode = document.body,
   dependencies: CommentsDependencies = {},
@@ -158,12 +175,7 @@ describe("comments", () => {
     iframe.className = "giscus-frame";
     iframe.title = "Giscus";
     document.body.append(iframe);
-    const contentWindow = iframe.contentWindow;
-    if (contentWindow) {
-      contentWindow.postMessage = (data: unknown) => {
-        posted.push(data);
-      };
-    }
+    captureIframeMessages(iframe, posted);
 
     await user.click(screen.getByRole("checkbox", { name: /toggle light and dark mode/i }));
 
@@ -192,7 +204,7 @@ describe("comments", () => {
     iframe.title = "Giscus";
     document.body.append(iframe);
 
-    globalThis.dispatchEvent(
+    dispatchEvent(
       new MessageEvent("message", {
         origin: "https://giscus.app",
         data: { giscus: { resizeHeight: 120 } },
@@ -205,18 +217,71 @@ describe("comments", () => {
   it("ignores unrelated message events", () => {
     enhance(mount(SECTION));
     expect(() => {
-      globalThis.dispatchEvent(
-        new MessageEvent("message", { origin: "https://example.com", data: {} }),
-      );
-      globalThis.dispatchEvent(
-        new MessageEvent("message", { origin: "https://giscus.app", data: "ready" }),
-      );
+      dispatchEvent(new MessageEvent("message", { origin: "https://example.com", data: {} }));
+      dispatchEvent(new MessageEvent("message", { origin: "https://giscus.app", data: "ready" }));
     }).not.toThrow();
   });
 
   it("does nothing when the root is not an element", () => {
     expect(() => {
       init(document.createDocumentFragment())();
+    }).not.toThrow();
+  });
+
+  it("uses default theme tokens and skips a second CSS decoy", () => {
+    document.head.innerHTML = `<style id="giscus-css"></style>`;
+    enhance(
+      mount(`
+        <section data-comments data-repo="owner/repo" data-repo-id="R_repo" data-category-id="C_cat" data-term="a-post" aria-label="Comments">
+          <div data-comments-mount></div>
+        </section>
+      `),
+    );
+    expect(document.querySelector("#giscus-css")).toBeTruthy();
+    expect(scriptTheme(document.querySelector("script[src*='giscus.app/client.js']"))).toBe(
+      "transparent_dark",
+    );
+  });
+
+  it("skips a section whose mount already has a Giscus frame", () => {
+    enhance(
+      mount(`
+        <section data-comments data-repo="owner/repo" aria-label="Comments"></section>
+        <section data-comments data-repo="owner/repo" data-repo-id="R_repo" data-category-id="C_cat" data-term="a-post" aria-label="Filled">
+          <div data-comments-mount>
+            <iframe class="giscus-frame" title="Existing"></iframe>
+          </div>
+        </section>
+      `),
+    );
+    expect(document.querySelectorAll("script[src*='giscus.app/client.js']")).toHaveLength(0);
+  });
+
+  it("ignores a theme toggle when comments are gone", async () => {
+    const user = userEvent.setup();
+    enhance(
+      mount(`<input type="checkbox" data-theme-toggle aria-label="Toggle light and dark mode">`),
+    );
+    await user.click(screen.getByRole("checkbox", { name: /toggle light and dark mode/i }));
+    expect(screen.getByRole("checkbox")).toBeChecked();
+  });
+
+  it("uses the document when init is called without a root", () => {
+    document.body.innerHTML = SECTION;
+    const stop = init();
+    teardowns.push(stop);
+    expect(document.querySelector("script[src*='giscus.app/client.js']")).toBeTruthy();
+  });
+
+  it("ignores a Giscus message that has no widget payload", async () => {
+    const user = userEvent.setup();
+    enhance(mount(SECTION));
+    await user.click(screen.getByRole("checkbox", { name: /toggle light and dark mode/i }));
+    expect(() => {
+      dispatchEvent(
+        new MessageEvent("message", { origin: "https://giscus.app", data: { ready: true } }),
+      );
+      dispatchEvent(new MessageEvent("message", { origin: "https://giscus.app", data: 1 }));
     }).not.toThrow();
   });
 });

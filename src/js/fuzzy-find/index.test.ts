@@ -252,4 +252,104 @@ describe("fuzzy-find", () => {
       init(document.createDocumentFragment())();
     }).not.toThrow();
   });
+
+  it("uses the document when init is called without a root", () => {
+    document.body.innerHTML = NOTES;
+    const stop = init();
+    teardowns.push(stop);
+    expect(screen.getByRole("searchbox", { name: "Search notes" })).toBeInTheDocument();
+  });
+
+  it("treats a non-numeric orig index as zero and skips blank tags", async () => {
+    const user = userEvent.setup();
+    enhance(
+      mount(`
+        <div data-fuzzy-find>
+          <label for="fuzzy-q">Search notes</label>
+          <input id="fuzzy-q" data-fuzzy-input type="search">
+          <ul data-fuzzy-list role="listbox" aria-label="Notes">
+            <li role="option" data-title="Alpha" data-path="a" data-tags="  , linux " data-orig="nope">
+              <a href="/a">Alpha</a>
+            </li>
+            <li role="option" data-title="Beta" data-path="b" data-tags="" data-orig="1">
+              <a href="/b">Beta</a>
+            </li>
+          </ul>
+        </div>
+      `),
+    );
+    await user.type(screen.getByRole("searchbox", { name: "Search notes" }), "a");
+    expect(screen.getByRole("option", { name: "Alpha" })).toBeVisible();
+  });
+
+  it("moves the highlight up and ignores arrows when nothing is visible", async () => {
+    const user = userEvent.setup();
+    enhance(mount(NOTES));
+    const field = screen.getByRole("searchbox", { name: "Search notes" });
+    field.focus();
+    await user.keyboard("{ArrowUp}");
+    expect(screen.getByRole("option", { name: /windows notes/i })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await user.type(field, "zzzz");
+    await user.keyboard("{ArrowDown}");
+    expect(screen.queryByRole("option", { name: /linux notes/i })).not.toBeInTheDocument();
+  });
+
+  it("does not follow Enter when the active row has no link", async () => {
+    const user = userEvent.setup();
+    enhance(
+      mount(`
+        <div data-fuzzy-find>
+          <label for="fuzzy-q">Search notes</label>
+          <input id="fuzzy-q" data-fuzzy-input type="search">
+          <ul data-fuzzy-list role="listbox" aria-label="Notes">
+            <li role="option" data-title="Plain" data-path="plain" data-tags="plain">Plain</li>
+          </ul>
+        </div>
+      `),
+    );
+    screen.getByRole("searchbox", { name: "Search notes" }).focus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByRole("option", { name: "Plain" })).toBeInTheDocument();
+  });
+
+  it("lets Backspace edit when the caret is not at the start", async () => {
+    const user = userEvent.setup();
+    enhance(mount(NOTES));
+    const field = searchInput(screen.getByRole("searchbox", { name: "Search notes" }));
+    await user.type(field, "ab");
+    await user.keyboard("{Backspace}");
+    expect(field).toHaveValue("a");
+  });
+
+  it("ignores a non-keyboard keydown and a hover on the list itself", () => {
+    enhance(mount(NOTES));
+    const field = searchInput(screen.getByRole("searchbox", { name: "Search notes" }));
+    field.dispatchEvent(new Event("keydown", { bubbles: true }));
+    screen.getByRole("listbox", { name: "Notes" }).dispatchEvent(
+      new MouseEvent("mousemove", { bubbles: true }),
+    );
+    expect(screen.getByRole("option", { name: /linux notes/i })).toBeInTheDocument();
+  });
+
+  it("skips a non-HTMLElement fuzzy field", () => {
+    expect(() => {
+      enhance(mount(`<svg data-fuzzy-find></svg>`))();
+    }).not.toThrow();
+  });
+
+  it("falls back when scrollIntoView is missing", async () => {
+    const user = userEvent.setup();
+    enhance(mount(NOTES));
+    const option = screen.getByRole("option", { name: /linux notes/i });
+    Object.defineProperty(option, "scrollIntoView", {
+      configurable: true,
+      value: undefined,
+    });
+    screen.getByRole("searchbox", { name: "Search notes" }).focus();
+    await user.keyboard("{ArrowDown}{ArrowUp}");
+    expect(option).toBeInTheDocument();
+  });
 });

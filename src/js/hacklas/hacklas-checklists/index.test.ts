@@ -134,4 +134,17 @@ describe("hacklas-checklists", () => {
       init(document.createDocumentFragment())();
     }).not.toThrow();
   });
+
+  it("uses the document when init is called without a root", () => {
+    document.body.innerHTML = NESTED;
+    const stop = init();
+    teardowns.push(stop);
+    expect(screen.getByRole("checkbox", { name: "Parent" })).toBeInTheDocument();
+  });
+
+  it("ignores a change that is not on an element", () => {
+    enhance(mount(NESTED));
+    document.body.dispatchEvent(new Event("change", { bubbles: true }));
+    expect(screen.getByRole("checkbox", { name: "Parent" })).not.toBeChecked();
+  });
 });

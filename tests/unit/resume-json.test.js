@@ -2,6 +2,14 @@ import { describe, expect, it } from "@jest/globals";
 import { data, parseYearRange, render } from "../../src/resume-json.11ty.ts";
 import resume from "../../src/_data/resume.json" with { type: "json" };
 
+function restoreEnvironment(key, previous) {
+  if (previous === undefined) {
+    delete process.env[key];
+  } else {
+    process.env[key] = previous;
+  }
+}
+
 describe("resume-json.11ty.js", () => {
   it("writes /resume.json", () => {
     expect(data()).toEqual({
@@ -29,11 +37,7 @@ describe("resume-json.11ty.js", () => {
       expect(resumeJson.basics.url).toBe("https://example.test/");
       expect(resumeJson.basics.image).toBe("https://example.test/img/profile.jpg");
     } finally {
-      if (previous === undefined) {
-        delete process.env["SITE_URL"];
-      } else {
-        process.env["SITE_URL"] = previous;
-      }
+      restoreEnvironment("SITE_URL", previous);
     }
   });
 

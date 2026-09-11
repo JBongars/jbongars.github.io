@@ -233,6 +233,161 @@ describe("hacklas-disclaimer", () => {
     }).not.toThrow();
   });
 
+  it("uses the document when init is called without a root", () => {
+    document.body.innerHTML = MODAL;
+    const stop = init();
+    teardowns.push(stop);
+    expect(screen.getByRole("dialog", { name: "Hacklas disclaimer" })).toBeInTheDocument();
+  });
+
+  it("stays on the previous page when history.back actually leaves Hacklas", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    const assigned: string[] = [];
+    const locationLike = {
+      href: "http://localhost:8080/hacklas/",
+      origin: "http://localhost:8080",
+      pathname: "/hacklas/",
+      assign(url: string) {
+        assigned.push(url);
+      },
+    };
+    teardowns.push(
+      init(mount(MODAL), {
+        storage: {
+          getItem(): string | undefined {
+            return;
+          },
+          setItem() {
+            /*
+            unused
+            */
+          },
+        },
+        location: locationLike,
+        history: {
+          back() {
+            locationLike.href = "http://localhost:8080/resume/";
+          },
+        },
+        referrer: "http://localhost:8080/resume/",
+      }),
+    );
+    await user.click(screen.getByRole("link", { name: "No thanks" }));
+    jest.advanceTimersByTime(250);
+    expect(assigned).toEqual([]);
+    jest.useRealTimers();
+  });
+
+  it("sends the visitor home when a refuse control has no href", async () => {
+    const user = userEvent.setup();
+    const assigned: string[] = [];
+    document.body.innerHTML = `
+      <div data-hacklas-disclaimer role="dialog" aria-label="Hacklas disclaimer">
+        <button type="button" data-hacklas-disclaimer-ack>I understand</button>
+        <a data-hacklas-disclaimer-refuse>No thanks</a>
+      </div>
+    `;
+    teardowns.push(
+      init(document.body, {
+        storage: {
+          getItem(): string | undefined {
+            return;
+          },
+          setItem() {
+            /*
+            unused
+            */
+          },
+        },
+        location: {
+          href: "http://localhost:8080/hacklas/",
+          origin: "http://localhost:8080",
+          pathname: "/hacklas/",
+          assign(url) {
+            assigned.push(String(url));
+          },
+        },
+        referrer: "",
+      }),
+    );
+    await user.click(screen.getByText("No thanks"));
+    expect(assigned).toEqual(["/"]);
+  });
+
+  it("treats a prefix strip without a leading slash as outside Hacklas", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    const assigned: string[] = [];
+    const historyCalls: string[] = [];
+    document.documentElement.dataset["pathPrefix"] = "/hac";
+    const locationLike = {
+      href: "http://localhost:8080/hacklas/",
+      origin: "http://localhost:8080",
+      pathname: "/hacklas/",
+      assign(url: string) {
+        assigned.push(url);
+      },
+    };
+    teardowns.push(
+      init(mount(MODAL), {
+        storage: {
+          getItem(): string | undefined {
+            return;
+          },
+          setItem() {
+            /*
+            unused
+            */
+          },
+        },
+        location: locationLike,
+        history: {
+          back() {
+            historyCalls.push("back");
+          },
+        },
+        referrer: "http://localhost:8080/hacklas/note/",
+      }),
+    );
+    await user.click(screen.getByRole("link", { name: "No thanks" }));
+    expect(historyCalls).toEqual(["back"]);
+    jest.advanceTimersByTime(250);
+    expect(assigned).toEqual(["/"]);
+    delete document.documentElement.dataset["pathPrefix"];
+    jest.useRealTimers();
+  });
+
+  it("swallows focus errors on the acknowledge button", () => {
+    const values: Record<string, string> = {};
+    document.body.innerHTML = MODAL;
+    const button = screen.getByRole("button", { name: "I understand" });
+    Object.defineProperty(button, "focus", {
+      configurable: true,
+      value() {
+        throw new Error("not focusable");
+      },
+    });
+    expect(() => {
+      enhance(document.body, {
+        getItem(key) {
+          return values[key];
+        },
+        setItem(key, value) {
+          values[key] = value;
+        },
+      });
+    }).not.toThrow();
+  });
+
   it("is idempotent", async () => {
     const user = userEvent.setup();
     const root = mount(MODAL);

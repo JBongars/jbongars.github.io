@@ -9,18 +9,27 @@ import {
   mediaQueryList,
   safeLocalStorage,
 } from "./index";
+import type { FetchResponse } from "./types";
 
-const originalMatchMedia = globalThis.matchMedia;
-const originalFetch = globalThis.fetch;
+const originalMatchMedia = Object.getOwnPropertyDescriptor(globalThis, "matchMedia");
+const originalFetch = Object.getOwnPropertyDescriptor(globalThis, "fetch");
 const originalClipboard = navigator.clipboard;
 
+function restoreDescriptor(
+  target: object,
+  key: string,
+  descriptor: PropertyDescriptor | undefined,
+): void {
+  if (descriptor) {
+    Object.defineProperty(target, key, descriptor);
+    return;
+  }
+  Reflect.deleteProperty(target, key);
+}
+
 afterEach(() => {
-  Object.defineProperty(globalThis, "matchMedia", {
-    configurable: true,
-    writable: true,
-    value: originalMatchMedia,
-  });
-  globalThis.fetch = originalFetch;
+  restoreDescriptor(globalThis, "matchMedia", originalMatchMedia);
+  restoreDescriptor(globalThis, "fetch", originalFetch);
   Object.defineProperty(navigator, "clipboard", {
     configurable: true,
     value: originalClipboard,
@@ -103,21 +112,17 @@ describe("safeLocalStorage", () => {
   });
 
   it("returns undefined when storage is blocked", () => {
-    const setItem = jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+    jest.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
       throw new Error("blocked");
     });
 
     expect(safeLocalStorage()).toBeUndefined();
-    setItem.mockRestore();
   });
 });
 
 describe("clipboardWrite", () => {
   it("writes through navigator.clipboard", async () => {
-    const writeText = jest.fn((text: string): Promise<void> => {
-      void text;
-      return Promise.resolve();
-    });
+    const writeText = jest.fn(() => Promise.resolve());
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
       value: { writeText },
@@ -131,14 +136,19 @@ describe("clipboardWrite", () => {
 
 describe("fetchSameOrigin", () => {
   it("calls fetch with same-origin credentials", async () => {
-    const response = { ok: true };
-    const fetchMock = jest.fn((input: string, init?: RequestInit) => {
-      void input;
-      void init;
-      return Promise.resolve(response);
+    const response: FetchResponse = {
+      ok: true,
+      status: 200,
+      text() {
+        return Promise.resolve("");
+      },
+    };
+    const fetchMock = jest.fn(() => Promise.resolve(response));
+    Object.defineProperty(globalThis, "fetch", {
+      configurable: true,
+      writable: true,
+      value: fetchMock,
     });
-    // @ts-expect-error -- test double only needs to be returned from fetch
-    globalThis.fetch = fetchMock;
 
     await expect(fetchSameOrigin("/resume/")).resolves.toBe(response);
     expect(fetchMock).toHaveBeenCalledWith("/resume/", {
@@ -147,13 +157,20 @@ describe("fetchSameOrigin", () => {
   });
 
   it("lets the caller override request init", async () => {
-    const fetchMock = jest.fn((input: string, init?: RequestInit) => {
-      void input;
-      void init;
-      return Promise.resolve({ ok: true });
+    const fetchMock = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        text() {
+          return Promise.resolve("");
+        },
+      }),
+    );
+    Object.defineProperty(globalThis, "fetch", {
+      configurable: true,
+      writable: true,
+      value: fetchMock,
     });
-    // @ts-expect-error -- test double only needs to be returned from fetch
-    globalThis.fetch = fetchMock;
     const signal = new AbortController().signal;
 
     await fetchSameOrigin("/blog/", { method: "GET", signal });

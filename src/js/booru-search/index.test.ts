@@ -28,6 +28,12 @@ function enhance(root: ParentNode, dependencies: BooruSearchDependencies = {}): 
   return stop;
 }
 
+function pointerDown(target: EventTarget, init: MouseEventInit & { pointerType?: string }): void {
+  const event = new MouseEvent("pointerdown", { bubbles: true, cancelable: true, ...init });
+  Object.defineProperty(event, "pointerType", { value: init.pointerType ?? "mouse" });
+  target.dispatchEvent(event);
+}
+
 const LIST = `
 <ul data-sortable-list>
   <li data-tags="linux,ssh" data-title="zebra" data-date="2024-01-01"><a href="/z">Zebra</a></li>
@@ -398,11 +404,10 @@ describe("booru-search", () => {
     const user = userEvent.setup();
     enhance(mount(LIST));
     const field = screen.getByPlaceholderText("Filter by tag…");
+    // eslint-disable-next-line testing-library/no-node-access -- field chrome is a presentational wrap with no role
     const chrome = field.parentElement;
-    if (!chrome) {
-      throw new Error("missing field chrome");
-    }
-    await user.click(chrome);
+    expect(chrome).toBeTruthy();
+    await user.click(chrome!);
     expect(field).toHaveFocus();
   });
 
@@ -423,6 +428,310 @@ describe("booru-search", () => {
     );
     await user.click(screen.getByText("Outside copy"));
     expect(screen.getByRole("button", { name: /remove tag linux/i })).toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it("uses the document when init is called without a root", () => {
+    document.body.innerHTML = LIST;
+    const stop = init();
+    teardowns.push(stop);
+    expect(screen.getByPlaceholderText("Filter by tag…")).toBeInTheDocument();
+  });
+
+  it("commits an exact tag name with Space and ignores a non-primary pointer", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    enhance(mount(LIST));
+    const field = screen.getByPlaceholderText("Filter by tag…");
+    await user.type(field, "linux");
+    await jest.advanceTimersByTimeAsync(250);
+    const option = screen.getByRole("option", { name: /linux/i });
+    pointerDown(option, { button: 2, pointerType: "mouse" });
+    expect(screen.queryByRole("button", { name: /remove tag linux/i })).not.toBeInTheDocument();
+    await user.keyboard(" ");
+    expect(screen.getByRole("button", { name: /remove tag linux/i })).toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it("indexes blank tags, skips non-elements, and ignores empty Space or Backspace", async () => {
+    const user = userEvent.setup();
+    enhance(
+      mount(`
+        <ul data-sortable-list>
+          <svg></svg>
+          <li data-title="bare" data-date="2024-01-01"><a href="/bare">Bare</a></li>
+          <li data-tags=",,linux," data-title="tagged" data-date="2024-01-02"><a href="/tagged">Tagged</a></li>
+        </ul>
+      `),
+    );
+    const field = screen.getByPlaceholderText("Filter by tag…");
+    field.focus();
+    await user.keyboard(" {Backspace}");
+    expect(screen.queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+  });
+
+  it("ignores a non-primary pointer on a chip and ranks overlapping tags", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    enhance(
+      mount(`
+        <ul data-sortable-list>
+          <li data-tags="linux" data-title="one" data-date="2024-01-01"><a href="/1">One</a></li>
+          <li data-tags="linode,linux" data-title="two" data-date="2024-01-02"><a href="/2">Two</a></li>
+        </ul>
+      `),
+    );
+    const field = screen.getByPlaceholderText("Filter by tag…");
+    await user.type(field, "lin");
+    await jest.advanceTimersByTimeAsync(250);
+    expect(screen.getByRole("option", { name: /linux/i })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /linode/i })).toBeInTheDocument();
+    await user.click(screen.getByRole("option", { name: /linux/i }));
+    const chip = screen.getByRole("button", { name: /remove tag linux/i });
+    pointerDown(chip, { button: 2, pointerType: "mouse" });
+    expect(chip).toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it("does not commit Space when the query is not a tag", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    enhance(mount(LIST));
+    const field = screen.getByPlaceholderText("Filter by tag…");
+    await user.type(field, "zzz");
+    await jest.advanceTimersByTimeAsync(250);
+    await user.keyboard(" ");
+    expect(screen.queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it("skips a list that is already mounted", () => {
+    const list = mount(LIST);
+    enhance(list);
+    enhance(list);
+    expect(screen.getAllByPlaceholderText("Filter by tag…")).toHaveLength(1);
+  });
+
+  it("keeps suggestions open for an outside click on desktop", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    enhance(mount(`${LIST}<p>Outside copy</p>`), {
+      matchMedia: () => ({ matches: true }),
+    });
+    const field = screen.getByPlaceholderText("Filter by tag…");
+    await user.type(field, "lin");
+    await jest.advanceTimersByTimeAsync(250);
+    await user.click(screen.getByText("Outside copy"));
+    expect(screen.getByRole("option", { name: /linux/i })).toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it("restores newest-first date sort after sorting by name", async () => {
+    const user = userEvent.setup();
+    enhance(mount(LIST));
+    await user.click(screen.getByRole("button", { name: /^name$/i }));
+    await user.click(screen.getByRole("button", { name: /^date$/i }));
+    const items = screen.getAllByRole("listitem");
+    expect(items[0]).toHaveTextContent("Alpha");
+    expect(items[1]).toHaveTextContent("Zebra");
+  });
+
+  it("moves the highlight with arrows and closes suggestions with Escape", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    enhance(
+      mount(`
+        <ul data-sortable-list>
+          <li data-tags="linux" data-title="one" data-date="2024-01-01"><a href="/1">One</a></li>
+          <li data-tags="linode" data-title="two" data-date="2024-01-02"><a href="/2">Two</a></li>
+        </ul>
+      `),
+    );
+    const field = screen.getByPlaceholderText("Filter by tag…");
+    await user.type(field, "lin");
+    await jest.advanceTimersByTimeAsync(250);
+    await user.keyboard("{ArrowRight}{ArrowLeft}{Escape}");
+    expect(screen.queryByRole("option")).not.toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it("does not commit Enter on a desktop fuzzy-find field", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    enhance(
+      mount(`
+        <div data-fuzzy-find data-tag-search>
+          <label for="fuzzy-enter">Search notes</label>
+          <input id="fuzzy-enter" data-fuzzy-input type="search">
+          <ul data-fuzzy-list data-sortable-list>
+            <li data-tags="linux" data-title="alpha" data-date="2025-06-01"><a href="/a">Alpha</a></li>
+          </ul>
+        </div>
+      `),
+      { matchMedia: () => ({ matches: true }) },
+    );
+    const field = screen.getByRole("searchbox", { name: "Search notes" });
+    field.focus();
+    await user.keyboard("linux");
+    await jest.advanceTimersByTimeAsync(250);
+    await user.keyboard("{Enter}");
+    expect(screen.queryByRole("button", { name: /remove tag linux/i })).not.toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it("does nothing when Backspace is pressed on an empty field", async () => {
+    const user = userEvent.setup();
+    enhance(mount(LIST));
+    screen.getByPlaceholderText("Filter by tag…").focus();
+    await user.keyboard("{Backspace}");
+    expect(screen.queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+  });
+
+  it("clears suggestions when the query is deleted", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    enhance(mount(LIST));
+    const field = screen.getByPlaceholderText("Filter by tag…");
+    await user.type(field, "lin");
+    await jest.advanceTimersByTimeAsync(250);
+    expect(screen.getByRole("option", { name: /linux/i })).toBeInTheDocument();
+    await user.clear(field);
+    await jest.advanceTimersByTimeAsync(250);
+    expect(screen.queryByRole("option")).not.toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it("commits an exact tag with Enter after suggestions were dismissed", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    enhance(mount(LIST));
+    const field = screen.getByPlaceholderText("Filter by tag…");
+    await user.type(field, "linux");
+    await jest.advanceTimersByTimeAsync(250);
+    await user.click(screen.getByRole("button", { name: /close tag suggestions/i }));
+    field.focus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByRole("button", { name: /remove tag linux/i })).toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it("skips a second mount on a list that is already ready", () => {
+    enhance(mount(LIST));
+    enhance(screen.getByRole("list"));
+    expect(screen.getAllByPlaceholderText("Filter by tag…")).toHaveLength(1);
+  });
+
+  it("skips tag search when a fuzzy-find field has no list", () => {
+    enhance(
+      mount(`
+        <div data-fuzzy-find data-tag-search>
+          <label for="fuzzy-none">Search notes</label>
+          <input id="fuzzy-none" data-fuzzy-input type="search">
+        </div>
+      `),
+    );
+    expect(screen.getByRole("searchbox", { name: "Search notes" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+  });
+
+  it("does not remount tag search on an already wrapped fuzzy input", () => {
+    enhance(
+      mount(`
+        <div role="group" aria-label="notes wrap">
+          <div data-fuzzy-find data-tag-search>
+            <label for="fuzzy-again">Search notes</label>
+            <input id="fuzzy-again" data-fuzzy-input type="search">
+            <ul data-fuzzy-list data-sortable-list>
+              <li data-tags="linux" data-title="alpha" data-date="2025-06-01"><a href="/a">Alpha</a></li>
+            </ul>
+          </div>
+        </div>
+      `),
+    );
+    enhance(screen.getByRole("group", { name: "notes wrap" }));
+    expect(screen.getAllByRole("searchbox", { name: "Search notes" })).toHaveLength(1);
+  });
+
+  it("ranks tags with different scores ahead of weaker matches", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    enhance(
+      mount(`
+        <ul data-sortable-list>
+          <li data-tags="linux" data-title="one" data-date="2024-01-01"><a href="/1">One</a></li>
+          <li data-tags="alpine" data-title="two" data-date="2024-01-02"><a href="/2">Two</a></li>
+        </ul>
+      `),
+    );
+    await user.type(screen.getByPlaceholderText("Filter by tag…"), "l");
+    await jest.advanceTimersByTimeAsync(250);
+    const options = screen.getAllByRole("option");
+    expect(options[0]).toHaveTextContent(/linux/i);
+    expect(options[1]).toHaveTextContent(/alpine/i);
+    jest.useRealTimers();
+  });
+
+  it("leaves the query in place when Tab cannot commit a fuzzy tag", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
+      },
+    });
+    enhance(
+      mount(`
+        <div data-fuzzy-find data-tag-search>
+          <label for="fuzzy-tab">Search notes</label>
+          <input id="fuzzy-tab" data-fuzzy-input type="search">
+          <ul data-fuzzy-list data-sortable-list>
+            <li data-tags="linux" data-title="alpha" data-date="2025-06-01"><a href="/a">Alpha</a></li>
+          </ul>
+        </div>
+      `),
+    );
+    const field = screen.getByRole("searchbox", { name: "Search notes" });
+    field.focus();
+    await user.keyboard("zzz");
+    await jest.advanceTimersByTimeAsync(250);
+    await user.keyboard("{Tab}");
+    expect(field).toHaveValue("zzz");
+    expect(screen.queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
     jest.useRealTimers();
   });
 });

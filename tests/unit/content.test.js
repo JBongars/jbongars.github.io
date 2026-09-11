@@ -97,6 +97,7 @@ describe("cssDecls", () => {
     );
     expect(cssDeclarations(false)).toBe("");
     expect(cssDeclarations(["color: red"])).toBe("");
+    expect(cssDeclarations(" ".repeat(3))).toBe("");
   });
 
   it("strips HTML closers from values", () => {

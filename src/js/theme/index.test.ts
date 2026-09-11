@@ -139,4 +139,11 @@ describe("theme", () => {
       init(document.createDocumentFragment())();
     }).not.toThrow();
   });
+
+  it("uses the document and native storage when init is called without arguments", () => {
+    document.body.innerHTML = TOGGLE;
+    const stop = init();
+    teardowns.push(stop);
+    expect(screen.getByRole("checkbox", { name: /toggle light and dark mode/i })).toBeInTheDocument();
+  });
 });

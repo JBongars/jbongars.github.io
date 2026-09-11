@@ -273,6 +273,224 @@ describe("hacklas-shortcuts", () => {
     expect(screen.getByRole("searchbox", { name: "Search notes" })).toHaveValue("n");
   });
 
+  it("does nothing when the root is not an element", () => {
+    expect(() => {
+      init(document.createDocumentFragment())();
+    }).not.toThrow();
+  });
+
+  it("uses the document when init is called without a root", () => {
+    document.body.innerHTML = "<p>home</p>";
+    const stop = init();
+    teardowns.push(stop);
+    expect(screen.getByText("home")).toBeInTheDocument();
+  });
+
+  it("ignores shortcuts from a contenteditable region", async () => {
+    const user = userEvent.setup();
+    const location = fakeLocation("/");
+    enhance(mount(`<div contenteditable="true" role="textbox" aria-label="Edit">x</div>`), {
+      location,
+    });
+    const editor = screen.getByRole("textbox", { name: "Edit" });
+    Object.defineProperty(editor, "isContentEditable", { configurable: true, value: true });
+    editor.focus();
+    await user.keyboard("h");
+    expect(location.assigned).toEqual([]);
+  });
+
+  it("ignores shortcuts from a textarea", async () => {
+    const user = userEvent.setup();
+    const location = fakeLocation("/");
+    enhance(mount(`<textarea aria-label="Note"></textarea>`), { location });
+    await user.click(screen.getByRole("textbox", { name: "Note" }));
+    await user.keyboard("h");
+    expect(location.assigned).toEqual([]);
+  });
+
+  it("treats uppercase H like h", async () => {
+    const user = userEvent.setup();
+    const location = fakeLocation("/");
+    enhance(mount("<p>home</p>"), { location });
+    await user.keyboard("H");
+    expect(location.assigned).toEqual(["/hacklas/"]);
+  });
+
+  it("ignores non-character keys and repeated h", async () => {
+    const user = userEvent.setup();
+    const location = fakeLocation("/");
+    const root = mount("<p>home</p>");
+    enhance(root, { location });
+    await user.keyboard("{F1}");
+    root.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "h", bubbles: true, cancelable: true, repeat: true }),
+    );
+    expect(location.assigned).toEqual([]);
+  });
+
+  it("ignores Backspace and Enter off a Hacklas note", async () => {
+    const user = userEvent.setup();
+    const navigation = fakeHistory();
+    const location = fakeLocation("/");
+    enhance(mount("<p>home</p>"), { location, history: navigation });
+    await user.keyboard("{Backspace}{Enter}");
+    expect(navigation.calls).toBe(0);
+    expect(location.assigned).toEqual([]);
+  });
+
+  it("ignores repeated Backspace on a note", () => {
+    const navigation = fakeHistory();
+    const root = mount("<p>note</p>");
+    enhance(root, { location: fakeLocation("/hacklas/note/"), history: navigation });
+    root.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Backspace",
+        bubbles: true,
+        cancelable: true,
+        repeat: true,
+      }),
+    );
+    expect(navigation.calls).toBe(0);
+  });
+
+  it("assigns Hacklas when a nav list has no matching link", async () => {
+    const user = userEvent.setup();
+    const location = fakeLocation("/");
+    enhance(
+      mount(`
+        <nav>
+          <ul data-nav-list>
+            <li><a href="/blog/">Blog</a></li>
+          </ul>
+        </nav>
+      `),
+      { location },
+    );
+    await user.keyboard("h");
+    expect(location.assigned).toEqual(["/hacklas/"]);
+  });
+
+  it("does not type when the Hacklas index has no search field", async () => {
+    const user = userEvent.setup();
+    enhance(mount("<p>index</p>"), { location: fakeLocation("/hacklas") });
+    await user.keyboard("n{Enter}");
+    expect(screen.getByText("index")).toBeInTheDocument();
+  });
+
+  it("skips hidden active items and items without links", async () => {
+    const user = userEvent.setup();
+    const clicks: string[] = [];
+    enhance(
+      mount(`
+        <ul data-fuzzy-list>
+          <li class="is-active" style="display: none"><a href="#hidden">Hidden</a></li>
+          <li style="display: none"><a href="#also">Also hidden</a></li>
+          <li>No link</li>
+          <li><a href="#note">Visible note</a></li>
+        </ul>
+      `),
+      { location: fakeLocation("/hacklas") },
+    );
+    screen.getByRole("link", { name: "Visible note" }).addEventListener("click", (event) => {
+      event.preventDefault();
+      clicks.push("visible");
+    });
+    await user.keyboard("{Enter}");
+    expect(clicks).toEqual([]);
+  });
+
+  it("opens the first visible linked result on the Hacklas index", async () => {
+    const user = userEvent.setup();
+    const clicks: string[] = [];
+    enhance(
+      mount(`
+        <ul data-fuzzy-list>
+          <li class="is-active" style="display: none"><a href="#hidden">Hidden</a></li>
+          <li><a href="#note">Visible note</a></li>
+        </ul>
+      `),
+      { location: fakeLocation("/hacklas") },
+    );
+    screen.getByRole("link", { name: "Visible note" }).addEventListener("click", (event) => {
+      event.preventDefault();
+      clicks.push("visible");
+    });
+    await user.keyboard("{Enter}");
+    expect(clicks).toEqual(["visible"]);
+  });
+
+  it("does not open a result when a button is focused on the index", async () => {
+    const user = userEvent.setup();
+    const clicks: string[] = [];
+    enhance(
+      mount(`
+        <button type="button">Stay</button>
+        <ul data-fuzzy-list>
+          <li><a href="#note">Visible note</a></li>
+        </ul>
+      `),
+      { location: fakeLocation("/hacklas") },
+    );
+    screen.getByRole("link", { name: "Visible note" }).addEventListener("click", (event) => {
+      event.preventDefault();
+      clicks.push("visible");
+    });
+    await user.click(screen.getByRole("button", { name: "Stay" }));
+    await user.keyboard("{Enter}");
+    expect(clicks).toEqual([]);
+  });
+
+  it("treats an empty pathname as the site root", async () => {
+    const user = userEvent.setup();
+    const location = fakeLocation("", "http://localhost:8080");
+    enhance(mount("<p>home</p>"), { location });
+    await user.keyboard("h");
+    expect(location.assigned).toEqual(["/hacklas/"]);
+  });
+
+  it("ignores a path prefix that does not match the current path", async () => {
+    const user = userEvent.setup();
+    document.documentElement.dataset["pathPrefix"] = "/other";
+    const location = fakeLocation("/hacklas");
+    enhance(
+      mount(`
+        <div data-fuzzy-find data-tag-search>
+          <input type="search" data-fuzzy-input aria-label="Search notes">
+        </div>
+      `),
+      { location },
+    );
+    await user.keyboard("n");
+    expect(screen.getByRole("searchbox", { name: "Search notes" })).toHaveValue("n");
+  });
+
+  it("normalizes a prefix strip that leaves no leading slash", async () => {
+    const user = userEvent.setup();
+    document.documentElement.dataset["pathPrefix"] = "/h";
+    const location = fakeLocation("/hacklas");
+    enhance(mount("<p>not index</p>"), { location });
+    await user.keyboard("h");
+    expect(location.assigned).toEqual(["/h/hacklas/"]);
+  });
+
+  it("treats a prefix that consumes the whole path as the site root", async () => {
+    const user = userEvent.setup();
+    document.documentElement.dataset["pathPrefix"] = "/hacklas";
+    const location = fakeLocation("/hacklas");
+    enhance(
+      mount(`
+        <div data-fuzzy-find data-tag-search>
+          <input type="search" data-fuzzy-input aria-label="Search notes">
+        </div>
+      `),
+      { location },
+    );
+    await user.keyboard("n");
+    expect(screen.getByRole("searchbox", { name: "Search notes" })).toHaveValue("");
+    await user.keyboard("h");
+    expect(location.assigned).toEqual(["/hacklas/hacklas/"]);
+  });
+
   it("ignores shortcuts from a checkbox and from the document body", async () => {
     const user = userEvent.setup();
     const location = fakeLocation("/");

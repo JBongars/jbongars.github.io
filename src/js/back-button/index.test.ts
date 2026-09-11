@@ -145,4 +145,26 @@ describe("back-button", () => {
       init(document.createDocumentFragment())();
     }).not.toThrow();
   });
+
+  it("uses the document when init is called without a root", () => {
+    document.body.innerHTML = BACK_LINK;
+    const stop = init();
+    teardowns.push(stop);
+    expect(screen.getByRole("link", { name: /back/i })).toBeInTheDocument();
+  });
+
+  it("ignores a click that is not a mouse event on an element", () => {
+    const navigation = fakeHistory();
+    enhance(mount(BACK_LINK), { history: navigation });
+    document.body.dispatchEvent(new Event("click", { bubbles: true, cancelable: true }));
+    expect(navigation.calls).toBe(0);
+  });
+
+  it("ignores a data-back target that is not a link", async () => {
+    const user = userEvent.setup();
+    const navigation = fakeHistory();
+    enhance(mount(`<button type="button" data-back>Back</button>`), { history: navigation });
+    await user.click(screen.getByRole("button", { name: "Back" }));
+    expect(navigation.calls).toBe(0);
+  });
 });

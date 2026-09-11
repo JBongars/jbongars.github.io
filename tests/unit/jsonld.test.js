@@ -6,6 +6,14 @@ import personResume from "../../src/_data/resume.json" with { type: "json" };
 const blogPost = path.join("src", "blog", "hello", "index.md");
 const writeUp = path.join("src", "write-ups", "box", "index.md");
 
+function restoreEnvironment(key, previous) {
+  if (previous === undefined) {
+    delete process.env[key];
+  } else {
+    process.env[key] = previous;
+  }
+}
+
 describe("pageDescription", () => {
   it("uses an explicit description when present", () => {
     expect(pageDescription({ description: "  Hello.  ", page: { url: "/" } })).toBe("Hello.");
@@ -73,6 +81,25 @@ describe("buildJsonLd", () => {
     expect(buildJsonLd({ page: { url: "/unknown/" } })["@type"]).toBe("Person");
   });
 
+  it("falls back when collections, titles, dates, or the page URL are missing", () => {
+    const emptyBlog = buildJsonLd({ page: { url: "/blog/" } });
+    expect(emptyBlog.mainEntity.numberOfItems).toBe(0);
+    const slugOnly = buildJsonLd({
+      page: { url: "/blog/" },
+      collections: { blog: [{ url: "/blog/hello/", fileSlug: "hello" }] },
+    });
+    expect(slugOnly.mainEntity.itemListElement[0].name).toBe("hello");
+    const home = buildJsonLd({ page: {} });
+    expect(home["@type"]).toBe("ProfilePage");
+    const invalidDate = buildJsonLd({
+      page: { url: "/blog/hello/", inputPath: blogPost },
+      date: new Date("invalid"),
+    });
+    expect(invalidDate.datePublished).toBeUndefined();
+    const untitled = buildJsonLd({ page: { url: "/blog/hello/", inputPath: blogPost } });
+    expect(untitled.headline).toBe(personResume.name);
+  });
+
   it("includes profile URLs when SITE_URL is set", () => {
     const previous = process.env["SITE_URL"];
     process.env["SITE_URL"] = "https://example.test";
@@ -86,11 +113,7 @@ describe("buildJsonLd", () => {
       });
       expect(post.image).toBe("https://example.test/img/profile.jpg");
     } finally {
-      if (previous === undefined) {
-        delete process.env["SITE_URL"];
-      } else {
-        process.env["SITE_URL"] = previous;
-      }
+      restoreEnvironment("SITE_URL", previous);
     }
   });
 });

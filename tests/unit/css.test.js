@@ -1,7 +1,14 @@
-import { afterEach, describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it, jest } from "@jest/globals";
 import fs from "node:fs";
 import { bundleCss, cssRev } from "../../_11ty/css.ts";
 import { data, render } from "../../src/css/bundle.11ty.ts";
+
+function readFileOrEmptyFeatures(original, file, encoding) {
+  if (String(file).endsWith("features.json")) {
+    return "[]";
+  }
+  return original(file, encoding);
+}
 
 describe("bundleCss", () => {
   it("inlines imported sheets and drops @import rules", () => {
@@ -13,12 +20,7 @@ describe("bundleCss", () => {
   it("treats a non-object features file as hacklas off", () => {
     const original = fs.readFileSync.bind(fs);
     const read = jest.spyOn(fs, "readFileSync");
-    read.mockImplementation((file, encoding) => {
-      if (String(file).endsWith("features.json")) {
-        return "[]";
-      }
-      return original(file, encoding);
-    });
+    read.mockImplementation((file, encoding) => readFileOrEmptyFeatures(original, file, encoding));
     try {
       expect(bundleCss()).not.toContain("@import");
     } finally {
