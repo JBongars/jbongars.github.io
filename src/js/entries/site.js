@@ -1,0 +1,13 @@
+import "../site-url.js";
+import "../fuzzy-find.js";
+import "../booru-search.js";
+import "../hacklas-disclaimer.js";
+import "../hacklas-shortcuts.js";
+import "../hacklas-help.js";
+import "../hacklas-checklists.js";
+import "../comments.js";
+import "../code-blocks.js";
+import "../image-lightbox.js";
+import "../back-button.js";
+import "../skill-hints.js";
+import "../site.js";

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import { bundleCss, cssRev } from "../../_11ty/css.js";
-import { data, render } from "../../src/css/bundle.11ty.js";
+import { bundleCss, cssRev } from "../../_11ty/css.ts";
+import { data, render } from "../../src/css/bundle.11ty.ts";
 
 describe("bundleCss", () => {
   it("inlines imported sheets and drops @import rules", () => {

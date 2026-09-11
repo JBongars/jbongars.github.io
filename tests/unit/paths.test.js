@@ -8,7 +8,7 @@ import {
   siteOrigin,
   siteUrl,
   withPathPrefix,
-} from "../../_11ty/paths.js";
+} from "../../_11ty/paths.ts";
 
 describe("resolvePathPrefix", () => {
   it("defaults to /", () => {

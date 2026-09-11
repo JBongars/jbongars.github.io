@@ -5,7 +5,7 @@ import {
   plainSummary,
   unescapeHtml,
   xmlEscape,
-} from "../../_11ty/text.js";
+} from "../../_11ty/text.ts";
 
 describe("xmlEscape", () => {
   it("escapes XML special characters", () => {

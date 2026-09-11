@@ -1,10 +1,60 @@
-import { absoluteHref, siteOrigin } from "./paths.js";
-import { isContentMarkdown } from "./content.js";
+import { absoluteHref, siteOrigin } from "./paths.ts";
+import { isContentMarkdown } from "./content.ts";
 import personResume from "../src/_data/resume.json" with { type: "json" };
+import type { CollectionItem, PageData } from "./types.ts";
 
-function personNode() {
+interface PersonNode {
+  "@type": "Person";
+  name: string;
+  jobTitle: string;
+  url?: string;
+  image?: string;
+  sameAs?: string[];
+  address?: {
+    "@type": "PostalAddress";
+    addressLocality: string;
+  };
+  knowsAbout?: string[];
+  description?: string;
+}
+
+interface JsonLdNode {
+  "@context"?: string;
+  "@type": string;
+  url?: string;
+  name?: string;
+  headline?: string;
+  description?: string;
+  mainEntity?: unknown;
+  hasPart?: unknown;
+  about?: PersonNode;
+  author?: PersonNode;
+  mainEntityOfPage?: string;
+  datePublished?: string;
+  dateModified?: string;
+  image?: string;
+}
+
+interface JsonLdGraph {
+  data: PageData;
+  person: PersonNode;
+  url: string;
+  description: string;
+}
+
+function presentStrings(values: unknown[]): string[] {
+  const present: string[] = [];
+  for (const value of values) {
+    if (typeof value === "string" && value) {
+      present.push(value);
+    }
+  }
+  return present;
+}
+
+function personNode(): PersonNode {
   const origin = siteOrigin();
-  const person = {
+  const person: PersonNode = {
     "@type": "Person",
     name: personResume.name,
     jobTitle: personResume.title,
@@ -13,7 +63,7 @@ function personNode() {
     person.url = `${origin}/`;
     person.image = `${origin}/img/profile.jpg`;
   }
-  const sameAs = [personResume.linkedin, personResume.github].filter(Boolean);
+  const sameAs = presentStrings([personResume.linkedin, personResume.github]);
   if (sameAs.length > 0) {
     person.sameAs = sameAs;
   }
@@ -29,29 +79,29 @@ function personNode() {
   return person;
 }
 
-function listItems(collection) {
-  return (collection || []).map((item, index) => ({
+function listItems(collection?: CollectionItem[]): Record<string, unknown>[] {
+  return (collection ?? []).map((item, index) => ({
     "@type": "ListItem",
     position: index + 1,
     url: absoluteHref(item.url),
-    name: item.data?.title || item.fileSlug,
+    name: item.data?.title ?? item.fileSlug,
   }));
 }
 
-function publishedDay(value) {
+function publishedDay(value: unknown): string | undefined {
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
     return value.toISOString().slice(0, 10);
   }
 }
 
-function modifiedDay(value) {
+function modifiedDay(value: unknown): string | undefined {
   if (typeof value === "string" && value) {
     return value;
   }
   return publishedDay(value);
 }
 
-function urlDescriptions(name, role) {
+function urlDescriptions(name: string, role: string): Record<string, string> {
   return {
     "/": `${name} — ${role} in Singapore. The resume is compact employment history; the blog covers depth that does not fit there; write-ups are hands-on offensive security work.`,
     "/resume/": `Resume for ${name}, ${role} in Singapore. Compact employment history; see the blog and write-ups for depth.`,
@@ -60,8 +110,8 @@ function urlDescriptions(name, role) {
   };
 }
 
-function contentDescription(data, name, role) {
-  const heading = data.title || data.page?.fileSlug || name;
+function contentDescription(data: PageData, name: string, role: string): string {
+  const heading = data.title ?? data.page?.fileSlug ?? name;
   const inputPath = data.page?.inputPath;
   if (isContentMarkdown(inputPath, "blog")) {
     return `${heading} — blog post by ${name}.`;
@@ -72,13 +122,15 @@ function contentDescription(data, name, role) {
   return `${role} in Singapore. Resume, blog, write-ups, and LinkedIn.`;
 }
 
-function routeDescription(data) {
-  const name = personResume.name || "";
-  const role = personResume.title || "";
-  return urlDescriptions(name, role)[data.page?.url || "/"] || contentDescription(data, name, role);
+function routeDescription(data: PageData): string {
+  const name = personResume.name;
+  const role = personResume.title;
+  const descriptions = urlDescriptions(name, role);
+  const pageUrl = data.page?.url ?? "/";
+  return descriptions[pageUrl] ?? contentDescription(data, name, role);
 }
 
-function pageDescription(data) {
+function pageDescription(data: PageData): string {
   const raw = data.description;
   if (typeof raw === "string" && raw.trim()) {
     return raw.trim();
@@ -86,7 +138,7 @@ function pageDescription(data) {
   return routeDescription(data);
 }
 
-function homeJsonLd(person, url, description) {
+function homeJsonLd(person: PersonNode, url: string, description: string): JsonLdNode {
   return {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
@@ -106,7 +158,7 @@ function homeJsonLd(person, url, description) {
   };
 }
 
-function resumeJsonLd(person, url, description) {
+function resumeJsonLd(person: PersonNode, url: string, description: string): JsonLdNode {
   return {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
@@ -117,50 +169,50 @@ function resumeJsonLd(person, url, description) {
   };
 }
 
-function collectionJsonLd({ data, person, url, description }) {
-  const isBlog = data.page?.url === "/blog/";
-  const items = isBlog ? data.collections?.blog : data.collections?.writeUps;
+function collectionJsonLd(graph: JsonLdGraph): JsonLdNode {
+  const isBlog = graph.data.page?.url === "/blog/";
+  const items = isBlog ? graph.data.collections?.blog : graph.data.collections?.writeUps;
   return {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    url,
+    url: graph.url,
     name: isBlog ? "Blog" : "Write-Ups",
-    description,
-    about: person,
+    description: graph.description,
+    about: graph.person,
     mainEntity: {
       "@type": "ItemList",
-      numberOfItems: (items || []).length,
+      numberOfItems: (items ?? []).length,
       itemListElement: listItems(items),
     },
   };
 }
 
-function articleJsonLd({ data, person, url, description }) {
-  const isWriteUp = isContentMarkdown(data.page?.inputPath, "write-ups");
-  const node = {
+function articleJsonLd(graph: JsonLdGraph): JsonLdNode {
+  const isWriteUp = isContentMarkdown(graph.data.page?.inputPath, "write-ups");
+  const node: JsonLdNode = {
     "@context": "https://schema.org",
     "@type": isWriteUp ? "TechArticle" : "BlogPosting",
-    url,
-    headline: data.title || person.name,
-    description,
-    author: person,
-    mainEntityOfPage: url,
+    url: graph.url,
+    headline: graph.data.title ?? graph.person.name,
+    description: graph.description,
+    author: graph.person,
+    mainEntityOfPage: graph.url,
   };
-  const datePublished = publishedDay(data.date);
+  const datePublished = publishedDay(graph.data.date);
   if (datePublished) {
     node.datePublished = datePublished;
   }
-  const dateModified = modifiedDay(data.dateModified);
+  const dateModified = modifiedDay(graph.data.dateModified);
   if (dateModified) {
     node.dateModified = dateModified;
   }
-  if (person.image) {
-    node.image = person.image;
+  if (graph.person.image) {
+    node.image = graph.person.image;
   }
   return node;
 }
 
-function articleOrPersonJsonLd(graph) {
+function articleOrPersonJsonLd(graph: JsonLdGraph): JsonLdNode {
   const inputPath = graph.data.page?.inputPath;
   if (isContentMarkdown(inputPath, "blog") || isContentMarkdown(inputPath, "write-ups")) {
     return articleJsonLd(graph);
@@ -172,19 +224,20 @@ function articleOrPersonJsonLd(graph) {
   };
 }
 
-function buildJsonLd(data) {
-  const pageUrl = data.page?.url || "/";
+function buildJsonLd(data: PageData): JsonLdNode {
+  const pageUrl = data.page?.url ?? "/";
   const url = absoluteHref(pageUrl);
   const person = personNode();
   const description = pageDescription(data);
   const graph = { data, person, url, description };
-  const byUrl = {
+  const byUrl: Record<string, () => JsonLdNode> = {
     "/": () => homeJsonLd(person, url, description),
     "/resume/": () => resumeJsonLd(person, url, description),
     "/blog/": () => collectionJsonLd(graph),
     "/write-ups/": () => collectionJsonLd(graph),
   };
-  return (byUrl[pageUrl] || (() => articleOrPersonJsonLd(graph)))();
+  const builder = byUrl[pageUrl];
+  return builder === undefined ? articleOrPersonJsonLd(graph) : builder();
 }
 
 export { pageDescription, buildJsonLd };

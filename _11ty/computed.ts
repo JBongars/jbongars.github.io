@@ -8,30 +8,26 @@ import {
   findBannerFile,
   frontMatterHasKey,
   fileCreatedDate,
-} from "./content.js";
-import { pageDescription } from "./jsonld.js";
-import { gitLastmodDay } from "./git.js";
+} from "./content.ts";
+import { pageDescription } from "./jsonld.ts";
+import { gitLastmodDay } from "./git.ts";
+import { asStringOrEmpty } from "./text.ts";
+import type { PageData } from "./types.ts";
 
-function extraNoteTags(raw) {
+function extraNoteTags(raw: unknown): string[] {
   const list = Array.isArray(raw)
     ? raw
     : typeof raw === "string" && raw.trim()
       ? raw.split(/[,]+/)
       : [];
-  return list
-    .map((tag) =>
-      String(tag || "")
-        .trim()
-        .toLowerCase(),
-    )
-    .filter(Boolean);
+  return list.map((tag) => asStringOrEmpty(tag).trim().toLowerCase()).filter(Boolean);
 }
 
-function uniqueTags(list) {
-  const seen = new Set();
-  const tags = [];
+function uniqueTags(list: string[]): string[] {
+  const seen = new Set<string>();
+  const tags: string[] = [];
   for (const item of list) {
-    const tag = String(item || "").trim();
+    const tag = item.trim();
     if (!tag) {
       continue;
     }
@@ -45,28 +41,54 @@ function uniqueTags(list) {
   return tags;
 }
 
-function isPostMarkdown(inputPath) {
+function isPostMarkdown(inputPath: unknown): inputPath is string {
   return isContentMarkdown(inputPath, "blog") || isContentMarkdown(inputPath, "write-ups");
 }
 
-function createdOrPageDate(data) {
+function fallbackLayout(current: unknown, fallback: string): string {
+  // Eleventy's computed-data proxy sets missing keys to "". Treat that as unset.
+  if (typeof current === "string" && current !== "") {
+    return current;
+  }
+  return fallback;
+}
+
+function createdOrPageDate(data: PageData): Date | undefined {
+  const inputPath = data.page?.inputPath;
   try {
-    return fileCreatedDate(data.page?.inputPath);
+    if (typeof inputPath !== "string") {
+      return data.page?.date;
+    }
+    return fileCreatedDate(inputPath);
   } catch {
-    return data.page.date;
+    return data.page?.date;
   }
 }
 
-function computedData() {
+interface ComputedFields {
+  metaDescription: (data: PageData) => string;
+  layout: (data: PageData) => string | undefined;
+  title: (data: PageData) => string | undefined;
+  author: (data: PageData) => string | undefined;
+  notePathParts: (data: PageData) => string[] | undefined;
+  notePath: (data: PageData) => string | undefined;
+  noteTags: (data: PageData) => string[] | undefined;
+  banner: (data: PageData) => string | undefined;
+  showBanner: (data: PageData) => boolean;
+  date: (data: PageData) => Date | undefined;
+  dateModified: (data: PageData) => string | undefined;
+}
+
+function computedData(): ComputedFields {
   return {
     metaDescription: (data) => pageDescription(data),
     layout: (data) => {
       const inputPath = data.page?.inputPath;
       if (isContentMarkdown(inputPath, "hacklas")) {
-        return data.layout || "note.njk";
+        return fallbackLayout(data.layout, "note.njk");
       }
       if (isPostMarkdown(inputPath)) {
-        return data.layout || "post.njk";
+        return fallbackLayout(data.layout, "post.njk");
       }
       return data.layout;
     },
@@ -76,10 +98,10 @@ function computedData() {
       }
       const inputPath = data.page?.inputPath;
       if (isContentMarkdown(inputPath, "hacklas")) {
-        return parseHacklasMeta(inputPath).title || data.page.fileSlug;
+        return parseHacklasMeta(inputPath).title ?? data.page?.fileSlug;
       }
       if (isPostMarkdown(inputPath)) {
-        return data.page.fileSlug;
+        return data.page?.fileSlug;
       }
       return data.title;
     },
@@ -128,20 +150,20 @@ function computedData() {
         return sourceFileToUrl(fromPath);
       }
       const name = findBannerFile(path.dirname(inputPath));
-      return name ? `${data.page.url}${name}` : undefined;
+      return name ? `${data.page?.url ?? ""}${name}` : undefined;
     },
     showBanner: (data) => isPostMarkdown(data.page?.inputPath),
     // Prefer front matter / inline note date; else file created time for posts.
     date: (data) => {
       const inputPath = data.page?.inputPath;
       if (isContentMarkdown(inputPath, "hacklas")) {
-        return parseHacklasMeta(inputPath).date || createdOrPageDate(data);
+        return parseHacklasMeta(inputPath).date ?? createdOrPageDate(data);
       }
       if (!isPostMarkdown(inputPath)) {
         return;
       }
       if (frontMatterHasKey(inputPath, "date")) {
-        return data.page.date;
+        return data.page?.date;
       }
       return createdOrPageDate(data);
     },

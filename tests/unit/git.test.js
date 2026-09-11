@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { gitLastmodDay, isoDay } from "../../_11ty/git.js";
+import { gitLastmodDay, isoDay } from "../../_11ty/git.ts";
 
 describe("isoDay", () => {
   it("returns YYYY-MM-DD for Date and ISO strings", () => {

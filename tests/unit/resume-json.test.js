@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { data, render } from "../../src/resume-json.11ty.js";
+import { data, render } from "../../src/resume-json.11ty.ts";
 import resume from "../../src/_data/resume.json" with { type: "json" };
 
 describe("resume-json.11ty.js", () => {

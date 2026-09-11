@@ -1,10 +1,11 @@
 import { describe, expect, it } from "@jest/globals";
-import eleventyConfig from "../../.eleventy.js";
-import { buildToc } from "../../_11ty/markdown.js";
-import { pathPrefix, siteUrl } from "../../_11ty/paths.js";
+import eleventyConfig from "../../eleventy.config.ts";
+import { buildToc } from "../../_11ty/markdown.ts";
+import { pathPrefix, siteUrl } from "../../_11ty/paths.ts";
 
 function stubEleventyConfig() {
   const filters = new Map();
+  const shortcodes = new Set();
   const copies = [];
   const plugins = [];
   const collections = new Map();
@@ -16,6 +17,7 @@ function stubEleventyConfig() {
 
   return {
     filters,
+    shortcodes,
     copies,
     plugins,
     collections,
@@ -47,7 +49,11 @@ function stubEleventyConfig() {
     addFilter(name, filter) {
       filters.set(name, filter);
     },
-    addShortcode() {},
+    addShortcode(name) {
+      shortcodes.add(name);
+    },
+    addExtension() {},
+    addTemplateFormats() {},
     amendLibrary() {},
     addCollection(name, builder) {
       collections.set(name, builder);
@@ -86,8 +92,23 @@ describe("eleventy config", () => {
       label: "example.com",
     });
     expect(config.plugins).toHaveLength(2);
-    expect(config.copies).toContain("src/js");
-    expect(config.serverOptions.headers["X-Content-Type-Options"]).toBe("nosniff");
+    expect(config.copies).not.toContain("src/js");
+    expect(config.watchTargets).toContain("src/js");
+    expect(config.ignorePatterns.has("src/js/**")).toBe(true);
+    expect(config.shortcodes.has("jsRev")).toBe(true);
+    expect(config.shortcodes.has("inlineScript")).toBe(true);
+    expect(config.shortcodes.has("modulePreloads")).toBe(true);
+    const headers = {};
+    config.serverOptions.middleware[0](
+      { url: "/resume/" },
+      {
+        setHeader(name, value) {
+          headers[name] = value;
+        },
+      },
+      () => {},
+    );
+    expect(headers["X-Content-Type-Options"]).toBe("nosniff");
     expect(config.collections.has("blog")).toBe(true);
     expect(config.collections.has("writeUps")).toBe(true);
     expect(config.collections.has("feed")).toBe(true);

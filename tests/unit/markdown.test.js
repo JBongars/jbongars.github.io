@@ -1,7 +1,7 @@
 import path from "node:path";
 import { describe, expect, it } from "@jest/globals";
 import MarkdownIt from "markdown-it";
-import { buildToc, configureMarkdown, warmPrismLanguages } from "../../_11ty/markdown.js";
+import { buildToc, configureMarkdown, warmPrismLanguages } from "../../_11ty/markdown.ts";
 
 function renderMarkdown(source, environment = {}) {
   const markdown = new MarkdownIt();

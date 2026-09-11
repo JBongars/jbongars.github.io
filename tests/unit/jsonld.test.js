@@ -1,6 +1,6 @@
 import path from "node:path";
 import { describe, expect, it } from "@jest/globals";
-import { buildJsonLd, pageDescription } from "../../_11ty/jsonld.js";
+import { buildJsonLd, pageDescription } from "../../_11ty/jsonld.ts";
 import personResume from "../../src/_data/resume.json" with { type: "json" };
 
 const blogPost = path.join("src", "blog", "hello", "index.md");

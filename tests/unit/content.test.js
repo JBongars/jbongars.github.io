@@ -17,8 +17,8 @@ import {
   srcFileToUrl as sourceFileToUrl,
   stripNoteChrome,
   stripWriteupChrome,
-} from "../../_11ty/content.js";
-import { SRC_ROOT } from "../../_11ty/paths.js";
+} from "../../_11ty/content.ts";
+import { SRC_ROOT } from "../../_11ty/paths.ts";
 
 const awsPost = path.join(SRC_ROOT, "blog", "AWS_EC2_Probe", "index.md");
 

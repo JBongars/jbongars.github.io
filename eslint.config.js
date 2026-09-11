@@ -94,6 +94,14 @@ export default defineConfig([
     },
   },
 
+  {
+    files: ["**/*.d.ts"],
+    rules: {
+      // Ambient module declarations are type-only and never emitted.
+      "no-restricted-syntax": "off",
+    },
+  },
+
   // ---------- Build code (Node) ----------
   {
     files: ["eleventy.config.ts", "_11ty/**/*.ts", "src/**/*.11ty.ts", "playwright.config.ts"],
@@ -267,7 +275,7 @@ export default defineConfig([
     },
   },
   {
-    files: [".eleventy.js", "_11ty/**/*.js", "src/**/*.js", "eslint.config.js", "jest.config.js"],
+    files: ["src/_data/**/*.js", "src/**/*.js", "eslint.config.js", "jest.config.js"],
     ignores: ["**/*.test.js", "src/js/**/*.js"],
     rules: {
       eqeqeq: ["error", "always"],

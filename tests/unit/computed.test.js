@@ -1,7 +1,7 @@
 import path from "node:path";
 import { describe, expect, it } from "@jest/globals";
-import { computedData } from "../../_11ty/computed.js";
-import { SRC_ROOT } from "../../_11ty/paths.js";
+import { computedData } from "../../_11ty/computed.ts";
+import { SRC_ROOT } from "../../_11ty/paths.ts";
 
 const computed = computedData();
 const blogPath = path.join("src", "blog", "hello", "index.md");
@@ -12,6 +12,7 @@ const awsPost = path.join(SRC_ROOT, "blog", "AWS_EC2_Probe", "index.md");
 describe("computedData", () => {
   it("picks layouts from the content folder", () => {
     expect(computed.layout({ page: { inputPath: blogPath } })).toBe("post.njk");
+    expect(computed.layout({ page: { inputPath: blogPath }, layout: "" })).toBe("post.njk");
     expect(computed.layout({ page: { inputPath: notePath } })).toBe("note.njk");
     expect(computed.layout({ page: { inputPath: "src/index.njk" }, layout: "base.njk" })).toBe(
       "base.njk",

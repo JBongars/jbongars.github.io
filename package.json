@@ -8,8 +8,8 @@
   },
   "packageManager": "yarn@1.22.22",
   "scripts": {
-    "build": "eleventy",
-    "serve": "eleventy --serve",
+    "build": "eleventy --config=eleventy.config.ts",
+    "serve": "eleventy --serve --config=eleventy.config.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings=0 --cache --cache-location .cache/eslint/",
@@ -28,6 +28,8 @@
     "@eslint-community/eslint-plugin-eslint-comments": "^4.8.0",
     "@eslint/js": "^10.0.1",
     "@jest/globals": "^30.5.1",
+    "@rollup/plugin-terser": "^1.0.0",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@swc/core": "^1.16.2",
     "@swc/jest": "^0.2.39",
     "@types/node": "24",
@@ -41,6 +43,9 @@
     "jest": "^30.5.1",
     "jsdom": "^30.0.1",
     "prettier": "^3.9.6",
+    "rollup": "^4.63.1",
+    "terser": "^5.51.2",
+    "tslib": "^2.8.1",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.70.0"
   }

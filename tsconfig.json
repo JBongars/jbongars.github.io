@@ -23,13 +23,10 @@
     "skipLibCheck": true
   },
   "include": [
-    ".eleventy.js",
     "eleventy.config.ts",
     "playwright.config.ts",
     "_11ty/**/*.ts",
-    "_11ty/**/*.js",
     "src/**/*.11ty.ts",
-    "src/**/*.11ty.js",
     "src/_data/**/*"
   ],
   "exclude": ["src/js/**", "tests/**", "_site/**", "node_modules/**"]

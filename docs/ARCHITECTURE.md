@@ -7,11 +7,11 @@
   into `/css/style.css` (`src/css/bundle.11ty.js`). No preprocessor, no
   framework. Writing standard: [CSS_ARCHITECTURE.md](CSS_ARCHITECTURE.md)
   (BEM + SMACSS + custom properties only — not CSS-in-JS or Tailwind).
-- Client JS is progressive enhancement (site works without it). `theme-init.js`
-  is inlined after the theme checkbox (CSP sha256). Other scripts are deferred
-  and only included on pages that need them. See the README. Rollup is the
-  only allowed bundler; it touches client JS only, per
-  [BUILD_TEST_REFACTOR.md](BUILD_TEST_REFACTOR.md).
+- Client JS is progressive enhancement (site works without it). Rollup
+  bundles `src/js/entries/` into `/js/` during the Eleventy build (`site`
+  module, inlined `theme-init` IIFE, classic `hacklas-disclaimer-init`
+  file). CSP hashes the **built** theme-init string. Rollup is the only
+  allowed bundler; it touches client JS only. See the README.
 - Hosting: user GitHub Pages at `https://jbongars.github.io/`, deployed via
   GitHub Actions on push to `main` (Node 24 to build, from `.nvmrc`;
   checkout/setup-node/Pages actions on the runner runtime).
@@ -83,8 +83,8 @@ ESLint/Prettier, and Jest is in progress. Order and stop-and-check cadence:
 [BUILD_TEST_REFACTOR.md](BUILD_TEST_REFACTOR.md). How: [SPEC_BUILD_TS.md](SPEC_BUILD_TS.md),
 [SPEC_LINTING.md](SPEC_LINTING.md), [SPEC_TEST_TS.md](SPEC_TEST_TS.md).
 
-Until that playbook is finished, the tree above is the live layout
-(`.eleventy.js`, passthrough `src/js`, CommonJS). Do not introduce another
+Until that playbook is finished, client scripts stay classic IIFEs under
+`src/js/` and are bundled by Rollup into `_site/js`. Do not introduce another
 bundler, a JS/CSS framework, or Playwright from this work.
 
 ## Content model

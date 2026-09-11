@@ -76,24 +76,19 @@ src/
 TOC, task lists, demote headings on posts, rewrite relative `*.md` links,
 Hacklas chrome stripping.
 
-**Client JS** (deferred except inlined `theme-init.js`; site works without it)
+**Client JS** (progressive enhancement; site works without it)
 
-Listed as they are today. Conversion to TypeScript modules and Rollup follows
-`docs/BUILD_TEST_REFACTOR.md` (one stop at a time).
+Rollup bundles client scripts during `eleventy.before`. `_site/js` is build
+output, not a copy of `src/js`.
 
-- `theme-init.js` — inlined after the theme checkbox so the first paint matches
-- `site-url.js` — `window.siteUrl()` (Hacklas only)
-- `site.js` — theme persistence + same-origin soft navigation
-- `booru-search.js` — blog/write-up listing sort + tag/title search
-- `fuzzy-find.js` — Hacklas finder (`?q=` in URL)
-- `hacklas-disclaimer.js` / `hacklas-disclaimer-init.js` — disclaimer gate
-- `hacklas-shortcuts.js` — desktop Hacklas keyboard shortcuts
-- `hacklas-help.js` — desktop `?` shortcuts dialog (JS-only)
-- `hacklas-checklists.js` — parent checkbox checks/unchecks nested items
-- `code-blocks.js` — copy / fullscreen, line numbers, collapse tall fences; click inline `code` to copy
-- `image-lightbox.js` — fullscreen images, zoom/pan
-- `back-button.js` — history back for notes/posts
-- `comments.js` — inject Giscus on posts when comments are enabled
+- `theme-init` — Rollup IIFE inlined after the theme checkbox (CSP hashes the
+  **built** string)
+- `/js/site.js` — ES module of every page-enhancement script so soft navigation
+  still has handlers
+- `/js/hacklas-disclaimer-init.js` — classic blocking IIFE file (`'self'`)
+
+Source files remain classic IIFEs under `src/js/` until the module-contract
+stop. Conversion order: `docs/BUILD_TEST_REFACTOR.md`.
 
 ## Feature flags
 
