@@ -328,9 +328,9 @@ describe("fuzzy-find", () => {
     enhance(mount(NOTES));
     const field = searchInput(screen.getByRole("searchbox", { name: "Search notes" }));
     field.dispatchEvent(new Event("keydown", { bubbles: true }));
-    screen.getByRole("listbox", { name: "Notes" }).dispatchEvent(
-      new MouseEvent("mousemove", { bubbles: true }),
-    );
+    screen
+      .getByRole("listbox", { name: "Notes" })
+      .dispatchEvent(new MouseEvent("mousemove", { bubbles: true }));
     expect(screen.getByRole("option", { name: /linux notes/i })).toBeInTheDocument();
   });
 

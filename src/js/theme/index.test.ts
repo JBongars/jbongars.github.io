@@ -144,6 +144,8 @@ describe("theme", () => {
     document.body.innerHTML = TOGGLE;
     const stop = init();
     teardowns.push(stop);
-    expect(screen.getByRole("checkbox", { name: /toggle light and dark mode/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: /toggle light and dark mode/i }),
+    ).toBeInTheDocument();
   });
 });
