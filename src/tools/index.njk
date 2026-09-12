@@ -1,0 +1,39 @@
+---
+layout: base.njk
+title: Tools
+permalink: /tools/
+description: "Lookup tools by Julien Bongars, including Hacklas notes."
+---
+<h1>Tools</h1>
+
+{% if features.hacklas %}
+{% set hacklasTags = ["Hacking", "Notes", "Cheatsheet"] %}
+<ul class="card-grid post-list" data-sortable-list>
+  <li data-title="Hacklas" data-tags="{{ hacklasTags | join(',') }}">
+    <a class="card card--with-media" href="{{ '/hacklas/' | url }}">
+      <div class="card__media">
+        <img src="{{ '/img/hacklas.jpg' | url }}" alt="" width="1024" height="576" loading="lazy" decoding="async" sizes="(max-width: 48rem) 100vw, 22rem">
+      </div>
+      <h2 class="card__title">Hacklas{% include "hacklas-beta-badge.njk" %}</h2>
+      <dl class="card__facts card__facts--stack">
+        <div class="card__fact">
+          <dt>About</dt>
+          <dd>Notes on offensive security techniques</dd>
+        </div>
+        <div class="card__fact card__fact--tags">
+          <dt>Tags</dt>
+          <dd>
+            <ul class="tag-list">
+              {% for tag in hacklasTags %}
+              <li><span class="tag">{{ tag }}</span></li>
+              {% endfor %}
+            </ul>
+          </dd>
+        </div>
+      </dl>
+    </a>
+  </li>
+</ul>
+{% else %}
+<p>No tools yet.</p>
+{% endif %}

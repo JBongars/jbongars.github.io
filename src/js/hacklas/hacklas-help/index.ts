@@ -191,9 +191,9 @@ function toggleHelp(context: HelpContext): void {
   openHelp(context);
 }
 
-function isHacklasNavHref(href: string): boolean {
+function isNavPathSuffix(href: string, suffix: string): boolean {
   try {
-    return trimmedPath(new URL(href, location.href).pathname).endsWith("/hacklas");
+    return trimmedPath(new URL(href, location.href).pathname).endsWith(suffix);
   } catch {
     return false;
   }
@@ -207,16 +207,21 @@ function navAnchors(root: ParentNode): NodeListOf<HTMLAnchorElement> {
   return root.querySelectorAll<HTMLAnchorElement>("a[href]");
 }
 
-function hacklasNavItem(root: ParentNode): Element | undefined {
+function helpAnchorItem(root: ParentNode): Element | undefined {
+  let toolsItem: Element | undefined;
   for (const link of navAnchors(root)) {
-    if (!isHacklasNavHref(link.href)) {
+    const item = link.closest("li");
+    if (!item) {
       continue;
     }
-    const item = link.closest("li");
-    if (item) {
+    if (isNavPathSuffix(link.href, "/hacklas")) {
       return item;
     }
+    if (isNavPathSuffix(link.href, "/tools")) {
+      toolsItem = item;
+    }
   }
+  return toolsItem;
 }
 
 function removeHelpItem(state: HelpState, root: ParentNode): void {
@@ -234,7 +239,7 @@ function unmount(state: HelpState, root: ParentNode): void {
 }
 
 function mountButton(state: HelpState, root: ParentNode): void {
-  const navItem = hacklasNavItem(root);
+  const navItem = helpAnchorItem(root);
   const parent = navItem?.parentNode;
   if (!navItem || !parent) {
     return;

@@ -34,6 +34,9 @@ layout: false
 - [Write-Ups]({{ "/write-ups/" | absoluteUrl }}): Offensive Security / HackTheBox machine write-ups that demonstrate hands-on hacking ({{ collections.writeUps.length }} published)
 {% for writeup in collections.writeUps %}- [{{ (writeup.data.title or writeup.fileSlug) | safe }}]({{ writeup.url | absoluteUrl }}){% if writeup.data.description %}: {{ writeup.data.description | safe }}{% endif %}
 {% endfor %}
+## Tools
+
+- [Tools]({{ "/tools/" | absoluteUrl }}): lookup pages (Hacklas notes live here when published)
 {% if features.hacklas %}
 ## Hacklas (optional)
 

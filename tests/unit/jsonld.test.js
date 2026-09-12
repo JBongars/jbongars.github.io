@@ -1,6 +1,6 @@
 import path from "node:path";
 import { describe, expect, it } from "@jest/globals";
-import { buildJsonLd, pageDescription } from "../../_11ty/jsonld.ts";
+import { buildJsonLd, pageDescription, toolsIndexItems } from "../../_11ty/jsonld.ts";
 import personResume from "../../src/_data/resume.json" with { type: "json" };
 
 const blogPost = path.join("src", "blog", "hello", "index.md");
@@ -24,6 +24,7 @@ describe("pageDescription", () => {
     expect(pageDescription({ page: { url: "/resume/" } })).toContain("Resume");
     expect(pageDescription({ page: { url: "/blog/" } })).toContain("Blog");
     expect(pageDescription({ page: { url: "/write-ups/" } })).toContain("write-up");
+    expect(pageDescription({ page: { url: "/tools/" } })).toContain("Tools");
     expect(
       pageDescription({ page: { url: "/blog/hello/", inputPath: blogPost }, title: "Hello" }),
     ).toContain("blog post");
@@ -36,7 +37,9 @@ describe("pageDescription", () => {
 
 describe("buildJsonLd", () => {
   it("emits a ProfilePage graph for home and resume", () => {
-    expect(buildJsonLd({ page: { url: "/" } })["@type"]).toBe("ProfilePage");
+    const home = buildJsonLd({ page: { url: "/" } });
+    expect(home["@type"]).toBe("ProfilePage");
+    expect(home.hasPart.map((part) => part.name)).toEqual(["Resume", "Blog", "Write-Ups", "Tools"]);
     expect(buildJsonLd({ page: { url: "/resume/" } })["@type"]).toBe("ProfilePage");
   });
 
@@ -78,6 +81,10 @@ describe("buildJsonLd", () => {
     });
     expect(writeUps["@type"]).toBe("CollectionPage");
     expect(writeUps.mainEntity.itemListElement[0].name).toBe("Box");
+    const tools = buildJsonLd({ page: { url: "/tools/" } });
+    expect(tools["@type"]).toBe("CollectionPage");
+    expect(tools.name).toBe("Tools");
+    expect(tools.mainEntity.itemListElement[0].name).toBe("Hacklas");
     expect(buildJsonLd({ page: { url: "/unknown/" } })["@type"]).toBe("Person");
   });
 
@@ -98,6 +105,16 @@ describe("buildJsonLd", () => {
     expect(invalidDate.datePublished).toBeUndefined();
     const untitled = buildJsonLd({ page: { url: "/blog/hello/", inputPath: blogPost } });
     expect(untitled.headline).toBe(personResume.name);
+  });
+
+  it("omits Hacklas from the tools index when the flag is off", () => {
+    expect(toolsIndexItems(false)).toEqual([]);
+  });
+
+  it("lists Hacklas on the tools index when the flag is on", () => {
+    expect(toolsIndexItems(true)).toEqual([
+      { url: "/hacklas/", data: { title: "Hacklas" }, fileSlug: "hacklas" },
+    ]);
   });
 
   it("includes profile URLs when SITE_URL is set", () => {

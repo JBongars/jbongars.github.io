@@ -1,5 +1,6 @@
 import { absoluteHref, siteOrigin } from "./paths.ts";
 import { isContentMarkdown } from "./content.ts";
+import features from "../src/_data/features.json" with { type: "json" };
 import personResume from "../src/_data/resume.json" with { type: "json" };
 import type { CollectionItem, PageData } from "./types.ts";
 
@@ -107,6 +108,7 @@ function urlDescriptions(name: string, role: string): Record<string, string> {
     "/resume/": `Resume for ${name}, ${role} in Singapore. Compact employment history; see the blog and write-ups for depth.`,
     "/blog/": `Blog by ${name}: project notes and longer explanations for skills and work the resume cannot hold.`,
     "/write-ups/": `HackTheBox and Offensive Security machine write-ups by ${name}.`,
+    "/tools/": `Tools and lookup pages by ${name}.`,
   };
 }
 
@@ -154,6 +156,7 @@ function homeJsonLd(person: PersonNode, url: string, description: string): JsonL
         name: "Write-Ups",
         url: absoluteHref("/write-ups/"),
       },
+      { "@type": "CollectionPage", name: "Tools", url: absoluteHref("/tools/") },
     ],
   };
 }
@@ -169,14 +172,44 @@ function resumeJsonLd(person: PersonNode, url: string, description: string): Jso
   };
 }
 
+function listingName(url: string): string {
+  if (url === "/write-ups/") {
+    return "Write-Ups";
+  }
+  if (url === "/tools/") {
+    return "Tools";
+  }
+  return "Blog";
+}
+
+function toolsIndexItems(isHacklasEnabled = features.hacklas): CollectionItem[] {
+  if (!isHacklasEnabled) {
+    return [];
+  }
+  return [{ url: "/hacklas/", data: { title: "Hacklas" }, fileSlug: "hacklas" }];
+}
+
+function listingItems(
+  url: string,
+  collections: PageData["collections"],
+): CollectionItem[] | undefined {
+  if (url === "/write-ups/") {
+    return collections?.writeUps;
+  }
+  if (url === "/tools/") {
+    return toolsIndexItems();
+  }
+  return collections?.blog;
+}
+
 function collectionJsonLd(graph: JsonLdGraph): JsonLdNode {
-  const isBlog = graph.data.page?.url === "/blog/";
-  const items = isBlog ? graph.data.collections?.blog : graph.data.collections?.writeUps;
+  const pageUrl = graph.data.page?.url ?? "/";
+  const items = listingItems(pageUrl, graph.data.collections);
   return {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     url: graph.url,
-    name: isBlog ? "Blog" : "Write-Ups",
+    name: listingName(pageUrl),
     description: graph.description,
     about: graph.person,
     mainEntity: {
@@ -235,9 +268,10 @@ function buildJsonLd(data: PageData): JsonLdNode {
     "/resume/": () => resumeJsonLd(person, url, description),
     "/blog/": () => collectionJsonLd(graph),
     "/write-ups/": () => collectionJsonLd(graph),
+    "/tools/": () => collectionJsonLd(graph),
   };
   const builder = byUrl[pageUrl];
   return builder === undefined ? articleOrPersonJsonLd(graph) : builder();
 }
 
-export { pageDescription, buildJsonLd };
+export { pageDescription, buildJsonLd, toolsIndexItems };

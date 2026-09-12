@@ -65,6 +65,7 @@
     │   │   └── hacklas/          # Hacklas-only modules
     │   ├── blog/                 # listing + one folder per post
     │   ├── write-ups/            # listing + one folder per write-up
+    │   ├── tools/                # listing of lookup tools (Hacklas card)
     │   ├── hacklas.njk           # fuzzy-find index (ignored when flag is off)
     │   ├── 404.njk
     │   ├── robots.njk            # → /robots.txt
@@ -138,6 +139,9 @@ the JSON Resume schema — `/resume.json` is generated from it.
 - `writeUps` — `src/write-ups/**/*.md`, newest first
 - `feed` — blog + write-ups, newest first (`/feed.xml`)
 - `hacklas` — empty unless `features.hacklas` is true
+
+Tools (`/tools/`) is a listing page, not a markdown collection. Hacklas
+appears there as a card when the flag is on.
 
 ## Blog / write-up folders
 
@@ -226,8 +230,9 @@ lightbox, code, resume, hacklas.
 
 - `base.njk`: canonical, per-page `metaDescription`, Open Graph / Twitter,
   `rel="describedby"` → `/llms.txt`, RSS alternate, JSON-LD via `jsonLdGraph`
-- Home / resume: `ProfilePage`; listings: `CollectionPage` + `ItemList`;
-  blog posts: `BlogPosting`; write-ups: `TechArticle`
+- Home / resume: `ProfilePage`; listings (blog, write-ups, tools):
+  `CollectionPage` + `ItemList`; blog posts: `BlogPosting`; write-ups:
+  `TechArticle`
 - GitHub and LinkedIn: `rel="me"`
 - `SITE_URL=https://jbongars.github.io/` in deploy so those URLs are absolute
   at the origin root (not the old `/julienbongars.com/` project path)

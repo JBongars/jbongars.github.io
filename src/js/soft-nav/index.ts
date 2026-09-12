@@ -11,7 +11,7 @@ const SKELETON_DELAY_MS = 150;
 const SKELETON_MAX_MS = 1000;
 const IMAGE_WAIT_MS = 600;
 const PREFETCH_CAP = 8;
-const INDEX_PATHS = new Set(["/blog/", "/blog", "/write-ups/", "/write-ups"]);
+const INDEX_PATHS = new Set(["/blog/", "/blog", "/write-ups/", "/write-ups", "/tools/", "/tools"]);
 
 const enhancedRoots = new WeakSet<ParentNode>();
 

@@ -57,10 +57,12 @@ pages look or work without JavaScript.
    write-up posts (`comments.enabled`); the widget needs JS, the heading
    does not.
 4. Write-ups — list + single post for HTB / OffSec machines.
-5. 404 — CTAs to Resume / Blog / Write-Ups / LinkedIn.
-6. Hacklas — notes tree, currently **on** (`features.hacklas: true`). Write-up
-   Tools & cheat sheet rows link here instead of repeating commands. Note
-   format: `docs/HACKLAS_SPEC.md`.
+5. Tools — listing of lookup pages (`/tools/`). Hacklas is a card here, not
+   a nav item. Keyboard `h` still opens `/hacklas/` directly.
+6. 404 — CTAs to Resume / Blog / Write-Ups / LinkedIn.
+7. Hacklas — notes tree under Tools, currently **on** (`features.hacklas:
+true`). Write-up Tools & cheat sheet rows link here instead of repeating
+   commands. Note format: `docs/HACKLAS_SPEC.md`.
 
 Dark is the default theme. A CSS-first light toggle persists in `localStorage`
 when JS is available. Visual direction and banned looks live in
@@ -71,8 +73,9 @@ is [CSS_ARCHITECTURE.md](CSS_ARCHITECTURE.md).
 
 These exist so agents do not need a homemade “click here” JSON blob:
 
-- `/llms.txt` — Markdown map (resume / blog / write-ups contract; Hacklas is
-  marked optional and skippable for candidate evaluation)
+- `/llms.txt` — Markdown map (resume / blog / write-ups contract; Tools
+  lists lookup pages; Hacklas is marked optional and skippable for
+  candidate evaluation)
 - `/robots.txt` — allow all, Sitemap, note pointing at llms.txt
 - `/sitemap.xml` — HTML pages plus PDF, JSON Resume, llms.txt, feed;
   `lastmod` is the git date of each source file (listing pages use the

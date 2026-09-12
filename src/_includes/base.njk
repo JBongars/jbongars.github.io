@@ -77,11 +77,9 @@
           <li>
             <a href="{{ '/write-ups/' | url }}" {% if "/write-ups/" in page.url %}aria-current="page"{% endif %}>Write-Ups</a>
           </li>
-          {% if features.hacklas %}
           <li>
-            <a href="{{ '/hacklas/' | url }}" {% if "/hacklas/" in page.url %}aria-current="page"{% endif %}><span><span class="nav-list__key">H</span>acklas</span>{% include "hacklas-beta-badge.njk" %}</a>
+            <a href="{{ '/tools/' | url }}" {% if "/tools/" in page.url or "/hacklas/" in page.url %}aria-current="page"{% endif %}>Tools</a>
           </li>
-          {% endif %}
           {% if resume.linkedin %}
           <li>
             <a

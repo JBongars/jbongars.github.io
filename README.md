@@ -48,6 +48,7 @@ src/
   _includes/        # base, post, note, comments, hacklas-disclaimer, skill-tag
   blog/             # listing + one folder per post
   write-ups/        # listing + one folder per write-up
+  tools/            # listing of lookup tools (Hacklas card)
   hacklas.njk       # notes index (built only if the flag is on)
   404.njk
   js/               # feature folders + entries/ (Rollup inputs)
@@ -62,7 +63,8 @@ tests/              # unit, enhance integration, setup
 | ---------------- | ----------------------------------------------- | ---------- | ------------------------------------------ |
 | Home / Resume    | `index.njk`, `resume.njk` + `_data/resume.json` | `base.njk` | Data-driven; PDF at `/resume.pdf`          |
 | Blog / Write-ups | `src/{blog,write-ups}/**/*.md`                  | `post.njk` | Front matter, banners, TOC, listing search |
-| Hacklas          | `src/hacklas/**/*.md`                           | `note.njk` | On (`features.json`)                       |
+| Tools            | `src/tools/index.njk`                           | `base.njk` | Hacklas card when the flag is on           |
+| Hacklas          | `src/hacklas/**/*.md`                           | `note.njk` | On (`features.json`); not a nav item       |
 
 **Machine-readable**
 
@@ -102,9 +104,10 @@ tests). Hacklas modules are under `src/js/hacklas/`. `theme-init` and
 { "hacklas": true, "hacklas_show_beta": true }
 ```
 
-`hacklas: false` hides the nav item, skips Hacklas pages, and removes `_site/hacklas`.
-`hacklas_show_beta` draws a small “beta” badge next to Hacklas in the nav and
-on Hacklas pages.
+`hacklas: false` hides the Hacklas card on Tools, skips Hacklas pages, and
+removes `_site/hacklas`.
+`hacklas_show_beta` draws a small “beta” badge next to Hacklas on the Tools
+card and on Hacklas pages.
 
 ## Conventions
 

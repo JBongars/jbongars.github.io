@@ -159,6 +159,20 @@ describe("hacklas-help", () => {
     expect(screen.getByRole("button", { name: "Hacklas keyboard shortcuts" })).toBeInTheDocument();
   });
 
+  it("mounts the help button next to Tools when Hacklas is not in the nav", () => {
+    enhance(
+      mount(`
+        <nav>
+          <ul data-nav-list>
+            <li><a href="/tools/">Tools</a></li>
+          </ul>
+        </nav>
+      `),
+    );
+
+    expect(screen.getByRole("button", { name: "Hacklas keyboard shortcuts" })).toBeInTheDocument();
+  });
+
   it("is idempotent", () => {
     const root = mount(NAV);
     enhance(root);
