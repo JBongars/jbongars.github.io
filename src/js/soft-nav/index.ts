@@ -1,6 +1,6 @@
 /* Progressive enhancement: same-origin page swaps.
-   Site works without this file. No page cache — in-flight/recent hover
-   prefetches plus the browser HTTP cache only. */
+   Site works without this file. No page cache — hover/focus prefetches plus
+   the browser HTTP cache only. */
 
 import { fetchSameOrigin } from "../platform";
 import type { LoadedPage, NavState, SoftNavDependencies } from "./types";
@@ -9,7 +9,6 @@ export type { SoftNavDependencies } from "./types";
 
 const SKELETON_DELAY_MS = 150;
 const SKELETON_MAX_MS = 1000;
-const IMAGE_WAIT_MS = 600;
 const PREFETCH_CAP = 8;
 const INDEX_PATHS = new Set(["/blog/", "/blog", "/write-ups/", "/write-ups", "/tools/", "/tools"]);
 
@@ -123,86 +122,6 @@ function adoptBodyChildren(html: string): DocumentFragment {
   return fragment;
 }
 
-function takeImgs(
-  root: Element,
-  options: { selector: string; max: number; out: HTMLImageElement[] },
-): void {
-  let n = 0;
-  for (const node of root.querySelectorAll(options.selector)) {
-    if (n >= options.max) {
-      break;
-    }
-    if (!(node instanceof HTMLImageElement) || shouldSkipImage(node)) {
-      continue;
-    }
-    options.out.push(node);
-    n += 1;
-  }
-}
-
-function collectPrefetchImages(root: Element): HTMLImageElement[] {
-  const imgs: HTMLImageElement[] = [];
-  takeImgs(root, { selector: ".post-banner__img, .home-hero__image", max: 4, out: imgs });
-  takeImgs(root, { selector: ".card__media img", max: 6, out: imgs });
-  takeImgs(root, { selector: ".prose img", max: 2, out: imgs });
-  return imgs;
-}
-
-async function decodeImg(element: HTMLImageElement): Promise<void> {
-  const source = element.getAttribute("src");
-  if (!source) {
-    return;
-  }
-  const img = new Image();
-  const srcset = element.getAttribute("srcset");
-  const sizes = element.getAttribute("sizes");
-  if (srcset) {
-    img.srcset = srcset;
-  }
-  if (sizes) {
-    img.sizes = sizes;
-  }
-  img.src = source;
-  if (typeof img.decode === "function") {
-    try {
-      await img.decode();
-    } catch {
-      /*
-      Broken images still settle.
-      */
-    }
-    return;
-  }
-  await new Promise<void>((resolve) => {
-    img.addEventListener("load", () => {
-      resolve();
-    });
-    img.addEventListener("error", () => {
-      resolve();
-    });
-    if (img.complete) {
-      resolve();
-    }
-  });
-}
-
-function settleWithTimeout(promise: Promise<unknown>, ms: number): Promise<unknown> {
-  return Promise.race([
-    promise,
-    new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    }),
-  ]);
-}
-
-async function prefetchImages(root: Element, waitMs: number): Promise<void> {
-  if (waitMs <= 0) {
-    return;
-  }
-  const decodes = Array.from(collectPrefetchImages(root), (image) => decodeImg(image));
-  await settleWithTimeout(Promise.all(decodes), waitMs);
-}
-
 function navAnchor(target: EventTarget | null): HTMLAnchorElement | undefined {
   if (!(target instanceof Element)) {
     return undefined;
@@ -228,8 +147,7 @@ function syncNav(nextDocument: Document): void {
   }
 }
 
-function markApplied(state: NavState): void {
-  state.isApplied = true;
+function cancelNav(state: NavState): void {
   clearTimeout(state.skeletonTimer);
   clearTimeout(state.stuckTimer);
 }
@@ -278,7 +196,7 @@ export function init(
   const prefetches = new Map<string, Promise<LoadedPage>>();
   const prefetchOrder: string[] = [];
   let path = location.pathname + location.search;
-  let navGen = 0;
+  let active: NavState | undefined;
   let navAbort: AbortController | undefined;
   const controller = new AbortController();
   const { signal } = controller;
@@ -302,16 +220,6 @@ export function init(
     }
   }
 
-  async function forgetFailedPrefetch(key: string, request: Promise<LoadedPage>): Promise<void> {
-    try {
-      await request;
-    } catch {
-      if (prefetches.get(key) === request) {
-        prefetches.delete(key);
-      }
-    }
-  }
-
   async function fetchAndParse(url: string, abortSignal?: AbortSignal): Promise<LoadedPage> {
     const response = await fetchPage(url, { signal: abortSignal });
     if (!response.ok) {
@@ -323,20 +231,21 @@ export function init(
     if (!nextMain) {
       throw new Error("no main");
     }
-    void prefetchImages(nextMain, IMAGE_WAIT_MS);
     return { doc: parsed, nextMain };
   }
 
-  function loadDocument(url: string, abortSignal?: AbortSignal): Promise<LoadedPage> {
-    const key = canonical(url);
-    const cached = prefetches.get(key);
-    if (cached) {
-      return cached;
+  function prefetch(href: string): void {
+    const key = canonical(href);
+    if (prefetches.has(key)) {
+      return;
     }
-    const request = fetchAndParse(url, abortSignal);
+    const request = fetchAndParse(key);
     rememberPrefetch(key, request);
-    void forgetFailedPrefetch(key, request);
-    return request;
+    void request.catch(() => {
+      if (prefetches.get(key) === request) {
+        prefetches.delete(key);
+      }
+    });
   }
 
   function applyPage(options: {
@@ -365,80 +274,52 @@ export function init(
     emit("site:navigated");
   }
 
-  function armSkeleton(options: {
-    kind: "cards" | "post" | "generic";
-    gen: number;
-    url: string;
-    shouldPush: boolean;
-    state: NavState;
-  }): void {
-    const { kind, gen, url, shouldPush, state } = options;
-    if (kind === "generic") {
-      return;
-    }
-    state.skeletonTimer = setTimeout(() => {
-      if (gen === navGen) {
-        showSkeleton(kind);
-      }
-    }, SKELETON_DELAY_MS);
-    state.stuckTimer = setTimeout(() => {
-      if (gen !== navGen || state.isApplied) {
-        return;
-      }
-      if (shouldPush) {
-        location.assign(url);
-      } else {
-        location.reload();
-      }
-    }, SKELETON_DELAY_MS + SKELETON_MAX_MS);
-  }
-
-  async function settleAndApply(options: {
-    loaded: LoadedPage;
-    gen: number;
-    started: number;
-    state: NavState;
-    url: string;
-    shouldPush: boolean;
-  }): Promise<void> {
-    if (options.gen !== navGen) {
-      return;
-    }
-    const elapsed = Date.now() - options.started;
-    const budget = SKELETON_DELAY_MS + SKELETON_MAX_MS - elapsed;
-    const wait = Math.max(0, Math.min(IMAGE_WAIT_MS, budget));
-    await prefetchImages(options.loaded.nextMain, wait);
-    if (options.gen !== navGen) {
-      return;
-    }
-    markApplied(options.state);
-    applyPage({
-      doc: options.loaded.doc,
-      nextMain: options.loaded.nextMain,
-      url: options.url,
-      shouldPush: options.shouldPush,
-    });
-  }
-
   async function navigate(url: string, shouldPush: boolean): Promise<void> {
+    const previous = active;
+    active = undefined;
+    if (previous) {
+      cancelNav(previous);
+    }
     navAbort?.abort();
     navAbort = new AbortController();
-    const abortSignal = navAbort.signal;
-    const gen = ++navGen;
-    const started = Date.now();
-    const state: NavState = { skeletonTimer: undefined, stuckTimer: undefined, isApplied: false };
-    armSkeleton({ kind: pageKind(url), gen, url, shouldPush, state });
+    const state: NavState = { skeletonTimer: undefined, stuckTimer: undefined };
+    active = state;
+
+    const kind = pageKind(url);
+    if (kind !== "generic") {
+      state.skeletonTimer = setTimeout(() => {
+        showSkeleton(kind);
+      }, SKELETON_DELAY_MS);
+    }
+    state.stuckTimer = setTimeout(() => {
+      if (active === state) {
+        if (shouldPush) {
+          location.assign(url);
+        } else {
+          location.reload();
+        }
+      }
+    }, SKELETON_DELAY_MS + SKELETON_MAX_MS);
+
     try {
-      const loaded = await loadDocument(url, abortSignal);
-      await settleAndApply({ loaded, gen, started, state, url, shouldPush });
+      const key = canonical(url);
+      const page = prefetches.get(key) ?? fetchAndParse(key, navAbort.signal);
+      const loaded = await page;
+      if (active !== state) {
+        return;
+      }
+      cancelNav(state);
+      applyPage({
+        doc: loaded.doc,
+        nextMain: loaded.nextMain,
+        url,
+        shouldPush,
+      });
     } catch (error) {
-      if (gen !== navGen) {
+      if (active !== state) {
         return;
       }
-      markApplied(state);
-      if (error instanceof Error && error.name === "AbortError") {
-        return;
-      }
+      cancelNav(state);
       throw error;
     }
   }
@@ -449,7 +330,7 @@ export function init(
     (event) => {
       const anchor = navAnchor(event.target);
       if (anchor) {
-        void loadDocument(anchor.href);
+        prefetch(anchor.href);
       }
     },
     { signal },
@@ -459,7 +340,7 @@ export function init(
     (event) => {
       const anchor = navAnchor(event.target);
       if (anchor) {
-        void loadDocument(anchor.href);
+        prefetch(anchor.href);
       }
     },
     { signal },

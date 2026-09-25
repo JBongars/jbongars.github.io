@@ -8,7 +8,6 @@ import { init } from "./index";
 import type { FetchResponse } from "../platform";
 
 const teardowns: (() => void)[] = [];
-const originalImage = Image;
 const originalComplete = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "complete");
 
 afterEach(() => {
@@ -19,11 +18,6 @@ afterEach(() => {
   document.body.replaceChildren();
   history.replaceState(undefined, "", "http://localhost:8080/");
   delete document.documentElement.dataset["pathPrefix"];
-  Object.defineProperty(globalThis, "Image", {
-    configurable: true,
-    writable: true,
-    value: originalImage,
-  });
   if (originalComplete) {
     Object.defineProperty(HTMLImageElement.prototype, "complete", originalComplete);
   }
@@ -33,68 +27,6 @@ afterEach(() => {
 const NEXT_PAGE = `<html><head><title>Next</title></head><body><nav class="site-nav"><a href="/">Home</a></nav><main><p>Next page</p></main></body></html>`;
 const BLOG_PAGE = `<html><head><title>Blog</title></head><body><main><p>Blog index</p></main></body></html>`;
 const NO_MAIN = `<html><head><title>Empty</title></head><body><p>no main</p></body></html>`;
-
-class ImmediateDecodeImage {
-  src = "";
-  srcset = "";
-  sizes = "";
-  complete = true;
-  decode(): Promise<void> {
-    return Promise.resolve();
-  }
-  addEventListener(): void {
-    /*
-     * unused
-     */
-  }
-}
-
-class LoadEventImage {
-  src = "";
-  srcset = "";
-  sizes = "";
-  complete = false;
-  addEventListener(type: string, listener: () => void): void {
-    if (type === "load") {
-      queueMicrotask(listener);
-    }
-  }
-}
-
-class ErrorEventImage {
-  src = "";
-  srcset = "";
-  sizes = "";
-  complete = false;
-  addEventListener(type: string, listener: () => void): void {
-    if (type === "error") {
-      queueMicrotask(listener);
-    }
-  }
-}
-
-class RejectDecodeImage {
-  src = "";
-  srcset = "";
-  sizes = "";
-  complete = false;
-  decode(): Promise<void> {
-    return Promise.reject(new Error("broken"));
-  }
-  addEventListener(): void {
-    /*
-     * unused
-     */
-  }
-}
-
-function installImageDouble(imageDouble: unknown): void {
-  Object.defineProperty(globalThis, "Image", {
-    configurable: true,
-    writable: true,
-    value: imageDouble,
-  });
-}
 
 function htmlMatching(pages: Map<string, string>, input: string): string {
   const entries = [...pages];
@@ -126,6 +58,42 @@ function fetchResumeThenBlog(
       return resume;
     }
     return Promise.resolve(pageResponse(BLOG_PAGE));
+  };
+}
+
+function hangBlogFetch(): Promise<FetchResponse> {
+  return new Promise(() => {
+    /*
+     * hangs; the newer navigation supersedes it
+     */
+  });
+}
+
+function blogHangsOtherwise(input: string): Promise<FetchResponse> {
+  if (input.includes("/blog/")) {
+    return hangBlogFetch();
+  }
+  return Promise.resolve(pageResponse(NEXT_PAGE));
+}
+
+function fetchAborts(
+  aborts: string[],
+): (input: string, init?: RequestInit) => Promise<FetchResponse> {
+  return (input, init) =>
+    new Promise((_resolve, reject) => {
+      init?.signal?.addEventListener("abort", () => {
+        aborts.push(input);
+        reject(new DOMException("aborted", "AbortError"));
+      });
+    });
+}
+
+function fetchFailsThenSucceeds(calls: string[]): (input: string) => Promise<FetchResponse> {
+  return (input) => {
+    calls.push(input);
+    return calls.length === 1
+      ? Promise.reject(new Error("offline"))
+      : Promise.resolve(pageResponse(NEXT_PAGE));
   };
 }
 
@@ -224,6 +192,54 @@ describe("soft-nav", () => {
     await user.hover(screen.getByRole("link", { name: "Resume" }));
 
     expect(calls.length).toBeGreaterThan(0);
+  });
+
+  it("reuses a hover prefetch for the click without a second fetch", async () => {
+    const user = userEvent.setup();
+    const calls: string[] = [];
+    document.body.innerHTML = `<main><a href="/resume/">Resume</a></main>`;
+    teardowns.push(
+      init(document, {
+        fetch(input) {
+          calls.push(input);
+          return Promise.resolve(pageResponse(NEXT_PAGE));
+        },
+        scrollTo() {
+          /*
+           * unused
+           */
+        },
+      }),
+    );
+
+    await user.hover(screen.getByRole("link", { name: "Resume" }));
+    await user.click(screen.getByRole("link", { name: "Resume" }));
+    expect(await screen.findByText("Next page")).toBeInTheDocument();
+
+    expect(calls).toHaveLength(1);
+  });
+
+  it("refetches after a failed hover prefetch evicts the cache entry", async () => {
+    const user = userEvent.setup();
+    const calls: string[] = [];
+    document.body.innerHTML = `<main><a href="/resume/">Resume</a></main>`;
+    teardowns.push(
+      init(document, {
+        fetch: fetchFailsThenSucceeds(calls),
+        scrollTo() {
+          /*
+           * unused
+           */
+        },
+      }),
+    );
+
+    await user.hover(screen.getByRole("link", { name: "Resume" }));
+    await Promise.resolve();
+    await user.click(screen.getByRole("link", { name: "Resume" }));
+    expect(await screen.findByText("Next page")).toBeInTheDocument();
+
+    expect(calls).toHaveLength(2);
   });
 
   it("falls back to a full navigation when fetch fails", async () => {
@@ -386,28 +402,6 @@ describe("soft-nav", () => {
     await jest.advanceTimersByTimeAsync(400);
     expect(await screen.findByText("Blog index")).toBeInTheDocument();
     jest.useRealTimers();
-  });
-
-  it("decodes banner images on a post page", async () => {
-    installImageDouble(ImmediateDecodeImage);
-    const user = userEvent.setup();
-    const post = `<html><head><title>Post</title></head><body><main><p>A post</p><img class="post-banner__img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" srcset="a.gif 1x" sizes="100vw" width="800" height="400" alt=""></main></body></html>`;
-    document.body.innerHTML = `<main><a href="/blog/hello/">Hello</a><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="16" height="16" alt=""></main>`;
-    teardowns.push(
-      init(document, {
-        fetch() {
-          return Promise.resolve(pageResponse(post));
-        },
-        scrollTo() {
-          /*
-           * unused
-           */
-        },
-      }),
-    );
-
-    await user.click(screen.getByRole("link", { name: "Hello" }));
-    expect(await screen.findByText("A post")).toBeInTheDocument();
   });
 
   it("prefetches when a link receives focus", async () => {
@@ -580,28 +574,54 @@ describe("soft-nav", () => {
     expect(screen.getByText("Blog index")).toBeInTheDocument();
   });
 
-  it("swallows AbortError when teardown cancels a fetch", async () => {
-    const user = userEvent.setup();
-    document.body.innerHTML = `<main><a href="/resume/">Resume</a></main>`;
-    const stop = init(document, {
-      fetch(_input, init) {
-        return new Promise((_resolve, reject) => {
-          init?.signal?.addEventListener("abort", () => {
-            reject(new DOMException("aborted", "AbortError"));
-          });
-        });
-      },
-      scrollTo() {
-        /*
-         * unused
-         */
+  it("does not flash a skeleton for a superseded listing navigation", async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({
+      advanceTimers: (delay) => {
+        jest.advanceTimersByTime(delay);
       },
     });
-    teardowns.push(stop);
+    document.body.innerHTML = `<main><a href="/blog/">Blog</a><a href="/resume/">Resume</a></main>`;
+    teardowns.push(
+      init(document, {
+        fetch: blogHangsOtherwise,
+        scrollTo() {
+          /*
+           * unused
+           */
+        },
+      }),
+    );
 
+    await user.click(screen.getByRole("link", { name: "Blog" }));
     await user.click(screen.getByRole("link", { name: "Resume" }));
-    stop();
+    await jest.advanceTimersByTimeAsync(200);
+    expect(screen.queryByText("Loading")).not.toBeInTheDocument();
+    expect(await screen.findByText("Next page")).toBeInTheDocument();
+  });
+
+  it("aborts a superseded fetch without touching the newer navigation", async () => {
+    const aborts: string[] = [];
+    document.body.innerHTML = `<main><a href="/resume/">Resume</a><a href="/blog/">Blog</a></main>`;
+    teardowns.push(
+      init(document, {
+        fetch: fetchAborts(aborts),
+        scrollTo() {
+          /*
+           * unused
+           */
+        },
+      }),
+    );
+
+    const resume = screen.getByRole("link", { name: "Resume" });
+    const blog = screen.getByRole("link", { name: "Blog" });
+    resume.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
+    blog.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, button: 0 }));
     await Promise.resolve();
+    await Promise.resolve();
+
+    expect(aborts).toEqual([expect.stringContaining("/resume/")]);
     expect(screen.getByRole("link", { name: "Resume" })).toBeInTheDocument();
   });
 
@@ -638,93 +658,6 @@ describe("soft-nav", () => {
     expect(banner).toHaveClass("is-pending");
     banner.dispatchEvent(new Event("load"));
     expect(banner).toHaveClass("is-loaded");
-  });
-
-  it("decodes images without Image.decode via load", async () => {
-    installImageDouble(LoadEventImage);
-    const user = userEvent.setup();
-    const post = `<html><head><title>Post</title></head><body><main><p>Decoded</p><img class="post-banner__img" src="banner.gif" alt=""></main></body></html>`;
-    document.body.innerHTML = `<main><a href="/blog/decoded/">Decoded</a></main>`;
-    teardowns.push(
-      init(document, {
-        fetch() {
-          return Promise.resolve(pageResponse(post));
-        },
-        scrollTo() {
-          /*
-           * unused
-           */
-        },
-      }),
-    );
-
-    await user.click(screen.getByRole("link", { name: "Decoded" }));
-    expect(await screen.findByText("Decoded")).toBeInTheDocument();
-  });
-
-  it("decodes images without Image.decode via error", async () => {
-    installImageDouble(ErrorEventImage);
-    const user = userEvent.setup();
-    const post = `<html><head><title>Post</title></head><body><main><p>Broken</p><img class="post-banner__img" src="missing.gif" alt=""></main></body></html>`;
-    document.body.innerHTML = `<main><a href="/blog/broken/">Broken</a></main>`;
-    teardowns.push(
-      init(document, {
-        fetch() {
-          return Promise.resolve(pageResponse(post));
-        },
-        scrollTo() {
-          /*
-           * unused
-           */
-        },
-      }),
-    );
-
-    await user.click(screen.getByRole("link", { name: "Broken" }));
-    expect(await screen.findByText("Broken")).toBeInTheDocument();
-  });
-
-  it("settles when Image.decode rejects", async () => {
-    installImageDouble(RejectDecodeImage);
-    const user = userEvent.setup();
-    const post = `<html><head><title>Post</title></head><body><main><p>Reject</p><img class="post-banner__img" src="banner.gif" alt=""></main></body></html>`;
-    document.body.innerHTML = `<main><a href="/blog/reject/">Reject</a></main>`;
-    teardowns.push(
-      init(document, {
-        fetch() {
-          return Promise.resolve(pageResponse(post));
-        },
-        scrollTo() {
-          /*
-           * unused
-           */
-        },
-      }),
-    );
-
-    await user.click(screen.getByRole("link", { name: "Reject" }));
-    expect(await screen.findByText("Reject")).toBeInTheDocument();
-  });
-
-  it("skips prefetch when an image has no src", async () => {
-    const user = userEvent.setup();
-    const post = `<html><head><title>Post</title></head><body><main><p>No src</p><img class="post-banner__img" alt=""></main></body></html>`;
-    document.body.innerHTML = `<main><a href="/blog/empty/">Empty</a></main>`;
-    teardowns.push(
-      init(document, {
-        fetch() {
-          return Promise.resolve(pageResponse(post));
-        },
-        scrollTo() {
-          /*
-           * unused
-           */
-        },
-      }),
-    );
-
-    await user.click(screen.getByRole("link", { name: "Empty" }));
-    expect(await screen.findByText("No src")).toBeInTheDocument();
   });
 
   it("evicts old prefetches once the hover cap is exceeded", async () => {

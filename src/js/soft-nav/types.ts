@@ -13,5 +13,4 @@ export interface LoadedPage {
 export interface NavState {
   skeletonTimer: ReturnType<typeof setTimeout> | undefined;
   stuckTimer: ReturnType<typeof setTimeout> | undefined;
-  isApplied: boolean;
 }
