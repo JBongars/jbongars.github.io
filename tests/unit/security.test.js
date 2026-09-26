@@ -31,6 +31,12 @@ describe("security data", () => {
     }).toThrow(/theme-init/);
   });
 
+  it("allows the CyberChef tool page origin in frame-src", () => {
+    expect(security.contentSecurityPolicy).toContain(
+      "frame-src https://giscus.app/en/widget https://jbongars.github.io/cyberchef/",
+    );
+  });
+
   it("sets cache headers by URL kind", () => {
     const headers = {};
     const response = {

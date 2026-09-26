@@ -19,9 +19,10 @@
 - Security: CSP + Referrer-Policy as `<meta>` (Pages cannot set custom HTTP
   headers, including Cache-Control). The Eleventy dev server sends the full
   header set from `src/_data/security.js`, and caches CSS/JS/images for 24h.
-  Giscus is allowed at `https://giscus.app` / `https://giscus.app/en/widget`.
-  `style-src` includes `'unsafe-inline'` because post banners emit a small
-  `<style>` block.
+  Giscus is allowed at `https://giscus.app` / `https://giscus.app/en/widget`;
+  the CyberChef tool page frames `https://jbongars.github.io/cyberchef/`
+  (`frame-src`). `style-src` includes `'unsafe-inline'` because post banners
+  emit a small `<style>` block.
 - CI: a `check` job on pull requests and `main` runs `yarn install
 --frozen-lockfile`, `yarn audit --level high`, `yarn format:check`,
   `yarn lint`, `yarn typecheck`, and `yarn test:ci`. `build` needs `check`. Deploy to Pages
@@ -65,7 +66,7 @@
     │   │   └── hacklas/          # Hacklas-only modules
     │   ├── blog/                 # listing + one folder per post
     │   ├── write-ups/            # listing + one folder per write-up
-    │   ├── tools/                # listing of lookup tools (Hacklas card)
+    │   ├── tools/                # listing of lookup tools (CyberChef + Hacklas card)
     │   ├── hacklas.njk           # fuzzy-find index (ignored when flag is off)
     │   ├── 404.njk
     │   ├── robots.njk            # → /robots.txt
@@ -140,8 +141,8 @@ the JSON Resume schema — `/resume.json` is generated from it.
 - `feed` — blog + write-ups, newest first (`/feed.xml`)
 - `hacklas` — empty unless `features.hacklas` is true
 
-Tools (`/tools/`) is a listing page, not a markdown collection. Hacklas
-appears there as a card when the flag is on.
+Tools (`/tools/`) is a listing page, not a markdown collection. CyberChef
+(`/tools/cyberchef/`) and Hacklas (when the flag is on) appear there as cards.
 
 ## Blog / write-up folders
 
@@ -190,6 +191,7 @@ Hand-written CSS under `src/css/` is the only styling layer. Follow
 custom properties. That document's CSS-in-JS, Tailwind / utility-first, and
 preprocessor examples do **not** apply (see SPEC.md non-goals). Visual
 tokens, motion, and banned looks still come from [DESIGN.md](DESIGN.md).
+Embedded tool pages follow [TOOLS_SPEC.md](TOOLS_SPEC.md).
 
 `src/css/style.css` lists `@import`s; `bundle.11ty.ts` inlines them in that
 order into `/css/style.css`. `base.njk` loads it as `/css/style.css?v=<hash>`

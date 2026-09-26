@@ -48,7 +48,8 @@ src/
   _includes/        # base, post, note, comments, hacklas-disclaimer, skill-tag
   blog/             # listing + one folder per post
   write-ups/        # listing + one folder per write-up
-  tools/            # listing of lookup tools (Hacklas card)
+  tools/            # listing of lookup tools (CyberChef + Hacklas card)
+    cyberchef.njk   # CyberChef iframe page → /tools/cyberchef/
   hacklas.njk       # notes index (built only if the flag is on)
   404.njk
   js/               # feature folders + entries/ (Rollup inputs)
@@ -59,12 +60,12 @@ tests/              # unit, enhance integration, setup
 
 **Content**
 
-| Section          | Input                                           | Layout     | Notes                                      |
-| ---------------- | ----------------------------------------------- | ---------- | ------------------------------------------ |
-| Home / Resume    | `index.njk`, `resume.njk` + `_data/resume.json` | `base.njk` | Data-driven; PDF at `/resume.pdf`          |
-| Blog / Write-ups | `src/{blog,write-ups}/**/*.md`                  | `post.njk` | Front matter, banners, TOC, listing search |
-| Tools            | `src/tools/index.njk`                           | `base.njk` | Hacklas card when the flag is on           |
-| Hacklas          | `src/hacklas/**/*.md`                           | `note.njk` | On (`features.json`); not a nav item       |
+| Section          | Input                                            | Layout     | Notes                                                   |
+| ---------------- | ------------------------------------------------ | ---------- | ------------------------------------------------------- |
+| Home / Resume    | `index.njk`, `resume.njk` + `_data/resume.json`  | `base.njk` | Data-driven; PDF at `/resume.pdf`                       |
+| Blog / Write-ups | `src/{blog,write-ups}/**/*.md`                   | `post.njk` | Front matter, banners, TOC, listing search              |
+| Tools            | `src/tools/index.njk`, `src/tools/cyberchef.njk` | `base.njk` | CyberChef iframe page; Hacklas card when the flag is on |
+| Hacklas          | `src/hacklas/**/*.md`                            | `note.njk` | On (`features.json`); not a nav item                    |
 
 **Machine-readable**
 
@@ -118,6 +119,7 @@ card and on Hacklas pages.
 - Hacklas notes: symlink `src/hacklas` → your notes tree when enabling the flag.
 - Write-up body format: `docs/WRITEUP_SPEC.md`.
 - Hacklas note format: `docs/HACKLAS_SPEC.md`.
+- Embedded tool pages (CyberChef and future ones): `docs/TOOLS_SPEC.md`.
 - Product constraints: `docs/SPEC.md`, `docs/ARCHITECTURE.md`, `docs/DESIGN.md`.
 - TypeScript / Rollup / lint / Jest: `docs/SPEC_BUILD_TS.md`,
   `docs/SPEC_LINTING.md`, `docs/SPEC_TEST_TS.md`. Historical playbook (complete):

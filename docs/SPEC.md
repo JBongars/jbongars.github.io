@@ -57,8 +57,11 @@ pages look or work without JavaScript.
    write-up posts (`comments.enabled`); the widget needs JS, the heading
    does not.
 4. Write-ups — list + single post for HTB / OffSec machines.
-5. Tools — listing of lookup pages (`/tools/`). Hacklas is a card here, not
-   a nav item. Keyboard `h` still opens `/hacklas/` directly.
+5. Tools — listing of lookup pages (`/tools/`). CyberChef is a card and its
+   own page (`/tools/cyberchef/`, an iframe of
+   `https://jbongars.github.io/cyberchef/`). Hacklas is a card here, not
+   a nav item. Keyboard `h` still opens `/hacklas/` directly. Tool page
+   format: [TOOLS_SPEC.md](TOOLS_SPEC.md).
 6. 404 — CTAs to Resume / Blog / Write-Ups / LinkedIn.
 7. Hacklas — notes tree under Tools, currently **on** (`features.hacklas:
 true`). Write-up Tools & cheat sheet rows link here instead of repeating

@@ -183,10 +183,13 @@ function listingName(url: string): string {
 }
 
 function toolsIndexItems(isHacklasEnabled = features.hacklas): CollectionItem[] {
+  const items: CollectionItem[] = [
+    { url: "/tools/cyberchef/", data: { title: "CyberChef" }, fileSlug: "cyberchef" },
+  ];
   if (!isHacklasEnabled) {
-    return [];
+    return items;
   }
-  return [{ url: "/hacklas/", data: { title: "Hacklas" }, fileSlug: "hacklas" }];
+  return [...items, { url: "/hacklas/", data: { title: "Hacklas" }, fileSlug: "hacklas" }];
 }
 
 function listingItems(

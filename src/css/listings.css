@@ -335,6 +335,27 @@
   }
 }
 
+/* Tool embed page (CyberChef): navbar only, tool full width.
+   State comes from :has() on the embed, matching the .not-found pattern. */
+body:has(.tool-embed) main {
+  flex: 0 0 auto;
+  max-width: none;
+  gap: 0;
+  padding-block: 0;
+  padding-inline: 0;
+}
+
+.tool-embed {
+  display: block;
+  width: 100%;
+  flex: 1 1 auto;
+  height: calc(100dvh - var(--site-header-height));
+  max-height: calc(100dvh - var(--site-header-height));
+  border: 0;
+  border-radius: 0;
+  background: var(--surface);
+}
+
 /* Soft-nav skeletons — JS-only; bones are flat placeholder bars */
 .skeleton {
   display: flex;

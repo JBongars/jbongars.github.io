@@ -84,7 +84,10 @@ describe("buildJsonLd", () => {
     const tools = buildJsonLd({ page: { url: "/tools/" } });
     expect(tools["@type"]).toBe("CollectionPage");
     expect(tools.name).toBe("Tools");
-    expect(tools.mainEntity.itemListElement[0].name).toBe("Hacklas");
+    expect(tools.mainEntity.itemListElement.map((item) => item.name)).toEqual([
+      "CyberChef",
+      "Hacklas",
+    ]);
     expect(buildJsonLd({ page: { url: "/unknown/" } })["@type"]).toBe("Person");
   });
 
@@ -108,11 +111,14 @@ describe("buildJsonLd", () => {
   });
 
   it("omits Hacklas from the tools index when the flag is off", () => {
-    expect(toolsIndexItems(false)).toEqual([]);
+    expect(toolsIndexItems(false)).toEqual([
+      { url: "/tools/cyberchef/", data: { title: "CyberChef" }, fileSlug: "cyberchef" },
+    ]);
   });
 
-  it("lists Hacklas on the tools index when the flag is on", () => {
+  it("lists CyberChef and Hacklas on the tools index when the flag is on", () => {
     expect(toolsIndexItems(true)).toEqual([
+      { url: "/tools/cyberchef/", data: { title: "CyberChef" }, fileSlug: "cyberchef" },
       { url: "/hacklas/", data: { title: "Hacklas" }, fileSlug: "hacklas" },
     ]);
   });

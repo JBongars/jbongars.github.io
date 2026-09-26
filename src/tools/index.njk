@@ -6,9 +6,34 @@ description: "Lookup tools by Julien Bongars, including Hacklas notes."
 ---
 <h1>Tools</h1>
 
-{% if features.hacklas %}
-{% set hacklasTags = ["Hacking", "Notes", "Cheatsheet"] %}
+{% set cyberchefTags = ["Utility", "Encoding", "Crypto"] %}
 <ul class="card-grid post-list" data-sortable-list>
+  <li data-title="CyberChef" data-tags="{{ cyberchefTags | join(',') }}">
+    <a class="card card--with-media" href="{{ '/tools/cyberchef/' | url }}">
+      <div class="card__media">
+        <img src="{{ '/img/cake_background.webp' | url }}" alt="" width="1920" height="1183" loading="lazy" decoding="async" sizes="(max-width: 48rem) 100vw, 22rem">
+      </div>
+      <h2 class="card__title">CyberChef</h2>
+      <dl class="card__facts card__facts--stack">
+        <div class="card__fact">
+          <dt>About</dt>
+          <dd>The Cyber Swiss Army Knife — encoding, decoding, and data analysis</dd>
+        </div>
+        <div class="card__fact card__fact--tags">
+          <dt>Tags</dt>
+          <dd>
+            <ul class="tag-list">
+              {% for tag in cyberchefTags %}
+              <li><span class="tag">{{ tag }}</span></li>
+              {% endfor %}
+            </ul>
+          </dd>
+        </div>
+      </dl>
+    </a>
+  </li>
+  {% if features.hacklas %}
+  {% set hacklasTags = ["Hacking", "Notes", "Cheatsheet"] %}
   <li data-title="Hacklas" data-tags="{{ hacklasTags | join(',') }}">
     <a class="card card--with-media" href="{{ '/hacklas/' | url }}">
       <div class="card__media">
@@ -33,7 +58,5 @@ description: "Lookup tools by Julien Bongars, including Hacklas notes."
       </dl>
     </a>
   </li>
+  {% endif %}
 </ul>
-{% else %}
-<p>No tools yet.</p>
-{% endif %}
