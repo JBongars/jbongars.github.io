@@ -32,6 +32,31 @@ description: "Lookup tools by Julien Bongars, including Hacklas notes."
       </dl>
     </a>
   </li>
+  {% set revshellsTags = ["Shells", "Utility", "Payloads"] %}
+  <li data-title="RevShells" data-tags="{{ revshellsTags | join(',') }}">
+    <a class="card card--with-media" href="{{ '/tools/revshells/' | url }}">
+      <div class="card__media">
+        <img src="{{ '/img/shell_background.jpg' | url }}" alt="" width="6240" height="4160" loading="lazy" decoding="async" sizes="(max-width: 48rem) 100vw, 22rem">
+      </div>
+      <h2 class="card__title">RevShells</h2>
+      <dl class="card__facts card__facts--stack">
+        <div class="card__fact">
+          <dt>About</dt>
+          <dd>Online reverse shell generator</dd>
+        </div>
+        <div class="card__fact card__fact--tags">
+          <dt>Tags</dt>
+          <dd>
+            <ul class="tag-list">
+              {% for tag in revshellsTags %}
+              <li><span class="tag">{{ tag }}</span></li>
+              {% endfor %}
+            </ul>
+          </dd>
+        </div>
+      </dl>
+    </a>
+  </li>
   {% if features.hacklas %}
   {% set hacklasTags = ["Hacking", "Notes", "Cheatsheet"] %}
   <li data-title="Hacklas" data-tags="{{ hacklasTags | join(',') }}">

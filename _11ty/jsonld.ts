@@ -185,6 +185,7 @@ function listingName(url: string): string {
 function toolsIndexItems(isHacklasEnabled = features.hacklas): CollectionItem[] {
   const items: CollectionItem[] = [
     { url: "/tools/cyberchef/", data: { title: "CyberChef" }, fileSlug: "cyberchef" },
+    { url: "/tools/revshells/", data: { title: "RevShells" }, fileSlug: "revshells" },
   ];
   if (!isHacklasEnabled) {
     return items;

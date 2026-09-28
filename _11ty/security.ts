@@ -12,6 +12,7 @@
  * Giscus comments load https://giscus.app/client.js, which iframes
  * https://giscus.app/en/widget — both origins must stay in the policy.
  * The CyberChef tool page frames https://jbongars.github.io/cyberchef/.
+ * The RevShells tool page frames https://jbongars.github.io/revshells/.
  * theme-init is inlined after the checkbox; its sha256 must stay in
  * script-src (CSP3 ignores 'unsafe-inline' once a hash is present).
  */
@@ -47,7 +48,7 @@ function buildContentSecurityPolicy(themeInitHash: string): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data:",
     "connect-src 'self' https://giscus.app",
-    "frame-src https://giscus.app/en/widget https://jbongars.github.io/cyberchef/",
+    "frame-src https://giscus.app/en/widget https://jbongars.github.io/cyberchef/ https://jbongars.github.io/revshells/",
     "upgrade-insecure-requests",
   ].join("; ");
 }
